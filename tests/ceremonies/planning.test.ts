@@ -166,7 +166,7 @@ const planResponse: SprintPlan = {
 
 function makeMockClient() {
   return {
-    createSession: vi.fn().mockResolvedValue("session-123"),
+    createSession: vi.fn().mockResolvedValue({ sessionId: "session-123", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "```json\n" + JSON.stringify(planResponse) + "\n```",
       stopReason: "end_turn",

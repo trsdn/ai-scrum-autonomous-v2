@@ -53,7 +53,7 @@ export async function runSprintReview(
   });
 
   // Create ACP session and send prompt
-  const sessionId = await client.createSession({ cwd: config.projectPath });
+  const { sessionId } = await client.createSession({ cwd: config.projectPath });
   try {
     const response = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
     const review = extractJson<ReviewResult>(response.response);

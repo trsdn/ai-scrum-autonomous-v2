@@ -53,6 +53,9 @@ function buildSprintConfig(config: ConfigFile, sprintNumber: number): SprintConf
     sessionTimeoutMs: config.copilot.session_timeout_ms,
     customInstructions: "",
     githubMcp: config.github.mcp_server,
+    plannerModel: config.copilot.planner_model,
+    workerModel: config.copilot.worker_model,
+    reviewerModel: config.copilot.reviewer_model,
   };
 }
 
