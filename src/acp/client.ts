@@ -29,6 +29,8 @@ export interface AcpClientOptions {
   timeoutMs?: number;
   /** Logger instance. */
   logger?: Logger;
+  /** Callback for streaming text chunks from ACP sessions. */
+  onStreamChunk?: (sessionId: string, text: string) => void;
 }
 
 export interface CreateSessionOptions {
@@ -71,6 +73,7 @@ export class AcpClient {
     params: RequestPermissionRequest,
   ) => Promise<RequestPermissionResponse>;
   private readonly defaultTimeoutMs: number;
+  private readonly onStreamChunk?: (sessionId: string, text: string) => void;
 
   // Accumulate streamed chunks per session
   private sessionChunks = new Map<string, string[]>();
@@ -83,6 +86,7 @@ export class AcpClient {
     this.command = options.command ?? "copilot";
     this.extraArgs = options.args ?? [];
     this.defaultTimeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    this.onStreamChunk = options.onStreamChunk;
     this.permissionHandler = createPermissionHandler(
       options.permissions ?? DEFAULT_PERMISSION_CONFIG,
       this.log,
@@ -173,6 +177,7 @@ export class AcpClient {
       const permissionHandler = this.permissionHandler;
       const sessionChunks = this.sessionChunks;
       const log = this.log;
+      const onChunk = this.onStreamChunk;
 
       this.connection = new ClientSideConnection(
         (_agent) => {
@@ -191,6 +196,7 @@ export class AcpClient {
                   const chunks = sessionChunks.get(sid) ?? [];
                   chunks.push(content.text);
                   sessionChunks.set(sid, chunks);
+                  onChunk?.(sid, content.text);
                 }
               }
               log.debug(

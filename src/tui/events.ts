@@ -1,0 +1,30 @@
+// Typed event system for SprintRunner → TUI communication.
+
+import { EventEmitter } from "node:events";
+import type { SprintPhase } from "../runner.js";
+import type { SprintIssue, QualityResult } from "../types.js";
+
+export interface SprintEngineEvents {
+  "phase:change": { from: SprintPhase; to: SprintPhase };
+  "issue:start": { issue: SprintIssue };
+  "issue:done": { issueNumber: number; quality: QualityResult; duration_ms: number };
+  "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
+  "worker:output": { sessionId: string; text: string };
+  "sprint:complete": { sprintNumber: number };
+  "sprint:error": { error: string };
+  "sprint:paused": Record<string, never>;
+  "sprint:resumed": { phase: SprintPhase };
+  "log": { level: "info" | "warn" | "error"; message: string };
+}
+
+type EventKey = keyof SprintEngineEvents;
+
+export class SprintEventBus extends EventEmitter {
+  emitTyped<K extends EventKey>(event: K, payload: SprintEngineEvents[K]): void {
+    this.emit(event, payload);
+  }
+
+  onTyped<K extends EventKey>(event: K, listener: (payload: SprintEngineEvents[K]) => void): this {
+    return this.on(event, listener as (...args: unknown[]) => void);
+  }
+}
