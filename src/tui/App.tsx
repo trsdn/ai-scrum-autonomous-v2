@@ -21,8 +21,8 @@ export function App({ runner }: AppProps): React.ReactElement {
   const initialState = runner.getState();
 
   const [phase, setPhase] = React.useState<SprintPhase>(initialState.phase);
-  const [sprintNumber] = React.useState(initialState.sprintNumber);
-  const [startedAt] = React.useState(initialState.startedAt);
+  const [sprintNumber, setSprintNumber] = React.useState(initialState.sprintNumber);
+  const [startedAt, setStartedAt] = React.useState(initialState.startedAt);
   const [issues, setIssues] = React.useState<IssueEntry[]>([]);
   const [workerLines, setWorkerLines] = React.useState<string[]>([]);
   const [currentIssue, setCurrentIssue] = React.useState<number | null>(null);
@@ -34,8 +34,15 @@ export function App({ runner }: AppProps): React.ReactElement {
   React.useEffect(() => {
     const bus = runner.events;
 
-    bus.onTyped("phase:change", ({ to }) => {
+    bus.onTyped("phase:change", ({ from, to }) => {
       setPhase(to);
+      // Reset state when a new sprint starts (init phase from any terminal state)
+      if (to === "init" && (from === "complete" || from === "failed")) {
+        setIssues([]);
+        setWorkerLines([]);
+        setCurrentIssue(null);
+        setStartedAt(new Date());
+      }
     });
 
     bus.onTyped("issue:start", ({ issue }) => {
@@ -97,9 +104,17 @@ export function App({ runner }: AppProps): React.ReactElement {
       setLogEntries((prev) => [...prev, { time, level: "error" as const, message: error }]);
     });
 
+    bus.onTyped("sprint:start", ({ sprintNumber: n }) => {
+      setSprintNumber(n);
+      setStartedAt(new Date());
+      const time = new Date().toLocaleTimeString();
+      setLogEntries((prev) => [...prev, { time, level: "info" as const, message: `Starting Sprint ${n}` }]);
+    });
+
     bus.onTyped("sprint:complete", ({ sprintNumber: n }) => {
       const time = new Date().toLocaleTimeString();
       setLogEntries((prev) => [...prev, { time, level: "info" as const, message: `Sprint ${n} complete!` }]);
+      setSprintNumber(n);
     });
   }, [runner]);
 

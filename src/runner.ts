@@ -109,6 +109,7 @@ export class SprintRunner {
     try {
       // 1. init
       this.transition("init");
+      this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber });
       createSprintLog(this.config.sprintNumber, "Sprint cycle started", 0);
       await this.client.connect();
 
