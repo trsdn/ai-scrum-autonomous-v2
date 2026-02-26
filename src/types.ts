@@ -22,11 +22,18 @@ export interface SprintPlan {
 
 // --- Issue Execution ---
 
+export interface CodeReviewResult {
+  approved: boolean;
+  feedback: string;
+  issues: string[];
+}
+
 export interface IssueResult {
   issueNumber: number;
   status: "completed" | "failed" | "in-progress";
   qualityGatePassed: boolean;
   qualityDetails: QualityResult;
+  codeReview?: CodeReviewResult;
   branch: string;
   duration_ms: number;
   filesChanged: string[];
@@ -117,6 +124,7 @@ export interface HuddleEntry {
   issueTitle: string;
   status: "completed" | "failed";
   qualityResult: QualityResult;
+  codeReview?: CodeReviewResult;
   duration_ms: number;
   filesChanged: string[];
   timestamp: Date;

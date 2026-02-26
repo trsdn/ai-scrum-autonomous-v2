@@ -33,10 +33,24 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     "",
     "**Quality Checks**:",
     checks,
+  ];
+
+  if (entry.codeReview) {
+    const reviewIcon = entry.codeReview.approved ? "✅" : "⚠️";
+    lines.push(
+      "",
+      `**Code Review**: ${reviewIcon} ${entry.codeReview.approved ? "APPROVED" : "CHANGES REQUESTED"}`,
+    );
+    if (entry.codeReview.issues.length > 0) {
+      lines.push(...entry.codeReview.issues.map((i) => `  - ${i}`));
+    }
+  }
+
+  lines.push(
     "",
     `**Files Changed** (${entry.filesChanged.length}):`,
     files,
-  ];
+  );
 
   if (entry.cleanupWarning) {
     lines.push("", entry.cleanupWarning);
