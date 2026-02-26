@@ -33,8 +33,8 @@ export function readVelocity(filePath: string = DEFAULT_FILE_PATH): VelocityEntr
 
   const content = fs.readFileSync(filePath, "utf-8");
   const lines = content.split("\n").filter((l) => l.startsWith("| "));
-  // Skip the header row and separator row
-  const dataLines = lines.slice(2);
+  // Skip the header row (separator already filtered by startsWith("| "))
+  const dataLines = lines.slice(1);
 
   return dataLines.map((line) => {
     const cols = line
