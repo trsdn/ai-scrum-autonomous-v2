@@ -9,9 +9,8 @@ export interface LogEntry {
 
 export interface LogPanelProps {
   entries: LogEntry[];
+  maxEntries?: number;
 }
-
-const MAX_ENTRIES = 15;
 
 function levelColor(level: LogEntry["level"]): string {
   switch (level) {
@@ -24,8 +23,8 @@ function levelColor(level: LogEntry["level"]): string {
   }
 }
 
-export function LogPanel({ entries }: LogPanelProps): React.ReactElement {
-  const visible = entries.slice(-MAX_ENTRIES);
+export function LogPanel({ entries, maxEntries = 15 }: LogPanelProps): React.ReactElement {
+  const visible = entries.slice(-maxEntries);
   return (
     <Box flexDirection="column" borderStyle="single" paddingX={1}>
       <Text bold underline>Log</Text>

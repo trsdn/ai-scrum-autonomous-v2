@@ -55,6 +55,8 @@ function buildSprintConfig(config: ConfigFile, sprintNumber: number): SprintConf
     deleteBranchAfterMerge: config.git.delete_branch_after_merge,
     sessionTimeoutMs: config.copilot.session_timeout_ms,
     customInstructions: "",
+    autoApproveTools: config.copilot.auto_approve_tools,
+    allowToolPatterns: config.copilot.allow_tool_patterns,
     globalMcpServers: config.copilot.mcp_servers,
     globalInstructions: config.copilot.instructions,
     phases: config.copilot.phases,
@@ -358,23 +360,35 @@ program
       const { default: React } = await import("react");
       const { App } = await import("./tui/index.js");
 
+      // Enter alternate screen buffer (like vim/htop)
+      process.stdout.write("\x1b[?1049h");
+      process.stdout.write("\x1b[H"); // cursor home
+
       const { unmount } = render(
         React.createElement(App, { runner }),
       );
 
+      const cleanup = () => {
+        unmount();
+        process.stdout.write("\x1b[?1049l"); // restore main screen
+      };
+
+      // Restore screen on exit
+      process.on("exit", () => process.stdout.write("\x1b[?1049l"));
+      process.on("SIGINT", () => { cleanup(); process.exit(0); });
+      process.on("SIGTERM", () => { cleanup(); process.exit(0); });
+
       if (opts.run !== false) {
         if (opts.once) {
-          // Single sprint
           runner.fullCycle().finally(() => {
-            setTimeout(() => unmount(), 2000);
+            setTimeout(() => { cleanup(); process.exit(0); }, 2000);
           });
         } else {
-          // Continuous loop — run sprint after sprint from milestones
           SprintRunner.sprintLoop(
             (sprintNumber) => buildSprintConfig(config, sprintNumber),
             eventBus,
           ).finally(() => {
-            setTimeout(() => unmount(), 2000);
+            setTimeout(() => { cleanup(); process.exit(0); }, 2000);
           });
         }
       }
