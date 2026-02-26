@@ -10,6 +10,7 @@ export interface SprintEngineEvents {
   "issue:done": { issueNumber: number; quality: QualityResult; duration_ms: number };
   "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
   "worker:output": { sessionId: string; text: string };
+  "sprint:start": { sprintNumber: number };
   "sprint:complete": { sprintNumber: number };
   "sprint:error": { error: string };
   "sprint:paused": Record<string, never>;
