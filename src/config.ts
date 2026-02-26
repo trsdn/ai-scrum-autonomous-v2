@@ -24,6 +24,8 @@ const CopilotSchema = z.object({
   reviewer_model: z.string().default("claude-opus-4.6"),
   max_parallel_sessions: z.number().int().min(1).max(20).default(4),
   session_timeout_ms: z.number().int().min(0).default(600000),
+  auto_approve_tools: z.boolean().default(true),
+  allow_tool_patterns: z.array(z.string()).default([]),
 });
 
 const SprintSchema = z.object({

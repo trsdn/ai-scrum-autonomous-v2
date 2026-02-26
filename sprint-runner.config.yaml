@@ -12,6 +12,7 @@ copilot:
   reviewer_model: "claude-opus-4.6"
   max_parallel_sessions: 4
   session_timeout_ms: 600000
+  auto_approve_tools: true
 
 sprint:
   max_issues: 8
