@@ -119,6 +119,21 @@ copilot
 # Execution starts automatically after planning
 ```
 
+## Quick Start
+
+Once you have the sprint runner CLI installed, here are the main commands:
+
+```bash
+# Run sprint planning (selects and assigns issues)
+sprint-runner plan --sprint 1
+
+# Execute a specific issue in the current sprint
+sprint-runner execute-issue --issue 42 --sprint 1
+
+# Launch TUI dashboard for sprint oversight and control
+sprint-runner dashboard --sprint 1
+```
+
 ## How It Works
 
 ### The Sprint Cycle in Detail
