@@ -30,6 +30,7 @@ import { runQualityGate, type QualityGateConfig } from "./enforcement/quality-ga
 import { getIssue } from "./github/issues.js";
 import { readSprintLog } from "./documentation/sprint-log.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
+import { SprintRunner } from "./runner.js";
 import { logger } from "./logger.js";
 import type { SprintConfig, SprintIssue } from "./types.js";
 
@@ -311,6 +312,42 @@ program
     } catch (err: unknown) {
       logger.error({ err }, "Full cycle failed");
       console.error("❌ Full cycle failed:", err instanceof Error ? err.message : err);
+      process.exit(1);
+    }
+  });
+
+// --- dashboard ---
+program
+  .command("dashboard")
+  .description("Launch TUI dashboard for sprint oversight and control")
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
+  .option("--no-run", "Show dashboard without starting sprint execution")
+  .action(async (opts) => {
+    try {
+      const config = loadConfig(program.opts().config);
+      const sprintConfig = buildSprintConfig(config, opts.sprint);
+      logger.info({ sprint: opts.sprint }, "Launching TUI dashboard");
+
+      const runner = new SprintRunner(sprintConfig);
+
+      // Dynamic import for Ink (ESM)
+      const { render } = await import("ink");
+      const { default: React } = await import("react");
+      const { App } = await import("./tui/index.js");
+
+      const { unmount } = render(
+        React.createElement(App, { runner }),
+      );
+
+      if (opts.run !== false) {
+        // Start the sprint cycle in the background
+        runner.fullCycle().finally(() => {
+          setTimeout(() => unmount(), 2000);
+        });
+      }
+    } catch (err: unknown) {
+      logger.error({ err }, "Dashboard failed");
+      console.error("❌ Dashboard failed:", err instanceof Error ? err.message : err);
       process.exit(1);
     }
   });
