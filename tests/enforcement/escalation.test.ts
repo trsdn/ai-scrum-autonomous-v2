@@ -71,7 +71,9 @@ describe("escalateToStakeholder with special characters", () => {
     expect(execFileSpy).toHaveBeenCalled();
     const args = execFileSpy.mock.calls[0][1] as string[];
     for (const arg of args) {
-      expect(arg).not.toMatch(/[\r\n\x00-\x1f\x7f]/);
+      expect(arg).not.toMatch(/[\r\n]/);
+      // eslint-disable-next-line no-control-regex
+      expect(arg).not.toMatch(/[\x00-\x1f\x7f]/);
     }
   });
 });

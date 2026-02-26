@@ -12,6 +12,7 @@ const MAX_HTTP_STRING_LENGTH = 500;
 export function sanitizeForHttp(str: string): string {
   return str
     .replace(/[\r\n]+/g, " ")
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1f\x7f]/g, "")
     .slice(0, MAX_HTTP_STRING_LENGTH);
 }

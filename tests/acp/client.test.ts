@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EventEmitter } from "node:events";
 import { Readable, Writable } from "node:stream";
 import type { ChildProcess } from "node:child_process";
@@ -17,7 +17,7 @@ vi.mock("@agentclientprotocol/sdk", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@agentclientprotocol/sdk")>();
   return {
     ...actual,
-    ClientSideConnection: vi.fn().mockImplementation((toClient: Function) => {
+    ClientSideConnection: vi.fn().mockImplementation((toClient: (...args: unknown[]) => void) => {
       // Capture the client handler for later use
       const fakeAgent = {};
       const clientHandler = toClient(fakeAgent);
@@ -40,8 +40,6 @@ vi.mock("@agentclientprotocol/sdk", async (importOriginal) => {
 import { AcpClient } from "../../src/acp/client.js";
 import {
   createPermissionHandler,
-  DEFAULT_PERMISSION_CONFIG,
-  type PermissionConfig,
 } from "../../src/acp/permissions.js";
 import { createLogger } from "../../src/logger.js";
 

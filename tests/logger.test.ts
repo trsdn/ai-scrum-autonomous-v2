@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import pino from "pino";
+import { describe, it, expect } from "vitest";
 import { createLogger, logger } from "../src/logger.js";
 
 describe("logger", () => {

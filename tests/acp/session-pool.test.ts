@@ -229,7 +229,7 @@ describe("SessionPool", () => {
     });
 
     it("unblocks waiters after draining", async () => {
-      const s1 = await pool.acquire({ cwd: "/a" });
+      await pool.acquire({ cwd: "/a" });
       await pool.acquire({ cwd: "/b" });
 
       let acquired = false;

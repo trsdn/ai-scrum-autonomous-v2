@@ -53,7 +53,7 @@ function makeConfig(overrides: Partial<QualityGateConfig> = {}): QualityGateConf
 
 function mockExecSuccess(): void {
   mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: Function) => {
+    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: (...a: unknown[]) => void) => {
       if (cb) {
         cb(null, { stdout: "ok", stderr: "" });
       } else {
@@ -61,7 +61,7 @@ function mockExecSuccess(): void {
         // We need to handle the 3-arg case (cmd, args, callback) for promisify
         const lastArg = _opts;
         if (typeof lastArg === "function") {
-          lastArg(null, { stdout: "ok", stderr: "" });
+          (lastArg as (...a: unknown[]) => void)(null, { stdout: "ok", stderr: "" });
         }
       }
     }) as unknown as typeof execFile,
@@ -70,7 +70,7 @@ function mockExecSuccess(): void {
 
 function mockExecFailure(): void {
   mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: Function) => {
+    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: (...a: unknown[]) => void) => {
       const err = new Error("command failed");
       if (cb) {
         cb(err);

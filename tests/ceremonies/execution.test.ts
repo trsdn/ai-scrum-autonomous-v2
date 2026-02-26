@@ -70,7 +70,7 @@ const { appendToSprintLog } = await import(
 );
 const { addComment } = await import("../../src/github/issues.js");
 const { setLabel } = await import("../../src/github/labels.js");
-const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+await import("../../src/git/diff-analysis.js");
 
 const { executeIssue, handleQualityFailure } = await import(
   "../../src/ceremonies/execution.js"
