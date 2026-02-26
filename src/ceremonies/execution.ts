@@ -277,15 +277,23 @@ export async function executeIssue(
     };
 
     const comment = formatHuddleComment(huddleEntry);
-    await addComment(issue.number, comment);
+    try {
+      await addComment(issue.number, comment);
+    } catch (err: unknown) {
+      log.warn({ err, issueNumber: issue.number }, "failed to post huddle comment — non-critical");
+    }
 
     const logEntry = formatSprintLogEntry(huddleEntry);
     appendToSprintLog(config.sprintNumber, logEntry);
 
     // Step 9: Set final label
     const finalLabel = status === "completed" ? "status:done" : "status:blocked";
-    await setLabel(issue.number, finalLabel);
-    log.info({ status, finalLabel }, "final status set");
+    try {
+      await setLabel(issue.number, finalLabel);
+      log.info({ status, finalLabel }, "final status set");
+    } catch (err: unknown) {
+      log.warn({ err, issueNumber: issue.number, finalLabel }, "failed to set final label — non-critical");
+    }
   }
 
   const duration_ms = Date.now() - startTime;
