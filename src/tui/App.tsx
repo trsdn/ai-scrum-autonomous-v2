@@ -15,16 +15,17 @@ const MAX_WORKER_LINES = 20;
 export interface AppProps {
   runner: SprintRunner;
   onStart?: () => void;
+  initialIssues?: IssueEntry[];
 }
 
-export function App({ runner, onStart }: AppProps): React.ReactElement {
+export function App({ runner, onStart, initialIssues }: AppProps): React.ReactElement {
   const { exit } = useApp();
   const initialState = runner.getState();
 
   const [phase, setPhase] = React.useState<SprintPhase>(initialState.phase);
   const [sprintNumber, setSprintNumber] = React.useState(initialState.sprintNumber);
   const [startedAt, setStartedAt] = React.useState(initialState.startedAt);
-  const [issues, setIssues] = React.useState<IssueEntry[]>([]);
+  const [issues, setIssues] = React.useState<IssueEntry[]>(initialIssues ?? []);
   const [workerLines, setWorkerLines] = React.useState<string[]>([]);
   const [currentIssue, setCurrentIssue] = React.useState<number | null>(null);
   const [logEntries, setLogEntries] = React.useState<LogEntry[]>([]);
