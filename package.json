@@ -35,22 +35,25 @@
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.14.0",
     "commander": "^12.0.0",
+    "glob": "^11.0.0",
+    "ink": "^6.8.0",
+    "p-limit": "^6.0.0",
     "pino": "^9.0.0",
     "pino-pretty": "^11.0.0",
+    "react": "^19.2.4",
     "yaml": "^2.4.0",
-    "zod": "^3.23.0",
-    "p-limit": "^6.0.0",
-    "glob": "^11.0.0"
+    "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
-    "typescript-eslint": "^8.0.0",
-    "typescript": "^5.5.0",
-    "vitest": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.2.14",
     "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^9.0.0",
     "prettier": "^3.3.0",
-    "tsx": "^4.0.0"
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^2.0.0"
   }
 }

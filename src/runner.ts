@@ -12,6 +12,7 @@ import { calculateSprintMetrics } from "./metrics.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
 import { logger as defaultLogger } from "./logger.js";
+import { SprintEventBus } from "./tui/events.js";
 import type {
   SprintConfig,
   SprintPlan,
@@ -74,11 +75,16 @@ export class SprintRunner {
   private paused = false;
   private phaseBeforePause: SprintPhase | null = null;
   private readonly log;
+  readonly events: SprintEventBus;
 
-  constructor(config: SprintConfig) {
+  constructor(config: SprintConfig, eventBus?: SprintEventBus) {
     this.config = config;
+    this.events = eventBus ?? new SprintEventBus();
     this.client = new AcpClient({
       timeoutMs: config.sessionTimeoutMs,
+      onStreamChunk: (sessionId, text) => {
+        this.events.emitTyped("worker:output", { sessionId, text });
+      },
     });
     this.state = {
       version: STATE_VERSION,
@@ -90,6 +96,11 @@ export class SprintRunner {
       component: "sprint-runner",
       sprint: config.sprintNumber,
     });
+  }
+
+  /** Get the ACP client (for direct use by dashboard). */
+  getClient(): AcpClient {
+    return this.client;
   }
 
   /** Run the full sprint cycle */
@@ -130,6 +141,7 @@ export class SprintRunner {
       this.transition("complete");
       await this.client.disconnect();
       this.persistState();
+      this.events.emitTyped("sprint:complete", { sprintNumber: this.config.sprintNumber });
 
       return this.state;
     } catch (err: unknown) {
@@ -137,6 +149,7 @@ export class SprintRunner {
       this.state.phase = "failed";
       this.state.error = message;
       this.log.error({ error: message }, "Sprint cycle failed");
+      this.events.emitTyped("sprint:error", { error: message });
 
       try {
         await this.client.disconnect();
@@ -173,8 +186,31 @@ export class SprintRunner {
   /** Run the execution phase */
   async runExecute(plan: SprintPlan): Promise<SprintResult> {
     this.log.info("Running parallel execution");
+
+    // Emit issue:start for all planned issues
+    for (const issue of plan.sprint_issues) {
+      this.events.emitTyped("issue:start", { issue });
+    }
+
     const result = await runParallelExecution(this.client, this.config, plan);
     this.state.result = result;
+
+    // Emit issue:done / issue:fail for each result
+    for (const r of result.results) {
+      if (r.status === "completed") {
+        this.events.emitTyped("issue:done", {
+          issueNumber: r.issueNumber,
+          quality: r.qualityDetails,
+          duration_ms: r.duration_ms,
+        });
+      } else {
+        this.events.emitTyped("issue:fail", {
+          issueNumber: r.issueNumber,
+          reason: r.qualityDetails.checks.filter(c => !c.passed).map(c => c.name).join(", ") || "execution failed",
+          duration_ms: r.duration_ms,
+        });
+      }
+    }
 
     // Holistic drift check
     const allChanged = result.results.flatMap((r) => r.filesChanged);
@@ -260,6 +296,7 @@ export class SprintRunner {
       this.paused = true;
       this.state.phase = "paused";
       this.log.info({ previousPhase: this.phaseBeforePause }, "Sprint paused");
+      this.events.emitTyped("sprint:paused", {});
       this.persistState();
     }
   }
@@ -271,6 +308,7 @@ export class SprintRunner {
       this.state.phase = this.phaseBeforePause;
       this.phaseBeforePause = null;
       this.log.info({ phase: this.state.phase }, "Sprint resumed");
+      this.events.emitTyped("sprint:resumed", { phase: this.state.phase });
       this.persistState();
     }
   }
@@ -286,6 +324,7 @@ export class SprintRunner {
     const previous = this.state.phase;
     this.state.phase = phase;
     this.log.info({ from: previous, to: phase }, "Phase transition");
+    this.events.emitTyped("phase:change", { from: previous, to: phase });
   }
 
   private async checkPaused(): Promise<void> {
