@@ -12,6 +12,7 @@ import { readVelocity } from "../documentation/velocity.js";
 import { createIssue } from "../github/issues.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson } from "./helpers.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
  * Run the sprint retro ceremony: analyse sprint data, ask ACP for
@@ -71,9 +72,20 @@ export async function runSprintRetro(
   });
 
   // Create ACP session and send prompt
-  const { sessionId } = await client.createSession({ cwd: config.projectPath });
+  const sessionConfig = await resolveSessionConfig(config, "retro");
+  const { sessionId } = await client.createSession({
+    cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
+  });
   try {
-    const response = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    let fullPrompt = prompt;
+    if (sessionConfig.instructions) {
+      fullPrompt = sessionConfig.instructions + "\n\n" + fullPrompt;
+    }
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+    const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const retro = extractJson<RetroResult>(response.response);
 
     log.info(

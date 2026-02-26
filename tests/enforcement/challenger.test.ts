@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { AcpClient } from "../../src/acp/client.js";
 import type { SprintConfig } from "../../src/types.js";
 
+vi.mock("../../src/acp/session-config.js", () => ({
+  resolveSessionConfig: vi.fn().mockResolvedValue({
+    mcpServers: [],
+    instructions: "",
+    model: undefined,
+  }),
+}));
+
 vi.mock("../../src/github/issues.js", () => ({
   execGh: vi.fn(),
   getIssue: vi.fn().mockResolvedValue({
@@ -63,7 +71,9 @@ const config: SprintConfig = {
   deleteBranchAfterMerge: true,
   sessionTimeoutMs: 600000,
   customInstructions: "",
-  githubMcp: { command: "npx", args: ["-y", "@github/mcp-server"] },
+  globalMcpServers: [],
+  globalInstructions: [],
+  phases: {},
 };
 
 describe("runChallengerReview", () => {

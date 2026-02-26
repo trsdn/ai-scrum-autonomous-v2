@@ -3,6 +3,7 @@ import type { SprintConfig, IssueResult } from "../types.js";
 import { mergeBranch } from "../git/merge.js";
 import { deleteBranch } from "../git/worktree.js";
 import { logger } from "../logger.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 export interface MergePipelineResult {
   merged: number[];
@@ -96,6 +97,7 @@ export async function mergeCompletedBranches(
  */
 export async function resolveConflictsViaAcp(
   client: AcpClient,
+  config: SprintConfig,
   branch: string,
   baseBranch: string,
   conflictFiles: string[],
@@ -111,9 +113,21 @@ export async function resolveConflictsViaAcp(
   ].join("\n");
 
   try {
-    const { sessionId } = await client.createSession({ cwd: process.cwd() });
+    const sessionConfig = await resolveSessionConfig(config, "conflict-resolver");
+    const { sessionId } = await client.createSession({
+      cwd: process.cwd(),
+      mcpServers: sessionConfig.mcpServers,
+    });
 
-    const result = await client.sendPrompt(sessionId, prompt);
+    let fullPrompt = prompt;
+    if (sessionConfig.instructions) {
+      fullPrompt = sessionConfig.instructions + "\n\n" + fullPrompt;
+    }
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+
+    const result = await client.sendPrompt(sessionId, fullPrompt);
 
     await client.endSession(sessionId);
 

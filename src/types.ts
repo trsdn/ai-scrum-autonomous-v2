@@ -152,6 +152,40 @@ export interface RetroResult {
   previousImprovementsChecked: boolean;
 }
 
+// --- MCP Server Configuration (matches ACP SDK McpServer types) ---
+
+export interface McpServerStdio {
+  type: "stdio";
+  name: string;
+  command: string;
+  args: string[];
+  env?: Array<{ name: string; value: string }>;
+}
+
+export interface McpServerHttp {
+  type: "http";
+  name: string;
+  url: string;
+  headers?: Array<{ name: string; value: string }>;
+}
+
+export interface McpServerSse {
+  type: "sse";
+  name: string;
+  url: string;
+  headers?: Array<{ name: string; value: string }>;
+}
+
+export type McpServerEntry = McpServerStdio | McpServerHttp | McpServerSse;
+
+// --- Phase Configuration ---
+
+export interface PhaseConfig {
+  model?: string;
+  mcp_servers: McpServerEntry[];
+  instructions: string[];
+}
+
 // --- Configuration ---
 
 export interface SprintConfig {
@@ -171,13 +205,7 @@ export interface SprintConfig {
   deleteBranchAfterMerge: boolean;
   sessionTimeoutMs: number;
   customInstructions: string;
-  githubMcp: McpServerConfig;
-  plannerModel?: string;
-  workerModel?: string;
-  reviewerModel?: string;
-}
-
-export interface McpServerConfig {
-  command: string;
-  args: string[];
+  globalMcpServers: McpServerEntry[];
+  globalInstructions: string[];
+  phases: Record<string, PhaseConfig>;
 }

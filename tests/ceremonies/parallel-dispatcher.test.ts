@@ -90,7 +90,9 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     deleteBranchAfterMerge: true,
     sessionTimeoutMs: 60000,
     customInstructions: "",
-    githubMcp: { command: "gh", args: [] },
+    globalMcpServers: [],
+    globalInstructions: [],
+    phases: {},
     ...overrides,
   };
 }

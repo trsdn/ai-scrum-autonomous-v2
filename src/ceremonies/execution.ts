@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import { ACP_MODES } from "../acp/client.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 import type {
   SprintConfig,
   SprintIssue,
@@ -67,7 +68,11 @@ export async function handleQualityFailure(
 
   log.info({ retryCount: retryCount + 1 }, "retrying after quality failure");
 
-  const { sessionId } = await client.createSession({ cwd: worktreePath });
+  const sessionConfig = await resolveSessionConfig(config, "worker");
+  const { sessionId } = await client.createSession({
+    cwd: worktreePath,
+    mcpServers: sessionConfig.mcpServers,
+  });
   try {
     await client.sendPrompt(sessionId, feedbackPrompt, config.sessionTimeoutMs);
   } finally {
@@ -129,8 +134,12 @@ export async function executeIssue(
   let status: "completed" | "failed" = "failed";
 
   try {
-    // Step 3: Create ACP session in worktree
-    const { sessionId } = await client.createSession({ cwd: worktreePath });
+    // Step 3: Resolve session config and create ACP session
+    const plannerConfig = await resolveSessionConfig(config, "planner");
+    const { sessionId } = await client.createSession({
+      cwd: worktreePath,
+      mcpServers: plannerConfig.mcpServers,
+    });
 
     try {
       const promptVars = {
@@ -151,14 +160,19 @@ export async function executeIssue(
       let implementationPlan = "";
       try {
         await client.setMode(sessionId, ACP_MODES.PLAN);
-        if (config.plannerModel) {
-          await client.setModel(sessionId, config.plannerModel);
+        if (plannerConfig.model) {
+          await client.setModel(sessionId, plannerConfig.model);
         }
         log.info("switched to Plan mode");
 
         const planTemplatePath = path.join(config.projectPath, "prompts", "item-planner.md");
         const planTemplate = await fs.readFile(planTemplatePath, "utf-8");
-        const planPrompt = substitutePrompt(planTemplate, promptVars);
+        let planPrompt = substitutePrompt(planTemplate, promptVars);
+
+        // Prepend planner instructions
+        if (plannerConfig.instructions) {
+          planPrompt = plannerConfig.instructions + "\n\n" + planPrompt;
+        }
 
         const planResult = await client.sendPrompt(sessionId, planPrompt, config.sessionTimeoutMs);
         implementationPlan = planResult.response;
@@ -185,15 +199,21 @@ export async function executeIssue(
       }
 
       // Step 5: Execution phase — switch to Agent Mode and implement
+      const workerConfig = await resolveSessionConfig(config, "worker");
       await client.setMode(sessionId, ACP_MODES.AGENT);
-      if (config.workerModel) {
-        await client.setModel(sessionId, config.workerModel);
+      if (workerConfig.model) {
+        await client.setModel(sessionId, workerConfig.model);
       }
       log.info("switched to Agent mode");
 
       const workerTemplatePath = path.join(config.projectPath, "prompts", "worker.md");
       const workerTemplate = await fs.readFile(workerTemplatePath, "utf-8");
       let workerPrompt = substitutePrompt(workerTemplate, promptVars);
+
+      // Prepend worker instructions
+      if (workerConfig.instructions) {
+        workerPrompt = workerConfig.instructions + "\n\n" + workerPrompt;
+      }
 
       // Append the plan to give the worker context
       if (implementationPlan) {
