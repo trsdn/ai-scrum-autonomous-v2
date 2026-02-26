@@ -30,7 +30,9 @@ import { runQualityGate, type QualityGateConfig } from "./enforcement/quality-ga
 import { getIssue } from "./github/issues.js";
 import { readSprintLog } from "./documentation/sprint-log.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
+import { getNextOpenMilestone } from "./github/milestones.js";
 import { SprintRunner } from "./runner.js";
+import { SprintEventBus } from "./tui/events.js";
 import { logger } from "./logger.js";
 import type { SprintConfig, SprintIssue } from "./types.js";
 
@@ -319,16 +321,35 @@ program
 // --- dashboard ---
 program
   .command("dashboard")
-  .description("Launch TUI dashboard for sprint oversight and control")
-  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
+  .description("Launch TUI dashboard — auto-detects sprint from GitHub milestones, loops continuously")
+  .option("--sprint <number>", "Override sprint number (skip auto-detection)", parseSprintNumber)
   .option("--no-run", "Show dashboard without starting sprint execution")
+  .option("--once", "Run only one sprint instead of looping")
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
-      const sprintConfig = buildSprintConfig(config, opts.sprint);
-      logger.info({ sprint: opts.sprint }, "Launching TUI dashboard");
 
-      const runner = new SprintRunner(sprintConfig);
+      // Auto-detect sprint from milestones if not specified
+      let initialSprint = opts.sprint as number | undefined;
+      if (!initialSprint) {
+        const next = await getNextOpenMilestone();
+        if (!next) {
+          console.error("❌ No open sprint milestones found.");
+          console.error("   Create a milestone named 'Sprint N' in GitHub, or use --sprint <number>.");
+          process.exit(1);
+        }
+        initialSprint = next.sprintNumber;
+        console.log(`🔍 Auto-detected: ${next.milestone.title}`);
+      }
+
+      logger.info({ sprint: initialSprint }, "Launching TUI dashboard");
+
+      // Shared event bus for the TUI across sprints
+      const eventBus = new SprintEventBus();
+
+      // For the TUI we need an initial runner to mount the component
+      const sprintConfig = buildSprintConfig(config, initialSprint);
+      const runner = new SprintRunner(sprintConfig, eventBus);
 
       // Dynamic import for Ink (ESM)
       const { render } = await import("ink");
@@ -340,10 +361,20 @@ program
       );
 
       if (opts.run !== false) {
-        // Start the sprint cycle in the background
-        runner.fullCycle().finally(() => {
-          setTimeout(() => unmount(), 2000);
-        });
+        if (opts.once) {
+          // Single sprint
+          runner.fullCycle().finally(() => {
+            setTimeout(() => unmount(), 2000);
+          });
+        } else {
+          // Continuous loop — run sprint after sprint from milestones
+          SprintRunner.sprintLoop(
+            (sprintNumber) => buildSprintConfig(config, sprintNumber),
+            eventBus,
+          ).finally(() => {
+            setTimeout(() => unmount(), 2000);
+          });
+        }
       }
     } catch (err: unknown) {
       logger.error({ err }, "Dashboard failed");

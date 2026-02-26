@@ -11,6 +11,7 @@ import { appendVelocity } from "./documentation/velocity.js";
 import { calculateSprintMetrics } from "./metrics.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
+import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
 import { logger as defaultLogger } from "./logger.js";
 import { SprintEventBus } from "./tui/events.js";
 import type {
@@ -162,6 +163,52 @@ export class SprintRunner {
     }
   }
 
+  /**
+   * Run sprints in a continuous loop, auto-detecting the next sprint
+   * from GitHub milestones. Closes each milestone on completion and
+   * moves to the next open one. Stops when no open milestone is found.
+   */
+  static async sprintLoop(
+    configBuilder: (sprintNumber: number) => SprintConfig,
+    eventBus?: SprintEventBus,
+  ): Promise<SprintState[]> {
+    const log = defaultLogger.child({ component: "sprint-loop" });
+    const results: SprintState[] = [];
+    const bus = eventBus ?? new SprintEventBus();
+
+    while (true) {
+      const next = await getNextOpenMilestone();
+      if (!next) {
+        log.info("No open sprint milestones found — loop complete");
+        bus.emitTyped("log", { level: "info", message: "No open sprint milestones — loop complete" });
+        break;
+      }
+
+      const { sprintNumber, milestone } = next;
+      log.info({ sprintNumber, milestone: milestone.title }, "Starting sprint");
+      bus.emitTyped("log", { level: "info", message: `Starting ${milestone.title}` });
+
+      const config = configBuilder(sprintNumber);
+      const runner = new SprintRunner(config, bus);
+      const state = await runner.fullCycle();
+      results.push(state);
+
+      if (state.phase === "complete") {
+        try {
+          await closeMilestone(milestone.title);
+          log.info({ milestone: milestone.title }, "Milestone closed");
+        } catch (err: unknown) {
+          log.warn({ err, milestone: milestone.title }, "Failed to close milestone");
+        }
+      } else {
+        log.warn({ phase: state.phase }, "Sprint did not complete — stopping loop");
+        bus.emitTyped("log", { level: "warn", message: `Sprint ${sprintNumber} failed — loop stopped` });
+        break;
+      }
+    }
+
+    return results;
+  }
   /** Run the refinement phase */
   async runRefine(): Promise<RefinedIssue[]> {
     this.log.info("Running refinement");

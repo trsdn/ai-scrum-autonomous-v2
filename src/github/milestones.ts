@@ -8,6 +8,54 @@ export interface GitHubMilestone {
   state: string;
 }
 
+/** Parse sprint number from milestone title like "Sprint 3". Returns undefined if title doesn't match. */
+export function parseSprintFromTitle(title: string): number | undefined {
+  const match = title.match(/^Sprint\s+(\d+)$/i);
+  return match ? parseInt(match[1], 10) : undefined;
+}
+
+/** Get the next open sprint milestone. Returns the lowest-numbered open "Sprint N" milestone. */
+export async function getNextOpenMilestone(): Promise<{ milestone: GitHubMilestone; sprintNumber: number } | undefined> {
+  let json: string;
+  try {
+    json = await execGh([
+      "api",
+      "repos/{owner}/{repo}/milestones",
+      "-q", ".",
+      "--paginate",
+    ]);
+  } catch {
+    return undefined;
+  }
+
+  if (!json?.trim()) {
+    return undefined;
+  }
+
+  const pages = json.trim().split("\n").filter((line) => line.trim());
+  const milestones = pages.flatMap((page) => {
+    try {
+      return JSON.parse(page) as GitHubMilestone[];
+    } catch {
+      return [];
+    }
+  });
+
+  // Find open milestones matching "Sprint N", pick the lowest number
+  const sprintMilestones = milestones
+    .filter((m) => m.state === "open")
+    .map((m) => ({ milestone: m, sprintNumber: parseSprintFromTitle(m.title) }))
+    .filter((x): x is { milestone: GitHubMilestone; sprintNumber: number } => x.sprintNumber !== undefined)
+    .sort((a, b) => a.sprintNumber - b.sprintNumber);
+
+  if (sprintMilestones.length === 0) {
+    return undefined;
+  }
+
+  logger.info({ sprint: sprintMilestones[0].sprintNumber, title: sprintMilestones[0].milestone.title }, "Found next open sprint milestone");
+  return sprintMilestones[0];
+}
+
 /** Create a new milestone. */
 export async function createMilestone(
   title: string,
