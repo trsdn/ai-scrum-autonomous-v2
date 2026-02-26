@@ -14,9 +14,10 @@ const MAX_WORKER_LINES = 20;
 
 export interface AppProps {
   runner: SprintRunner;
+  onStart?: () => void;
 }
 
-export function App({ runner }: AppProps): React.ReactElement {
+export function App({ runner, onStart }: AppProps): React.ReactElement {
   const { exit } = useApp();
   const initialState = runner.getState();
 
@@ -118,8 +119,16 @@ export function App({ runner }: AppProps): React.ReactElement {
     });
   }, [runner]);
 
+  const [isRunning, setIsRunning] = React.useState(false);
+
   useInput((input) => {
     switch (input) {
+      case "g":
+        if (!isRunning && onStart) {
+          setIsRunning(true);
+          onStart();
+        }
+        break;
       case "p":
         runner.pause();
         break;
@@ -158,7 +167,7 @@ export function App({ runner }: AppProps): React.ReactElement {
         />
       </Box>
       <LogPanel entries={logEntries} maxEntries={logHeight - 2} />
-      <CommandBar isPaused={isPaused} />
+      <CommandBar isPaused={isPaused} isRunning={isRunning} />
     </Box>
   );
 }
