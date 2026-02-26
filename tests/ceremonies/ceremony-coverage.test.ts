@@ -8,6 +8,14 @@ import type {
 
 // ── Mocks ──────────────────────────────────────────────────────────────────────
 
+vi.mock("../../src/acp/session-config.js", () => ({
+  resolveSessionConfig: vi.fn().mockResolvedValue({
+    mcpServers: [],
+    instructions: "",
+    model: undefined,
+  }),
+}));
+
 vi.mock("../../src/github/issues.js", () => ({
   listIssues: vi.fn().mockResolvedValue([]),
   createIssue: vi.fn().mockResolvedValue({ number: 99, title: "mock" }),
@@ -93,7 +101,9 @@ const config: SprintConfig = {
   deleteBranchAfterMerge: true,
   sessionTimeoutMs: 600000,
   customInstructions: "",
-  githubMcp: { command: "npx", args: ["-y", "@github/mcp-server"] },
+  globalMcpServers: [],
+  globalInstructions: [],
+  phases: {},
 };
 
 const sprintResult: SprintResult = {

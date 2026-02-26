@@ -3,6 +3,7 @@ import { getIssue } from "../github/issues.js";
 import { logger } from "../logger.js";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig } from "../types.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 export interface ChallengerResult {
   approved: boolean;
@@ -24,11 +25,14 @@ export async function runChallengerReview(
     diffStat(branch, config.baseBranch),
   ]);
 
+  const sessionConfig = await resolveSessionConfig(config, "challenger");
   const { sessionId } = await client.createSession({
     cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
   });
 
   const prompt = [
+    ...(sessionConfig.instructions ? [sessionConfig.instructions, ""] : []),
     "You are an adversarial code reviewer (the Challenger).",
     "Review this change critically. Look for:",
     "- Scope creep beyond the issue",
@@ -54,6 +58,10 @@ export async function runChallengerReview(
     "",
     "Then provide detailed feedback below.",
   ].join("\n");
+
+  if (sessionConfig.model) {
+    await client.setModel(sessionId, sessionConfig.model);
+  }
 
   const result = await client.sendPrompt(sessionId, prompt);
   await client.endSession(sessionId);

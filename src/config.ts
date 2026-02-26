@@ -7,9 +7,43 @@ import { z } from "zod";
 
 // --- Zod Schemas ---
 
-const McpServerConfigSchema = z.object({
+const NameValueSchema = z.object({
+  name: z.string(),
+  value: z.string(),
+});
+
+const McpServerStdioSchema = z.object({
+  type: z.literal("stdio"),
+  name: z.string(),
   command: z.string(),
   args: z.array(z.string()).default([]),
+  env: z.array(NameValueSchema).optional(),
+});
+
+const McpServerHttpSchema = z.object({
+  type: z.literal("http"),
+  name: z.string(),
+  url: z.string(),
+  headers: z.array(NameValueSchema).optional(),
+});
+
+const McpServerSseSchema = z.object({
+  type: z.literal("sse"),
+  name: z.string(),
+  url: z.string(),
+  headers: z.array(NameValueSchema).optional(),
+});
+
+const McpServerEntrySchema = z.discriminatedUnion("type", [
+  McpServerStdioSchema,
+  McpServerHttpSchema,
+  McpServerSseSchema,
+]);
+
+const PhaseConfigSchema = z.object({
+  model: z.string().optional(),
+  mcp_servers: z.array(McpServerEntrySchema).default([]),
+  instructions: z.array(z.string()).default([]),
 });
 
 const ProjectSchema = z.object({
@@ -19,13 +53,13 @@ const ProjectSchema = z.object({
 
 const CopilotSchema = z.object({
   executable: z.string().default("copilot"),
-  planner_model: z.string().default("claude-opus-4.6"),
-  worker_model: z.string().default("claude-sonnet-4.5"),
-  reviewer_model: z.string().default("claude-opus-4.6"),
   max_parallel_sessions: z.number().int().min(1).max(20).default(4),
   session_timeout_ms: z.number().int().min(0).default(600000),
   auto_approve_tools: z.boolean().default(true),
   allow_tool_patterns: z.array(z.string()).default([]),
+  mcp_servers: z.array(McpServerEntrySchema).default([]),
+  instructions: z.array(z.string()).default([]),
+  phases: z.record(z.string(), PhaseConfigSchema).default({}),
 });
 
 const SprintSchema = z.object({
@@ -68,12 +102,7 @@ const GitSchema = z.object({
   delete_branch_after_merge: z.boolean().default(true),
 });
 
-const GitHubSchema = z.object({
-  mcp_server: McpServerConfigSchema.default({
-    command: "npx",
-    args: ["-y", "@github/mcp-server"],
-  }),
-});
+const GitHubSchema = z.object({}).default({});
 
 export const ConfigFileSchema = z.object({
   project: ProjectSchema,

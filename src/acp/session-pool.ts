@@ -1,5 +1,5 @@
 import { type AcpClient } from "./client.js";
-import { type McpServerConfig } from "../types.js";
+import type { McpServer } from "@agentclientprotocol/sdk";
 import { logger as defaultLogger, type Logger } from "../logger.js";
 
 export interface PooledSession {
@@ -9,7 +9,7 @@ export interface PooledSession {
 
 export interface CreateSessionOptions {
   cwd: string;
-  mcpServers?: McpServerConfig[];
+  mcpServers?: McpServer[];
 }
 
 export class SessionPool {
