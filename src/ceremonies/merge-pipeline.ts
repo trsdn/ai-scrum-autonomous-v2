@@ -111,7 +111,7 @@ export async function resolveConflictsViaAcp(
   ].join("\n");
 
   try {
-    const sessionId = await client.createSession({ cwd: process.cwd() });
+    const { sessionId } = await client.createSession({ cwd: process.cwd() });
 
     const result = await client.sendPrompt(sessionId, prompt);
 

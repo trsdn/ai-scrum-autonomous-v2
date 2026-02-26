@@ -51,7 +51,7 @@ export async function runRefinement(
   });
 
   // Create ACP session and send prompt
-  const sessionId = await client.createSession({ cwd: config.projectPath });
+  const { sessionId } = await client.createSession({ cwd: config.projectPath });
   try {
     const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
     const parsed = extractJson<RefinementResponse>(result.response);

@@ -86,6 +86,14 @@ describe("AcpClient", () => {
     });
     mockNewSession.mockResolvedValue({
       sessionId: "session-123",
+      modes: {
+        availableModes: [{ id: "agent", name: "Agent" }, { id: "plan", name: "Plan" }],
+        currentModeId: "agent",
+      },
+      models: {
+        availableModels: [{ modelId: "claude-sonnet-4.6", name: "Claude Sonnet 4.6" }],
+        currentModelId: "claude-sonnet-4.6",
+      },
     });
     mockPrompt.mockResolvedValue({
       stopReason: "end_turn",
@@ -241,9 +249,11 @@ describe("AcpClient", () => {
       const client = new AcpClient({ logger: silentLogger });
       await client.connect();
 
-      const sessionId = await client.createSession({ cwd: "/tmp/project" });
+      const sessionInfo = await client.createSession({ cwd: "/tmp/project" });
 
-      expect(sessionId).toBe("session-123");
+      expect(sessionInfo.sessionId).toBe("session-123");
+      expect(sessionInfo.availableModes).toEqual(["agent", "plan"]);
+      expect(sessionInfo.currentModel).toBe("claude-sonnet-4.6");
       expect(mockNewSession).toHaveBeenCalledWith({
         cwd: "/tmp/project",
         mcpServers: [],

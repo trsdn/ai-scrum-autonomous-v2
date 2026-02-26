@@ -172,6 +172,9 @@ export interface SprintConfig {
   sessionTimeoutMs: number;
   customInstructions: string;
   githubMcp: McpServerConfig;
+  plannerModel?: string;
+  workerModel?: string;
+  reviewerModel?: string;
 }
 
 export interface McpServerConfig {

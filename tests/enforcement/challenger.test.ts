@@ -36,11 +36,13 @@ import { runChallengerReview } from "../../src/enforcement/challenger.js";
 
 function makeMockClient(response = "APPROVED: Looks good") {
   return {
-    createSession: vi.fn().mockResolvedValue("session-1"),
+    createSession: vi.fn().mockResolvedValue({ sessionId: "session-1", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
     sendPrompt: vi
       .fn()
       .mockResolvedValue({ response, stopReason: "end_turn" }),
     endSession: vi.fn().mockResolvedValue(undefined),
+    setMode: vi.fn().mockResolvedValue(undefined),
+    setModel: vi.fn().mockResolvedValue(undefined),
   } as unknown as AcpClient;
 }
 

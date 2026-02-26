@@ -16,7 +16,13 @@ vi.mock("../../src/logger.js", () => {
 function createMockClient(): AcpClient {
   let counter = 0;
   return {
-    createSession: vi.fn(async () => `session-${++counter}`),
+    createSession: vi.fn(async () => ({
+      sessionId: `session-${++counter}`,
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    })),
     endSession: vi.fn(async () => {}),
   } as unknown as AcpClient;
 }

@@ -24,7 +24,7 @@ export async function runChallengerReview(
     diffStat(branch, config.baseBranch),
   ]);
 
-  const sessionId = await client.createSession({
+  const { sessionId } = await client.createSession({
     cwd: config.projectPath,
   });
 

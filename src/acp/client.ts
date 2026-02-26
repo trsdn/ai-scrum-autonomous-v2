@@ -45,6 +45,21 @@ export interface PromptResult {
   stopReason: string;
 }
 
+export interface SessionInfo {
+  sessionId: string;
+  availableModes: string[];
+  currentMode: string;
+  availableModels: string[];
+  currentModel: string;
+}
+
+/** Well-known ACP session mode IDs. */
+export const ACP_MODES = {
+  AGENT: "https://agentclientprotocol.com/protocol/session-modes#agent",
+  PLAN: "https://agentclientprotocol.com/protocol/session-modes#plan",
+  AUTOPILOT: "https://agentclientprotocol.com/protocol/session-modes#autopilot",
+} as const;
+
 export class AcpClient {
   private process: ChildProcess | null = null;
   private connection: ClientSideConnection | null = null;
@@ -209,7 +224,7 @@ export class AcpClient {
   /**
    * Create a new ACP session.
    */
-  async createSession(options: CreateSessionOptions): Promise<string> {
+  async createSession(options: CreateSessionOptions): Promise<SessionInfo> {
     const conn = this.requireConnection();
 
     this.log.info({ cwd: options.cwd }, "creating ACP session");
@@ -221,9 +236,42 @@ export class AcpClient {
 
     const sessionId = response.sessionId;
     this.sessionChunks.set(sessionId, []);
-    this.log.info({ sessionId }, "ACP session created");
 
-    return sessionId;
+    const modes = response.modes;
+    const models = response.models;
+
+    const info: SessionInfo = {
+      sessionId,
+      availableModes: modes?.availableModes.map((m: { id: string }) => m.id) ?? [],
+      currentMode: modes?.currentModeId ?? "",
+      availableModels: models?.availableModels.map((m: { modelId: string }) => m.modelId) ?? [],
+      currentModel: models?.currentModelId ?? "",
+    };
+
+    this.log.info(
+      { sessionId, mode: info.currentMode, model: info.currentModel },
+      "ACP session created",
+    );
+
+    return info;
+  }
+
+  /**
+   * Switch the session to a different mode (agent, plan, autopilot).
+   */
+  async setMode(sessionId: string, modeId: string): Promise<void> {
+    const conn = this.requireConnection();
+    this.log.info({ sessionId, modeId }, "setting session mode");
+    await conn.setSessionMode({ sessionId, modeId });
+  }
+
+  /**
+   * Switch the session to a different model.
+   */
+  async setModel(sessionId: string, modelId: string): Promise<void> {
+    const conn = this.requireConnection();
+    this.log.info({ sessionId, modelId }, "setting session model");
+    await conn.unstable_setSessionModel({ sessionId, modelId });
   }
 
   /**
