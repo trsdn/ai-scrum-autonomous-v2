@@ -34,3 +34,6 @@ output/
 
 # Sprint worktrees (created outside repo)
 sprint-worktrees/
+
+# Dashboard log
+sprint-runner.log

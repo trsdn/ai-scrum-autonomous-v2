@@ -33,7 +33,7 @@ import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { getNextOpenMilestone } from "./github/milestones.js";
 import { SprintRunner } from "./runner.js";
 import { SprintEventBus } from "./tui/events.js";
-import { logger } from "./logger.js";
+import { logger, redirectLogToFile } from "./logger.js";
 import type { SprintConfig, SprintIssue } from "./types.js";
 
 /** Build a SprintConfig from the parsed config file and a sprint number. */
@@ -325,6 +325,7 @@ program
   .option("--sprint <number>", "Override sprint number (skip auto-detection)", parseSprintNumber)
   .option("--no-run", "Show dashboard without starting sprint execution")
   .option("--once", "Run only one sprint instead of looping")
+  .option("--log-file <path>", "Log file path (default: sprint-runner.log)", "sprint-runner.log")
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -339,9 +340,10 @@ program
           process.exit(1);
         }
         initialSprint = next.sprintNumber;
-        console.log(`🔍 Auto-detected: ${next.milestone.title}`);
       }
 
+      // Redirect all logger output to file so it doesn't corrupt the TUI
+      redirectLogToFile(opts.logFile as string);
       logger.info({ sprint: initialSprint }, "Launching TUI dashboard");
 
       // Shared event bus for the TUI across sprints
