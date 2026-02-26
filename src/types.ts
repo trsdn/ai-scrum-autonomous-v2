@@ -213,6 +213,8 @@ export interface SprintConfig {
   deleteBranchAfterMerge: boolean;
   sessionTimeoutMs: number;
   customInstructions: string;
+  autoApproveTools: boolean;
+  allowToolPatterns: string[];
   globalMcpServers: McpServerEntry[];
   globalInstructions: string[];
   phases: Record<string, PhaseConfig>;
