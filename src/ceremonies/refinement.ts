@@ -1,0 +1,84 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { AcpClient } from "../acp/client.js";
+import type { SprintConfig, RefinedIssue } from "../types.js";
+import { listIssues } from "../github/issues.js";
+import { logger } from "../logger.js";
+import { substitutePrompt, extractJson } from "./helpers.js";
+import { readVelocity } from "../documentation/velocity.js";
+
+interface RefinementResponse {
+  refined_issues: Array<{
+    number: number;
+    title: string;
+    ice_score: number;
+  }>;
+}
+
+/**
+ * Run the refinement ceremony: load idea issues, ask ACP to refine them,
+ * and return structured refined issues.
+ */
+export async function runRefinement(
+  client: AcpClient,
+  config: SprintConfig,
+): Promise<RefinedIssue[]> {
+  const log = logger.child({ ceremony: "refinement" });
+
+  // Load idea issues
+  const ideas = await listIssues({ labels: ["type:idea"], state: "open" });
+  if (ideas.length === 0) {
+    log.info("No type:idea issues found — skipping refinement");
+    return [];
+  }
+  log.info({ count: ideas.length }, "Loaded idea issues for refinement");
+
+  // Read velocity data for context
+  const velocity = readVelocity();
+  const velocityStr = JSON.stringify(velocity);
+
+  // Read prompt template
+  const templatePath = path.join(config.projectPath, "prompts", "refinement.md");
+  const template = await fs.readFile(templatePath, "utf-8");
+
+  const prompt = substitutePrompt(template, {
+    PROJECT_NAME: path.basename(config.projectPath),
+    REPO_OWNER: "",
+    REPO_NAME: path.basename(config.projectPath),
+    SPRINT_NUMBER: String(config.sprintNumber),
+    VELOCITY_DATA: velocityStr,
+    BASE_BRANCH: config.baseBranch,
+  });
+
+  // Create ACP session and send prompt
+  const sessionId = await client.createSession({ cwd: config.projectPath });
+  try {
+    const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    const parsed = extractJson<RefinementResponse>(result.response);
+
+    const refined: RefinedIssue[] = parsed.refined_issues.map((issue) => ({
+      number: issue.number,
+      title: issue.title,
+      ice_score: issue.ice_score,
+    }));
+
+    // Validate each issue has acceptance criteria (non-zero ICE implies valid)
+    for (const issue of refined) {
+      if (issue.ice_score <= 0) {
+        log.warn({ issue: issue.number }, "Issue has zero or negative ICE score");
+      }
+    }
+
+    // Log ICE scores
+    for (const issue of refined) {
+      log.info(
+        { number: issue.number, title: issue.title, ice_score: issue.ice_score },
+        "Refined issue",
+      );
+    }
+
+    return refined;
+  } finally {
+    await client.endSession(sessionId);
+  }
+}
