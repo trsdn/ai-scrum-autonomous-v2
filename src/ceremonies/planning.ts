@@ -47,7 +47,7 @@ export async function runSprintPlanning(
   });
 
   // Create ACP session and send prompt
-  const sessionId = await client.createSession({ cwd: config.projectPath });
+  const { sessionId } = await client.createSession({ cwd: config.projectPath });
   try {
     const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
     const plan = extractJson<SprintPlan>(result.response);

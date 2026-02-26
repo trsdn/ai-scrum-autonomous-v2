@@ -52,7 +52,12 @@ vi.mock("node:fs/promises", () => ({
   default: {
     readFile: vi
       .fn()
-      .mockResolvedValue("Worker prompt for issue #{{ISSUE_NUMBER}}"),
+      .mockImplementation((filePath: string) => {
+        if (filePath.includes("item-planner")) {
+          return Promise.resolve("Plan for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}");
+        }
+        return Promise.resolve("Worker prompt for issue #{{ISSUE_NUMBER}}");
+      }),
   },
 }));
 
@@ -116,12 +121,14 @@ function makeIssue(overrides: Partial<SprintIssue> = {}): SprintIssue {
 
 function makeMockClient() {
   return {
-    createSession: vi.fn().mockResolvedValue("session-abc"),
+    createSession: vi.fn().mockResolvedValue({ sessionId: "session-abc", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "Done implementing issue",
       stopReason: "end_turn",
     }),
     endSession: vi.fn().mockResolvedValue(undefined),
+    setMode: vi.fn().mockResolvedValue(undefined),
+    setModel: vi.fn().mockResolvedValue(undefined),
     connect: vi.fn(),
     disconnect: vi.fn(),
     connected: true,
@@ -174,7 +181,7 @@ describe("executeIssue", () => {
     });
 
     // Prompt sent
-    expect(mockClient.sendPrompt).toHaveBeenCalledOnce();
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
 
     // Session ended
     expect(mockClient.endSession).toHaveBeenCalledWith("session-abc");
