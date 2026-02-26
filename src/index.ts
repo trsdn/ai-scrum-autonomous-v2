@@ -61,6 +61,10 @@ async function createConnectedClient(config: ConfigFile): Promise<AcpClient> {
   const client = new AcpClient({
     command: config.copilot.executable,
     timeoutMs: config.copilot.session_timeout_ms,
+    permissions: {
+      autoApprove: config.copilot.auto_approve_tools,
+      allowPatterns: config.copilot.allow_tool_patterns,
+    },
   });
   await client.connect();
   return client;

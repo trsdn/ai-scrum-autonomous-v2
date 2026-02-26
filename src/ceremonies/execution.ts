@@ -108,7 +108,7 @@ export async function executeIssue(
   const startTime = Date.now();
 
   const branch = `sprint/${config.sprintNumber}/issue-${issue.number}`;
-  const worktreePath = path.join(config.worktreeBase, `issue-${issue.number}`);
+  const worktreePath = path.resolve(config.worktreeBase, `issue-${issue.number}`);
 
   // Step 1: Set in-progress label
   await setLabel(issue.number, "status:in-progress");
