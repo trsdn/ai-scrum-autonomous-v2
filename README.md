@@ -91,7 +91,7 @@ cd my-project
 | `.github/agents/*.agent.md` | Customize agent expertise for your domain |
 | `.github/copilot-instructions.md` | Adjust Copilot behavior and conventions |
 | `Makefile` | Add project-specific targets |
-| `pyproject.toml` | Configure your project metadata |
+| `package.json` | Configure your project metadata |
 | `.github/workflows/ci.yml` | Adjust CI for your language/framework |
 
 ### 3. Set Up Notifications (Optional)
@@ -232,45 +232,42 @@ This data drives sprint sizing — the agent uses historical velocity to determi
 ├── .github/
 │   ├── copilot-instructions.md      # Main Copilot instructions
 │   ├── agents/                      # Specialized agent definitions
-│   │   ├── architect.agent.md
 │   │   ├── challenger.agent.md
 │   │   ├── ci-fixer.agent.md
-│   │   ├── code-developer.agent.md
-│   │   ├── copilot-customization-builder.agent.md
-│   │   ├── documentation-agent.agent.md
-│   │   ├── release-agent.agent.md
-│   │   ├── research-agent.agent.md
-│   │   ├── security-reviewer.agent.md
-│   │   └── test-engineer.agent.md
+│   │   ├── code-worker.agent.md
+│   │   ├── quality-reviewer.agent.md
+│   │   └── sprint-planner.agent.md
 │   ├── skills/                      # Reusable workflow skills
-│   │   ├── architecture-review/SKILL.md
 │   │   ├── code-review/SKILL.md
 │   │   ├── create-pr/SKILL.md
 │   │   ├── direction-gate/SKILL.md
-│   │   ├── issue-triage/SKILL.md
-│   │   ├── new-custom-agent/SKILL.md
-│   │   ├── new-instructions-file/SKILL.md
-│   │   ├── new-prompt-file/SKILL.md
-│   │   ├── orchestrate-bugfix/SKILL.md
-│   │   ├── orchestrate-feature/SKILL.md
-│   │   ├── refine/SKILL.md
-│   │   ├── release-check/SKILL.md
 │   │   ├── sprint-planning/SKILL.md
-│   │   ├── sprint-retro/SKILL.md
-│   │   ├── sprint-review/SKILL.md
-│   │   ├── sprint-start/SKILL.md
-│   │   ├── subagent-dispatch/SKILL.md
-│   │   ├── tdd-workflow/SKILL.md
-│   │   ├── web-research/SKILL.md
-│   │   └── writing-plans/SKILL.md
+│   │   └── tdd-workflow/SKILL.md
 │   ├── workflows/
-│   │   ├── ci.yml                   # CI: lint, typecheck, test, security
+│   │   ├── ci.yml                   # CI: lint, typecheck, test, build
 │   │   └── release.yml              # Semantic release
 │   ├── ISSUE_TEMPLATE/
 │   │   ├── bug_report.yml
 │   │   ├── feature_request.yml
 │   │   └── config.yml
 │   └── PULL_REQUEST_TEMPLATE.md
+├── src/                             # TypeScript source code
+│   ├── index.ts                     # CLI entry point (Commander.js)
+│   ├── config.ts                    # Zod-validated YAML config loader
+│   ├── runner.ts                    # Sprint lifecycle state machine
+│   ├── types.ts                     # Shared TypeScript interfaces
+│   ├── logger.ts                    # pino structured logger
+│   ├── metrics.ts                   # Sprint metrics calculation
+│   ├── acp/                         # Agent Client Protocol integration
+│   ├── ceremonies/                  # Sprint ceremonies (plan, execute, review, retro)
+│   ├── enforcement/                 # Quality gates, drift control, escalation
+│   ├── git/                         # Git operations (worktree, merge, diff)
+│   ├── github/                      # GitHub API via gh CLI
+│   ├── documentation/               # Sprint logs, huddles, velocity tracking
+│   ├── improvement/                 # Auto-improve stubs
+│   └── dashboard/                   # Web UI stubs
+├── prompts/                         # Prompt templates for ACP sessions
+├── tests/                           # Vitest test suite
 ├── docs/
 │   ├── constitution/
 │   │   ├── PROCESS.md               # Development process constitution
@@ -285,8 +282,10 @@ This data drives sprint sizing — the agent uses historical velocity to determi
 │   └── plans/
 │       └── .gitkeep
 ├── scripts/copilot-notify.sh        # Push notification script
-├── Makefile                          # Common development targets
-├── pyproject.toml                    # Python project configuration
+├── sprint-runner.config.yaml        # Sprint runner configuration
+├── package.json                     # Node.js project configuration
+├── tsconfig.json                    # TypeScript configuration
+├── Makefile                         # Common development targets
 └── .gitignore
 ```
 
@@ -338,13 +337,12 @@ Skills in `.github/skills/` are available in both GitHub Copilot CLI and VS Code
 
 ### Language Adaptation
 
-This template defaults to Python tooling. To adapt for other languages:
+This project uses TypeScript with ESM modules. Key tooling:
 
-1. Update `Makefile` targets with your build/test/lint commands
-2. Update `.github/copilot-instructions.md` for your language conventions
-3. Update `.github/workflows/ci.yml` for your CI pipeline
-4. Adjust coding conventions in `AGENTS.md`
-5. Update TDD skill templates for your test framework
+- **Build**: `npm run build` (tsc)
+- **Test**: `npm run test` (vitest)
+- **Lint**: `npm run lint` (eslint)
+- **Type check**: `npm run typecheck` (tsc --noEmit)
 
 ### Customization Reference
 

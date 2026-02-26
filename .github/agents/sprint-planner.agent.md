@@ -44,26 +44,22 @@ Respond with structured JSON that the orchestrator can consume directly:
 
 ```json
 {
-  "sprint": {
-    "id": "sprint-N",
-    "milestone": "Sprint N",
-    "velocity_budget": 0,
-    "issues": [
-      {
-        "number": 0,
-        "title": "",
-        "ice_score": { "impact": 0, "confidence": 0, "ease": 0, "composite": 0 },
-        "depends_on": [],
-        "acceptance_criteria": [],
-        "estimated_effort": "S|M|L",
-        "parallelizable": true
-      }
-    ],
-    "critical_path": [],
-    "risks": [],
-    "escalations": []
-  }
+  "sprintNumber": 1,
+  "sprint_issues": [
+    {
+      "number": 10,
+      "title": "feat(api): add user search endpoint",
+      "ice_score": 320,
+      "depends_on": [],
+      "acceptanceCriteria": "...",
+      "expectedFiles": [],
+      "points": 2
+    }
+  ],
+  "execution_groups": [[10, 12], [14]],
+  "estimated_points": 9,
+  "rationale": "Prioritized critical bugs and stakeholder-flagged features."
 }
 ```
 
-Include a `risks` array for anything that could block the sprint and an `escalations` array for decisions requiring stakeholder input.
+The JSON structure must match the `SprintPlan` TypeScript interface exactly (camelCase field names). Include `execution_groups` for parallel dispatch ordering.

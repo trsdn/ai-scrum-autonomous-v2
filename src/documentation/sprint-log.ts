@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { logger } from "../logger.js";
 
 const DEFAULT_OUTPUT_DIR = "docs/sprints";
 
@@ -25,8 +26,12 @@ export function createSprintLog(
   ].join("\n");
 
   const filePath = logPath(sprintNumber, outputDir);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content, "utf-8");
+  try {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, content, "utf-8");
+  } catch (err) {
+    logger.warn({ err, filePath }, "Failed to write sprint log — continuing without log");
+  }
   return filePath;
 }
 
@@ -36,7 +41,11 @@ export function appendToSprintLog(
   outputDir: string = DEFAULT_OUTPUT_DIR,
 ): void {
   const filePath = logPath(sprintNumber, outputDir);
-  fs.appendFileSync(filePath, entry + "\n", "utf-8");
+  try {
+    fs.appendFileSync(filePath, entry + "\n", "utf-8");
+  } catch (err) {
+    logger.warn({ err, filePath }, "Failed to append to sprint log — continuing");
+  }
 }
 
 export function readSprintLog(

@@ -15,6 +15,14 @@ export function substitutePrompt(
 }
 
 /**
+ * Sanitize user-provided content before substituting into prompts.
+ * Mitigates prompt injection by wrapping content in delimiters.
+ */
+export function sanitizePromptInput(input: string): string {
+  return `<user_content>\n${input}\n</user_content>`;
+}
+
+/**
  * Extract the first JSON object or array from a string that may contain
  * markdown fenced code blocks or plain text around it.
  */

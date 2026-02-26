@@ -19,13 +19,22 @@ export interface QualityGateConfig {
 
 /** Normalize a command to an array, logging a warning for legacy string usage. */
 function normalizeCommand(command: string | string[]): string[] {
-  if (Array.isArray(command)) return command;
+  if (Array.isArray(command)) {
+    if (command.length === 0) {
+      throw new Error("Command array cannot be empty");
+    }
+    return command;
+  }
   const log = logger.child({ module: "quality-gate" });
   log.warn(
     { command },
     "Command passed as string — splitting on spaces as fallback. Prefer string[] to support paths with spaces.",
   );
-  return command.split(" ");
+  const parts = command.split(" ");
+  if (parts.length === 0 || parts[0] === "") {
+    throw new Error("Command string cannot be empty");
+  }
+  return parts;
 }
 
 async function runCommand(

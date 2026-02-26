@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}} — Copilot Instructions
+# AI Scrum Sprint Runner — Copilot Instructions
 
 > **Cross-references** (read automatically — do NOT duplicate content from these):
 > - `AGENTS.md` — project-specific instructions, available agents and skills
@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-**{{PROJECT_NAME}}** — {{PROJECT_DESCRIPTION}}
+**AI Scrum Sprint Runner** — ACP-powered autonomous sprint engine that orchestrates GitHub Copilot CLI via the Agent Client Protocol to run full Scrum sprints.
 
 ## Project Priorities
 
@@ -18,12 +18,11 @@
 
 ## Coding Conventions
 
-> **Customize this section for your project's language and tooling.**
-
-- Python 3.11+ with type hints where they improve clarity
-- Pydantic for configuration models
-- Typer for CLI
-- pytest for testing
+- TypeScript (ESM, `"module": "NodeNext"`) with `.js` extensions on local imports
+- Zod for configuration validation
+- Commander.js for CLI
+- Vitest for testing
+- pino for structured logging
 - Keep code readable; avoid clever one-liners
 - Preserve existing public APIs unless explicitly asked to change
 
@@ -36,12 +35,11 @@
 
 ## Key Commands
 
-> **Replace these with your project-specific commands.**
-
 ```bash
-uv run pytest tests/ -v                            # Run tests
-uv run ruff check src/ && uv run ruff format src/   # Lint and format
-uv run mypy src/                                    # Type check
+npx vitest run                      # Run tests
+npx eslint src/                     # Lint
+npx tsc --noEmit                    # Type check
+npm run build                       # Build (tsc)
 ```
 
 ## Architectural Decision Records

@@ -18,7 +18,7 @@
  *   sprint-runner drift-report --sprint <N>
  */
 
-import { Command } from "commander";
+import { Command, InvalidArgumentError } from "commander";
 import { loadConfig, type ConfigFile } from "./config.js";
 import { AcpClient } from "./acp/client.js";
 import { runSprintPlanning } from "./ceremonies/planning.js";
@@ -68,6 +68,30 @@ async function createConnectedClient(config: ConfigFile): Promise<AcpClient> {
 
 const program = new Command();
 
+/** Parse and validate a sprint number from CLI input. */
+function parseSprintNumber(value: string): number {
+  const num = parseInt(value, 10);
+  if (isNaN(num) || num < 1) {
+    throw new InvalidArgumentError("Sprint number must be a positive integer.");
+  }
+  return num;
+}
+
+/** Parse and validate an issue number from CLI input. */
+function parseIssueNumber(value: string): number {
+  const num = parseInt(value, 10);
+  if (isNaN(num) || num < 1) {
+    throw new InvalidArgumentError("Issue number must be a positive integer.");
+  }
+  return num;
+}
+
+// Graceful shutdown on SIGINT (Ctrl+C)
+process.on("SIGINT", () => {
+  console.log("\n🛑 Received SIGINT, shutting down...");
+  process.exit(130);
+});
+
 program
   .name("sprint-runner")
   .description("ACP-powered autonomous sprint engine for GitHub Copilot CLI")
@@ -78,7 +102,7 @@ program
 program
   .command("plan")
   .description("Run sprint planning")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .option("--dry-run", "Plan without executing", false)
   .action(async (opts) => {
     try {
@@ -111,8 +135,8 @@ program
 program
   .command("execute-issue")
   .description("Execute a single issue")
-  .requiredOption("--issue <number>", "Issue number", parseInt)
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--issue <number>", "Issue number", parseIssueNumber)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -194,7 +218,7 @@ program
 program
   .command("refine")
   .description("Run backlog refinement on type:idea issues")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -222,7 +246,7 @@ program
 program
   .command("full-cycle")
   .description("Run a full sprint cycle: refine → plan → execute → review → retro")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -289,7 +313,7 @@ program
 program
   .command("review")
   .description("Run sprint review ceremony")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -321,7 +345,7 @@ program
 program
   .command("retro")
   .description("Run sprint retrospective ceremony")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -383,7 +407,7 @@ program
 program
   .command("metrics")
   .description("Show sprint metrics from sprint log")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .action(async (opts) => {
     try {
       const config = loadConfig(program.opts().config);
@@ -411,7 +435,7 @@ program
 program
   .command("drift-report")
   .description("Run drift analysis on current sprint changes")
-  .requiredOption("--sprint <number>", "Sprint number", parseInt)
+  .requiredOption("--sprint <number>", "Sprint number", parseSprintNumber)
   .option("--changed-files <files...>", "List of changed files")
   .option("--expected-files <files...>", "List of expected files")
   .action(async (opts) => {

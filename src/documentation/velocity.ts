@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { logger } from "../logger.js";
 
 const DEFAULT_FILE_PATH = "docs/sprints/velocity.md";
 
@@ -58,13 +59,17 @@ export function appendVelocity(
   entry: VelocityEntry,
   filePath: string = DEFAULT_FILE_PATH,
 ): void {
-  const dir = path.dirname(filePath);
-  fs.mkdirSync(dir, { recursive: true });
+  try {
+    const dir = path.dirname(filePath);
+    fs.mkdirSync(dir, { recursive: true });
 
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, HEADER + formatRow(entry) + "\n", "utf-8");
-    return;
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, HEADER + formatRow(entry) + "\n", "utf-8");
+      return;
+    }
+
+    fs.appendFileSync(filePath, formatRow(entry) + "\n", "utf-8");
+  } catch (err) {
+    logger.warn({ err, filePath }, "Failed to write velocity data — continuing");
   }
-
-  fs.appendFileSync(filePath, formatRow(entry) + "\n", "utf-8");
 }

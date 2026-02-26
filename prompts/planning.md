@@ -103,7 +103,7 @@ Reply with a JSON summary:
 
 ```json
 {
-  "sprint_number": {{SPRINT_NUMBER}},
+  "sprintNumber": {{SPRINT_NUMBER}},
   "sprint_issues": [
     {
       "number": 10,

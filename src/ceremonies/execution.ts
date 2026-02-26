@@ -18,7 +18,7 @@ import { appendToSprintLog } from "../documentation/sprint-log.js";
 import { addComment } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
 import { getChangedFiles } from "../git/diff-analysis.js";
-import { substitutePrompt } from "./helpers.js";
+import { substitutePrompt, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
 
 const DEFAULT_QUALITY_GATE_CONFIG = {
@@ -143,7 +143,7 @@ export async function executeIssue(
         SPRINT_NUMBER: String(config.sprintNumber),
         ISSUE_NUMBER: String(issue.number),
         ISSUE_TITLE: issue.title,
-        ISSUE_BODY: issue.acceptanceCriteria,
+        ISSUE_BODY: sanitizePromptInput(issue.acceptanceCriteria),
         BRANCH_NAME: branch,
         BASE_BRANCH: config.baseBranch,
         WORKTREE_PATH: worktreePath,

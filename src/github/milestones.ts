@@ -43,7 +43,9 @@ export async function getMilestone(
     return undefined;
   }
 
-  const milestones = JSON.parse(json) as GitHubMilestone[];
+  // gh --paginate may return NDJSON (one JSON array per line)
+  const pages = json.trim().split("\n").filter((line) => line.trim());
+  const milestones = pages.flatMap((page) => JSON.parse(page) as GitHubMilestone[]);
   return milestones.find((m) => m.title === title);
 }
 

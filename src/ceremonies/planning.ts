@@ -52,6 +52,10 @@ export async function runSprintPlanning(
     const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
     const plan = extractJson<SprintPlan>(result.response);
 
+    if (!plan.sprint_issues || !Array.isArray(plan.sprint_issues)) {
+      throw new Error("Invalid sprint plan: missing or invalid sprint_issues array");
+    }
+
     log.info(
       {
         sprintNumber: plan.sprintNumber,
