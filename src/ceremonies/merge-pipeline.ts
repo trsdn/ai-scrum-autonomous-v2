@@ -1,6 +1,7 @@
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, IssueResult } from "../types.js";
 import { mergeBranch } from "../git/merge.js";
+import { deleteBranch } from "../git/worktree.js";
 import { logger } from "../logger.js";
 
 export interface MergePipelineResult {
@@ -59,12 +60,9 @@ export async function mergeCompletedBranches(
 
       if (config.deleteBranchAfterMerge) {
         try {
-          const { execFile: execFileCb } = await import("node:child_process");
-          const { promisify } = await import("node:util");
-          const execFile = promisify(execFileCb);
-          await execFile("git", ["branch", "-D", branch]);
+          await deleteBranch(branch);
           log.debug({ branch }, "deleted branch after merge");
-        } catch (delErr) {
+        } catch (delErr: unknown) {
           log.warn(
             { branch, error: (delErr as Error).message },
             "failed to delete branch",
@@ -73,7 +71,7 @@ export async function mergeCompletedBranches(
       }
 
       log.info({ issueNumber, branch }, "merged successfully");
-    } catch (err) {
+    } catch (err: unknown) {
       log.error(
         { issueNumber, branch, error: (err as Error).message },
         "unexpected merge error",
@@ -129,7 +127,7 @@ export async function resolveConflictsViaAcp(
     );
 
     return succeeded;
-  } catch (err) {
+  } catch (err: unknown) {
     log.error(
       { branch, error: (err as Error).message },
       "ACP conflict resolution failed",

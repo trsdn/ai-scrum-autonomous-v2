@@ -41,7 +41,7 @@ export class SessionPool {
       sessionId = await this.client.createSession(
         options as Parameters<AcpClient["createSession"]>[0],
       );
-    } catch (err) {
+    } catch (err: unknown) {
       // Wake next waiter so pool doesn't deadlock
       const next = this.waitQueue.shift();
       if (next) next();

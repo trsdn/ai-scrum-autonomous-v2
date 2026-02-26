@@ -13,7 +13,7 @@ export interface PermissionConfig {
 }
 
 export const DEFAULT_PERMISSION_CONFIG: PermissionConfig = {
-  autoApprove: true,
+  autoApprove: false,
   allowPatterns: [],
 };
 

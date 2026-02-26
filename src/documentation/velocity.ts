@@ -69,7 +69,7 @@ export function appendVelocity(
     }
 
     fs.appendFileSync(filePath, formatRow(entry) + "\n", "utf-8");
-  } catch (err) {
+  } catch (err: unknown) {
     logger.warn({ err, filePath }, "Failed to write velocity data — continuing");
   }
 }

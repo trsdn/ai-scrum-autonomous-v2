@@ -22,7 +22,7 @@ const CopilotSchema = z.object({
   planner_model: z.string().default("claude-opus-4.6"),
   worker_model: z.string().default("claude-sonnet-4.5"),
   reviewer_model: z.string().default("claude-opus-4.6"),
-  max_parallel_sessions: z.number().int().min(1).default(4),
+  max_parallel_sessions: z.number().int().min(1).max(20).default(4),
   session_timeout_ms: z.number().int().min(0).default(600000),
 });
 
@@ -39,6 +39,9 @@ const QualityGatesSchema = z.object({
   require_lint: z.boolean().default(true),
   require_types: z.boolean().default(true),
   max_diff_lines: z.number().int().min(1).default(300),
+  test_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "test"]),
+  lint_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "lint"]),
+  typecheck_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "typecheck"]),
   require_challenger: z.boolean().default(true),
   require_ci_green: z.boolean().default(true),
   ci_wait_timeout_ms: z.number().int().min(0).default(300000),
@@ -47,7 +50,7 @@ const QualityGatesSchema = z.object({
 const EscalationSchema = z.object({
   notifications: z
     .object({
-      ntfy: z.boolean().default(false),
+      ntfy: z.boolean().default(true),
       ntfy_topic: z.string().default(""),
     })
     .default({}),
@@ -113,7 +116,7 @@ export function loadConfig(configPath?: string): ConfigFile {
 
   const raw = fs.readFileSync(resolvedPath, "utf-8");
   const substituted = substituteEnvVars(raw);
-  const parsed: unknown = parseYaml(substituted);
+  const parsed: unknown = parseYaml(substituted, { customTags: [] });
 
   return ConfigFileSchema.parse(parsed);
 }

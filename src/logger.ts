@@ -26,7 +26,21 @@ export function createLogger(options: LoggerOptions = {}): Logger {
     ? { target: "pino-pretty", options: { colorize: true } }
     : undefined;
 
-  return pino({ name, level, transport });
+  return pino({
+    name,
+    level,
+    transport,
+    redact: {
+      paths: [
+        "*.password",
+        "*.token",
+        "*.secret",
+        "*.apiKey",
+        "*.authorization",
+      ],
+      censor: "[REDACTED]",
+    },
+  });
 }
 
 /** Default logger instance for convenience. */

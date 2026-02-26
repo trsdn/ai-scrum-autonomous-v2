@@ -24,7 +24,7 @@ export async function createWorktree(
     // Create branch from base
     await execFile("git", ["branch", branch, base]);
     log.debug({ branch, base }, "created branch");
-  } catch (err) {
+  } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     if (message.includes("already exists")) {
       throw new Error(`Branch '${branch}' already exists`);
@@ -36,10 +36,9 @@ export async function createWorktree(
     // Add worktree at path for the new branch
     await execFile("git", ["worktree", "add", path, branch]);
     log.info({ path, branch }, "worktree created");
-  } catch (err) {
+  } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     if (message.includes("already exists")) {
-      // Clean up the branch we just created
       await execFile("git", ["branch", "-D", branch]).catch(() => {});
       throw new Error(`Worktree path '${path}' already exists`);
     }
@@ -58,12 +57,25 @@ export async function removeWorktree(worktreePath: string): Promise<void> {
   try {
     await execFile("git", ["worktree", "remove", worktreePath, "--force"]);
     log.info({ path: worktreePath }, "worktree removed");
-  } catch (err) {
+  } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     throw new Error(
       `Failed to remove worktree at '${worktreePath}': ${message}`,
     );
   }
+}
+
+/**
+ * Delete a local git branch.
+ */
+export async function deleteBranch(
+  branch: string,
+  force: boolean = true,
+): Promise<void> {
+  const log = logger.child({ module: "worktree" });
+  const flag = force ? "-D" : "-d";
+  await execFile("git", ["branch", flag, branch]);
+  log.debug({ branch }, "deleted branch");
 }
 
 /**

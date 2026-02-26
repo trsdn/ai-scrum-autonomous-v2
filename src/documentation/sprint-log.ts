@@ -29,7 +29,7 @@ export function createSprintLog(
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, content, "utf-8");
-  } catch (err) {
+  } catch (err: unknown) {
     logger.warn({ err, filePath }, "Failed to write sprint log — continuing without log");
   }
   return filePath;
@@ -43,7 +43,7 @@ export function appendToSprintLog(
   const filePath = logPath(sprintNumber, outputDir);
   try {
     fs.appendFileSync(filePath, entry + "\n", "utf-8");
-  } catch (err) {
+  } catch (err: unknown) {
     logger.warn({ err, filePath }, "Failed to append to sprint log — continuing");
   }
 }

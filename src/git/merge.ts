@@ -42,7 +42,7 @@ export async function mergeBranch(
 
     log.info({ source, target, squash: options.squash }, "merge succeeded");
     return { success: true };
-  } catch (err) {
+  } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     const stdout = (err as { stdout?: string }).stdout ?? "";
     const stderr = (err as { stderr?: string }).stderr ?? "";
@@ -100,7 +100,7 @@ export async function hasConflicts(
     const conflicts = stdout.includes("<<<<<<");
     log.debug({ source, target, conflicts }, "conflict check complete");
     return conflicts;
-  } catch (err) {
+  } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     throw new Error(
       `Failed to check conflicts between '${source}' and '${target}': ${message}`,

@@ -33,6 +33,7 @@ export type SprintPhase =
   | "failed";
 
 export interface SprintState {
+  version: string;
   sprintNumber: number;
   phase: SprintPhase;
   plan?: SprintPlan;
@@ -43,16 +44,23 @@ export interface SprintState {
   error?: string;
 }
 
+const STATE_VERSION = "1";
+
 // --- State persistence ---
 
 export function saveState(state: SprintState, filePath: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(state, null, 2), "utf-8");
+  fs.writeFileSync(filePath, JSON.stringify({ ...state, version: STATE_VERSION }, null, 2), "utf-8");
 }
 
 export function loadState(filePath: string): SprintState {
   const raw = fs.readFileSync(filePath, "utf-8");
   const parsed = JSON.parse(raw) as SprintState;
+  if (parsed.version && parsed.version !== STATE_VERSION) {
+    throw new Error(
+      `Incompatible sprint state version: got '${parsed.version}', expected '${STATE_VERSION}'. Delete the state file and restart.`,
+    );
+  }
   parsed.startedAt = new Date(parsed.startedAt);
   return parsed;
 }
@@ -73,6 +81,7 @@ export class SprintRunner {
       timeoutMs: config.sessionTimeoutMs,
     });
     this.state = {
+      version: STATE_VERSION,
       sprintNumber: config.sprintNumber,
       phase: "init",
       startedAt: new Date(),
@@ -123,7 +132,7 @@ export class SprintRunner {
       this.persistState();
 
       return this.state;
-    } catch (err) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.state.phase = "failed";
       this.state.error = message;
@@ -294,7 +303,7 @@ export class SprintRunner {
     );
     try {
       saveState(this.state, filePath);
-    } catch (err) {
+    } catch (err: unknown) {
       this.log.warn({ err }, "Failed to persist sprint state");
     }
   }

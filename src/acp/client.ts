@@ -103,9 +103,15 @@ export class AcpClient {
         this.log.debug({ stderr: chunk.toString().trimEnd() }, "copilot stderr");
       });
 
-      proc.on("error", (err) => {
-        this.log.error({ err }, "copilot process error");
-        this.rejectAllInFlight(new Error(`ACP process error: ${err.message}`));
+      proc.on("error", (err: NodeJS.ErrnoException) => {
+        if (err.code === "ENOENT") {
+          const msg = `copilot CLI not found at '${this.command}'. Install GitHub Copilot CLI: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line`;
+          this.log.error(msg);
+          this.rejectAllInFlight(new Error(msg));
+        } else {
+          this.log.error({ err }, "copilot process error");
+          this.rejectAllInFlight(new Error(`ACP process error: ${err.message}`));
+        }
       });
 
       proc.on("exit", (code, signal) => {

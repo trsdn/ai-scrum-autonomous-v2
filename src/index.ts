@@ -124,7 +124,7 @@ program
       } finally {
         await client.disconnect();
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Sprint planning failed");
       console.error("❌ Sprint planning failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -172,7 +172,7 @@ program
       } finally {
         await client.disconnect();
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Issue execution failed");
       console.error("❌ Issue execution failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -196,9 +196,9 @@ program
         requireLint: config.quality_gates.require_lint,
         requireTypes: config.quality_gates.require_types,
         maxDiffLines: config.quality_gates.max_diff_lines,
-        testCommand: ["npm", "run", "test"],
-        lintCommand: ["npm", "run", "lint"],
-        typecheckCommand: ["npm", "run", "typecheck"],
+        testCommand: config.quality_gates.test_command,
+        lintCommand: config.quality_gates.lint_command,
+        typecheckCommand: config.quality_gates.typecheck_command,
       };
 
       const result = await runQualityGate(gateConfig, process.cwd(), opts.branch, baseBranch);
@@ -207,7 +207,7 @@ program
         console.log(`  ${check.passed ? "✓" : "✗"} ${check.name}: ${check.detail}`);
       }
       if (!result.passed) process.exit(1);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Quality gate check failed");
       console.error("❌ Quality gate check failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -235,7 +235,7 @@ program
       } finally {
         await client.disconnect();
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Refinement failed");
       console.error("❌ Refinement failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -302,7 +302,7 @@ program
       } finally {
         await client.disconnect();
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Full cycle failed");
       console.error("❌ Full cycle failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -334,7 +334,7 @@ program
       console.log("   Use 'full-cycle' for an end-to-end run, or provide sprint state.");
       console.log("   Sprint log preview:\n");
       console.log(logContent.slice(0, 500));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Sprint review failed");
       console.error("❌ Sprint review failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -366,7 +366,7 @@ program
       console.log("   Use 'full-cycle' for an end-to-end run, or provide sprint state.");
       console.log("   Sprint log preview:\n");
       console.log(logContent.slice(0, 500));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Sprint retrospective failed");
       console.error("❌ Sprint retrospective failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -424,7 +424,7 @@ program
       console.log(`📈 Sprint ${opts.sprint} Metrics`);
       console.log("─".repeat(40));
       console.log(logContent);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Metrics retrieval failed");
       console.error("❌ Metrics retrieval failed:", err instanceof Error ? err.message : err);
       process.exit(1);
@@ -463,10 +463,11 @@ program
         for (const file of report.unplannedChanges) {
           console.log(`    ⚠️  ${file}`);
         }
+        process.exit(1);
       } else {
         console.log("  ✅ No unplanned changes detected.");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error({ err }, "Drift report failed");
       console.error("❌ Drift report failed:", err instanceof Error ? err.message : err);
       process.exit(1);

@@ -4,28 +4,65 @@ import { logger } from "../logger.js";
 
 const execFileAsync = promisify(execFile);
 
-/** Run a `gh` CLI command and return stdout. */
+const MAX_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 1000;
+
+/** Check if an error is retryable (network/rate-limit, not auth/not-found). */
+function isRetryable(error: unknown): boolean {
+  const errnoCode = (error as NodeJS.ErrnoException).code;
+  // ENOENT = command not found, EACCES = permission denied — never retry
+  if (errnoCode === "ENOENT" || errnoCode === "EACCES") return false;
+  // gh exit code 4 = auth error — never retry
+  if (errnoCode === "4" || (error as { code?: number }).code === 4) return false;
+  // Only retry errors that look like transient network/API failures
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("ETIMEDOUT") || message.includes("ECONNRESET") ||
+      message.includes("rate limit") || message.includes("502") ||
+      message.includes("503") || message.includes("timeout")) {
+    return true;
+  }
+  return false;
+}
+
+/** Run a `gh` CLI command with retry for transient failures. */
 export async function execGh(args: string[]): Promise<string> {
   logger.debug({ args }, "gh %s", args[0]);
-  try {
-    const { stdout } = await execFileAsync("gh", args);
-    return stdout.trim();
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === "ENOENT") {
-      throw new Error(
-        "gh CLI not found. Install it: https://cli.github.com/",
-      );
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const { stdout } = await execFileAsync("gh", args);
+      return stdout.trim();
+    } catch (error: unknown) {
+      lastError = error;
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === "ENOENT") {
+        throw new Error(
+          "gh CLI not found. Install it: https://cli.github.com/",
+        );
+      }
+      const exitCode = (error as { code?: number | string }).code;
+      if (exitCode === 4) {
+        throw new Error("gh CLI not authenticated. Run: gh auth login");
+      }
+
+      if (attempt < MAX_RETRIES && isRetryable(error)) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+        logger.warn(
+          { args, attempt: attempt + 1, maxRetries: MAX_RETRIES, delay },
+          "gh command failed, retrying",
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error({ args, error: message }, "gh command failed");
+      throw new Error(`gh ${args.join(" ")} failed: ${message}`);
     }
-    const exitCode = (error as { code?: number | string }).code;
-    if (exitCode === 4) {
-      throw new Error("gh CLI not authenticated. Run: gh auth login");
-    }
-    const message =
-      error instanceof Error ? error.message : String(error);
-    logger.error({ args, error: message }, "gh command failed");
-    throw new Error(`gh ${args.join(" ")} failed: ${message}`);
   }
+  // Should never reach here, but TypeScript needs this
+  throw lastError;
 }
 
 export interface GitHubIssue {

@@ -71,7 +71,7 @@ export async function runParallelExecution(
             } else {
               log.info({ issue: result.issueNumber, branch: result.branch }, "merged to base");
             }
-          } catch (err) {
+          } catch (err: unknown) {
             mergeConflicts++;
             log.error({ issue: result.issueNumber, err }, "merge error");
             result.status = "failed";

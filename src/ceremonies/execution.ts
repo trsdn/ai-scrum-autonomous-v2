@@ -190,7 +190,7 @@ export async function executeIssue(
     try {
       await removeWorktree(worktreePath);
       log.info("worktree removed");
-    } catch (err) {
+    } catch (err: unknown) {
       cleanupWarning = `⚠️ Orphaned worktree requires manual cleanup: \`${worktreePath}\``;
       log.error({ err, worktreePath }, "failed to remove worktree — orphaned worktree may need manual cleanup");
     }
