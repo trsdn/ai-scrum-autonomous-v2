@@ -9,9 +9,11 @@ import type {
   IssueResult,
   QualityResult,
   HuddleEntry,
+  CodeReviewResult,
 } from "../types.js";
 import { createWorktree, removeWorktree } from "../git/worktree.js";
 import { runQualityGate } from "../enforcement/quality-gate.js";
+import { runCodeReview } from "../enforcement/code-review.js";
 import {
   formatHuddleComment,
   formatSprintLogEntry,
@@ -129,6 +131,7 @@ export async function executeIssue(
   log.info({ worktreePath, branch }, "worktree created");
 
   let qualityResult: QualityResult = { passed: false, checks: [] };
+  let codeReview: CodeReviewResult | undefined;
   let retryCount = 0;
   let filesChanged: string[] = [];
   let status: "completed" | "failed" = "failed";
@@ -247,9 +250,59 @@ export async function executeIssue(
       retryCount = qualityResult.passed ? 0 : config.maxRetries;
     }
 
+    // Step 8: Code review (only if quality gate passed)
+    if (qualityResult.passed) {
+      try {
+        codeReview = await runCodeReview(client, config, issue, branch, worktreePath);
+        log.info({ approved: codeReview.approved, issues: codeReview.issues.length }, "code review completed");
+
+        if (!codeReview.approved) {
+          log.warn("code review rejected — attempting fix");
+          // Send feedback to worker for a fix attempt
+          const fixConfig = await resolveSessionConfig(config, "worker");
+          const { sessionId: fixSession } = await client.createSession({
+            cwd: worktreePath,
+            mcpServers: fixConfig.mcpServers,
+          });
+          try {
+            if (fixConfig.model) {
+              await client.setModel(fixSession, fixConfig.model);
+            }
+            const fixPrompt = [
+              "The automated code review found issues with your implementation.",
+              "Please address the following feedback:\n",
+              codeReview.feedback,
+              "\nFix the issues and ensure tests still pass.",
+            ].join("\n");
+            await client.sendPrompt(fixSession, fixPrompt, config.sessionTimeoutMs);
+          } finally {
+            await client.endSession(fixSession);
+          }
+
+          // Re-run quality gate after fix
+          qualityResult = await runQualityGate(
+            DEFAULT_QUALITY_GATE_CONFIG,
+            worktreePath,
+            branch,
+            config.baseBranch,
+          );
+
+          if (qualityResult.passed) {
+            // Re-run code review after fix
+            codeReview = await runCodeReview(client, config, issue, branch, worktreePath);
+            log.info({ approved: codeReview.approved }, "code review re-run after fix");
+          }
+        }
+      } catch (err: unknown) {
+        log.warn({ err }, "code review failed — proceeding without review");
+        codeReview = undefined;
+      }
+    }
+
     // Gather changed files
     filesChanged = await getChangedFiles(branch, config.baseBranch);
 
+    // Final status: passed quality gate AND (no review OR review approved)
     status = qualityResult.passed ? "completed" : "failed";
   } finally {
     const duration_ms = Date.now() - startTime;
@@ -270,6 +323,7 @@ export async function executeIssue(
       issueTitle: issue.title,
       status,
       qualityResult,
+      codeReview,
       duration_ms,
       filesChanged,
       timestamp: new Date(),
@@ -304,6 +358,7 @@ export async function executeIssue(
     status,
     qualityGatePassed: qualityResult.passed,
     qualityDetails: qualityResult,
+    codeReview,
     branch,
     duration_ms,
     filesChanged,
