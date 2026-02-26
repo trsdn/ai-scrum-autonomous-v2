@@ -9,6 +9,7 @@ import { createSprintLog } from "../documentation/sprint-log.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson } from "./helpers.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
  * Run the sprint planning ceremony: select and sequence backlog issues
@@ -47,9 +48,20 @@ export async function runSprintPlanning(
   });
 
   // Create ACP session and send prompt
-  const { sessionId } = await client.createSession({ cwd: config.projectPath });
+  const sessionConfig = await resolveSessionConfig(config, "planning");
+  const { sessionId } = await client.createSession({
+    cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
+  });
   try {
-    const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    let fullPrompt = prompt;
+    if (sessionConfig.instructions) {
+      fullPrompt = sessionConfig.instructions + "\n\n" + fullPrompt;
+    }
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+    const result = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const plan = extractJson<SprintPlan>(result.response);
 
     if (!plan.sprint_issues || !Array.isArray(plan.sprint_issues)) {

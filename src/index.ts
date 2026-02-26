@@ -52,10 +52,9 @@ function buildSprintConfig(config: ConfigFile, sprintNumber: number): SprintConf
     deleteBranchAfterMerge: config.git.delete_branch_after_merge,
     sessionTimeoutMs: config.copilot.session_timeout_ms,
     customInstructions: "",
-    githubMcp: config.github.mcp_server,
-    plannerModel: config.copilot.planner_model,
-    workerModel: config.copilot.worker_model,
-    reviewerModel: config.copilot.reviewer_model,
+    globalMcpServers: config.copilot.mcp_servers,
+    globalInstructions: config.copilot.instructions,
+    phases: config.copilot.phases,
   };
 }
 

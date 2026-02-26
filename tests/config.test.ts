@@ -18,11 +18,21 @@ project:
 
 copilot:
   executable: "copilot"
-  planner_model: "claude-opus-4.6"
-  worker_model: "claude-sonnet-4.5"
-  reviewer_model: "claude-opus-4.6"
   max_parallel_sessions: 2
   session_timeout_ms: 60000
+  mcp_servers:
+    - type: "stdio"
+      name: "github"
+      command: "npx"
+      args: ["-y", "@github/mcp-server"]
+  instructions: []
+  phases:
+    planner:
+      model: "claude-opus-4.6"
+    worker:
+      model: "claude-sonnet-4.5"
+    reviewer:
+      model: "claude-opus-4.6"
 
 sprint:
   max_issues: 4
@@ -51,11 +61,6 @@ git:
   auto_merge: false
   squash_merge: true
   delete_branch_after_merge: false
-
-github:
-  mcp_server:
-    command: "npx"
-    args: ["-y", "@github/mcp-server"]
 `;
 
 describe("loadConfig", () => {
@@ -69,7 +74,7 @@ describe("loadConfig", () => {
     expect(config.sprint.enable_challenger).toBe(false);
     expect(config.quality_gates.max_diff_lines).toBe(200);
     expect(config.git.auto_merge).toBe(false);
-    expect(config.github.mcp_server.command).toBe("npx");
+    expect(config.copilot.mcp_servers[0]!.name).toBe("github");
     expect(config.escalation.notifications.ntfy_topic).toBe("my-topic");
   });
 
@@ -86,7 +91,7 @@ project:
     expect(config.sprint.max_issues).toBe(8);
     expect(config.sprint.max_retries).toBe(2);
     expect(config.git.squash_merge).toBe(true);
-    expect(config.github.mcp_server.command).toBe("npx");
+    expect(config.copilot.mcp_servers).toEqual([]);
   });
 
   it("throws on missing config file", () => {

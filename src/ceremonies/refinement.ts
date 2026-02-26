@@ -6,6 +6,7 @@ import { listIssues } from "../github/issues.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson } from "./helpers.js";
 import { readVelocity } from "../documentation/velocity.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 interface RefinementResponse {
   refined_issues: Array<{
@@ -51,9 +52,20 @@ export async function runRefinement(
   });
 
   // Create ACP session and send prompt
-  const { sessionId } = await client.createSession({ cwd: config.projectPath });
+  const sessionConfig = await resolveSessionConfig(config, "refinement");
+  const { sessionId } = await client.createSession({
+    cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
+  });
   try {
-    const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    let fullPrompt = prompt;
+    if (sessionConfig.instructions) {
+      fullPrompt = sessionConfig.instructions + "\n\n" + fullPrompt;
+    }
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+    const result = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const parsed = extractJson<RefinementResponse>(result.response);
 
     const refined: RefinedIssue[] = parsed.refined_issues.map((issue) => ({

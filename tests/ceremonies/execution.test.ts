@@ -5,6 +5,14 @@ import type {
   QualityResult,
 } from "../../src/types.js";
 
+vi.mock("../../src/acp/session-config.js", () => ({
+  resolveSessionConfig: vi.fn().mockResolvedValue({
+    mcpServers: [],
+    instructions: "",
+    model: undefined,
+  }),
+}));
+
 // Mock all external dependencies
 vi.mock("../../src/git/worktree.js", () => ({
   createWorktree: vi.fn().mockResolvedValue(undefined),
@@ -101,7 +109,9 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     deleteBranchAfterMerge: true,
     sessionTimeoutMs: 60000,
     customInstructions: "",
-    githubMcp: { command: "gh", args: [] },
+    globalMcpServers: [],
+    globalInstructions: [],
+    phases: {},
     ...overrides,
   };
 }
@@ -178,6 +188,7 @@ describe("executeIssue", () => {
     // ACP session created in worktree directory
     expect(mockClient.createSession).toHaveBeenCalledWith({
       cwd: "/tmp/worktrees/issue-42",
+      mcpServers: [],
     });
 
     // Prompt sent

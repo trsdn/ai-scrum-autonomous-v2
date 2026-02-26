@@ -165,7 +165,9 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     deleteBranchAfterMerge: true,
     sessionTimeoutMs: 600000,
     customInstructions: "",
-    githubMcp: { command: "npx", args: ["-y", "@github/mcp-server"] },
+    globalMcpServers: [],
+    globalInstructions: [],
+    phases: {},
     ...overrides,
   };
 }

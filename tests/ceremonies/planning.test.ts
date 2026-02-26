@@ -74,6 +74,14 @@ describe("extractJson", () => {
 
 // --- runSprintPlanning (mocked) ---
 
+vi.mock("../../src/acp/session-config.js", () => ({
+  resolveSessionConfig: vi.fn().mockResolvedValue({
+    mcpServers: [],
+    instructions: "",
+    model: undefined,
+  }),
+}));
+
 // Mock external dependencies
 vi.mock("../../src/github/issues.js", () => ({
   listIssues: vi.fn(),
@@ -132,7 +140,9 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     deleteBranchAfterMerge: true,
     sessionTimeoutMs: 60000,
     customInstructions: "",
-    githubMcp: { command: "gh", args: [] },
+    globalMcpServers: [],
+    globalInstructions: [],
+    phases: {},
     ...overrides,
   };
 }
@@ -202,6 +212,7 @@ describe("runSprintPlanning", () => {
 
     expect(mockClient.createSession).toHaveBeenCalledWith({
       cwd: "/tmp/test-project",
+      mcpServers: [],
     });
     expect(mockClient.sendPrompt).toHaveBeenCalledOnce();
     expect(mockClient.endSession).toHaveBeenCalledWith("session-123");

@@ -6,6 +6,7 @@ import { calculateSprintMetrics, topFailedGates } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson } from "./helpers.js";
+import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
  * Run the sprint review ceremony: calculate metrics, ask ACP for a
@@ -53,9 +54,20 @@ export async function runSprintReview(
   });
 
   // Create ACP session and send prompt
-  const { sessionId } = await client.createSession({ cwd: config.projectPath });
+  const sessionConfig = await resolveSessionConfig(config, "review");
+  const { sessionId } = await client.createSession({
+    cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
+  });
   try {
-    const response = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    let fullPrompt = prompt;
+    if (sessionConfig.instructions) {
+      fullPrompt = sessionConfig.instructions + "\n\n" + fullPrompt;
+    }
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+    const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const review = extractJson<ReviewResult>(response.response);
 
     log.info(
