@@ -7,6 +7,7 @@ import type { EscalationEvent } from "../types.js";
 const execFile = promisify(execFileCb);
 
 const MAX_HTTP_STRING_LENGTH = 500;
+const NTFY_TOPIC_RE = /^[a-zA-Z0-9_-]+$/;
 
 /** Sanitize a string for safe use in HTTP headers/body via curl. */
 export function sanitizeForHttp(str: string): string {
@@ -15,6 +16,11 @@ export function sanitizeForHttp(str: string): string {
     // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1f\x7f]/g, "")
     .slice(0, MAX_HTTP_STRING_LENGTH);
+}
+
+/** Validate ntfy topic format - only allows alphanumeric, hyphens, and underscores. */
+export function isValidNtfyTopic(topic: string): boolean {
+  return NTFY_TOPIC_RE.test(topic);
 }
 
 export interface EscalationConfig {
@@ -61,6 +67,11 @@ export async function escalateToStakeholder(
 
   // Send ntfy notification if configured
   if (config.ntfyEnabled && config.ntfyTopic) {
+    if (!isValidNtfyTopic(config.ntfyTopic)) {
+      log.error({ topic: config.ntfyTopic }, "invalid ntfy topic — must match [a-zA-Z0-9_-]");
+      return;
+    }
+
     try {
       await execFile("curl", [
         "-s",
