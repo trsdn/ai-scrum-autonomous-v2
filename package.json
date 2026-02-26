@@ -1,0 +1,56 @@
+{
+  "name": "ai-scrum-sprint-runner",
+  "version": "0.1.0",
+  "description": "ACP-powered autonomous sprint engine for GitHub Copilot CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sprint-runner": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts'",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run typecheck && npm run test"
+  },
+  "keywords": [
+    "copilot",
+    "acp",
+    "scrum",
+    "sprint-runner",
+    "ai-agent"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "^0.14.0",
+    "commander": "^12.0.0",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0",
+    "yaml": "^2.4.0",
+    "zod": "^3.23.0",
+    "p-limit": "^6.0.0",
+    "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "prettier": "^3.3.0",
+    "tsx": "^4.0.0"
+  }
+}
