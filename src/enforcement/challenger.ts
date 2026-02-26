@@ -1,0 +1,71 @@
+import { diffStat } from "../git/diff-analysis.js";
+import { getIssue } from "../github/issues.js";
+import { logger } from "../logger.js";
+import type { AcpClient } from "../acp/client.js";
+import type { SprintConfig } from "../types.js";
+
+export interface ChallengerResult {
+  approved: boolean;
+  feedback: string;
+}
+
+export async function runChallengerReview(
+  client: AcpClient,
+  config: SprintConfig,
+  branch: string,
+  issueNumber: number,
+): Promise<ChallengerResult> {
+  const log = logger.child({ module: "challenger" });
+
+  log.info({ branch, issueNumber }, "starting challenger review");
+
+  const [issue, stat] = await Promise.all([
+    getIssue(issueNumber),
+    diffStat(branch, config.baseBranch),
+  ]);
+
+  const sessionId = await client.createSession({
+    cwd: config.projectPath,
+  });
+
+  const prompt = [
+    "You are an adversarial code reviewer (the Challenger).",
+    "Review this change critically. Look for:",
+    "- Scope creep beyond the issue",
+    "- Missing tests or inadequate coverage",
+    "- Architectural violations",
+    "- Security concerns",
+    "- Performance regressions",
+    "",
+    `## Issue #${issueNumber}: ${issue.title}`,
+    "",
+    issue.body,
+    "",
+    `## Diff Stats`,
+    `- Lines changed: ${stat.linesChanged}`,
+    `- Files changed: ${stat.filesChanged}`,
+    `- Files: ${stat.files.join(", ")}`,
+    "",
+    `## Branch: ${branch} (base: ${config.baseBranch})`,
+    "",
+    "Respond with EXACTLY one of these on the first line:",
+    "APPROVED: <one-line summary>",
+    "REJECTED: <one-line reason>",
+    "",
+    "Then provide detailed feedback below.",
+  ].join("\n");
+
+  const result = await client.sendPrompt(sessionId, prompt);
+  await client.endSession(sessionId);
+
+  const response = result.response.trim();
+  const firstLine = response.split("\n")[0] ?? "";
+  const approved = firstLine.toUpperCase().startsWith("APPROVED");
+
+  log.info({ approved, issueNumber }, "challenger review completed");
+
+  return {
+    approved,
+    feedback: response,
+  };
+}

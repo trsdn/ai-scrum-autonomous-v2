@@ -1,41 +1,52 @@
-.PHONY: help check fix lint format typecheck test test-quick coverage security notify clean
+.PHONY: help check fix lint format typecheck test test-quick coverage build notify clean install
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+# === Setup ===
+
+install: ## Install dependencies
+	npm install
+
 # === Quality ===
 
 lint: ## Run linter
-	uv run ruff check src/
+	npx eslint src/ tests/
 
 format: ## Format code
-	uv run ruff format src/
+	npx prettier --write 'src/**/*.ts' 'tests/**/*.ts'
 
 fix: ## Auto-fix lint issues and format
-	uv run ruff check --fix src/
-	uv run ruff format src/
+	npx eslint src/ tests/ --fix
+	npx prettier --write 'src/**/*.ts' 'tests/**/*.ts'
 
 typecheck: ## Run type checker
-	uv run mypy src/
+	npx tsc --noEmit
 
 check: lint typecheck test ## Run lint + types + tests
+
+# === Build ===
+
+build: ## Build TypeScript
+	npx tsc
+
+dev: ## Run in dev mode
+	npx tsx src/index.ts
 
 # === Testing ===
 
 test: ## Run all tests
-	uv run pytest tests/ -v
+	npx vitest run
 
 test-quick: ## Run tests with fast fail
-	uv run pytest tests/ -x -q --tb=short
+	npx vitest run --bail 1
+
+test-watch: ## Run tests in watch mode
+	npx vitest
 
 coverage: ## Run tests with coverage report
-	uv run pytest tests/ --cov=src/ --cov-report=term-missing --cov-report=html
-
-# === Security ===
-
-security: ## Run security scan
-	uv run bandit -r src/ -c pyproject.toml || true
+	npx vitest run --coverage
 
 # === Notifications ===
 
@@ -52,7 +63,5 @@ notify: ## Send notification (MSG="your message")
 # === Cleanup ===
 
 clean: ## Remove build artifacts
-	rm -rf build/ dist/ *.egg-info
-	rm -rf .pytest_cache .mypy_cache .ruff_cache
-	rm -rf htmlcov/ .coverage coverage.json
-	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	rm -rf dist/
+	rm -rf coverage/ .vitest/

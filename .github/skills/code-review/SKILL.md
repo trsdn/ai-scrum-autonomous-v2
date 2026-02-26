@@ -1,111 +1,29 @@
 ---
 name: code-review
-description: "Perform structured code reviews. Triggers on: 'code review', 'review code', 'review PR'."
+description: "Structured code review checklist. Triggers on: 'code review', 'review code', 'review PR'."
 ---
 
 # Code Review
 
-Perform thorough, structured code reviews focusing on security, performance, maintainability, and correctness.
+Perform a structured review of code changes.
 
-## Review Process
+## Steps
 
-### 1. Understand the Change
+1. **Read diff** — Review the full diff. Understand what changed and why.
+2. **Check DoD** — Verify Definition of Done: tests added/updated, no lint errors, docs updated if needed.
+3. **Check tests** — Confirm new/changed code has test coverage. Run tests to verify they pass.
+4. **Check scope** — Ensure changes match the issue scope. Flag any unrelated additions.
+5. **Provide feedback** — Report findings. Only flag issues that genuinely matter: bugs, security, logic errors. Do not comment on style or formatting.
 
-Before reviewing, gather context:
+## Rules
 
-```bash
-git diff main...HEAD
-# Or for a specific PR
-gh pr diff <number>
-```
+- Do NOT modify code during review — only report findings.
+- Focus on correctness, security, and logic. Ignore style and formatting.
+- If the PR has no tests for new logic, flag as blocking.
+- Verify CI status before approving: `gh pr checks <number>`.
 
-### 2. Review Checklist
+## Expected Outputs
 
-#### Security 🔒
-
-- [ ] No hardcoded secrets, API keys, or passwords
-- [ ] Input validation on all user inputs
-- [ ] SQL injection prevention (parameterized queries)
-- [ ] XSS prevention (output encoding)
-- [ ] Authentication/authorization checks present
-- [ ] Sensitive data not logged
-- [ ] Dependencies are up to date (no known CVEs)
-
-#### Performance ⚡
-
-- [ ] No N+1 query patterns
-- [ ] Expensive operations not in loops
-- [ ] Appropriate caching where needed
-- [ ] No memory leaks (event listeners cleaned up)
-- [ ] Lazy loading for large data sets
-- [ ] Database indexes for queried fields
-
-#### Code Quality 📐
-
-- [ ] Single responsibility principle
-- [ ] DRY (Don't Repeat Yourself)
-- [ ] Meaningful variable/function names
-- [ ] Functions are reasonably sized (< 50 lines)
-- [ ] No dead code or commented-out code
-- [ ] Error handling is comprehensive
-
-#### Testing 🧪
-
-- [ ] New code has tests
-- [ ] Edge cases covered
-- [ ] Tests are readable and maintainable
-- [ ] Mocks are appropriate (not over-mocked)
-
-#### Documentation 📝
-
-- [ ] Public APIs documented
-- [ ] Complex logic has comments
-- [ ] README updated if needed
-- [ ] Breaking changes documented
-
-### 3. Comment Format
-
-```text
-**[SEVERITY]** Brief description
-
-**Location:** file.py:42
-
-**Issue:**
-Explanation of the problem.
-
-**Suggestion:**
-Recommended fix.
-
-**Why:**
-Explanation of why this matters.
-```
-
-Severity levels:
-
-- 🔴 **BLOCKER** — Must fix before merge
-- 🟠 **MAJOR** — Should fix, significant issue
-- 🟡 **MINOR** — Nice to fix, minor issue
-- 🔵 **SUGGESTION** — Optional improvement
-- 💚 **PRAISE** — Highlight good code
-
-### 4. Generate Review Summary
-
-```markdown
-## Review Summary
-
-**Overall:** ✅ Approved / ⚠️ Changes Requested / ❌ Needs Work
-
-### Stats
-- Files reviewed: X
-- Issues found: X (Y blockers, Z major)
-
-### Highlights
-- 💚 Good practices observed
-
-### Required Changes
-1. 🔴 [Blocker description]
-2. 🟠 [Major issue description]
-
-### Suggestions
-1. 🔵 [Optional improvement]
-```
+- Summary of changes (1-2 sentences)
+- List of findings (blocking vs. non-blocking)
+- Approve / Request changes recommendation

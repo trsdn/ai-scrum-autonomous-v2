@@ -1,0 +1,310 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { AcpClient } from "./acp/client.js";
+import { runRefinement } from "./ceremonies/refinement.js";
+import { runSprintPlanning } from "./ceremonies/planning.js";
+import { runParallelExecution } from "./ceremonies/parallel-dispatcher.js";
+import { runSprintReview } from "./ceremonies/review.js";
+import { runSprintRetro } from "./ceremonies/retro.js";
+import { createSprintLog } from "./documentation/sprint-log.js";
+import { appendVelocity } from "./documentation/velocity.js";
+import { calculateSprintMetrics } from "./metrics.js";
+import { holisticDriftCheck } from "./enforcement/drift-control.js";
+import { escalateToStakeholder } from "./enforcement/escalation.js";
+import { logger as defaultLogger } from "./logger.js";
+import type {
+  SprintConfig,
+  SprintPlan,
+  SprintResult,
+  ReviewResult,
+  RetroResult,
+  RefinedIssue,
+} from "./types.js";
+
+export type SprintPhase =
+  | "init"
+  | "refine"
+  | "plan"
+  | "execute"
+  | "review"
+  | "retro"
+  | "complete"
+  | "paused"
+  | "failed";
+
+export interface SprintState {
+  version: string;
+  sprintNumber: number;
+  phase: SprintPhase;
+  plan?: SprintPlan;
+  result?: SprintResult;
+  review?: ReviewResult;
+  retro?: RetroResult;
+  startedAt: Date;
+  error?: string;
+}
+
+const STATE_VERSION = "1";
+
+// --- State persistence ---
+
+export function saveState(state: SprintState, filePath: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify({ ...state, version: STATE_VERSION }, null, 2), "utf-8");
+}
+
+export function loadState(filePath: string): SprintState {
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(raw) as SprintState;
+  if (parsed.version && parsed.version !== STATE_VERSION) {
+    throw new Error(
+      `Incompatible sprint state version: got '${parsed.version}', expected '${STATE_VERSION}'. Delete the state file and restart.`,
+    );
+  }
+  parsed.startedAt = new Date(parsed.startedAt);
+  return parsed;
+}
+
+// --- Sprint Runner ---
+
+export class SprintRunner {
+  private state: SprintState;
+  private client: AcpClient;
+  private config: SprintConfig;
+  private paused = false;
+  private phaseBeforePause: SprintPhase | null = null;
+  private readonly log;
+
+  constructor(config: SprintConfig) {
+    this.config = config;
+    this.client = new AcpClient({
+      timeoutMs: config.sessionTimeoutMs,
+    });
+    this.state = {
+      version: STATE_VERSION,
+      sprintNumber: config.sprintNumber,
+      phase: "init",
+      startedAt: new Date(),
+    };
+    this.log = defaultLogger.child({
+      component: "sprint-runner",
+      sprint: config.sprintNumber,
+    });
+  }
+
+  /** Run the full sprint cycle */
+  async fullCycle(): Promise<SprintState> {
+    try {
+      // 1. init
+      this.transition("init");
+      createSprintLog(this.config.sprintNumber, "Sprint cycle started", 0);
+      await this.client.connect();
+
+      // 2. refine
+      await this.checkPaused();
+      this.transition("refine");
+      const refined = await this.runRefine();
+
+      // 3. plan
+      await this.checkPaused();
+      this.transition("plan");
+      const plan = await this.runPlan(refined);
+
+      // 4. execute
+      await this.checkPaused();
+      this.transition("execute");
+      const result = await this.runExecute(plan);
+
+      // 5. review
+      await this.checkPaused();
+      this.transition("review");
+      const review = await this.runReview(result);
+
+      // 6. retro
+      await this.checkPaused();
+      this.transition("retro");
+      const retro = await this.runRetro(result, review);
+
+      // 7. complete
+      this.state.retro = retro;
+      this.transition("complete");
+      await this.client.disconnect();
+      this.persistState();
+
+      return this.state;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.state.phase = "failed";
+      this.state.error = message;
+      this.log.error({ error: message }, "Sprint cycle failed");
+
+      try {
+        await this.client.disconnect();
+      } catch {
+        // best-effort disconnect
+      }
+
+      this.persistState();
+      return this.state;
+    }
+  }
+
+  /** Run the refinement phase */
+  async runRefine(): Promise<RefinedIssue[]> {
+    this.log.info("Running refinement");
+    const refined = await runRefinement(this.client, this.config);
+    this.log.info({ count: refined.length }, "Refinement complete");
+    return refined;
+  }
+
+  /** Run the sprint planning phase */
+  async runPlan(refinedIssues?: RefinedIssue[]): Promise<SprintPlan> {
+    this.log.info("Running sprint planning");
+    const plan = await runSprintPlanning(this.client, this.config, refinedIssues);
+    this.state.plan = plan;
+    this.persistState();
+    this.log.info(
+      { issues: plan.sprint_issues.length, points: plan.estimated_points },
+      "Sprint planning complete",
+    );
+    return plan;
+  }
+
+  /** Run the execution phase */
+  async runExecute(plan: SprintPlan): Promise<SprintResult> {
+    this.log.info("Running parallel execution");
+    const result = await runParallelExecution(this.client, this.config, plan);
+    this.state.result = result;
+
+    // Holistic drift check
+    const allChanged = result.results.flatMap((r) => r.filesChanged);
+    const allExpected = plan.sprint_issues.flatMap((i) => i.expectedFiles);
+    const driftReport = await holisticDriftCheck(allChanged, allExpected);
+
+    if (driftReport.driftPercentage > 0) {
+      this.log.warn(
+        { driftPercentage: driftReport.driftPercentage },
+        "Drift detected during execution",
+      );
+    }
+
+    if (driftReport.unplannedChanges.length > this.config.maxDriftIncidents) {
+      await escalateToStakeholder(
+        {
+          level: "must",
+          reason: "Excessive drift detected",
+          detail: `${driftReport.unplannedChanges.length} unplanned file changes exceed threshold of ${this.config.maxDriftIncidents}`,
+          context: { driftReport },
+          timestamp: new Date(),
+        },
+        { ntfyEnabled: false },
+      );
+    }
+
+    this.persistState();
+    this.log.info(
+      {
+        completed: result.results.filter((r) => r.status === "completed").length,
+        failed: result.results.filter((r) => r.status === "failed").length,
+      },
+      "Execution complete",
+    );
+    return result;
+  }
+
+  /** Run the sprint review phase */
+  async runReview(result: SprintResult): Promise<ReviewResult> {
+    this.log.info("Running sprint review");
+    const metrics = calculateSprintMetrics(result);
+    const review = await runSprintReview(this.client, this.config, result);
+    this.state.review = review;
+
+    // Append velocity
+    appendVelocity({
+      sprint: this.config.sprintNumber,
+      date: new Date().toISOString().slice(0, 10),
+      goal: this.state.plan?.rationale ?? "",
+      planned: metrics.planned,
+      done: metrics.completed,
+      carry: metrics.failed,
+      hours: Math.round(metrics.avgDuration * metrics.planned / 3_600_000),
+      issuesPerHr:
+        metrics.avgDuration > 0
+          ? Math.round((metrics.completed / (metrics.avgDuration * metrics.planned / 3_600_000)) * 100) / 100
+          : 0,
+      notes: review.summary,
+    });
+
+    this.persistState();
+    this.log.info("Sprint review complete");
+    return review;
+  }
+
+  /** Run the retrospective phase */
+  async runRetro(result: SprintResult, review: ReviewResult): Promise<RetroResult> {
+    this.log.info("Running sprint retro");
+    const retro = await runSprintRetro(this.client, this.config, result, review);
+    this.state.retro = retro;
+    this.persistState();
+    this.log.info(
+      { improvements: retro.improvements.length },
+      "Sprint retro complete",
+    );
+    return retro;
+  }
+
+  /** Pause the sprint runner */
+  pause(): void {
+    if (this.state.phase !== "paused" && this.state.phase !== "failed" && this.state.phase !== "complete") {
+      this.phaseBeforePause = this.state.phase;
+      this.paused = true;
+      this.state.phase = "paused";
+      this.log.info({ previousPhase: this.phaseBeforePause }, "Sprint paused");
+      this.persistState();
+    }
+  }
+
+  /** Resume the sprint runner */
+  resume(): void {
+    if (this.paused && this.phaseBeforePause) {
+      this.paused = false;
+      this.state.phase = this.phaseBeforePause;
+      this.phaseBeforePause = null;
+      this.log.info({ phase: this.state.phase }, "Sprint resumed");
+      this.persistState();
+    }
+  }
+
+  /** Get current sprint state */
+  getState(): SprintState {
+    return { ...this.state };
+  }
+
+  // --- Private helpers ---
+
+  private transition(phase: SprintPhase): void {
+    const previous = this.state.phase;
+    this.state.phase = phase;
+    this.log.info({ from: previous, to: phase }, "Phase transition");
+  }
+
+  private async checkPaused(): Promise<void> {
+    while (this.paused) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  private persistState(): void {
+    const filePath = path.join(
+      this.config.projectPath,
+      "docs",
+      "sprints",
+      `sprint-${this.config.sprintNumber}-state.json`,
+    );
+    try {
+      saveState(this.state, filePath);
+    } catch (err: unknown) {
+      this.log.warn({ err }, "Failed to persist sprint state");
+    }
+  }
+}
