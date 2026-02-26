@@ -1,0 +1,151 @@
+import { describe, it, expect } from "vitest";
+import {
+  buildExecutionGroups,
+  detectCircularDependencies,
+  validateDependencies,
+} from "../../src/ceremonies/dep-graph.js";
+import type { SprintIssue } from "../../src/types.js";
+
+function makeIssue(
+  number: number,
+  depends_on: number[] = [],
+): SprintIssue {
+  return {
+    number,
+    title: `Issue #${number}`,
+    ice_score: 10,
+    depends_on,
+    acceptanceCriteria: "",
+    expectedFiles: [],
+    points: 1,
+  };
+}
+
+describe("buildExecutionGroups", () => {
+  it("returns empty array for empty issue set", () => {
+    expect(buildExecutionGroups([])).toEqual([]);
+  });
+
+  it("groups parallel issues together (no deps)", () => {
+    const issues = [makeIssue(1), makeIssue(2), makeIssue(3)];
+    const groups = buildExecutionGroups(issues);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].group).toBe(0);
+    expect(groups[0].issues).toEqual([1, 2, 3]);
+  });
+
+  it("handles linear dependencies (A → B → C)", () => {
+    const issues = [
+      makeIssue(3, [2]),
+      makeIssue(2, [1]),
+      makeIssue(1),
+    ];
+    const groups = buildExecutionGroups(issues);
+    expect(groups).toHaveLength(3);
+    expect(groups[0].issues).toEqual([1]);
+    expect(groups[1].issues).toEqual([2]);
+    expect(groups[2].issues).toEqual([3]);
+  });
+
+  it("handles diamond dependencies (A,B → C; D → C)", () => {
+    // C depends on A and B; D also depends on C
+    const issues = [
+      makeIssue(1),           // A — no deps
+      makeIssue(2),           // B — no deps
+      makeIssue(3, [1, 2]),   // C — depends on A, B
+      makeIssue(4, [3]),      // D — depends on C
+    ];
+    const groups = buildExecutionGroups(issues);
+    expect(groups).toHaveLength(3);
+    expect(groups[0].issues).toEqual([1, 2]); // A, B parallel
+    expect(groups[1].issues).toEqual([3]);    // C after A, B
+    expect(groups[2].issues).toEqual([4]);    // D after C
+  });
+
+  it("throws on circular dependencies", () => {
+    const issues = [
+      makeIssue(1, [2]),
+      makeIssue(2, [1]),
+    ];
+    expect(() => buildExecutionGroups(issues)).toThrow(
+      /Circular dependencies detected/,
+    );
+  });
+
+  it("ignores depends_on refs outside the issue set", () => {
+    const issues = [makeIssue(1, [99])];
+    const groups = buildExecutionGroups(issues);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].issues).toEqual([1]);
+  });
+});
+
+describe("detectCircularDependencies", () => {
+  it("returns null when no cycles exist", () => {
+    const issues = [makeIssue(1), makeIssue(2, [1])];
+    expect(detectCircularDependencies(issues)).toBeNull();
+  });
+
+  it("detects a simple 2-node cycle", () => {
+    const issues = [makeIssue(1, [2]), makeIssue(2, [1])];
+    const cycles = detectCircularDependencies(issues);
+    expect(cycles).not.toBeNull();
+    expect(cycles!.length).toBeGreaterThan(0);
+    // Each cycle should contain both nodes
+    const flat = cycles!.flat();
+    expect(flat).toContain(1);
+    expect(flat).toContain(2);
+  });
+
+  it("detects a 3-node cycle", () => {
+    const issues = [
+      makeIssue(1, [3]),
+      makeIssue(2, [1]),
+      makeIssue(3, [2]),
+    ];
+    const cycles = detectCircularDependencies(issues);
+    expect(cycles).not.toBeNull();
+    expect(cycles!.length).toBeGreaterThan(0);
+  });
+
+  it("returns null for empty issue set", () => {
+    expect(detectCircularDependencies([])).toBeNull();
+  });
+});
+
+describe("validateDependencies", () => {
+  it("returns valid when all deps exist", () => {
+    const issues = [makeIssue(1), makeIssue(2, [1])];
+    const result = validateDependencies(issues);
+    expect(result.valid).toBe(true);
+    expect(result.missingRefs).toEqual([]);
+  });
+
+  it("reports missing dependency references", () => {
+    const issues = [makeIssue(1, [99, 100])];
+    const result = validateDependencies(issues);
+    expect(result.valid).toBe(false);
+    expect(result.missingRefs).toEqual([
+      { issue: 1, missingDep: 99 },
+      { issue: 1, missingDep: 100 },
+    ]);
+  });
+
+  it("returns valid for empty issue set", () => {
+    const result = validateDependencies([]);
+    expect(result.valid).toBe(true);
+    expect(result.missingRefs).toEqual([]);
+  });
+
+  it("handles mixed valid and missing deps", () => {
+    const issues = [
+      makeIssue(1),
+      makeIssue(2, [1, 50]),
+    ];
+    const result = validateDependencies(issues);
+    expect(result.valid).toBe(false);
+    expect(result.missingRefs).toEqual([
+      { issue: 2, missingDep: 50 },
+    ]);
+  });
+});
