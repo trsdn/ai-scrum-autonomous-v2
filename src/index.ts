@@ -325,8 +325,8 @@ program
   .command("dashboard")
   .description("Launch TUI dashboard — auto-detects sprint from GitHub milestones, loops continuously")
   .option("--sprint <number>", "Override sprint number (skip auto-detection)", parseSprintNumber)
-  .option("--no-run", "Show dashboard without starting sprint execution")
-  .option("--once", "Run only one sprint instead of looping")
+  .option("--run", "Start sprint execution immediately")
+  .option("--once", "Run only one sprint instead of looping (implies --run)")
   .option("--log-file <path>", "Log file path (default: sprint-runner.log)", "sprint-runner.log")
   .action(async (opts) => {
     try {
@@ -364,8 +364,28 @@ program
       process.stdout.write("\x1b[?1049h");
       process.stdout.write("\x1b[H"); // cursor home
 
+      // Start sprint loop (called by [g]o key or --run flag)
+      const startLoop = () => {
+        SprintRunner.sprintLoop(
+          (sprintNumber) => buildSprintConfig(config, sprintNumber),
+          eventBus,
+        ).finally(() => {
+          setTimeout(() => { cleanup(); process.exit(0); }, 2000);
+        });
+      };
+
+      // Start single sprint (called by --once flag)
+      const startOnce = () => {
+        runner.fullCycle().finally(() => {
+          setTimeout(() => { cleanup(); process.exit(0); }, 2000);
+        });
+      };
+
       const { unmount } = render(
-        React.createElement(App, { runner }),
+        React.createElement(App, {
+          runner,
+          onStart: opts.once ? startOnce : startLoop,
+        }),
       );
 
       const cleanup = () => {
@@ -378,18 +398,12 @@ program
       process.on("SIGINT", () => { cleanup(); process.exit(0); });
       process.on("SIGTERM", () => { cleanup(); process.exit(0); });
 
-      if (opts.run !== false) {
+      // Auto-start if --run or --once was passed
+      if (opts.run || opts.once) {
         if (opts.once) {
-          runner.fullCycle().finally(() => {
-            setTimeout(() => { cleanup(); process.exit(0); }, 2000);
-          });
+          startOnce();
         } else {
-          SprintRunner.sprintLoop(
-            (sprintNumber) => buildSprintConfig(config, sprintNumber),
-            eventBus,
-          ).finally(() => {
-            setTimeout(() => { cleanup(); process.exit(0); }, 2000);
-          });
+          startLoop();
         }
       }
     } catch (err: unknown) {
