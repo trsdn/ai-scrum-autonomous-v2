@@ -44,9 +44,9 @@ function makeConfig(overrides: Partial<QualityGateConfig> = {}): QualityGateConf
     requireLint: true,
     requireTypes: true,
     maxDiffLines: 500,
-    testCommand: "npm test",
-    lintCommand: "npm run lint",
-    typecheckCommand: "npm run typecheck",
+    testCommand: ["npm", "test"],
+    lintCommand: ["npm", "run", "lint"],
+    typecheckCommand: ["npm", "run", "typecheck"],
     ...overrides,
   };
 }
@@ -168,5 +168,70 @@ describe("runQualityGate", () => {
     // All 5 checks should be present despite failures
     expect(result.checks).toHaveLength(5);
     expect(result.passed).toBe(false);
+  });
+
+  it("should handle commands as arrays correctly", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const config = makeConfig({
+      testCommand: ["npx", "vitest", "run"],
+      lintCommand: ["npx", "eslint", "src/"],
+      typecheckCommand: ["npx", "tsc", "--noEmit"],
+    });
+
+    const result = await runQualityGate(config, "/tmp/wt", "feat/1", "main");
+
+    expect(result.passed).toBe(true);
+    // Verify execFile was called with correct array args
+    expect(mockExecFile).toHaveBeenCalledWith(
+      "npx",
+      ["vitest", "run"],
+      expect.objectContaining({ cwd: "/tmp/wt" }),
+      expect.any(Function),
+    );
+  });
+
+  it("should handle command with spaces in path", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const config = makeConfig({
+      testCommand: ["/path/to/my project/node_modules/.bin/vitest", "run"],
+      requireLint: false,
+      requireTypes: false,
+    });
+
+    const result = await runQualityGate(config, "/tmp/my worktree", "feat/1", "main");
+
+    expect(result.passed).toBe(true);
+    expect(mockExecFile).toHaveBeenCalledWith(
+      "/path/to/my project/node_modules/.bin/vitest",
+      ["run"],
+      expect.objectContaining({ cwd: "/tmp/my worktree" }),
+      expect.any(Function),
+    );
+  });
+
+  it("should handle legacy string commands with a fallback", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    // Pass string (legacy) — should still work via fallback
+    const config = makeConfig({
+      testCommand: "npm test" as unknown as string[],
+      requireLint: false,
+      requireTypes: false,
+    });
+
+    const result = await runQualityGate(config, "/tmp/wt", "feat/1", "main");
+
+    expect(result.passed).toBe(true);
+    expect(mockExecFile).toHaveBeenCalledWith(
+      "npm",
+      ["test"],
+      expect.objectContaining({ cwd: "/tmp/wt" }),
+      expect.any(Function),
+    );
   });
 });

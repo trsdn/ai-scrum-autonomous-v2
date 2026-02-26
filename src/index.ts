@@ -172,9 +172,9 @@ program
         requireLint: config.quality_gates.require_lint,
         requireTypes: config.quality_gates.require_types,
         maxDiffLines: config.quality_gates.max_diff_lines,
-        testCommand: "npm run test",
-        lintCommand: "npm run lint",
-        typecheckCommand: "npm run typecheck",
+        testCommand: ["npm", "run", "test"],
+        lintCommand: ["npm", "run", "lint"],
+        typecheckCommand: ["npm", "run", "typecheck"],
       };
 
       const result = await runQualityGate(gateConfig, process.cwd(), opts.branch, baseBranch);

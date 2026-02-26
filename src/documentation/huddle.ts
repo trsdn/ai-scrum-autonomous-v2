@@ -26,7 +26,7 @@ export function formatHuddleComment(entry: HuddleEntry): string {
   const files = entry.filesChanged.map((f) => `  - \`${f}\``).join("\n");
   const ts = entry.timestamp.toISOString();
 
-  return [
+  const lines = [
     `### ${icon} Huddle — #${entry.issueNumber} ${entry.issueTitle}`,
     "",
     `**Status**: ${entry.status} | **Duration**: ${duration} | **Quality**: ${qualityStatus}`,
@@ -36,9 +36,14 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     "",
     `**Files Changed** (${entry.filesChanged.length}):`,
     files,
-    "",
-    `_${ts}_`,
-  ].join("\n");
+  ];
+
+  if (entry.cleanupWarning) {
+    lines.push("", entry.cleanupWarning);
+  }
+
+  lines.push("", `_${ts}_`);
+  return lines.join("\n");
 }
 
 export function formatSprintLogEntry(entry: HuddleEntry): string {
@@ -48,7 +53,7 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
   const checks = formatQualityChecks(entry);
   const ts = entry.timestamp.toISOString();
 
-  return [
+  const lines = [
     `### ${icon} #${entry.issueNumber} — ${entry.issueTitle}`,
     "",
     `- **Status**: ${entry.status}`,
@@ -58,7 +63,12 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     "",
     "**Quality Checks**:",
     checks,
-    "",
-    `_${ts}_`,
-  ].join("\n");
+  ];
+
+  if (entry.cleanupWarning) {
+    lines.push("", entry.cleanupWarning);
+  }
+
+  lines.push("", `_${ts}_`);
+  return lines.join("\n");
 }

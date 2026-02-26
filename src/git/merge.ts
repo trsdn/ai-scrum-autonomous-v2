@@ -44,8 +44,11 @@ export async function mergeBranch(
     return { success: true };
   } catch (err) {
     const message = (err as Error).message ?? "";
+    const stdout = (err as { stdout?: string }).stdout ?? "";
+    const stderr = (err as { stderr?: string }).stderr ?? "";
+    const output = `${message}\n${stdout}\n${stderr}`;
 
-    if (message.includes("CONFLICT") || message.includes("Merge conflict")) {
+    if (output.includes("CONFLICT") || output.includes("Merge conflict")) {
       // Gather conflict file list
       const conflictFiles = await getConflictFiles();
       log.warn(

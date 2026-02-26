@@ -120,6 +120,7 @@ export interface HuddleEntry {
   duration_ms: number;
   filesChanged: string[];
   timestamp: Date;
+  cleanupWarning?: string;
 }
 
 // --- Ceremonies ---

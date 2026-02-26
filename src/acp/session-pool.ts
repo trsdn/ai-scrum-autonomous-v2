@@ -36,9 +36,17 @@ export class SessionPool {
       await new Promise<void>((resolve) => this.waitQueue.push(resolve));
     }
 
-    const sessionId = await this.client.createSession(
-      options as Parameters<AcpClient["createSession"]>[0],
-    );
+    let sessionId: string;
+    try {
+      sessionId = await this.client.createSession(
+        options as Parameters<AcpClient["createSession"]>[0],
+      );
+    } catch (err) {
+      // Wake next waiter so pool doesn't deadlock
+      const next = this.waitQueue.shift();
+      if (next) next();
+      throw err;
+    }
     const pooled: PooledSession = { sessionId, createdAt: Date.now() };
     this.active.set(sessionId, pooled);
 

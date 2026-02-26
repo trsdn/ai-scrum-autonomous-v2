@@ -12,16 +12,28 @@ export interface QualityGateConfig {
   requireLint: boolean;
   requireTypes: boolean;
   maxDiffLines: number;
-  testCommand: string;
-  lintCommand: string;
-  typecheckCommand: string;
+  testCommand: string | string[];
+  lintCommand: string | string[];
+  typecheckCommand: string | string[];
+}
+
+/** Normalize a command to an array, logging a warning for legacy string usage. */
+function normalizeCommand(command: string | string[]): string[] {
+  if (Array.isArray(command)) return command;
+  const log = logger.child({ module: "quality-gate" });
+  log.warn(
+    { command },
+    "Command passed as string — splitting on spaces as fallback. Prefer string[] to support paths with spaces.",
+  );
+  return command.split(" ");
 }
 
 async function runCommand(
-  command: string,
+  command: string | string[],
   cwd: string,
 ): Promise<{ ok: boolean; output: string }> {
-  const [cmd, ...args] = command.split(" ");
+  const parts = normalizeCommand(command);
+  const [cmd, ...args] = parts;
   try {
     const { stdout, stderr } = await execFile(cmd!, args, { cwd });
     return { ok: true, output: (stdout + stderr).trim() };

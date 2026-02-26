@@ -46,7 +46,8 @@ export async function runParallelExecution(
       ),
     );
 
-    for (const outcome of settled) {
+    for (let i = 0; i < settled.length; i++) {
+      const outcome = settled[i];
       if (outcome.status === "fulfilled") {
         const result = outcome.value;
         allResults.push(result);
@@ -78,7 +79,19 @@ export async function runParallelExecution(
           }
         }
       } else {
-        log.error({ err: outcome.reason }, "issue execution rejected");
+        const issueNumber = group.issues[i];
+        log.error({ issueNumber, err: outcome.reason }, "issue execution rejected");
+        allResults.push({
+          issueNumber,
+          status: "failed",
+          qualityGatePassed: false,
+          qualityDetails: { passed: false, checks: [] },
+          branch: `sprint/${config.sprintNumber}/issue-${issueNumber}`,
+          duration_ms: 0,
+          filesChanged: [],
+          retryCount: 0,
+          points: issueMap.get(issueNumber)?.points ?? 0,
+        });
       }
     }
 

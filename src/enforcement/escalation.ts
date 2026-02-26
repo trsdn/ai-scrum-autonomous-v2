@@ -6,6 +6,16 @@ import type { EscalationEvent } from "../types.js";
 
 const execFile = promisify(execFileCb);
 
+const MAX_HTTP_STRING_LENGTH = 500;
+
+/** Sanitize a string for safe use in HTTP headers/body via curl. */
+export function sanitizeForHttp(str: string): string {
+  return str
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[\x00-\x1f\x7f]/g, "")
+    .slice(0, MAX_HTTP_STRING_LENGTH);
+}
+
 export interface EscalationConfig {
   ntfyTopic?: string;
   ntfyEnabled: boolean;
@@ -56,9 +66,9 @@ export async function escalateToStakeholder(
         "-o",
         "/dev/null",
         "-d",
-        `[${event.level}] ${event.reason}: ${event.detail}`,
+        `[${event.level}] ${sanitizeForHttp(event.reason)}: ${sanitizeForHttp(event.detail)}`,
         "-H",
-        `Title: Escalation: ${event.reason}`,
+        `Title: Escalation: ${sanitizeForHttp(event.reason)}`,
         "-H",
         `Priority: ${event.level === "must" ? "urgent" : event.level === "should" ? "high" : "default"}`,
         `https://ntfy.sh/${config.ntfyTopic}`,

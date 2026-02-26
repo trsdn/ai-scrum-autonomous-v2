@@ -26,9 +26,9 @@ const DEFAULT_QUALITY_GATE_CONFIG = {
   requireLint: true,
   requireTypes: true,
   maxDiffLines: 300,
-  testCommand: "npm run test",
-  lintCommand: "npm run lint",
-  typecheckCommand: "npm run typecheck",
+  testCommand: ["npm", "run", "test"],
+  lintCommand: ["npm", "run", "lint"],
+  typecheckCommand: ["npm", "run", "typecheck"],
 };
 
 /**
@@ -185,6 +185,16 @@ export async function executeIssue(
   } finally {
     const duration_ms = Date.now() - startTime;
 
+    // Step 11: Remove worktree (keeps branch for PR) — before huddle so we can report cleanup failures
+    let cleanupWarning: string | undefined;
+    try {
+      await removeWorktree(worktreePath);
+      log.info("worktree removed");
+    } catch (err) {
+      cleanupWarning = `⚠️ Orphaned worktree requires manual cleanup: \`${worktreePath}\``;
+      log.error({ err, worktreePath }, "failed to remove worktree — orphaned worktree may need manual cleanup");
+    }
+
     // Step 8: Huddle — format comment, post to issue, append to sprint log
     const huddleEntry: HuddleEntry = {
       issueNumber: issue.number,
@@ -194,6 +204,7 @@ export async function executeIssue(
       duration_ms,
       filesChanged,
       timestamp: new Date(),
+      cleanupWarning,
     };
 
     const comment = formatHuddleComment(huddleEntry);
@@ -206,14 +217,6 @@ export async function executeIssue(
     const finalLabel = status === "completed" ? "status:done" : "status:blocked";
     await setLabel(issue.number, finalLabel);
     log.info({ status, finalLabel }, "final status set");
-
-    // Step 11: Remove worktree (keeps branch for PR)
-    try {
-      await removeWorktree(worktreePath);
-      log.info("worktree removed");
-    } catch (err) {
-      log.warn({ err }, "failed to remove worktree");
-    }
   }
 
   const duration_ms = Date.now() - startTime;

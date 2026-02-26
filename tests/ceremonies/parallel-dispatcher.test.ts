@@ -284,6 +284,56 @@ describe("runParallelExecution", () => {
     expect(result.avgWorktreeLifetime).toBe(3000);
   });
 
+  it("tracks rejected executeIssue as failed IssueResult", async () => {
+    const issues = [makeIssue(1), makeIssue(2)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1, 2] },
+    ]);
+    vi.mocked(executeIssue)
+      .mockResolvedValueOnce(makeResult(1))
+      .mockRejectedValueOnce(new Error("session crashed"));
+    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+
+    const result = await runParallelExecution(
+      mockClient,
+      makeConfig(),
+      makePlan(issues),
+    );
+
+    expect(result.results).toHaveLength(2);
+    const rejected = result.results.find((r) => r.issueNumber === 2)!;
+    expect(rejected.status).toBe("failed");
+    expect(rejected.qualityGatePassed).toBe(false);
+    expect(rejected.retryCount).toBe(0);
+    expect(rejected.duration_ms).toBe(0);
+    expect(rejected.branch).toBe("sprint/1/issue-2");
+  });
+
+  it("counts fulfilled-failed and rejected correctly in mixed results", async () => {
+    const issues = [makeIssue(1), makeIssue(2), makeIssue(3)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1, 2, 3] },
+    ]);
+    vi.mocked(executeIssue)
+      .mockResolvedValueOnce(makeResult(1))              // fulfilled, completed
+      .mockResolvedValueOnce(makeResult(2, "failed"))     // fulfilled, failed
+      .mockRejectedValueOnce(new Error("timeout"));       // rejected
+    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+
+    const result = await runParallelExecution(
+      mockClient,
+      makeConfig(),
+      makePlan(issues),
+    );
+
+    expect(result.results).toHaveLength(3);
+    const completed = result.results.filter((r) => r.status === "completed");
+    const failed = result.results.filter((r) => r.status === "failed");
+    expect(completed).toHaveLength(1);
+    expect(failed).toHaveLength(2);
+    expect(failed.map((r) => r.issueNumber).sort()).toEqual([2, 3]);
+  });
+
   it("returns empty results for plan with no issues", async () => {
     vi.mocked(buildExecutionGroups).mockReturnValue([]);
 

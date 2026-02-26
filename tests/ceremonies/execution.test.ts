@@ -247,6 +247,42 @@ describe("executeIssue", () => {
     expect(result.status).toBe("completed");
     expect(removeWorktree).toHaveBeenCalled();
   });
+
+  it("includes cleanupWarning in huddle entry when worktree removal fails", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    vi.mocked(removeWorktree).mockRejectedValue(new Error("rm failed"));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    // Huddle entry should include cleanupWarning with the worktree path
+    expect(formatHuddleComment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cleanupWarning: expect.stringContaining("/tmp/worktrees/issue-42"),
+      }),
+    );
+    expect(formatSprintLogEntry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cleanupWarning: expect.stringContaining("/tmp/worktrees/issue-42"),
+      }),
+    );
+  });
+
+  it("does not include cleanupWarning when worktree removal succeeds", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    vi.mocked(removeWorktree).mockResolvedValue(undefined);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    expect(formatHuddleComment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cleanupWarning: undefined,
+      }),
+    );
+  });
 });
 
 // --- handleQualityFailure ---

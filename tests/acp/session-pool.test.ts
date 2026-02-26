@@ -135,6 +135,82 @@ describe("SessionPool", () => {
     });
   });
 
+  describe("acquire error handling (deadlock prevention)", () => {
+    it("pool stays functional after createSession throws", async () => {
+      const err = new Error("session creation failed");
+      vi.mocked(client.createSession)
+        .mockRejectedValueOnce(err);
+
+      await expect(pool.acquire({ cwd: "/tmp" })).rejects.toThrow(
+        "session creation failed",
+      );
+
+      // Pool should still be usable
+      expect(pool.getStats().active).toBe(0);
+      const session = await pool.acquire({ cwd: "/tmp" });
+      expect(session.sessionId).toBeDefined();
+      expect(pool.getStats().active).toBe(1);
+    });
+
+    it("unblocks next waiter when createSession throws at capacity", async () => {
+      // Fill pool to capacity
+      await pool.acquire({ cwd: "/a" });
+      await pool.acquire({ cwd: "/b" });
+
+      // Queue two waiters
+      let waiter1Resolved = false;
+      const waiter1 = pool.acquire({ cwd: "/c" }).then((s) => {
+        waiter1Resolved = true;
+        return s;
+      });
+
+      let waiter2Resolved = false;
+      const waiter2 = pool.acquire({ cwd: "/d" }).then((s) => {
+        waiter2Resolved = true;
+        return s;
+      });
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(waiter1Resolved).toBe(false);
+      expect(waiter2Resolved).toBe(false);
+
+      // Make createSession fail for the next call, then succeed after
+      vi.mocked(client.createSession)
+        .mockRejectedValueOnce(new Error("boom"));
+
+      // Release one slot — waiter1 wakes up, createSession fails,
+      // waiter1 rejects but must wake waiter2
+      await pool.release("session-1");
+
+      await expect(waiter1).rejects.toThrow("boom");
+      await new Promise((r) => setTimeout(r, 50));
+
+      // Release second slot so waiter2 can proceed
+      await pool.release("session-2");
+      const s = await waiter2;
+      expect(waiter2Resolved).toBe(true);
+      expect(s.sessionId).toBeDefined();
+    });
+
+    it("multiple consecutive failures don't leak slots", async () => {
+      vi.mocked(client.createSession)
+        .mockRejectedValueOnce(new Error("fail-1"))
+        .mockRejectedValueOnce(new Error("fail-2"))
+        .mockRejectedValueOnce(new Error("fail-3"));
+
+      await expect(pool.acquire({ cwd: "/a" })).rejects.toThrow("fail-1");
+      await expect(pool.acquire({ cwd: "/b" })).rejects.toThrow("fail-2");
+      await expect(pool.acquire({ cwd: "/c" })).rejects.toThrow("fail-3");
+
+      // All slots should still be available
+      expect(pool.getStats()).toEqual({ active: 0, available: 2, total: 2 });
+
+      // Pool should still work
+      const session = await pool.acquire({ cwd: "/d" });
+      expect(session.sessionId).toBeDefined();
+    });
+  });
+
   describe("drainAll", () => {
     it("ends all active sessions", async () => {
       await pool.acquire({ cwd: "/a" });

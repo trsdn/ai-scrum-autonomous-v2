@@ -48,6 +48,7 @@ export interface PromptResult {
 export class AcpClient {
   private process: ChildProcess | null = null;
   private connection: ClientSideConnection | null = null;
+  private connecting: Promise<void> | null = null;
   private readonly log: Logger;
   private readonly command: string;
   private readonly extraArgs: string[];
@@ -58,6 +59,9 @@ export class AcpClient {
 
   // Accumulate streamed chunks per session
   private sessionChunks = new Map<string, string[]>();
+
+  // Track in-flight prompt promises so we can reject them if the process exits
+  private inFlightPromises = new Set<{ reject: (err: Error) => void }>();
 
   constructor(options: AcpClientOptions = {}) {
     this.log = options.logger ?? defaultLogger.child({ component: "acp-client" });
@@ -74,109 +78,126 @@ export class AcpClient {
    * Spawn the Copilot CLI as an ACP server and establish the connection.
    */
   async connect(): Promise<void> {
+    // If already connecting, reuse the in-flight promise
+    if (this.connecting) {
+      return this.connecting;
+    }
+
     if (this.connection) {
       throw new Error("AcpClient is already connected");
     }
 
-    const args = [...this.extraArgs, "--acp", "--stdio"];
-    this.log.info({ command: this.command, args }, "spawning copilot ACP server");
+    this.connecting = (async () => {
+      const args = [...this.extraArgs, "--acp", "--stdio"];
+      this.log.info({ command: this.command, args }, "spawning copilot ACP server");
 
-    this.process = spawn(this.command, args, {
-      stdio: ["pipe", "pipe", "pipe"],
-      env: { ...process.env },
-    });
+      this.process = spawn(this.command, args, {
+        stdio: ["pipe", "pipe", "pipe"],
+        env: { ...process.env },
+      });
 
-    const proc = this.process;
+      const proc = this.process;
 
-    // Forward stderr for diagnostics
-    proc.stderr?.on("data", (chunk: Buffer) => {
-      this.log.debug({ stderr: chunk.toString().trimEnd() }, "copilot stderr");
-    });
+      // Forward stderr for diagnostics
+      proc.stderr?.on("data", (chunk: Buffer) => {
+        this.log.debug({ stderr: chunk.toString().trimEnd() }, "copilot stderr");
+      });
 
-    proc.on("error", (err) => {
-      this.log.error({ err }, "copilot process error");
-    });
+      proc.on("error", (err) => {
+        this.log.error({ err }, "copilot process error");
+        this.rejectAllInFlight(new Error(`ACP process error: ${err.message}`));
+      });
 
-    proc.on("exit", (code, signal) => {
-      this.log.info({ code, signal }, "copilot process exited");
-      this.connection = null;
-      this.process = null;
-    });
+      proc.on("exit", (code, signal) => {
+        this.log.info({ code, signal }, "copilot process exited");
+        this.connection = null;
+        this.process = null;
+        this.rejectAllInFlight(
+          new Error(`ACP process exited unexpectedly (code=${code}, signal=${signal})`),
+        );
+      });
 
-    if (!proc.stdin || !proc.stdout) {
-      throw new Error("Failed to access copilot process stdio streams");
-    }
+      if (!proc.stdin || !proc.stdout) {
+        throw new Error("Failed to access copilot process stdio streams");
+      }
 
-    // Convert Node streams to web streams for the ACP SDK
-    const writable = new WritableStream<Uint8Array>({
-      write(chunk) {
-        return new Promise<void>((resolve, reject) => {
-          const ok = proc.stdin!.write(chunk, (err) => {
-            if (err) reject(err);
+      // Convert Node streams to web streams for the ACP SDK
+      const writable = new WritableStream<Uint8Array>({
+        write(chunk) {
+          return new Promise<void>((resolve, reject) => {
+            const ok = proc.stdin!.write(chunk, (err) => {
+              if (err) reject(err);
+            });
+            if (ok) resolve();
+            else proc.stdin!.once("drain", resolve);
           });
-          if (ok) resolve();
-          else proc.stdin!.once("drain", resolve);
-        });
-      },
-      close() {
-        proc.stdin!.end();
-      },
-    });
+        },
+        close() {
+          proc.stdin!.end();
+        },
+      });
 
-    const readable = new ReadableStream<Uint8Array>({
-      start(controller) {
-        proc.stdout!.on("data", (chunk: Buffer) => {
-          controller.enqueue(new Uint8Array(chunk));
-        });
-        proc.stdout!.on("end", () => controller.close());
-        proc.stdout!.on("error", (err) => controller.error(err));
-      },
-    });
+      const readable = new ReadableStream<Uint8Array>({
+        start(controller) {
+          proc.stdout!.on("data", (chunk: Buffer) => {
+            controller.enqueue(new Uint8Array(chunk));
+          });
+          proc.stdout!.on("end", () => controller.close());
+          proc.stdout!.on("error", (err) => controller.error(err));
+        },
+      });
 
-    const stream = ndJsonStream(writable, readable);
+      const stream = ndJsonStream(writable, readable);
 
-    const permissionHandler = this.permissionHandler;
-    const sessionChunks = this.sessionChunks;
-    const log = this.log;
+      const permissionHandler = this.permissionHandler;
+      const sessionChunks = this.sessionChunks;
+      const log = this.log;
 
-    this.connection = new ClientSideConnection(
-      (_agent) => {
-        const client: Client = {
-          async requestPermission(
-            params: RequestPermissionRequest,
-          ): Promise<RequestPermissionResponse> {
-            return permissionHandler(params);
-          },
-          async sessionUpdate(params: SessionNotification): Promise<void> {
-            const update = params.update;
-            if (update.sessionUpdate === "agent_message_chunk") {
-              const content = update.content;
-              if (content.type === "text") {
-                const sid = params.sessionId;
-                const chunks = sessionChunks.get(sid) ?? [];
-                chunks.push(content.text);
-                sessionChunks.set(sid, chunks);
+      this.connection = new ClientSideConnection(
+        (_agent) => {
+          const client: Client = {
+            async requestPermission(
+              params: RequestPermissionRequest,
+            ): Promise<RequestPermissionResponse> {
+              return permissionHandler(params);
+            },
+            async sessionUpdate(params: SessionNotification): Promise<void> {
+              const update = params.update;
+              if (update.sessionUpdate === "agent_message_chunk") {
+                const content = update.content;
+                if (content.type === "text") {
+                  const sid = params.sessionId;
+                  const chunks = sessionChunks.get(sid) ?? [];
+                  chunks.push(content.text);
+                  sessionChunks.set(sid, chunks);
+                }
               }
-            }
-            log.debug(
-              { sessionId: params.sessionId, type: update.sessionUpdate },
-              "session update",
-            );
-          },
-        };
-        return client;
-      },
-      stream,
-    );
+              log.debug(
+                { sessionId: params.sessionId, type: update.sessionUpdate },
+                "session update",
+              );
+            },
+          };
+          return client;
+        },
+        stream,
+      );
 
-    // Initialize the connection
-    await this.connection.initialize({
-      protocolVersion: PROTOCOL_VERSION,
-      clientInfo: { name: "sprint-runner", version: "0.1.0" },
-      capabilities: {},
-    });
+      // Initialize the connection
+      await this.connection.initialize({
+        protocolVersion: PROTOCOL_VERSION,
+        clientInfo: { name: "sprint-runner", version: "0.1.0" },
+        capabilities: {},
+      });
 
-    this.log.info("ACP connection established");
+      this.log.info("ACP connection established");
+    })();
+
+    try {
+      await this.connecting;
+    } finally {
+      this.connecting = null;
+    }
   }
 
   /**
@@ -233,20 +254,31 @@ export class AcpClient {
       }
     });
 
-    const result = await Promise.race([promptPromise, timeoutPromise]);
+    // Track this promise so process exit can reject it
+    const tracker = { reject: (_err: Error) => {} };
+    const processExitPromise = new Promise<never>((_resolve, reject) => {
+      tracker.reject = reject;
+    });
+    this.inFlightPromises.add(tracker);
 
-    const chunks = this.sessionChunks.get(sessionId) ?? [];
-    const response = chunks.join("");
+    try {
+      const result = await Promise.race([promptPromise, timeoutPromise, processExitPromise]);
 
-    this.log.info(
-      { sessionId, stopReason: result.stopReason, responseLength: response.length },
-      "prompt completed",
-    );
+      const chunks = this.sessionChunks.get(sessionId) ?? [];
+      const response = chunks.join("");
 
-    return {
-      response,
-      stopReason: result.stopReason,
-    };
+      this.log.info(
+        { sessionId, stopReason: result.stopReason, responseLength: response.length },
+        "prompt completed",
+      );
+
+      return {
+        response,
+        stopReason: result.stopReason,
+      };
+    } finally {
+      this.inFlightPromises.delete(tracker);
+    }
   }
 
   /**
@@ -264,9 +296,19 @@ export class AcpClient {
    * Kill the copilot process and clean up.
    */
   async disconnect(): Promise<void> {
+    // If a connect() is in progress, wait for it before tearing down
+    if (this.connecting) {
+      try {
+        await this.connecting;
+      } catch {
+        // connect() failed — proceed with cleanup
+      }
+    }
+
     this.log.info("disconnecting ACP client");
 
     this.sessionChunks.clear();
+    this.inFlightPromises.clear();
 
     if (this.process) {
       const proc = this.process;
@@ -302,5 +344,12 @@ export class AcpClient {
       throw new Error("AcpClient is not connected — call connect() first");
     }
     return this.connection;
+  }
+
+  private rejectAllInFlight(err: Error): void {
+    for (const tracker of this.inFlightPromises) {
+      tracker.reject(err);
+    }
+    this.inFlightPromises.clear();
   }
 }

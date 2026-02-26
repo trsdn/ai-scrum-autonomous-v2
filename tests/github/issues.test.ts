@@ -27,6 +27,20 @@ function mockExecFileError(message: string): void {
   );
 }
 
+function mockExecFileErrorWithCode(message: string, code: string | number): void {
+  mockExecFile.mockImplementation(
+    ((_cmd: unknown, _args: unknown, callback: unknown) => {
+      const err = new Error(message) as NodeJS.ErrnoException;
+      err.code = String(code);
+      // For numeric exit codes, set as number to match child_process behavior
+      if (typeof code === "number") {
+        (err as unknown as Record<string, unknown>).code = code;
+      }
+      (callback as (err: Error | null) => void)(err);
+    }) as typeof cp.execFile,
+  );
+}
+
 beforeEach(() => {
   vi.restoreAllMocks();
 });
@@ -47,6 +61,20 @@ describe("execGh", () => {
     mockExecFileError("not authenticated");
     await expect(execGh(["issue", "list"])).rejects.toThrow(
       "gh issue list failed: not authenticated",
+    );
+  });
+
+  it("throws helpful message when gh CLI is not installed (ENOENT)", async () => {
+    mockExecFileErrorWithCode("spawn gh ENOENT", "ENOENT");
+    await expect(execGh(["issue", "list"])).rejects.toThrow(
+      "gh CLI not found. Install it: https://cli.github.com/",
+    );
+  });
+
+  it("throws helpful message when gh CLI is not authenticated (exit code 4)", async () => {
+    mockExecFileErrorWithCode("gh auth required", 4);
+    await expect(execGh(["issue", "list"])).rejects.toThrow(
+      "gh CLI not authenticated. Run: gh auth login",
     );
   });
 });

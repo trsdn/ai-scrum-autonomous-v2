@@ -36,15 +36,15 @@ export async function getMilestone(
   const json = await execGh([
     "api",
     "repos/{owner}/{repo}/milestones",
-    "--jq",
-    `.[] | select(.title == "${title}")`,
+    "--paginate",
   ]);
 
   if (!json) {
     return undefined;
   }
 
-  return JSON.parse(json) as GitHubMilestone;
+  const milestones = JSON.parse(json) as GitHubMilestone[];
+  return milestones.find((m) => m.title === title);
 }
 
 /** Assign an issue to a milestone by title. */

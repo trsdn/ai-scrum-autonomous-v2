@@ -185,6 +185,54 @@ describe("AcpClient", () => {
       // Should not throw
       await expect(client.disconnect()).resolves.toBeUndefined();
     });
+
+    it("disconnect during connect waits then disconnects cleanly", async () => {
+      const mockProc = createMockProcess();
+
+      // Make initialize slow so connect() is in progress when disconnect() is called
+      let resolveInit!: (value: unknown) => void;
+      mockInitialize.mockImplementation(
+        () => new Promise((resolve) => { resolveInit = resolve; }),
+      );
+
+      mockSpawn.mockReturnValue(mockProc);
+      const client = new AcpClient({ logger: silentLogger });
+
+      const connectPromise = client.connect();
+
+      // disconnect() while connect() is still awaiting initialize
+      const disconnectPromise = client.disconnect();
+
+      // Finish the connection
+      resolveInit({
+        protocolVersion: 1,
+        agentInfo: { name: "copilot", version: "1.0.0" },
+      });
+
+      await connectPromise;
+      await disconnectPromise;
+
+      expect(mockProc.kill).toHaveBeenCalledWith("SIGTERM");
+      expect(client.connected).toBe(false);
+    });
+
+    it("multiple concurrent connect calls reuse the same connection", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      const client = new AcpClient({ logger: silentLogger });
+
+      const p1 = client.connect();
+      const p2 = client.connect();
+
+      await Promise.all([p1, p2]);
+
+      // spawn should only be called once
+      expect(mockSpawn).toHaveBeenCalledTimes(1);
+      expect(client.connected).toBe(true);
+
+      await client.disconnect();
+    });
   });
 
   describe("createSession", () => {
@@ -278,6 +326,69 @@ describe("AcpClient", () => {
       await expect(
         client.sendPrompt("session-123", "slow prompt"),
       ).rejects.toThrow("timed out");
+
+      await client.disconnect();
+    });
+
+    it("rejects immediately when process exits during sendPrompt", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      // Make prompt hang forever (simulates in-flight request)
+      mockPrompt.mockImplementation(() => new Promise(() => {}));
+
+      const client = new AcpClient({ logger: silentLogger, timeoutMs: 60_000 });
+      await client.connect();
+      await client.createSession({ cwd: "/tmp" });
+
+      const promptPromise = client.sendPrompt("session-123", "test");
+
+      // Simulate process crash
+      (mockProc as unknown as EventEmitter).emit("exit", 1, null);
+
+      await expect(promptPromise).rejects.toThrow("ACP process exited unexpectedly");
+    });
+
+    it("rejects all concurrent sendPrompt calls when process exits", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      // Make prompt hang forever
+      mockPrompt.mockImplementation(() => new Promise(() => {}));
+
+      const client = new AcpClient({ logger: silentLogger, timeoutMs: 60_000 });
+      await client.connect();
+      await client.createSession({ cwd: "/tmp" });
+
+      const p1 = client.sendPrompt("session-123", "prompt 1");
+      const p2 = client.sendPrompt("session-123", "prompt 2");
+      const p3 = client.sendPrompt("session-123", "prompt 3");
+
+      // Simulate process crash
+      (mockProc as unknown as EventEmitter).emit("exit", 1, "SIGKILL");
+
+      await expect(p1).rejects.toThrow("ACP process exited unexpectedly");
+      await expect(p2).rejects.toThrow("ACP process exited unexpectedly");
+      await expect(p3).rejects.toThrow("ACP process exited unexpectedly");
+    });
+
+    it("normal sendPrompt still works after fix", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      mockPrompt.mockResolvedValue({ stopReason: "end_turn" });
+
+      const client = new AcpClient({ logger: silentLogger });
+      await client.connect();
+      await client.createSession({ cwd: "/tmp" });
+
+      const result = await client.sendPrompt("session-123", "Hello");
+      expect(result.stopReason).toBe("end_turn");
+      expect(result.response).toBe("");
+
+      // Second prompt also works
+      const result2 = await client.sendPrompt("session-123", "World");
+      expect(result2.stopReason).toBe("end_turn");
 
       await client.disconnect();
     });

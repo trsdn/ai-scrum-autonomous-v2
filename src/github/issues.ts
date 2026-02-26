@@ -11,6 +11,16 @@ export async function execGh(args: string[]): Promise<string> {
     const { stdout } = await execFileAsync("gh", args);
     return stdout.trim();
   } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT") {
+      throw new Error(
+        "gh CLI not found. Install it: https://cli.github.com/",
+      );
+    }
+    const exitCode = (error as { code?: number | string }).code;
+    if (exitCode === 4) {
+      throw new Error("gh CLI not authenticated. Run: gh auth login");
+    }
     const message =
       error instanceof Error ? error.message : String(error);
     logger.error({ args, error: message }, "gh command failed");
