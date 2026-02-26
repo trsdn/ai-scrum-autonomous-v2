@@ -27,7 +27,7 @@ import { runRefinement } from "./ceremonies/refinement.js";
 import { runSprintReview } from "./ceremonies/review.js";
 import { runSprintRetro } from "./ceremonies/retro.js";
 import { runQualityGate, type QualityGateConfig } from "./enforcement/quality-gate.js";
-import { getIssue } from "./github/issues.js";
+import { getIssue, listIssues } from "./github/issues.js";
 import { readSprintLog } from "./documentation/sprint-log.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { getNextOpenMilestone } from "./github/milestones.js";
@@ -355,6 +355,22 @@ program
       const sprintConfig = buildSprintConfig(config, initialSprint);
       const runner = new SprintRunner(sprintConfig, eventBus);
 
+      // Load milestone issues for initial display
+      let initialIssues: { number: number; title: string; status: "planned" }[] = [];
+      try {
+        const milestoneIssues = await listIssues({
+          milestone: `Sprint ${initialSprint}`,
+          state: "open",
+        });
+        initialIssues = milestoneIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          status: "planned" as const,
+        }));
+      } catch {
+        // Non-critical — dashboard works without pre-loaded issues
+      }
+
       // Dynamic import for Ink (ESM)
       const { render } = await import("ink");
       const { default: React } = await import("react");
@@ -385,6 +401,7 @@ program
         React.createElement(App, {
           runner,
           onStart: opts.once ? startOnce : startLoop,
+          initialIssues,
         }),
       );
 
