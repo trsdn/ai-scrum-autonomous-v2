@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, useInput, useApp } from "ink";
+import { Box, useInput, useApp, useStdout } from "ink";
 import type { SprintRunner } from "../runner.js";
 import type { SprintPhase } from "../runner.js";
 import { Header } from "./Header.js";
@@ -133,8 +133,14 @@ export function App({ runner }: AppProps): React.ReactElement {
     }
   });
 
+  const { stdout } = useStdout();
+  const termHeight = stdout?.rows ?? 24;
+  // Reserve: Header (3 lines) + CommandBar (1 line) + LogPanel (~8 lines)
+  const logHeight = Math.max(6, Math.floor(termHeight * 0.25));
+  const mainHeight = Math.max(4, termHeight - 3 - logHeight - 1);
+
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" height={termHeight}>
       <Header
         sprintNumber={sprintNumber}
         phase={phase}
@@ -142,7 +148,7 @@ export function App({ runner }: AppProps): React.ReactElement {
         totalCount={issues.length}
         startedAt={startedAt}
       />
-      <Box flexGrow={1}>
+      <Box height={mainHeight}>
         <IssueList issues={issues} />
         <WorkerPanel
           lines={workerLines}
@@ -151,7 +157,7 @@ export function App({ runner }: AppProps): React.ReactElement {
           duration={null}
         />
       </Box>
-      <LogPanel entries={logEntries} />
+      <LogPanel entries={logEntries} maxEntries={logHeight - 2} />
       <CommandBar isPaused={isPaused} />
     </Box>
   );

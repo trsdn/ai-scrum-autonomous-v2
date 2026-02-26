@@ -83,6 +83,10 @@ export class SprintRunner {
     this.events = eventBus ?? new SprintEventBus();
     this.client = new AcpClient({
       timeoutMs: config.sessionTimeoutMs,
+      permissions: {
+        autoApprove: config.autoApproveTools,
+        allowPatterns: config.allowToolPatterns,
+      },
       onStreamChunk: (sessionId, text) => {
         this.events.emitTyped("worker:output", { sessionId, text });
       },
