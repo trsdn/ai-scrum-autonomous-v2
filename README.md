@@ -83,6 +83,28 @@ Test mode uses `sprint-runner.test.yaml` with `prefix: "Test Sprint"` — separa
 
 **Global option:** `--config <path>` — use a different config file (default: `sprint-runner.config.yaml`)
 
+### Examples
+
+```bash
+# Launch the dashboard for sprint 3
+npx tsx src/index.ts web --sprint 3
+
+# Run a complete sprint cycle (plan → execute → review → retro)
+npx tsx src/index.ts full-cycle --sprint 3
+
+# Execute a single issue in isolation
+npx tsx src/index.ts execute-issue --issue 42 --sprint 3
+
+# Run sprint planning only
+npx tsx src/index.ts plan --sprint 3
+
+# Check quality gates on a feature branch
+npx tsx src/index.ts check-quality --branch feat/my-feature
+
+# Use test config (isolated sprints)
+npx tsx src/index.ts web --sprint 1 --config sprint-runner.test.yaml
+```
+
 ---
 
 ## Web Dashboard
