@@ -15,6 +15,10 @@
   let isViewingActive = true; // Whether we're viewing the active sprint
   let repoUrl = null; // GitHub repo URL for linking
 
+  // Per-sprint caches (survive navigation)
+  const activityCache = new Map();  // sprintNumber -> activities[]
+  const stateCache = new Map();     // sprintNumber -> { state, issues }
+
   // Chat state
   let chatSessions = []; // { id, role, model }
   let activeChatId = null;
@@ -106,12 +110,22 @@
         activeSprintNumber = state.sprintNumber;
         if (viewingSprintNumber === 0) viewingSprintNumber = activeSprintNumber;
         isViewingActive = viewingSprintNumber === activeSprintNumber;
+        // Update cache with fresh server state
+        if (isViewingActive && state.sprintNumber) {
+          stateCache.set(state.sprintNumber, { state: { ...state }, issues: [...issues] });
+        }
         renderHeader();
+        renderIssues();
         loadSprintList();
         break;
 
       case "sprint:issues":
         issues = msg.payload || [];
+        // Update cache with fresh issues
+        if (isViewingActive && viewingSprintNumber) {
+          const cached = stateCache.get(viewingSprintNumber);
+          if (cached) cached.issues = [...issues];
+        }
         renderIssues();
         renderHeader();
         break;
@@ -447,19 +461,48 @@
 
   async function switchToSprint(sprintNumber) {
     if (sprintNumber < 1) return;
+
+    // Save current sprint's activities + state before switching away
+    if (viewingSprintNumber > 0) {
+      activityCache.set(viewingSprintNumber, [...activities]);
+      stateCache.set(viewingSprintNumber, { state: { ...state }, issues: [...issues] });
+    }
+
     viewingSprintNumber = sprintNumber;
     isViewingActive = sprintNumber === activeSprintNumber;
 
     if (isViewingActive) {
-      // Switch back to live view — request fresh state from WS
-      send({ type: "sprint:switch", sprintNumber });
+      // Restore cached state immediately to avoid "init" flash
+      const cached = stateCache.get(sprintNumber);
+      if (cached) {
+        state = { ...cached.state };
+        issues = [...cached.issues];
+      }
+      // Clear activities — server will replay buffered events to rebuild them
       activities = [];
-      renderActivities();
+      renderIssues();
       renderHeader();
+      renderActivities();
+      // Request fresh state + event replay from server
+      send({ type: "sprint:switch", sprintNumber });
       return;
     }
 
-    // Load historical sprint: state + issues in parallel (both cached, instant)
+    // Historical sprint — check cache first
+    const cachedState = stateCache.get(sprintNumber);
+    const cachedActivities = activityCache.get(sprintNumber);
+    if (cachedState && cachedActivities) {
+      state = { ...cachedState.state };
+      issues = [...cachedState.issues];
+      activities = [...cachedActivities];
+      renderIssues();
+      renderHeader();
+      renderActivities();
+      loadSprintList();
+      return;
+    }
+
+    // Cache miss — load historical sprint from API
     try {
       const [stateRes, issuesRes] = await Promise.all([
         fetch(`/api/sprints/${sprintNumber}/state`),
@@ -477,7 +520,7 @@
         issues = [];
       }
 
-      // Build activities from saved state
+      // Rebuild activities from saved state
       activities = [];
       if (state.phase && state.phase !== "init") {
         if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
@@ -496,6 +539,10 @@
       if (issues.length === 0 && state.phase === "init") {
         addActivity("sprint", `Sprint ${sprintNumber}`, "No saved state available", "done");
       }
+
+      // Cache for future navigation
+      stateCache.set(sprintNumber, { state: { ...state }, issues: [...issues] });
+      activityCache.set(sprintNumber, [...activities]);
 
       renderIssues();
       renderHeader();

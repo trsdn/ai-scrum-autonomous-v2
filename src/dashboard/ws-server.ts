@@ -81,6 +81,14 @@ export interface TrackedSession {
   output: string[];
 }
 
+/** Max events to buffer for replay on sprint switch. */
+const EVENT_BUFFER_MAX = 200;
+
+interface BufferedEvent {
+  eventName: string;
+  payload: unknown;
+}
+
 export class DashboardWebServer {
   private server: http.Server | null = null;
   private wss: WebSocketServer | null = null;
@@ -91,6 +99,7 @@ export class DashboardWebServer {
   private sessionSubscribers = new Map<string, Set<WebSocket>>();
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
+  private eventBuffer: BufferedEvent[] = [];
 
   constructor(options: DashboardServerOptions) {
     this.options = options;
@@ -233,11 +242,13 @@ export class DashboardWebServer {
 
     for (const eventName of eventNames) {
       bus.onTyped(eventName, (payload) => {
-        this.broadcast({
-          type: "sprint:event",
-          eventName,
-          payload,
-        });
+        const msg = { type: "sprint:event" as const, eventName, payload };
+        this.broadcast(msg);
+        // Buffer for replay on sprint switch
+        this.eventBuffer.push({ eventName, payload });
+        if (this.eventBuffer.length > EVENT_BUFFER_MAX) {
+          this.eventBuffer.shift();
+        }
       });
     }
 
@@ -306,6 +317,14 @@ export class DashboardWebServer {
             type: "sprint:issues",
             payload: this.options.getIssues(),
           });
+          // Replay buffered events so client can rebuild activity log
+          for (const evt of this.eventBuffer) {
+            this.sendTo(ws, {
+              type: "sprint:event",
+              eventName: evt.eventName,
+              payload: evt.payload,
+            });
+          }
         }
         break;
       case "chat:create":
@@ -635,13 +654,28 @@ export class DashboardWebServer {
     }
 
     const projectPath = this.options.projectPath ?? process.cwd();
-    const filePath = path.join(projectPath, "docs", "sprints", `${this.options.sprintSlug ?? "sprint"}-${sprintNumber}-state.json`);
+    const slug = this.options.sprintSlug ?? "sprint";
+    const filePath = path.join(projectPath, "docs", "sprints", `${slug}-${sprintNumber}-state.json`);
     try {
       const raw = fs.readFileSync(filePath, "utf-8");
       const state = JSON.parse(raw) as SprintState;
       state.startedAt = new Date(state.startedAt);
       return state;
     } catch {
+      // No state file — check for log file to infer completed sprint
+      const logPath = path.join(projectPath, "docs", "sprints", `${slug}-${sprintNumber}-log.md`);
+      try {
+        if (fs.existsSync(logPath)) {
+          return {
+            version: "1",
+            sprintNumber,
+            phase: "complete",
+            startedAt: new Date(),
+          } as SprintState;
+        }
+      } catch {
+        // ignore
+      }
       return null;
     }
   }
