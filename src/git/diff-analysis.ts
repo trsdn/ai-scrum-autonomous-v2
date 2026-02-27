@@ -63,6 +63,13 @@ export async function getChangedFiles(
 ): Promise<string[]> {
   const log = logger.child({ module: "diff-analysis" });
 
+  // Ensure we have the latest refs before comparing
+  try {
+    await execFile("git", ["fetch", "origin", "--quiet"]);
+  } catch {
+    // Non-critical — proceed with local refs
+  }
+
   const rangeSpec = base ? `${base}...${branch}` : branch;
   let stdout: string;
   try {

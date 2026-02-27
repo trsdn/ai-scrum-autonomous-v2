@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getIssue, addComment, listIssues, execGh } from "../../src/github/issues.js";
+import { getIssue, addComment, listIssues, createIssue, execGh } from "../../src/github/issues.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -167,5 +167,53 @@ describe("listIssues", () => {
       ],
       expect.any(Function),
     );
+  });
+});
+
+describe("createIssue", () => {
+  it("rejects empty title", async () => {
+    await expect(createIssue({ title: "", body: "desc" })).rejects.toThrow(
+      "title is required",
+    );
+  });
+
+  it("rejects undefined title", async () => {
+    await expect(createIssue({ title: undefined as unknown as string, body: "desc" })).rejects.toThrow(
+      "title is required",
+    );
+  });
+
+  it("rejects empty body", async () => {
+    await expect(createIssue({ title: "Valid title", body: "" })).rejects.toThrow(
+      "body is required",
+    );
+  });
+
+  it("skips creation if duplicate open issue exists", async () => {
+    const existing = [
+      { number: 42, title: "chore(process): Fix something", body: "desc", labels: [], state: "OPEN" },
+    ];
+    // First call: listIssues for dedup check; second call would be createIssue (should not happen)
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, args: unknown, callback: unknown) => {
+        callCount++;
+        const argList = args as string[];
+        if (argList[0] === "issue" && argList[1] === "list") {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            null, { stdout: JSON.stringify(existing), stderr: "" },
+          );
+        } else {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            null, { stdout: "", stderr: "" },
+          );
+        }
+      }) as typeof cp.execFile,
+    );
+
+    const result = await createIssue({ title: "chore(process): Fix something", body: "desc" });
+    expect(result.number).toBe(42);
+    // Should only have called listIssues, not issue create
+    expect(callCount).toBe(1);
   });
 });

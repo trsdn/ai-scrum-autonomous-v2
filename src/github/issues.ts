@@ -134,6 +134,26 @@ export interface CreateIssueOptions {
 export async function createIssue(
   options: CreateIssueOptions,
 ): Promise<GitHubIssue> {
+  // Validate required fields to prevent garbage issues
+  if (!options.title || typeof options.title !== "string" || options.title.trim().length === 0) {
+    throw new Error("Cannot create issue: title is required and must be a non-empty string");
+  }
+  if (!options.body || typeof options.body !== "string" || options.body.trim().length === 0) {
+    throw new Error("Cannot create issue: body is required and must be a non-empty string");
+  }
+
+  // Deduplication: skip if an open issue with the same title already exists
+  try {
+    const existing = await listIssues({ state: "open" });
+    const duplicate = existing.find((i) => i.title === options.title);
+    if (duplicate) {
+      logger.info({ number: duplicate.number, title: options.title }, "Skipping duplicate issue creation");
+      return duplicate;
+    }
+  } catch {
+    // Non-critical — proceed with creation if dedup check fails
+  }
+
   const args = [
     "issue",
     "create",

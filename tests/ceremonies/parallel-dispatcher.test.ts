@@ -17,7 +17,7 @@ vi.mock("../../src/ceremonies/execution.js", () => ({
 }));
 
 vi.mock("../../src/git/merge.js", () => ({
-  mergeBranch: vi.fn(),
+  mergeIssuePR: vi.fn(),
 }));
 
 vi.mock("../../src/github/labels.js", () => ({
@@ -41,7 +41,7 @@ vi.mock("../../src/logger.js", () => {
 import { runParallelExecution } from "../../src/ceremonies/parallel-dispatcher.js";
 import { buildExecutionGroups } from "../../src/ceremonies/dep-graph.js";
 import { executeIssue } from "../../src/ceremonies/execution.js";
-import { mergeBranch } from "../../src/git/merge.js";
+import { mergeIssuePR } from "../../src/git/merge.js";
 import { setLabel } from "../../src/github/labels.js";
 
 // --- Helpers ---
@@ -135,7 +135,7 @@ describe("runParallelExecution", () => {
       .mockResolvedValueOnce(makeResult(1))
       .mockResolvedValueOnce(makeResult(2))
       .mockResolvedValueOnce(makeResult(3));
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     const result = await runParallelExecution(
       mockClient,
@@ -148,7 +148,7 @@ describe("runParallelExecution", () => {
     expect(result.parallelizationRatio).toBe(3);
     expect(result.mergeConflicts).toBe(0);
     expect(executeIssue).toHaveBeenCalledTimes(3);
-    expect(mergeBranch).toHaveBeenCalledTimes(3);
+    expect(mergeIssuePR).toHaveBeenCalledTimes(3);
   });
 
   it("executes multiple sequential groups in order", async () => {
@@ -163,7 +163,7 @@ describe("runParallelExecution", () => {
       callOrder.push(issue.number);
       return makeResult(issue.number);
     });
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     const result = await runParallelExecution(
       mockClient,
@@ -186,9 +186,9 @@ describe("runParallelExecution", () => {
     vi.mocked(executeIssue)
       .mockResolvedValueOnce(makeResult(1))
       .mockResolvedValueOnce(makeResult(2));
-    vi.mocked(mergeBranch)
+    vi.mocked(mergeIssuePR)
       .mockResolvedValueOnce({ success: true })
-      .mockResolvedValueOnce({ success: false, conflictFiles: ["src/a.ts"] });
+      .mockResolvedValueOnce({ success: false, reason: "merge conflict" });
 
     const result = await runParallelExecution(
       mockClient,
@@ -217,7 +217,7 @@ describe("runParallelExecution", () => {
     );
 
     expect(result.results).toHaveLength(1);
-    expect(mergeBranch).not.toHaveBeenCalled();
+    expect(mergeIssuePR).not.toHaveBeenCalled();
     expect(result.mergeConflicts).toBe(0);
   });
 
@@ -237,7 +237,7 @@ describe("runParallelExecution", () => {
       concurrent--;
       return makeResult(issue.number);
     });
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     await runParallelExecution(
       mockClient,
@@ -278,7 +278,7 @@ describe("runParallelExecution", () => {
     vi.mocked(executeIssue)
       .mockResolvedValueOnce({ ...makeResult(1), duration_ms: 2000 })
       .mockResolvedValueOnce({ ...makeResult(2), duration_ms: 4000 });
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     const result = await runParallelExecution(
       mockClient,
@@ -297,7 +297,7 @@ describe("runParallelExecution", () => {
     vi.mocked(executeIssue)
       .mockResolvedValueOnce(makeResult(1))
       .mockRejectedValueOnce(new Error("session crashed"));
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     const result = await runParallelExecution(
       mockClient,
@@ -323,7 +323,7 @@ describe("runParallelExecution", () => {
       .mockResolvedValueOnce(makeResult(1))              // fulfilled, completed
       .mockResolvedValueOnce(makeResult(2, "failed"))     // fulfilled, failed
       .mockRejectedValueOnce(new Error("timeout"));       // rejected
-    vi.mocked(mergeBranch).mockResolvedValue({ success: true });
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
     const result = await runParallelExecution(
       mockClient,

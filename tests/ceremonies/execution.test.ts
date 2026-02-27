@@ -245,9 +245,10 @@ describe("executeIssue", () => {
     mockClient.sendPrompt.mockRejectedValue(new Error("session timeout"));
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await expect(
-      executeIssue(mockClient as any, makeConfig(), makeIssue()),
-    ).rejects.toThrow("session timeout");
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    // Should return failed result (not throw)
+    expect(result.status).toBe("failed");
 
     // Worktree should still be removed
     expect(removeWorktree).toHaveBeenCalledWith("/tmp/worktrees/issue-42");

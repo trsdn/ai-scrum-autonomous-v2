@@ -30,10 +30,19 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     `### ${icon} Huddle — #${entry.issueNumber} ${entry.issueTitle}`,
     "",
     `**Status**: ${entry.status} | **Duration**: ${duration} | **Quality**: ${qualityStatus}`,
-    "",
-    "**Quality Checks**:",
-    checks,
   ];
+
+  if (entry.errorMessage) {
+    lines.push("", `**Error**: ${entry.errorMessage}`);
+  }
+
+  if (entry.qualityResult.checks.length > 0) {
+    lines.push("", "**Quality Checks**:", checks);
+  } else if (entry.status === "failed") {
+    lines.push("", "**Quality Checks**: _No diagnostic data available_");
+  } else {
+    lines.push("", "**Quality Checks**:", checks);
+  }
 
   if (entry.codeReview) {
     const reviewIcon = entry.codeReview.approved ? "✅" : "⚠️";
@@ -74,10 +83,17 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     `- **Duration**: ${duration}`,
     `- **Quality**: ${qualityStatus}`,
     `- **Files changed**: ${entry.filesChanged.length}`,
-    "",
-    "**Quality Checks**:",
-    checks,
   ];
+
+  if (entry.errorMessage) {
+    lines.push(`- **Error**: ${entry.errorMessage}`);
+  }
+
+  if (entry.qualityResult.checks.length > 0) {
+    lines.push("", "**Quality Checks**:", checks);
+  } else if (entry.status === "failed") {
+    lines.push("", "**Quality Checks**: _No diagnostic data available_");
+  }
 
   if (entry.cleanupWarning) {
     lines.push("", entry.cleanupWarning);

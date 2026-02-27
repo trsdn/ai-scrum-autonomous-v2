@@ -314,4 +314,30 @@ describe("runSprintRetro", () => {
     ).rejects.toThrow("ACP failure");
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
+
+  it("skips improvements with undefined or empty title", async () => {
+    const client = makeMockClient();
+    vi.mocked(client.sendPrompt).mockResolvedValueOnce({
+      response: JSON.stringify({
+        wentWell: [],
+        wentBadly: [],
+        improvements: [
+          { title: undefined, description: "desc", autoApplicable: false, target: "process" },
+          { title: "", description: "desc2", autoApplicable: false, target: "process" },
+          { title: "Valid Fix", description: undefined, autoApplicable: false, target: "process" },
+          { title: "Real Fix", description: "Real desc", autoApplicable: false, target: "process" },
+        ],
+        previousImprovementsChecked: true,
+      }),
+      stopReason: "end_turn",
+    });
+
+    await runSprintRetro(client, config, sprintResult, reviewResult);
+
+    // Only the valid improvement should create an issue
+    expect(createIssue).toHaveBeenCalledTimes(1);
+    expect(createIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "chore(process): Real Fix" }),
+    );
+  });
 });
