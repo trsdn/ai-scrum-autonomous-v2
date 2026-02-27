@@ -392,6 +392,10 @@ program
             eventBus.emitTyped("log", { level: "info", message: "All sprints complete. Press [q] to quit." });
           }
           // On failure: dashboard stays open so user can see the error
+        }).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          eventBus.emitTyped("sprint:error", { error: msg });
+          eventBus.emitTyped("log", { level: "error", message: `Sprint loop crashed: ${msg}` });
         });
       };
 
@@ -402,6 +406,10 @@ program
             eventBus.emitTyped("log", { level: "info", message: "Sprint complete. Press [q] to quit." });
           }
           // On failure: dashboard stays open so user can see the error
+        }).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          eventBus.emitTyped("sprint:error", { error: msg });
+          eventBus.emitTyped("log", { level: "error", message: `Sprint crashed: ${msg}` });
         });
       };
 
@@ -422,6 +430,17 @@ program
       process.on("exit", () => process.stdout.write("\x1b[?1049l"));
       process.on("SIGINT", () => { cleanup(); process.exit(0); });
       process.on("SIGTERM", () => { cleanup(); process.exit(0); });
+
+      // Catch unhandled errors — show in dashboard instead of crashing
+      process.on("unhandledRejection", (reason: unknown) => {
+        const msg = reason instanceof Error ? reason.message : String(reason);
+        eventBus.emitTyped("sprint:error", { error: msg });
+        eventBus.emitTyped("log", { level: "error", message: `Unhandled error: ${msg}` });
+      });
+      process.on("uncaughtException", (err: Error) => {
+        eventBus.emitTyped("sprint:error", { error: err.message });
+        eventBus.emitTyped("log", { level: "error", message: `Uncaught exception: ${err.message}` });
+      });
 
       // Auto-start if --run or --once was passed
       if (opts.run || opts.once) {
