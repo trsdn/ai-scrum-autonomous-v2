@@ -136,3 +136,40 @@ export async function closeMilestone(title: string): Promise<void> {
   ]);
   logger.info({ title }, "Milestone closed");
 }
+
+/** List all milestones matching the given prefix (e.g. "Sprint" → "Sprint 1", "Sprint 2"). */
+export async function listSprintMilestones(prefix: string = "Sprint"): Promise<{ sprintNumber: number; title: string; state: string }[]> {
+  const allMilestones: GitHubMilestone[] = [];
+
+  // Query both open and closed milestones (GitHub API only allows one state at a time)
+  for (const state of ["open", "closed"] as const) {
+    try {
+      const json = await execGh([
+        "api",
+        "repos/{owner}/{repo}/milestones",
+        "-q", ".",
+        "--paginate",
+        "--method", "GET",
+        "-F", `state=${state}`,
+      ]);
+      if (json?.trim()) {
+        const pages = json.trim().split("\n").filter((line) => line.trim());
+        for (const page of pages) {
+          try {
+            const parsed = JSON.parse(page) as GitHubMilestone[];
+            allMilestones.push(...parsed);
+          } catch {
+            // skip malformed page
+          }
+        }
+      }
+    } catch {
+      // continue with other state
+    }
+  }
+
+  return allMilestones
+    .map((m) => ({ sprintNumber: parseSprintFromTitle(m.title, prefix), title: m.title, state: m.state }))
+    .filter((x): x is { sprintNumber: number; title: string; state: string } => x.sprintNumber !== undefined)
+    .sort((a, b) => a.sprintNumber - b.sprintNumber);
+}

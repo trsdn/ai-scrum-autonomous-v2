@@ -17,6 +17,7 @@ import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
 import { loadSprintHistory } from "./sprint-history.js";
 import { SprintIssueCache } from "./issue-cache.js";
+import { listSprintMilestones } from "../github/milestones.js";
 
 const log = logger.child({ component: "ws-server" });
 
@@ -100,6 +101,7 @@ export class DashboardWebServer {
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
   private eventBuffer: BufferedEvent[] = [];
+  private knownMilestones: { sprintNumber: number; title: string; state: string }[] = [];
 
   constructor(options: DashboardServerOptions) {
     this.options = options;
@@ -158,18 +160,41 @@ export class DashboardWebServer {
 
     this.bridgeEvents();
 
-    // Initialize issue cache with preload + background refresh
+    // Discover sprints from GitHub milestones (async, non-blocking)
+    const prefix = this.options.sprintPrefix ?? "Sprint";
     const activeNum = this.options.activeSprintNumber ?? 1;
-    this.issueCache = new SprintIssueCache({
-      maxSprint: activeNum,
-      loadState: (n) => this.loadSprintState(n),
-      sprintPrefix: this.options.sprintPrefix,
-    });
-    // Preload in background — don't block server start
-    this.issueCache.preload().then(() => {
-      this.issueCache!.startRefresh();
+    listSprintMilestones(prefix).then((milestones) => {
+      this.knownMilestones = milestones;
+      // Determine max sprint from both milestones and active sprint
+      const maxFromMilestones = milestones.length > 0
+        ? Math.max(...milestones.map((m) => m.sprintNumber))
+        : 0;
+      const maxSprint = Math.max(activeNum, maxFromMilestones);
+      log.info({ milestones: milestones.length, maxSprint }, "Sprint milestones discovered");
+
+      // Initialize issue cache with full range
+      this.issueCache = new SprintIssueCache({
+        maxSprint,
+        loadState: (n) => this.loadSprintState(n),
+        sprintPrefix: prefix,
+      });
+      this.issueCache.preload().then(() => {
+        this.issueCache!.startRefresh();
+      }).catch((err) => {
+        log.warn({ err }, "Issue cache preload failed");
+      });
     }).catch((err) => {
-      log.warn({ err }, "Issue cache preload failed");
+      log.warn({ err }, "Milestone discovery failed, falling back to active sprint only");
+      this.issueCache = new SprintIssueCache({
+        maxSprint: activeNum,
+        loadState: (n) => this.loadSprintState(n),
+        sprintPrefix: prefix,
+      });
+      this.issueCache.preload().then(() => {
+        this.issueCache!.startRefresh();
+      }).catch((e) => {
+        log.warn({ err: e }, "Issue cache preload failed");
+      });
     });
 
     return new Promise((resolve) => {
@@ -533,12 +558,11 @@ export class DashboardWebServer {
     res.end(JSON.stringify({ error: "Not found" }));
   }
 
-  /** Fetch issues for a sprint — serves from cache instantly. */
+  /** Fetch issues for a sprint — serves from cache, loads on demand if needed. */
   private handleSprintIssues(sprintNumber: number, res: http.ServerResponse): void {
     // Active sprint: always return live tracked issues
     if (sprintNumber === this.options.activeSprintNumber) {
       const issues = this.options.getIssues();
-      // Also update cache so switching back is instant
       if (this.issueCache) {
         this.issueCache.set(sprintNumber, issues);
       }
@@ -547,10 +571,38 @@ export class DashboardWebServer {
       return;
     }
 
-    // All other sprints: serve from cache (preloaded on start)
-    const cached = this.issueCache?.get(sprintNumber) ?? [];
-    res.writeHead(200);
-    res.end(JSON.stringify(cached));
+    // Check cache — if hit, serve immediately
+    if (this.issueCache?.has(sprintNumber)) {
+      const cached = this.issueCache.get(sprintNumber);
+      res.writeHead(200);
+      res.end(JSON.stringify(cached));
+      return;
+    }
+
+    // Cache miss — load on demand from GitHub
+    const prefix = this.options.sprintPrefix ?? "Sprint";
+    import("../github/issues.js").then(async ({ listIssues }) => {
+      try {
+        const ghIssues = await listIssues({
+          milestone: `${prefix} ${sprintNumber}`,
+          state: "all",
+        });
+        const mapped = ghIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          status: (i.state === "closed" ? "done" : "planned") as "planned" | "done",
+        }));
+        this.issueCache?.set(sprintNumber, mapped);
+        res.writeHead(200);
+        res.end(JSON.stringify(mapped));
+      } catch {
+        res.writeHead(200);
+        res.end(JSON.stringify([]));
+      }
+    }).catch(() => {
+      res.writeHead(200);
+      res.end(JSON.stringify([]));
+    });
   }
 
   /** Return repo info (URL cached after first detection). */
@@ -629,6 +681,16 @@ export class DashboardWebServer {
     if (activeNum && !sprintMap.has(activeNum)) {
       const currentState = this.options.getState();
       sprintMap.set(activeNum, { phase: currentState.phase, isActive: true });
+    }
+
+    // Include sprints discovered from GitHub milestones
+    for (const ms of this.knownMilestones) {
+      if (!sprintMap.has(ms.sprintNumber)) {
+        sprintMap.set(ms.sprintNumber, {
+          phase: ms.state === "closed" ? "complete" : "init",
+          isActive: ms.sprintNumber === activeNum,
+        });
+      }
     }
 
     // Fill gaps: if we have sprint 3, ensure 1 and 2 exist too
