@@ -12,6 +12,7 @@ import { appendVelocity } from "./documentation/velocity.js";
 import { calculateSprintMetrics } from "./metrics.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
+import { preSweepAutoMerge } from "./enforcement/ci-cd.js";
 import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
 import { logger as defaultLogger } from "./logger.js";
 import { SprintEventBus } from "./tui/events.js";
@@ -377,6 +378,25 @@ export class SprintRunner {
   /** Run the sprint review phase */
   async runReview(result: SprintResult): Promise<ReviewResult> {
     this.log.info("Running sprint review");
+
+    // Run pre-review PR merge sweep if autoMerge is enabled
+    if (this.config.autoMerge) {
+      this.log.info("Running pre-review PR merge sweep");
+      const issueNumbers = result.results.map((r) => r.issueNumber);
+      try {
+        const sweepResult = await preSweepAutoMerge(this.config, issueNumbers);
+        this.log.info(
+          { merged: sweepResult.merged.length, skipped: sweepResult.skipped.length },
+          "PR merge sweep complete",
+        );
+      } catch (err: unknown) {
+        this.log.warn(
+          { error: (err as Error).message },
+          "PR merge sweep failed — continuing with review",
+        );
+      }
+    }
+
     const metrics = calculateSprintMetrics(result);
     const review = await runSprintReview(this.client, this.config, result);
     this.state.review = review;

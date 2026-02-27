@@ -35,6 +35,7 @@ export interface IssueResult {
   qualityDetails: QualityResult;
   codeReview?: CodeReviewResult;
   branch: string;
+  prNumber?: number;
   duration_ms: number;
   filesChanged: string[];
   retryCount: number;

@@ -1,6 +1,8 @@
 import { execGh } from "../github/issues.js";
 import { addComment } from "../github/issues.js";
+import { listPullRequests } from "../github/pull-requests.js";
 import { logger } from "../logger.js";
+import type { SprintConfig } from "../types.js";
 
 const DEFAULT_TIMEOUT_MS = 300_000; // 5 minutes
 const DEFAULT_POLL_INTERVAL_MS = 15_000; // 15 seconds
@@ -140,4 +142,87 @@ export async function reportDeployStatus(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export interface PreSweepResult {
+  merged: number[];
+  skipped: Array<{ prNumber: number; reason: string }>;
+}
+
+/**
+ * Sweep all sprint PRs and auto-merge those that are CI-green and mergeable.
+ * Called before sprint review to ensure completed work is merged.
+ */
+export async function preSweepAutoMerge(
+  config: SprintConfig,
+  issueNumbers: number[],
+): Promise<PreSweepResult> {
+  const log = logger.child({ module: "pre-sweep-merge" });
+  const merged: number[] = [];
+  const skipped: Array<{ prNumber: number; reason: string }> = [];
+
+  log.info({ issueCount: issueNumbers.length }, "Starting pre-review PR merge sweep");
+
+  for (const issueNumber of issueNumbers) {
+    const branch = config.branchPattern
+      .replace("{prefix}", config.sprintSlug)
+      .replace("{sprint}", String(config.sprintNumber))
+      .replace("{issue}", String(issueNumber));
+
+    try {
+      // Find PRs matching this branch
+      const prs = await listPullRequests({ head: branch, state: "open" });
+
+      if (prs.length === 0) {
+        log.debug({ issueNumber, branch }, "No open PRs found for issue");
+        continue;
+      }
+
+      // Take first PR (should only be one)
+      const pr = prs[0];
+      log.debug({ issueNumber, prNumber: pr.number, mergeState: pr.mergeStateStatus }, "Found PR");
+
+      // Check if PR is mergeable
+      if (pr.mergeStateStatus !== "CLEAN") {
+        skipped.push({
+          prNumber: pr.number,
+          reason: `Merge state not clean: ${pr.mergeStateStatus}`,
+        });
+        log.debug({ prNumber: pr.number, mergeState: pr.mergeStateStatus }, "PR not mergeable");
+        continue;
+      }
+
+      // Check CI status with short timeout (30s)
+      const ciResult = await waitForCiGreen(branch, 30_000, 5_000);
+
+      if (!ciResult.allGreen) {
+        skipped.push({
+          prNumber: pr.number,
+          reason: "CI not green",
+        });
+        log.debug({ prNumber: pr.number, checks: ciResult.checks }, "CI checks not green");
+        continue;
+      }
+
+      // Merge the PR
+      const mergeResult = await autoMergePr(pr.number, config.squashMerge);
+
+      if (mergeResult.merged) {
+        merged.push(pr.number);
+        log.info({ prNumber: pr.number, issueNumber }, "PR auto-merged");
+      } else {
+        skipped.push({
+          prNumber: pr.number,
+          reason: mergeResult.error ?? "Merge failed",
+        });
+        log.warn({ prNumber: pr.number, error: mergeResult.error }, "PR merge failed");
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error({ issueNumber, branch, error: message }, "Error processing issue PR");
+    }
+  }
+
+  log.info({ merged: merged.length, skipped: skipped.length }, "PR merge sweep complete");
+  return { merged, skipped };
 }
