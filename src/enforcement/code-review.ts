@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Automated code review step in the execution pipeline.
 // Runs after quality gate passes. Uses ACP with the reviewer model
 // to analyze the diff for bugs, security issues, and logic errors.

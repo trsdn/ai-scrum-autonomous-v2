@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import pino from "pino";
 import type { Logger, DestinationStream } from "pino";
 import * as fs from "node:fs";

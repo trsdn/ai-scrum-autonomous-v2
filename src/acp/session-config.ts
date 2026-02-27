@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Resolve MCP servers and instructions for a given ceremony phase.
 // Merges global config with phase-specific overrides.
 

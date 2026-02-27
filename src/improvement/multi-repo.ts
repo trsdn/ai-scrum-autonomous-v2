@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Multi-repo support — Phase 4
 // TODO: Implement cross-repo sprint management
 

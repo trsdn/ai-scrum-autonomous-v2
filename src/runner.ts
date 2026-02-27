@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { AcpClient } from "./acp/client.js";
@@ -294,7 +295,7 @@ export class SprintRunner {
   /** Run the refinement phase */
   async runRefine(): Promise<RefinedIssue[]> {
     this.log.info("Running refinement");
-    const refined = await runRefinement(this.client, this.config);
+    const refined = await runRefinement(this.client, this.config, this.events);
     this.log.info({ count: refined.length }, "Refinement complete");
     return refined;
   }
@@ -302,7 +303,7 @@ export class SprintRunner {
   /** Run the sprint planning phase */
   async runPlan(refinedIssues?: RefinedIssue[]): Promise<SprintPlan> {
     this.log.info("Running sprint planning");
-    const plan = await runSprintPlanning(this.client, this.config, refinedIssues);
+    const plan = await runSprintPlanning(this.client, this.config, refinedIssues, this.events);
     this.state.plan = plan;
     this.persistState();
     this.log.info(
@@ -391,7 +392,7 @@ export class SprintRunner {
   async runReview(result: SprintResult): Promise<ReviewResult> {
     this.log.info("Running sprint review");
     const metrics = calculateSprintMetrics(result);
-    const review = await runSprintReview(this.client, this.config, result);
+    const review = await runSprintReview(this.client, this.config, result, this.events);
     this.state.review = review;
 
     // Append velocity
@@ -418,7 +419,7 @@ export class SprintRunner {
   /** Run the retrospective phase */
   async runRetro(result: SprintResult, review: ReviewResult): Promise<RetroResult> {
     this.log.info("Running sprint retro");
-    const retro = await runSprintRetro(this.client, this.config, result, review);
+    const retro = await runSprintRetro(this.client, this.config, result, review, this.events);
     this.state.retro = retro;
     this.persistState();
     this.log.info(

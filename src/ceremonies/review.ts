@@ -1,7 +1,9 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintResult, ReviewResult } from "../types.js";
+import type { SprintEventBus } from "../tui/events.js";
 import { calculateSprintMetrics, topFailedGates } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
@@ -16,6 +18,7 @@ export async function runSprintReview(
   client: AcpClient,
   config: SprintConfig,
   result: SprintResult,
+  eventBus?: SprintEventBus,
 ): Promise<ReviewResult> {
   const log = logger.child({ ceremony: "review" });
 
@@ -59,6 +62,7 @@ export async function runSprintReview(
     cwd: config.projectPath,
     mcpServers: sessionConfig.mcpServers,
   });
+  eventBus?.emitTyped("session:start", { sessionId, role: "review" });
   try {
     let fullPrompt = prompt;
     if (sessionConfig.instructions) {
@@ -82,5 +86,6 @@ export async function runSprintReview(
     return review;
   } finally {
     await client.endSession(sessionId);
+    eventBus?.emitTyped("session:end", { sessionId });
   }
 }

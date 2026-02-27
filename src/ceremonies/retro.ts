@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
@@ -7,6 +8,7 @@ import type {
   ReviewResult,
   RetroResult,
 } from "../types.js";
+import type { SprintEventBus } from "../tui/events.js";
 import { calculateSprintMetrics } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { createIssue } from "../github/issues.js";
@@ -23,6 +25,7 @@ export async function runSprintRetro(
   config: SprintConfig,
   result: SprintResult,
   review: ReviewResult,
+  eventBus?: SprintEventBus,
 ): Promise<RetroResult> {
   const log = logger.child({ ceremony: "retro" });
 
@@ -77,6 +80,7 @@ export async function runSprintRetro(
     cwd: config.projectPath,
     mcpServers: sessionConfig.mcpServers,
   });
+  eventBus?.emitTyped("session:start", { sessionId, role: "retro" });
   try {
     let fullPrompt = prompt;
     if (sessionConfig.instructions) {
@@ -128,5 +132,6 @@ export async function runSprintRetro(
     return retro;
   } finally {
     await client.endSession(sessionId);
+    eventBus?.emitTyped("session:end", { sessionId });
   }
 }

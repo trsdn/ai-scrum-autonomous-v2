@@ -1,7 +1,9 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintPlan, RefinedIssue } from "../types.js";
+import type { SprintEventBus } from "../tui/events.js";
 import { listIssues } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
 import { setMilestone, getMilestone, createMilestone } from "../github/milestones.js";
@@ -19,6 +21,7 @@ export async function runSprintPlanning(
   client: AcpClient,
   config: SprintConfig,
   refinedIssues?: RefinedIssue[],
+  eventBus?: SprintEventBus,
 ): Promise<SprintPlan> {
   const log = logger.child({ ceremony: "planning" });
 
@@ -57,6 +60,7 @@ export async function runSprintPlanning(
     cwd: config.projectPath,
     mcpServers: sessionConfig.mcpServers,
   });
+  eventBus?.emitTyped("session:start", { sessionId, role: "planning" });
   try {
     let fullPrompt = prompt;
     if (sessionConfig.instructions) {
@@ -108,5 +112,6 @@ export async function runSprintPlanning(
     return plan;
   } finally {
     await client.endSession(sessionId);
+    eventBus?.emitTyped("session:end", { sessionId });
   }
 }
