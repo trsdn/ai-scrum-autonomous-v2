@@ -14,6 +14,7 @@ import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
 import { loadSprintHistory } from "./sprint-history.js";
+import { SprintIssueCache } from "./issue-cache.js";
 
 const log = logger.child({ component: "ws-server" });
 
@@ -68,6 +69,7 @@ export class DashboardWebServer {
   private server: http.Server | null = null;
   private wss: WebSocketServer | null = null;
   private chatManager: ChatManager | null = null;
+  private issueCache: SprintIssueCache | null = null;
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
 
@@ -109,6 +111,19 @@ export class DashboardWebServer {
 
     this.bridgeEvents();
 
+    // Initialize issue cache with preload + background refresh
+    const activeNum = this.options.activeSprintNumber ?? 1;
+    this.issueCache = new SprintIssueCache({
+      maxSprint: activeNum,
+      loadState: (n) => this.loadSprintState(n),
+    });
+    // Preload in background — don't block server start
+    this.issueCache.preload().then(() => {
+      this.issueCache!.startRefresh();
+    }).catch((err) => {
+      log.warn({ err }, "Issue cache preload failed");
+    });
+
     return new Promise((resolve) => {
       this.server!.listen(port, host, () => {
         log.info({ port, host }, "Dashboard server started");
@@ -118,6 +133,10 @@ export class DashboardWebServer {
   }
 
   async stop(): Promise<void> {
+    if (this.issueCache) {
+      this.issueCache.stop();
+      this.issueCache = null;
+    }
     if (this.chatManager) {
       await this.chatManager.shutdown();
       this.chatManager = null;
@@ -181,6 +200,15 @@ export class DashboardWebServer {
         if (msg.sprintNumber) {
           log.info({ sprintNumber: msg.sprintNumber }, "Dashboard client switched sprint");
           this.options.onSwitchSprint?.(msg.sprintNumber);
+          // Re-send current state and issues to the requesting client
+          this.sendTo(ws, {
+            type: "sprint:state",
+            payload: this.options.getState(),
+          });
+          this.sendTo(ws, {
+            type: "sprint:issues",
+            payload: this.options.getIssues(),
+          });
         }
         break;
       case "chat:create":
@@ -319,6 +347,14 @@ export class DashboardWebServer {
       return;
     }
 
+    // /api/sprints/:number/issues — fetch issues from GitHub milestone
+    const issuesMatch = pathname.match(/^\/api\/sprints\/(\d+)\/issues$/);
+    if (issuesMatch) {
+      const num = parseInt(issuesMatch[1], 10);
+      this.handleSprintIssues(num, res);
+      return;
+    }
+
     // /api/sprints/:number/state
     const stateMatch = pathname.match(/^\/api\/sprints\/(\d+)\/state$/);
     if (stateMatch) {
@@ -336,6 +372,26 @@ export class DashboardWebServer {
 
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
+  }
+
+  /** Fetch issues for a sprint — serves from cache instantly. */
+  private handleSprintIssues(sprintNumber: number, res: http.ServerResponse): void {
+    // Active sprint: always return live tracked issues
+    if (sprintNumber === this.options.activeSprintNumber) {
+      const issues = this.options.getIssues();
+      // Also update cache so switching back is instant
+      if (this.issueCache) {
+        this.issueCache.set(sprintNumber, issues);
+      }
+      res.writeHead(200);
+      res.end(JSON.stringify(issues));
+      return;
+    }
+
+    // All other sprints: serve from cache (preloaded on start)
+    const cached = this.issueCache?.get(sprintNumber) ?? [];
+    res.writeHead(200);
+    res.end(JSON.stringify(cached));
   }
 
   /** List available sprints by scanning state files, log files, and filling gaps. */
