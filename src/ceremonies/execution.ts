@@ -156,6 +156,7 @@ export async function executeIssue(
   let retryCount = 0;
   let filesChanged: string[] = [];
   let status: "completed" | "failed" = "failed";
+  let errorMessage: string | undefined;
 
   try {
     // Step 3: Resolve session config and create ACP session
@@ -348,6 +349,10 @@ export async function executeIssue(
       // Final status: passed quality gate AND (no review OR review approved)
       status = qualityResult.passed ? "completed" : "failed";
     }
+  } catch (err: unknown) {
+    errorMessage = err instanceof Error ? err.message : String(err);
+    log.error({ err: errorMessage, issue: issue.number }, "issue execution failed");
+    status = "failed";
   } finally {
     const duration_ms = Date.now() - startTime;
 
@@ -372,6 +377,7 @@ export async function executeIssue(
       filesChanged,
       timestamp: new Date(),
       cleanupWarning,
+      errorMessage,
     };
 
     const comment = formatHuddleComment(huddleEntry);
