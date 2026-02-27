@@ -24,6 +24,7 @@ import { setLabel } from "../github/labels.js";
 import { getChangedFiles } from "../git/diff-analysis.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
+import type { SprintEventBus } from "../tui/events.js";
 
 const DEFAULT_QUALITY_GATE_CONFIG = {
   requireTests: true,
@@ -111,9 +112,11 @@ export async function executeIssue(
   client: AcpClient,
   config: SprintConfig,
   issue: SprintIssue,
+  eventBus?: SprintEventBus,
 ): Promise<IssueResult> {
   const log = logger.child({ ceremony: "execution", issue: issue.number });
   const startTime = Date.now();
+  const progress = (step: string) => eventBus?.emitTyped("issue:progress", { issueNumber: issue.number, step });
 
   const branch = `sprint/${config.sprintNumber}/issue-${issue.number}`;
   const worktreePath = path.resolve(config.worktreeBase, `issue-${issue.number}`);
@@ -121,6 +124,7 @@ export async function executeIssue(
   // Step 1: Set in-progress label
   await setLabel(issue.number, "status:in-progress");
   log.info("issue marked in-progress");
+  progress("creating worktree");
 
   // Step 2: Create worktree
   await createWorktree({
@@ -167,6 +171,7 @@ export async function executeIssue(
           await client.setModel(sessionId, plannerConfig.model);
         }
         log.info("switched to Plan mode");
+        progress("planning implementation");
 
         const planTemplatePath = path.join(config.projectPath, "prompts", "item-planner.md");
         const planTemplate = await fs.readFile(planTemplatePath, "utf-8");
@@ -208,6 +213,7 @@ export async function executeIssue(
         await client.setModel(sessionId, workerConfig.model);
       }
       log.info("switched to Agent mode");
+      progress("implementing");
 
       const workerTemplatePath = path.join(config.projectPath, "prompts", "worker.md");
       const workerTemplate = await fs.readFile(workerTemplatePath, "utf-8");
@@ -230,6 +236,7 @@ export async function executeIssue(
     }
 
     // Step 6: Run quality gate
+    progress("quality gate");
     qualityResult = await runQualityGate(
       DEFAULT_QUALITY_GATE_CONFIG,
       worktreePath,
@@ -253,6 +260,7 @@ export async function executeIssue(
     // Step 8: Code review (only if quality gate passed)
     if (qualityResult.passed) {
       try {
+        progress("code review");
         codeReview = await runCodeReview(client, config, issue, branch, worktreePath);
         log.info({ approved: codeReview.approved, issues: codeReview.issues.length }, "code review completed");
 

@@ -12,6 +12,8 @@ import { mergeBranch } from "../git/merge.js";
 import { setLabel } from "../github/labels.js";
 import { logger } from "../logger.js";
 
+import type { SprintEventBus } from "../tui/events.js";
+
 /**
  * Execute sprint issues in parallel, respecting dependency groups.
  * Groups run sequentially; issues within a group run concurrently
@@ -21,6 +23,7 @@ export async function runParallelExecution(
   client: AcpClient,
   config: SprintConfig,
   plan: SprintPlan,
+  eventBus?: SprintEventBus,
 ): Promise<SprintResult> {
   const log = logger.child({ ceremony: "parallel-dispatcher" });
   const groups = buildExecutionGroups(plan.sprint_issues);
@@ -41,7 +44,7 @@ export async function runParallelExecution(
           if (!issue) {
             throw new Error(`Issue #${issueNumber} not found in sprint plan`);
           }
-          return executeIssue(client, config, issue);
+          return executeIssue(client, config, issue, eventBus);
         }),
       ),
     );
