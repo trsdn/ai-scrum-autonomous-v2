@@ -540,6 +540,14 @@ program
       }
 
       // Update issues from events
+      eventBus.onTyped("sprint:planned", ({ issues: plannedIssues }) => {
+        // Replace issue list with what the planner actually selected
+        currentIssues = plannedIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          status: "planned" as const,
+        }));
+      });
       eventBus.onTyped("issue:start", ({ issue }) => {
         const existing = currentIssues.find((i) => i.number === issue.number);
         if (existing) {

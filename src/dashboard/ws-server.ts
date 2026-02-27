@@ -261,7 +261,7 @@ export class DashboardWebServer {
     const bus = this.options.eventBus;
     const eventNames: (keyof SprintEngineEvents)[] = [
       "phase:change", "issue:start", "issue:progress", "issue:done", "issue:fail",
-      "worker:output", "sprint:start", "sprint:complete", "sprint:error",
+      "worker:output", "sprint:start", "sprint:planned", "sprint:complete", "sprint:error",
       "sprint:paused", "sprint:resumed", "log",
     ];
 
@@ -276,6 +276,23 @@ export class DashboardWebServer {
         }
       });
     }
+
+    // Push updated issue list when planning completes
+    bus.onTyped("sprint:planned", () => {
+      // Small delay to let index.ts update currentIssues first
+      setTimeout(() => {
+        this.broadcast({ type: "sprint:issues", payload: this.options.getIssues() });
+        // Also update the issue cache
+        const sprintNum = this.options.activeSprintNumber ?? 1;
+        if (this.issueCache) {
+          this.issueCache.set(sprintNum, this.options.getIssues().map((i) => ({
+            number: i.number,
+            title: i.title,
+            status: i.status as "planned" | "in-progress" | "done" | "failed",
+          })));
+        }
+      }, 500);
+    });
 
     // Track ACP sessions for the session viewer
     bus.onTyped("session:start", (payload) => {
@@ -342,14 +359,6 @@ export class DashboardWebServer {
             type: "sprint:issues",
             payload: this.options.getIssues(),
           });
-          // Replay buffered events so client can rebuild activity log
-          for (const evt of this.eventBuffer) {
-            this.sendTo(ws, {
-              type: "sprint:event",
-              eventName: evt.eventName,
-              payload: evt.payload,
-            });
-          }
         }
         break;
       case "chat:create":

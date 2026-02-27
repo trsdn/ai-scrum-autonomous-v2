@@ -331,22 +331,13 @@ describe("DashboardWebServer", () => {
 
   // --- Event buffer & sprint switch ---
 
-  it("replays buffered events on sprint:switch", async () => {
+  it("sends fresh state and issues on sprint:switch", async () => {
     options = makeOptions({ activeSprintNumber: 2 });
     const state: SprintState = { version: "1", sprintNumber: 2, phase: "execute", startedAt: new Date() };
     options.getState = () => state;
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
-
-    const bus = options.eventBus;
-
-    // Emit some events to fill the buffer
-    bus.emitTyped("log", { level: "info", message: "event-1" });
-    bus.emitTyped("log", { level: "info", message: "event-2" });
-
-    // Wait briefly for events to be buffered
-    await new Promise((r) => setTimeout(r, 50));
 
     // Connect and wait for initial messages, then send sprint:switch
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
@@ -365,8 +356,8 @@ describe("DashboardWebServer", () => {
           return;
         }
         allMessages.push(msg);
-        // Expect: sprint:state + sprint:issues + 2 replayed events = 4 messages
-        if (allMessages.length >= 4) {
+        // Expect: sprint:state + sprint:issues = 2 messages
+        if (allMessages.length >= 2) {
           ws.close();
           resolve();
         }
@@ -375,23 +366,51 @@ describe("DashboardWebServer", () => {
       setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
     });
 
-    // First two should be sprint:state and sprint:issues
+    // Should receive fresh state and issues
     expect(allMessages[0].type).toBe("sprint:state");
     expect(allMessages[1].type).toBe("sprint:issues");
+  });
 
-    // Then replayed events
-    const replayed = allMessages.filter((m) => m.type === "sprint:event");
-    expect(replayed).toHaveLength(2);
-    expect(replayed[0]).toMatchObject({
-      type: "sprint:event",
-      eventName: "log",
-      payload: { level: "info", message: "event-1" },
+  it("broadcasts updated issues on sprint:planned event", async () => {
+    const testIssues = [
+      { number: 10, title: "Test Issue", status: "planned" },
+    ];
+    options = makeOptions({ activeSprintNumber: 1 });
+    options.getIssues = () => testIssues;
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const receivedIssues: unknown[] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      let initialCount = 0;
+      ws.on("message", (data) => {
+        const msg = JSON.parse(data.toString());
+        if (initialCount < 2) {
+          initialCount++;
+          if (initialCount === 2) {
+            // Emit sprint:planned after initial messages received
+            options.eventBus.emitTyped("sprint:planned", {
+              issues: [{ number: 10, title: "Test Issue" }],
+            });
+          }
+          return;
+        }
+        // After initial: expect sprint:event for sprint:planned, then sprint:issues broadcast
+        if (msg.type === "sprint:issues") {
+          receivedIssues.push(msg.payload);
+          ws.close();
+          resolve();
+        }
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
     });
-    expect(replayed[1]).toMatchObject({
-      type: "sprint:event",
-      eventName: "log",
-      payload: { level: "info", message: "event-2" },
-    });
+
+    expect(receivedIssues).toHaveLength(1);
+    expect(receivedIssues[0]).toEqual(testIssues);
   });
 
   it("state API returns 'complete' for sprint with log file but no state file", async () => {

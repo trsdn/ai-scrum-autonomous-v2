@@ -187,6 +187,11 @@ export class SprintRunner {
       this.transition("plan", plannerModel, "Planning Agent");
       const plan = await this.runPlan(refined);
 
+      // Broadcast planned issues so dashboard can update
+      this.events.emitTyped("sprint:planned", {
+        issues: plan.sprint_issues.map((i) => ({ number: i.number, title: i.title })),
+      });
+
       // 4. execute
       await this.checkPaused();
       const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
