@@ -40,6 +40,8 @@ function createMockClient() {
 
 const baseConfig: SprintConfig = {
   sprintNumber: 1,
+  sprintPrefix: "Sprint",
+  sprintSlug: "sprint",
   baseBranch: "main",
   projectPath: "/test/project",
   maxRetries: 1,

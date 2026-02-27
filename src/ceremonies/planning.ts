@@ -78,10 +78,10 @@ export async function runSprintPlanning(
     );
 
     // Ensure milestone exists
-    const milestoneTitle = `Sprint ${config.sprintNumber}`;
+    const milestoneTitle = `${config.sprintPrefix} ${config.sprintNumber}`;
     const existing = await getMilestone(milestoneTitle);
     if (!existing) {
-      await createMilestone(milestoneTitle, `Sprint ${config.sprintNumber} milestone`);
+      await createMilestone(milestoneTitle, `${config.sprintPrefix} ${config.sprintNumber} milestone`);
     }
 
     // Set labels and milestone on each selected issue
@@ -96,6 +96,9 @@ export async function runSprintPlanning(
       config.sprintNumber,
       plan.rationale,
       plan.sprint_issues.length,
+      undefined,
+      config.sprintPrefix,
+      config.sprintSlug,
     );
 
     return plan;

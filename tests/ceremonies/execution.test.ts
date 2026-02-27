@@ -94,10 +94,12 @@ const { executeIssue, handleQualityFailure } = await import(
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
     sprintNumber: 3,
+    sprintPrefix: "Sprint",
+    sprintSlug: "sprint",
     projectPath: "/tmp/test-project",
     baseBranch: "main",
     worktreeBase: "/tmp/worktrees",
-    branchPattern: "feat/{issue}-{slug}",
+    branchPattern: "{prefix}/{sprint}/issue-{issue}",
     maxParallelSessions: 2,
     maxIssuesPerSprint: 5,
     maxDriftIncidents: 2,
@@ -204,7 +206,7 @@ describe("executeIssue", () => {
     expect(formatHuddleComment).toHaveBeenCalledOnce();
     expect(addComment).toHaveBeenCalledWith(42, "huddle comment");
     expect(formatSprintLogEntry).toHaveBeenCalledOnce();
-    expect(appendToSprintLog).toHaveBeenCalledWith(3, "log entry");
+    expect(appendToSprintLog).toHaveBeenCalledWith(3, "log entry", undefined, "sprint");
 
     // Final label
     expect(setLabel).toHaveBeenCalledWith(42, "status:done");

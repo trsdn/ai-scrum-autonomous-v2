@@ -173,7 +173,7 @@ export class SprintRunner {
       // 1. init
       this.transition("init");
       this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber });
-      createSprintLog(this.config.sprintNumber, "Sprint cycle started", 0);
+      createSprintLog(this.config.sprintNumber, `${this.config.sprintPrefix} cycle started`, 0, undefined, this.config.sprintPrefix, this.config.sprintSlug);
       await this.client.connect();
 
       // 2. refine
@@ -244,9 +244,11 @@ export class SprintRunner {
     const bus = eventBus ?? new SprintEventBus();
 
     while (true) {
+      // Use configBuilder to get prefix for milestone detection
+      const sampleConfig = configBuilder(1);
       let next;
       try {
-        next = await getNextOpenMilestone();
+        next = await getNextOpenMilestone(sampleConfig.sprintPrefix);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         log.error({ error: msg }, "Failed to detect next sprint milestone");
@@ -462,7 +464,7 @@ export class SprintRunner {
       this.config.projectPath,
       "docs",
       "sprints",
-      `sprint-${this.config.sprintNumber}-state.json`,
+      `${this.config.sprintSlug}-${this.config.sprintNumber}-state.json`,
     );
   }
 

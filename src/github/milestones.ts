@@ -8,14 +8,15 @@ export interface GitHubMilestone {
   state: string;
 }
 
-/** Parse sprint number from milestone title like "Sprint 3". Returns undefined if title doesn't match. */
-export function parseSprintFromTitle(title: string): number | undefined {
-  const match = title.match(/^Sprint\s+(\d+)$/i);
+/** Parse sprint number from milestone title like "Sprint 3" or "Test Sprint 3". Returns undefined if title doesn't match. */
+export function parseSprintFromTitle(title: string, prefix: string = "Sprint"): number | undefined {
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = title.match(new RegExp(`^${escaped}\\s+(\\d+)$`, "i"));
   return match ? parseInt(match[1], 10) : undefined;
 }
 
-/** Get the next open sprint milestone. Returns the lowest-numbered open "Sprint N" milestone. */
-export async function getNextOpenMilestone(): Promise<{ milestone: GitHubMilestone; sprintNumber: number } | undefined> {
+/** Get the next open sprint milestone. Returns the lowest-numbered open "{prefix} N" milestone. */
+export async function getNextOpenMilestone(prefix: string = "Sprint"): Promise<{ milestone: GitHubMilestone; sprintNumber: number } | undefined> {
   let json: string;
   try {
     json = await execGh([
@@ -44,7 +45,7 @@ export async function getNextOpenMilestone(): Promise<{ milestone: GitHubMilesto
   // Find open milestones matching "Sprint N", pick the lowest number
   const sprintMilestones = milestones
     .filter((m) => m.state === "open")
-    .map((m) => ({ milestone: m, sprintNumber: parseSprintFromTitle(m.title) }))
+    .map((m) => ({ milestone: m, sprintNumber: parseSprintFromTitle(m.title, prefix) }))
     .filter((x): x is { milestone: GitHubMilestone; sprintNumber: number } => x.sprintNumber !== undefined)
     .sort((a, b) => a.sprintNumber - b.sprintNumber);
 

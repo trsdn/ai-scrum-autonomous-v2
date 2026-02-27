@@ -36,6 +36,14 @@ const DEFAULT_QUALITY_GATE_CONFIG = {
   typecheckCommand: ["npm", "run", "typecheck"],
 };
 
+/** Build branch name from config pattern. */
+function buildBranch(config: SprintConfig, issueNumber: number): string {
+  return config.branchPattern
+    .replace("{prefix}", config.sprintSlug)
+    .replace("{sprint}", String(config.sprintNumber))
+    .replace("{issue}", String(issueNumber));
+}
+
 /**
  * Handle a quality gate failure by retrying with feedback via a new ACP session.
  * Recurses until the gate passes or maxRetries is reached.
@@ -90,7 +98,7 @@ export async function handleQualityFailure(
     await client.endSession(sessionId);
   }
 
-  const branch = `sprint/${config.sprintNumber}/issue-${issue.number}`;
+  const branch = buildBranch(config, issue.number);
   const newResult = await runQualityGate(
     DEFAULT_QUALITY_GATE_CONFIG,
     worktreePath,
@@ -127,7 +135,7 @@ export async function executeIssue(
   const startTime = Date.now();
   const progress = (step: string) => eventBus?.emitTyped("issue:progress", { issueNumber: issue.number, step });
 
-  const branch = `sprint/${config.sprintNumber}/issue-${issue.number}`;
+  const branch = buildBranch(config, issue.number);
   const worktreePath = path.resolve(config.worktreeBase, `issue-${issue.number}`);
 
   // Step 1: Set in-progress label
@@ -361,7 +369,7 @@ export async function executeIssue(
     }
 
     const logEntry = formatSprintLogEntry(huddleEntry);
-    appendToSprintLog(config.sprintNumber, logEntry);
+    appendToSprintLog(config.sprintNumber, logEntry, undefined, config.sprintSlug);
 
     // Step 9: Set final label
     const finalLabel = status === "completed" ? "status:done" : "status:blocked";

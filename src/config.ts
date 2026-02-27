@@ -63,6 +63,7 @@ const CopilotSchema = z.object({
 });
 
 const SprintSchema = z.object({
+  prefix: z.string().default("Sprint"),
   max_issues: z.number().int().min(1).default(8),
   max_drift_incidents: z.number().int().min(0).default(2),
   max_retries: z.number().int().min(0).default(2),
@@ -96,7 +97,7 @@ const GitSchema = z.object({
   worktree_base: z.string().default("../sprint-worktrees"),
   branch_pattern: z
     .string()
-    .default("sprint/{sprint}/issue-{issue}"),
+    .default("{prefix}/{sprint}/issue-{issue}"),
   auto_merge: z.boolean().default(true),
   squash_merge: z.boolean().default(true),
   delete_branch_after_merge: z.boolean().default(true),
@@ -115,6 +116,13 @@ export const ConfigFileSchema = z.object({
 });
 
 export type ConfigFile = z.infer<typeof ConfigFileSchema>;
+
+// --- Sprint prefix utilities ---
+
+/** Convert a sprint prefix to a file-system-safe slug (e.g. "Test Sprint" → "test-sprint"). */
+export function prefixToSlug(prefix: string): string {
+  return prefix.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
 
 // --- Environment variable substitution ---
 

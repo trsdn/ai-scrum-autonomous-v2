@@ -150,10 +150,12 @@ vi.mock("../src/logger.js", () => {
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
     sprintNumber: 1,
+    sprintPrefix: "Sprint",
+    sprintSlug: "sprint",
     projectPath: os.tmpdir(),
     baseBranch: "main",
     worktreeBase: "../sprint-worktrees",
-    branchPattern: "sprint/{sprint}/issue-{issue}",
+    branchPattern: "{prefix}/{sprint}/issue-{issue}",
     maxParallelSessions: 4,
     maxIssuesPerSprint: 8,
     maxDriftIncidents: 2,
