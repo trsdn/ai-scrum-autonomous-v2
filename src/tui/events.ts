@@ -11,6 +11,8 @@ export interface SprintEngineEvents {
   "issue:done": { issueNumber: number; quality: QualityResult; duration_ms: number };
   "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
   "worker:output": { sessionId: string; text: string };
+  "session:start": { sessionId: string; role: string; issueNumber?: number; model?: string };
+  "session:end": { sessionId: string };
   "sprint:start": { sprintNumber: number; resumed?: boolean };
   "sprint:complete": { sprintNumber: number };
   "sprint:error": { error: string };

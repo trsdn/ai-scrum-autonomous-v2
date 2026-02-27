@@ -47,6 +47,7 @@ export async function handleQualityFailure(
   worktreePath: string,
   qualityResult: QualityResult,
   retryCount: number,
+  eventBus?: SprintEventBus,
 ): Promise<QualityResult> {
   if (retryCount >= config.maxRetries) {
     return qualityResult;
@@ -76,9 +77,16 @@ export async function handleQualityFailure(
     cwd: worktreePath,
     mcpServers: sessionConfig.mcpServers,
   });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "worker-retry",
+    issueNumber: issue.number,
+    model: sessionConfig.model,
+  });
   try {
     await client.sendPrompt(sessionId, feedbackPrompt, config.sessionTimeoutMs);
   } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
     await client.endSession(sessionId);
   }
 
@@ -101,6 +109,7 @@ export async function handleQualityFailure(
     worktreePath,
     newResult,
     retryCount + 1,
+    eventBus,
   );
 }
 
@@ -146,6 +155,12 @@ export async function executeIssue(
     const { sessionId } = await client.createSession({
       cwd: worktreePath,
       mcpServers: plannerConfig.mcpServers,
+    });
+    eventBus?.emitTyped("session:start", {
+      sessionId,
+      role: "worker",
+      issueNumber: issue.number,
+      model: plannerConfig.model,
     });
 
     try {
@@ -232,10 +247,9 @@ export async function executeIssue(
       // Step 6: Send worker prompt to ACP
       await client.sendPrompt(sessionId, workerPrompt, config.sessionTimeoutMs);
     } finally {
+      eventBus?.emitTyped("session:end", { sessionId });
       await client.endSession(sessionId);
     }
-
-    // Step 6: Run quality gate
     progress("quality gate");
     qualityResult = await runQualityGate(
       DEFAULT_QUALITY_GATE_CONFIG,
@@ -253,6 +267,7 @@ export async function executeIssue(
         worktreePath,
         qualityResult,
         0,
+        eventBus,
       );
       retryCount = qualityResult.passed ? 0 : config.maxRetries;
     }

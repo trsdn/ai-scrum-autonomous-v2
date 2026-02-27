@@ -45,6 +45,18 @@
   const chatMessagesEl = $("chat-messages");
   const chatInput = $("chat-input");
   const btnSend = $("btn-send");
+  const btnSessions = $("btn-sessions");
+  const sessionPanel = $("session-panel");
+  const sessionListEl = $("session-list");
+  const sessionViewer = $("session-viewer");
+  const sessionOutput = $("session-output");
+  const sessionViewerTitle = $("session-viewer-title");
+  const btnCloseSessions = $("btn-close-sessions");
+  const btnBackSessions = $("btn-back-sessions");
+
+  // Session viewer state
+  let acpSessions = [];
+  let viewingSessionId = null;
 
   // --- WebSocket ---
 
@@ -125,6 +137,15 @@
 
       case "chat:error":
         handleChatError(msg.payload);
+        break;
+
+      case "session:list":
+        acpSessions = msg.payload || [];
+        renderSessionList();
+        break;
+
+      case "session:output":
+        handleSessionOutput(msg.payload);
         break;
     }
   }
@@ -680,6 +701,104 @@
       sendChatMessage();
     }
   });
+
+  // --- Session viewer ---
+
+  function toggleSessionPanel() {
+    const isOpen = sessionPanel.style.display !== "none";
+    sessionPanel.style.display = isOpen ? "none" : "flex";
+    // Close chat panel if opening sessions
+    if (!isOpen) {
+      chatPanel.style.display = "none";
+      document.querySelector("main").classList.remove("chat-open");
+      document.querySelector("main").classList.toggle("session-open", true);
+    } else {
+      document.querySelector("main").classList.remove("session-open");
+    }
+    renderSessionList();
+  }
+
+  function renderSessionList() {
+    sessionListEl.innerHTML = "";
+    if (acpSessions.length === 0) {
+      sessionListEl.innerHTML = '<li class="session-empty">No active ACP sessions</li>';
+      return;
+    }
+
+    // Sort: active first, then by start time
+    const sorted = [...acpSessions].sort((a, b) => {
+      if (!a.endedAt && b.endedAt) return -1;
+      if (a.endedAt && !b.endedAt) return 1;
+      return b.startedAt - a.startedAt;
+    });
+
+    for (const s of sorted) {
+      const li = document.createElement("li");
+      li.className = `session-item ${s.endedAt ? "session-ended" : "session-active"}`;
+      const elapsed = formatElapsed(s.endedAt ? s.endedAt - s.startedAt : Date.now() - s.startedAt);
+      const statusIcon = s.endedAt ? "✅" : "⚡";
+      const issueLabel = s.issueNumber ? ` — #${s.issueNumber}` : "";
+      li.innerHTML = `
+        <span class="session-status">${statusIcon}</span>
+        <div class="session-info">
+          <span class="session-role">${escapeHtml(s.role)}${issueLabel}</span>
+          <span class="session-meta">${s.model || "default"} · ${elapsed}</span>
+        </div>
+        <button class="btn btn-small session-view-btn" data-sid="${escapeHtml(s.sessionId)}">View</button>
+      `;
+      li.querySelector(".session-view-btn").addEventListener("click", () => {
+        openSessionViewer(s.sessionId, s.role, s.issueNumber);
+      });
+      sessionListEl.appendChild(li);
+    }
+  }
+
+  function openSessionViewer(sessionId, role, issueNumber) {
+    viewingSessionId = sessionId;
+    sessionListEl.style.display = "none";
+    sessionViewer.style.display = "flex";
+    const issueLabel = issueNumber ? ` — #${issueNumber}` : "";
+    sessionViewerTitle.textContent = `${role}${issueLabel}`;
+    sessionOutput.textContent = "";
+    // Subscribe to output stream
+    send({ type: "session:subscribe", sessionId });
+  }
+
+  function closeSessionViewer() {
+    if (viewingSessionId) {
+      send({ type: "session:unsubscribe", sessionId: viewingSessionId });
+      viewingSessionId = null;
+    }
+    sessionViewer.style.display = "none";
+    sessionListEl.style.display = "";
+  }
+
+  function handleSessionOutput(payload) {
+    if (payload.sessionId !== viewingSessionId) return;
+    sessionOutput.textContent += payload.text;
+    // Auto-scroll to bottom
+    sessionOutput.scrollTop = sessionOutput.scrollHeight;
+  }
+
+  function formatElapsed(ms) {
+    const sec = Math.floor(ms / 1000);
+    if (sec < 60) return `${sec}s`;
+    const min = Math.floor(sec / 60);
+    const remaining = sec % 60;
+    return `${min}m ${String(remaining).padStart(2, "0")}s`;
+  }
+
+  // Session viewer event listeners
+  btnSessions.addEventListener("click", toggleSessionPanel);
+  btnCloseSessions.addEventListener("click", toggleSessionPanel);
+  btnBackSessions.addEventListener("click", closeSessionViewer);
+
+  // Refresh session list every 5 seconds for elapsed times
+  setInterval(() => {
+    if (sessionPanel.style.display !== "none" && !viewingSessionId) {
+      renderSessionList();
+    }
+  }, 5000);
 
   connect();
   requestNotificationPermission();

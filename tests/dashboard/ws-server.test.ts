@@ -239,15 +239,15 @@ describe("DashboardWebServer", () => {
     expect(numbers).toContain(3);
   });
 
-  it("/api/sprints/1/state returns init state for sprint without state file", async () => {
+  it("/api/sprints/999/state returns init state for sprint without state file", async () => {
     options = makeOptions({ activeSprintNumber: 2 });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
-    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/999/state`);
     expect(res.status).toBe(200);
     const data = await res.json() as { sprintNumber: number; phase: string };
-    expect(data.sprintNumber).toBe(1);
+    expect(data.sprintNumber).toBe(999);
     expect(data.phase).toBe("init");
   });
 
@@ -276,7 +276,6 @@ describe("DashboardWebServer", () => {
     const res = await fetch(`http://127.0.0.1:${port}/api/repo`);
     expect(res.status).toBe(200);
     const data = await res.json();
-    // Should have a url field (may be null in test env without git remote)
     expect(data).toHaveProperty("url");
   });
 
@@ -287,5 +286,46 @@ describe("DashboardWebServer", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(Array.isArray(data)).toBe(true);
+  });
+
+  it("serves /api/sessions with empty list initially", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sessions`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+    expect(data).toHaveLength(0);
+  });
+
+  it("tracks sessions via event bus and serves them via API", async () => {
+    await server.start();
+    const port = getPort(server);
+    const bus = options.eventBus;
+
+    // Emit session:start
+    bus.emitTyped("session:start", {
+      sessionId: "test-session-1",
+      role: "worker",
+      issueNumber: 42,
+      model: "gpt-4",
+    });
+
+    // Check session appears in API
+    const res = await fetch(`http://127.0.0.1:${port}/api/sessions`);
+    const data = await res.json() as { sessionId: string; role: string; issueNumber: number }[];
+    expect(data).toHaveLength(1);
+    expect(data[0].sessionId).toBe("test-session-1");
+    expect(data[0].role).toBe("worker");
+    expect(data[0].issueNumber).toBe(42);
+
+    // Emit session:end
+    bus.emitTyped("session:end", { sessionId: "test-session-1" });
+
+    // Session should still be in list but with endedAt
+    const res2 = await fetch(`http://127.0.0.1:${port}/api/sessions`);
+    const data2 = await res2.json() as { endedAt: number | undefined }[];
+    expect(data2).toHaveLength(1);
+    expect(data2[0].endedAt).toBeDefined();
   });
 });

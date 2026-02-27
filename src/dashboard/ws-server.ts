@@ -28,7 +28,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "session:list" | "session:output" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -36,7 +36,7 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "chat:create" | "chat:send" | "chat:close" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "session:subscribe" | "session:unsubscribe" | "chat:create" | "chat:send" | "chat:close" | "ping";
   sprintNumber?: number;
   sessionId?: string;
   role?: string;
@@ -67,12 +67,24 @@ export interface DashboardServerOptions {
   activeSprintNumber?: number;
 }
 
+export interface TrackedSession {
+  sessionId: string;
+  role: string;
+  issueNumber?: number;
+  model?: string;
+  startedAt: number;
+  endedAt?: number;
+  output: string[];
+}
+
 export class DashboardWebServer {
   private server: http.Server | null = null;
   private wss: WebSocketServer | null = null;
   private chatManager: ChatManager | null = null;
   private issueCache: SprintIssueCache | null = null;
   private repoUrl: string | null = null;
+  private sessions = new Map<string, TrackedSession>();
+  private sessionSubscribers = new Map<string, Set<WebSocket>>();
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
 
@@ -99,6 +111,19 @@ export class DashboardWebServer {
         type: "sprint:issues",
         payload: this.options.getIssues(),
       });
+      // Send active session list
+      if (this.sessions.size > 0) {
+        const sessions = Array.from(this.sessions.values()).map(s => ({
+          sessionId: s.sessionId,
+          role: s.role,
+          issueNumber: s.issueNumber,
+          model: s.model,
+          startedAt: s.startedAt,
+          endedAt: s.endedAt,
+          outputLength: s.output.length,
+        }));
+        this.sendTo(ws, { type: "session:list", payload: sessions });
+      }
 
       ws.on("message", (data) => {
         try {
@@ -109,7 +134,13 @@ export class DashboardWebServer {
         }
       });
 
-      ws.on("close", () => log.info("Dashboard client disconnected"));
+      ws.on("close", () => {
+        log.info("Dashboard client disconnected");
+        // Clean up session subscriptions
+        for (const subs of this.sessionSubscribers.values()) {
+          subs.delete(ws);
+        }
+      });
     });
 
     this.bridgeEvents();
@@ -173,6 +204,19 @@ export class DashboardWebServer {
     }
   }
 
+  private broadcastSessionList(): void {
+    const sessions = Array.from(this.sessions.values()).map(s => ({
+      sessionId: s.sessionId,
+      role: s.role,
+      issueNumber: s.issueNumber,
+      model: s.model,
+      startedAt: s.startedAt,
+      endedAt: s.endedAt,
+      outputLength: s.output.length,
+    }));
+    this.broadcast({ type: "session:list", payload: sessions });
+  }
+
   /** Subscribe to all SprintEventBus events and relay to WebSocket clients. */
   private bridgeEvents(): void {
     const bus = this.options.eventBus;
@@ -191,6 +235,51 @@ export class DashboardWebServer {
         });
       });
     }
+
+    // Track ACP sessions for the session viewer
+    bus.onTyped("session:start", (payload) => {
+      this.sessions.set(payload.sessionId, {
+        sessionId: payload.sessionId,
+        role: payload.role,
+        issueNumber: payload.issueNumber,
+        model: payload.model,
+        startedAt: Date.now(),
+        output: [],
+      });
+      this.broadcastSessionList();
+    });
+
+    bus.onTyped("session:end", (payload) => {
+      const session = this.sessions.get(payload.sessionId);
+      if (session) {
+        session.endedAt = Date.now();
+        this.broadcastSessionList();
+        // Clean up subscribers
+        this.sessionSubscribers.delete(payload.sessionId);
+      }
+    });
+
+    bus.onTyped("worker:output", (payload) => {
+      const session = this.sessions.get(payload.sessionId);
+      if (session) {
+        session.output.push(payload.text);
+        // Cap stored output to prevent memory bloat (keep last 500 chunks)
+        if (session.output.length > 500) {
+          session.output = session.output.slice(-400);
+        }
+      }
+      // Send to subscribers of this session
+      const subs = this.sessionSubscribers.get(payload.sessionId);
+      if (subs) {
+        const msg: ServerMessage = {
+          type: "session:output",
+          payload: { sessionId: payload.sessionId, text: payload.text },
+        };
+        for (const ws of subs) {
+          this.sendTo(ws, msg);
+        }
+      }
+    });
   }
 
   private handleClientMessage(msg: ClientMessage, ws: WebSocket): void {
@@ -225,6 +314,29 @@ export class DashboardWebServer {
       case "chat:close":
         if (msg.sessionId) {
           this.handleChatClose(msg.sessionId);
+        }
+        break;
+      case "session:subscribe":
+        if (msg.sessionId) {
+          let subs = this.sessionSubscribers.get(msg.sessionId);
+          if (!subs) {
+            subs = new Set();
+            this.sessionSubscribers.set(msg.sessionId, subs);
+          }
+          subs.add(ws);
+          // Send existing output history
+          const session = this.sessions.get(msg.sessionId);
+          if (session) {
+            this.sendTo(ws, {
+              type: "session:output",
+              payload: { sessionId: msg.sessionId, text: session.output.join(""), isHistory: true },
+            });
+          }
+        }
+        break;
+      case "session:unsubscribe":
+        if (msg.sessionId) {
+          this.sessionSubscribers.get(msg.sessionId)?.delete(ws);
         }
         break;
       case "ping":
@@ -336,6 +448,21 @@ export class DashboardWebServer {
 
     if (pathname === "/api/repo") {
       this.handleRepoInfo(res);
+      return;
+    }
+
+    if (pathname === "/api/sessions") {
+      const sessions = Array.from(this.sessions.values()).map(s => ({
+        sessionId: s.sessionId,
+        role: s.role,
+        issueNumber: s.issueNumber,
+        model: s.model,
+        startedAt: s.startedAt,
+        endedAt: s.endedAt,
+        outputLength: s.output.length,
+      }));
+      res.writeHead(200);
+      res.end(JSON.stringify(sessions));
       return;
     }
 
