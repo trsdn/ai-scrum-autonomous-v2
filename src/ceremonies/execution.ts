@@ -394,6 +394,12 @@ export async function executeIssue(
     const finalLabel = status === "completed" ? "status:done" : "status:blocked";
     try {
       await setLabel(issue.number, finalLabel);
+      if (finalLabel === "status:blocked") {
+        const blockReason = errorMessage
+          ?? qualityResult?.checks.filter((c) => !c.passed).map((c) => `${c.name}: ${c.detail}`).join("; ")
+          ?? "Unknown reason";
+        await addComment(issue.number, `**Block reason:** ${blockReason}`).catch(() => {});
+      }
       log.info({ status, finalLabel }, "final status set");
     } catch (err: unknown) {
       log.warn({ err, issueNumber: issue.number, finalLabel }, "failed to set final label — non-critical");
