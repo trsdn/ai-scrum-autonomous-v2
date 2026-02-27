@@ -333,8 +333,21 @@ export async function executeIssue(
     // Gather changed files
     filesChanged = await getChangedFiles(branch, config.baseBranch);
 
-    // Final status: passed quality gate AND (no review OR review approved)
-    status = qualityResult.passed ? "completed" : "failed";
+    // Zero-change guard: if quality passed but no files changed, treat as failure
+    if (qualityResult.passed && filesChanged.length === 0) {
+      log.warn({ issue: issue.number }, "Worker produced 0 file changes — treating as failure");
+      status = "failed";
+      qualityResult = {
+        passed: false,
+        checks: [
+          ...qualityResult.checks,
+          { name: "files-changed", passed: false, detail: "Worker produced 0 file changes" },
+        ],
+      };
+    } else {
+      // Final status: passed quality gate AND (no review OR review approved)
+      status = qualityResult.passed ? "completed" : "failed";
+    }
   } finally {
     const duration_ms = Date.now() - startTime;
 
