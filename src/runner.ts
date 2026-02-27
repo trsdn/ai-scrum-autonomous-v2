@@ -133,20 +133,20 @@ export class SprintRunner {
           // Filter out already-completed issues (they have status:done labels)
           await this.checkPaused();
           const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
-          this.transition("execute", workerModel);
+          this.transition("execute", workerModel, "Worker Agent");
           result = await this.runExecute(plan);
         }
 
         if (!review || previous.phase === "review") {
           await this.checkPaused();
           const reviewerModel = (await resolveSessionConfig(this.config, "reviewer")).model;
-          this.transition("review", reviewerModel);
+          this.transition("review", reviewerModel, "Review Agent");
           review = await this.runReview(result);
         }
 
         if (!previous.retro || previous.phase === "retro") {
           await this.checkPaused();
-          this.transition("retro");
+          this.transition("retro", undefined, "Retro Agent");
           const retro = await this.runRetro(result, review);
           this.state.retro = retro;
         }
@@ -168,30 +168,30 @@ export class SprintRunner {
 
       // 2. refine
       await this.checkPaused();
-      this.transition("refine");
+      this.transition("refine", undefined, "Refinement Agent");
       const refined = await this.runRefine();
 
       // 3. plan
       await this.checkPaused();
       const plannerModel = (await resolveSessionConfig(this.config, "planner")).model;
-      this.transition("plan", plannerModel);
+      this.transition("plan", plannerModel, "Planning Agent");
       const plan = await this.runPlan(refined);
 
       // 4. execute
       await this.checkPaused();
       const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
-      this.transition("execute", workerModel);
+      this.transition("execute", workerModel, "Worker Agent");
       const result = await this.runExecute(plan);
 
       // 5. review
       await this.checkPaused();
       const reviewerModel = (await resolveSessionConfig(this.config, "reviewer")).model;
-      this.transition("review", reviewerModel);
+      this.transition("review", reviewerModel, "Review Agent");
       const review = await this.runReview(result);
 
       // 6. retro
       await this.checkPaused();
-      this.transition("retro");
+      this.transition("retro", undefined, "Retro Agent");
       const retro = await this.runRetro(result, review);
 
       // 7. complete
@@ -234,7 +234,15 @@ export class SprintRunner {
     const bus = eventBus ?? new SprintEventBus();
 
     while (true) {
-      const next = await getNextOpenMilestone();
+      let next;
+      try {
+        next = await getNextOpenMilestone();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log.error({ error: msg }, "Failed to detect next sprint milestone");
+        bus.emitTyped("log", { level: "error", message: `Milestone detection failed: ${msg}` });
+        break;
+      }
       if (!next) {
         log.info("No open sprint milestones found — loop complete");
         bus.emitTyped("log", { level: "info", message: "No open sprint milestones — loop complete" });
@@ -426,11 +434,11 @@ export class SprintRunner {
 
   // --- Private helpers ---
 
-  private transition(phase: SprintPhase, model?: string): void {
+  private transition(phase: SprintPhase, model?: string, agent?: string): void {
     const previous = this.state.phase;
     this.state.phase = phase;
-    this.log.info({ from: previous, to: phase, model }, "Phase transition");
-    this.events.emitTyped("phase:change", { from: previous, to: phase, model });
+    this.log.info({ from: previous, to: phase, model, agent }, "Phase transition");
+    this.events.emitTyped("phase:change", { from: previous, to: phase, model, agent });
   }
 
   private async checkPaused(): Promise<void> {

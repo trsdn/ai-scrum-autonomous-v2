@@ -46,7 +46,7 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
   React.useEffect(() => {
     const bus = runner.events;
 
-    bus.onTyped("phase:change", ({ from, to, model }) => {
+    bus.onTyped("phase:change", ({ from, to, model, agent }) => {
       setPhase(to);
       if (to === "init" && (from === "complete" || from === "failed")) {
         setIssues([]);
@@ -66,7 +66,9 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
           failed: "Sprint failed",
         };
         const status = (to === "complete" || to === "failed") ? "done" as const : "active" as const;
-        addActivity(labels[to] ?? to, status, model);
+        // Show agent role + model: "Planning Agent (claude-opus-4.6)"
+        const detail = agent && model ? `${agent} (${model})` : agent ?? model;
+        addActivity(labels[to] ?? to, status, detail);
       }
     });
 

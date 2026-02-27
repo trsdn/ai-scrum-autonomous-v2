@@ -5,7 +5,7 @@ import type { SprintPhase } from "../runner.js";
 import type { SprintIssue, QualityResult } from "../types.js";
 
 export interface SprintEngineEvents {
-  "phase:change": { from: SprintPhase; to: SprintPhase; model?: string };
+  "phase:change": { from: SprintPhase; to: SprintPhase; model?: string; agent?: string };
   "issue:start": { issue: SprintIssue; model?: string };
   "issue:done": { issueNumber: number; quality: QualityResult; duration_ms: number };
   "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
