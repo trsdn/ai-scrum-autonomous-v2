@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, RefinedIssue } from "../types.js";
+import type { SprintEventBus } from "../tui/events.js";
 import { listIssues } from "../github/issues.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson } from "./helpers.js";
@@ -24,6 +25,7 @@ interface RefinementResponse {
 export async function runRefinement(
   client: AcpClient,
   config: SprintConfig,
+  eventBus?: SprintEventBus,
 ): Promise<RefinedIssue[]> {
   const log = logger.child({ ceremony: "refinement" });
 
@@ -58,6 +60,7 @@ export async function runRefinement(
     cwd: config.projectPath,
     mcpServers: sessionConfig.mcpServers,
   });
+  eventBus?.emitTyped("session:start", { sessionId, role: "refinement" });
   try {
     let fullPrompt = prompt;
     if (sessionConfig.instructions) {
@@ -95,5 +98,6 @@ export async function runRefinement(
     return refined;
   } finally {
     await client.endSession(sessionId);
+    eventBus?.emitTyped("session:end", { sessionId });
   }
 }
