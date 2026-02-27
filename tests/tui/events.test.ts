@@ -24,6 +24,7 @@ const makeConfig = (): SprintConfig => ({
   maxRetries: 1,
   enableChallenger: false,
   autoRevertDrift: false,
+  backlogLabels: [],
   autoMerge: true,
   squashMerge: true,
   deleteBranchAfterMerge: true,

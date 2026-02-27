@@ -106,6 +106,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     maxRetries: 2,
     enableChallenger: false,
     autoRevertDrift: false,
+  backlogLabels: [],
     autoMerge: true,
     squashMerge: true,
     deleteBranchAfterMerge: true,

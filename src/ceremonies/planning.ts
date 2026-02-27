@@ -26,9 +26,13 @@ export async function runSprintPlanning(
   const velocity = readVelocity();
   const velocityStr = JSON.stringify(velocity);
 
-  // List available backlog issues
-  const backlog = await listIssues({ state: "open" });
-  log.info({ count: backlog.length }, "Loaded backlog issues");
+  // List available backlog issues (filtered by backlog_labels if configured)
+  const listOpts: { state: string; labels?: string[] } = { state: "open" };
+  if (config.backlogLabels.length > 0) {
+    listOpts.labels = config.backlogLabels;
+  }
+  const backlog = await listIssues(listOpts);
+  log.info({ count: backlog.length, labels: config.backlogLabels }, "Loaded backlog issues");
 
   // Read prompt template
   const templatePath = path.join(config.projectPath, "prompts", "planning.md");

@@ -38,6 +38,7 @@ sprint:
   max_retries: 1
   enable_challenger: false
   auto_revert_drift: false
+  backlog_labels: ["test-run"]
 
 quality_gates:
   require_tests: true

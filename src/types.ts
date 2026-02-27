@@ -210,6 +210,7 @@ export interface SprintConfig {
   maxRetries: number;
   enableChallenger: boolean;
   autoRevertDrift: boolean;
+  backlogLabels: string[];
   autoMerge: boolean;
   squashMerge: boolean;
   deleteBranchAfterMerge: boolean;
