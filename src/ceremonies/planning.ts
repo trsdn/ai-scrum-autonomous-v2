@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintPlan, RefinedIssue } from "../types.js";
+import { SprintPlanSchema } from "../types.js";
 import type { SprintEventBus } from "../tui/events.js";
 import { listIssues } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
@@ -9,7 +10,7 @@ import { setMilestone, getMilestone, createMilestone } from "../github/milestone
 import { createSprintLog } from "../documentation/sprint-log.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
-import { substitutePrompt, extractJson } from "./helpers.js";
+import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
@@ -46,9 +47,9 @@ export async function runSprintPlanning(
     REPO_NAME: path.basename(config.projectPath),
     SPRINT_NUMBER: String(config.sprintNumber),
     MAX_ISSUES: String(config.maxIssuesPerSprint),
-    VELOCITY_DATA: velocityStr,
+    VELOCITY_DATA: sanitizePromptInput(velocityStr),
     PREVIOUS_SPRINT_SUMMARY: refinedIssues
-      ? JSON.stringify(refinedIssues)
+      ? sanitizePromptInput(JSON.stringify(refinedIssues))
       : "No previous refinement data",
     BASE_BRANCH: config.baseBranch,
   });
@@ -69,11 +70,9 @@ export async function runSprintPlanning(
       await client.setModel(sessionId, sessionConfig.model);
     }
     const result = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
-    const plan = extractJson<SprintPlan>(result.response);
-
-    if (!plan.sprint_issues || !Array.isArray(plan.sprint_issues)) {
-      throw new Error("Invalid sprint plan: missing or invalid sprint_issues array");
-    }
+    const plan = SprintPlanSchema.parse(
+      extractJson(result.response),
+    ) as SprintPlan;
 
     log.info(
       {
