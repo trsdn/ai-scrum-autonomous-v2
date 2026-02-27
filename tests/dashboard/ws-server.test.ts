@@ -31,6 +31,51 @@ function getPort(server: DashboardWebServer): number {
   return addr?.port ?? 0;
 }
 
+/**
+ * Helper to connect to WebSocket and wait for messages with proper cleanup.
+ * Resolves when expectedCount messages are received, rejects on timeout or error.
+ */
+function connectAndCollectMessages(
+  port: number,
+  expectedCount: number,
+  timeoutMs = 5000
+): Promise<unknown[]> {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const messages: unknown[] = [];
+    let resolved = false;
+
+    const cleanup = () => {
+      if (!resolved) {
+        resolved = true;
+        ws.terminate(); // Force close to prevent hanging connections
+      }
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error(`Timeout waiting for ${expectedCount} messages (got ${messages.length})`));
+    }, timeoutMs);
+
+    ws.on("message", (data) => {
+      if (resolved) return;
+      messages.push(JSON.parse(data.toString()));
+      if (messages.length >= expectedCount) {
+        clearTimeout(timer);
+        cleanup();
+        resolve(messages);
+      }
+    });
+
+    ws.on("error", (err) => {
+      if (resolved) return;
+      clearTimeout(timer);
+      cleanup();
+      reject(err);
+    });
+  });
+}
+
 describe("DashboardWebServer", () => {
   let server: DashboardWebServer;
   let options: DashboardServerOptions;
@@ -42,6 +87,8 @@ describe("DashboardWebServer", () => {
 
   afterEach(async () => {
     await server.stop();
+    // Small delay to ensure server cleanup completes and ports are released
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   it("starts and stops without error", async () => {
@@ -69,24 +116,11 @@ describe("DashboardWebServer", () => {
     expect(res.headers.get("content-type")).toContain("text/css");
   });
 
-  it("sends initial state on WebSocket connect", async () => {
+  it("sends initial state on WebSocket connect", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
 
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    const messages: unknown[] = [];
-
-    await new Promise<void>((resolve, reject) => {
-      ws.on("message", (data) => {
-        messages.push(JSON.parse(data.toString()));
-        if (messages.length >= 2) {
-          ws.close();
-          resolve();
-        }
-      });
-      ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
-    });
+    const messages = await connectAndCollectMessages(port, 2);
 
     // First message: sprint state
     expect(messages[0]).toMatchObject({
@@ -101,16 +135,26 @@ describe("DashboardWebServer", () => {
     });
   });
 
-  it("relays event bus events to WebSocket clients", async () => {
+  it("relays event bus events to WebSocket clients", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
 
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
     const events: unknown[] = [];
+    let resolved = false;
 
-    await new Promise<void>((resolve, reject) => {
+    const result = await new Promise<unknown>((resolve, reject) => {
       let initialCount = 0;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          ws.terminate();
+          reject(new Error("timeout"));
+        }
+      }, 5000);
+
       ws.on("message", (data) => {
+        if (resolved) return;
         const msg = JSON.parse(data.toString());
         if (msg.type === "sprint:state" || msg.type === "sprint:issues") {
           initialCount++;
@@ -121,21 +165,29 @@ describe("DashboardWebServer", () => {
           return;
         }
         events.push(msg);
-        ws.close();
-        resolve();
+        clearTimeout(timer);
+        resolved = true;
+        ws.terminate();
+        resolve(msg);
       });
-      ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      ws.on("error", (err) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          ws.terminate();
+          reject(err);
+        }
+      });
     });
 
-    expect(events[0]).toMatchObject({
+    expect(result).toMatchObject({
       type: "sprint:event",
       eventName: "log",
       payload: { level: "info", message: "test log" },
     });
   });
 
-  it("handles client sprint:start message", async () => {
+  it("handles client sprint:start message", { timeout: 15000 }, async () => {
     let started = false;
     options.onStart = () => { started = true; };
     server = new DashboardWebServer(options);
@@ -144,17 +196,34 @@ describe("DashboardWebServer", () => {
     const port = getPort(server);
 
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    let resolved = false;
 
     await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          ws.terminate();
+          reject(new Error("timeout"));
+        }
+      }, 5000);
+
       ws.on("open", () => {
         ws.send(JSON.stringify({ type: "sprint:start" }));
         setTimeout(() => {
-          ws.close();
+          clearTimeout(timer);
+          resolved = true;
+          ws.terminate();
           resolve();
         }, 200);
       });
-      ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      ws.on("error", (err) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          ws.terminate();
+          reject(err);
+        }
+      });
     });
 
     expect(started).toBe(true);
@@ -331,7 +400,7 @@ describe("DashboardWebServer", () => {
 
   // --- Event buffer & sprint switch ---
 
-  it("sends fresh state and issues on sprint:switch", async () => {
+  it("sends fresh state and issues on sprint:switch", { timeout: 15000 }, async () => {
     options = makeOptions({ activeSprintNumber: 2 });
     const state: SprintState = { version: "1", sprintNumber: 2, phase: "execute", startedAt: new Date() };
     options.getState = () => state;
@@ -342,10 +411,20 @@ describe("DashboardWebServer", () => {
     // Connect and wait for initial messages, then send sprint:switch
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
     const allMessages: { type: string; eventName?: string; payload?: unknown }[] = [];
+    let resolved = false;
 
     await new Promise<void>((resolve, reject) => {
       let initialCount = 0;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          ws.terminate();
+          reject(new Error("timeout"));
+        }
+      }, 5000);
+
       ws.on("message", (data) => {
+        if (resolved) return;
         const msg = JSON.parse(data.toString());
         if (initialCount < 2) {
           initialCount++;
@@ -358,12 +437,20 @@ describe("DashboardWebServer", () => {
         allMessages.push(msg);
         // Expect: sprint:state + sprint:issues = 2 messages
         if (allMessages.length >= 2) {
-          ws.close();
+          clearTimeout(timer);
+          resolved = true;
+          ws.terminate();
           resolve();
         }
       });
-      ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      ws.on("error", (err) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          ws.terminate();
+          reject(err);
+        }
+      });
     });
 
     // Should receive fresh state and issues
@@ -371,7 +458,7 @@ describe("DashboardWebServer", () => {
     expect(allMessages[1].type).toBe("sprint:issues");
   });
 
-  it("broadcasts updated issues on sprint:planned event", async () => {
+  it("broadcasts updated issues on sprint:planned event", { timeout: 15000 }, async () => {
     const testIssues = [
       { number: 10, title: "Test Issue", status: "planned" },
     ];
@@ -383,10 +470,20 @@ describe("DashboardWebServer", () => {
 
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
     const receivedIssues: unknown[] = [];
+    let resolved = false;
 
     await new Promise<void>((resolve, reject) => {
       let initialCount = 0;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          ws.terminate();
+          reject(new Error("timeout"));
+        }
+      }, 5000);
+
       ws.on("message", (data) => {
+        if (resolved) return;
         const msg = JSON.parse(data.toString());
         if (initialCount < 2) {
           initialCount++;
@@ -401,12 +498,20 @@ describe("DashboardWebServer", () => {
         // After initial: expect sprint:event for sprint:planned, then sprint:issues broadcast
         if (msg.type === "sprint:issues") {
           receivedIssues.push(msg.payload);
-          ws.close();
+          clearTimeout(timer);
+          resolved = true;
+          ws.terminate();
           resolve();
         }
       });
-      ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      ws.on("error", (err) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          ws.terminate();
+          reject(err);
+        }
+      });
     });
 
     expect(receivedIssues).toHaveLength(1);

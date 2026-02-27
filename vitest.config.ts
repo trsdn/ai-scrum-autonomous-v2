@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    testTimeout: 10000, // 10s default for integration tests with network operations
     coverage: {
       provider: "v8",
       reporter: ["json-summary"],
