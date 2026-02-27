@@ -46,7 +46,7 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
   React.useEffect(() => {
     const bus = runner.events;
 
-    bus.onTyped("phase:change", ({ from, to }) => {
+    bus.onTyped("phase:change", ({ from, to, model }) => {
       setPhase(to);
       if (to === "init" && (from === "complete" || from === "failed")) {
         setIssues([]);
@@ -66,11 +66,11 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
           failed: "Sprint failed",
         };
         const status = (to === "complete" || to === "failed") ? "done" as const : "active" as const;
-        addActivity(labels[to] ?? to, status);
+        addActivity(labels[to] ?? to, status, model);
       }
     });
 
-    bus.onTyped("issue:start", ({ issue }) => {
+    bus.onTyped("issue:start", ({ issue, model }) => {
       setCurrentIssue(issue.number);
       setIssues((prev) => {
         const exists = prev.some((i) => i.number === issue.number);
@@ -81,7 +81,7 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
         }
         return [...prev, { number: issue.number, title: issue.title, status: "in-progress" as const }];
       });
-      addActivity(`#${issue.number} ${issue.title}`, "active", "executing");
+      addActivity(`#${issue.number} ${issue.title}`, "active", model ?? "executing");
     });
 
     bus.onTyped("issue:done", ({ issueNumber, duration_ms }) => {
@@ -128,11 +128,12 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
       setLogEntries((prev) => [...prev, { time, level: "error" as const, message: error }]);
     });
 
-    bus.onTyped("sprint:start", ({ sprintNumber: n }) => {
+    bus.onTyped("sprint:start", ({ sprintNumber: n, resumed }) => {
       setSprintNumber(n);
       setStartedAt(new Date());
       const time = new Date().toLocaleTimeString();
-      setLogEntries((prev) => [...prev, { time, level: "info" as const, message: `Starting Sprint ${n}` }]);
+      const msg = resumed ? `Resuming Sprint ${n}` : `Starting Sprint ${n}`;
+      setLogEntries((prev) => [...prev, { time, level: "info" as const, message: msg }]);
     });
 
     bus.onTyped("sprint:complete", ({ sprintNumber: n }) => {

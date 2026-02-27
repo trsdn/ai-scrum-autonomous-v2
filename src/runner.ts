@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { AcpClient } from "./acp/client.js";
+import { resolveSessionConfig } from "./acp/session-config.js";
 import { runRefinement } from "./ceremonies/refinement.js";
 import { runSprintPlanning } from "./ceremonies/planning.js";
 import { runParallelExecution } from "./ceremonies/parallel-dispatcher.js";
@@ -108,9 +109,57 @@ export class SprintRunner {
     return this.client;
   }
 
-  /** Run the full sprint cycle */
+  /** Run the full sprint cycle, resuming from a previous crash if state exists. */
   async fullCycle(): Promise<SprintState> {
     try {
+      // Check for previous state to resume from
+      const previous = this.tryLoadPreviousState();
+      const resuming = previous && previous.phase !== "complete" && previous.plan;
+
+      if (resuming && previous.plan) {
+        this.state = { ...previous, error: undefined };
+        this.log.info({ resumeFrom: previous.phase }, "Resuming sprint from previous state");
+        this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber, resumed: true });
+        this.events.emitTyped("log", { level: "info", message: `Resuming Sprint ${this.config.sprintNumber} from ${previous.phase} phase` });
+        await this.client.connect();
+
+        // Determine where to resume based on previous phase
+        const plan = previous.plan;
+        let result = previous.result;
+        let review = previous.review;
+
+        // If we crashed during or after execute but before review
+        if (!result || previous.phase === "execute") {
+          // Filter out already-completed issues (they have status:done labels)
+          await this.checkPaused();
+          const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
+          this.transition("execute", workerModel);
+          result = await this.runExecute(plan);
+        }
+
+        if (!review || previous.phase === "review") {
+          await this.checkPaused();
+          const reviewerModel = (await resolveSessionConfig(this.config, "reviewer")).model;
+          this.transition("review", reviewerModel);
+          review = await this.runReview(result);
+        }
+
+        if (!previous.retro || previous.phase === "retro") {
+          await this.checkPaused();
+          this.transition("retro");
+          const retro = await this.runRetro(result, review);
+          this.state.retro = retro;
+        }
+
+        this.transition("complete");
+        await this.client.disconnect();
+        this.persistState();
+        this.events.emitTyped("sprint:complete", { sprintNumber: this.config.sprintNumber });
+        return this.state;
+      }
+
+      // --- Fresh sprint ---
+
       // 1. init
       this.transition("init");
       this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber });
@@ -124,17 +173,20 @@ export class SprintRunner {
 
       // 3. plan
       await this.checkPaused();
-      this.transition("plan");
+      const plannerModel = (await resolveSessionConfig(this.config, "planner")).model;
+      this.transition("plan", plannerModel);
       const plan = await this.runPlan(refined);
 
       // 4. execute
       await this.checkPaused();
-      this.transition("execute");
+      const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
+      this.transition("execute", workerModel);
       const result = await this.runExecute(plan);
 
       // 5. review
       await this.checkPaused();
-      this.transition("review");
+      const reviewerModel = (await resolveSessionConfig(this.config, "reviewer")).model;
+      this.transition("review", reviewerModel);
       const review = await this.runReview(result);
 
       // 6. retro
@@ -239,9 +291,11 @@ export class SprintRunner {
   async runExecute(plan: SprintPlan): Promise<SprintResult> {
     this.log.info("Running parallel execution");
 
+    const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
+
     // Emit issue:start for all planned issues
     for (const issue of plan.sprint_issues) {
-      this.events.emitTyped("issue:start", { issue });
+      this.events.emitTyped("issue:start", { issue, model: workerModel });
     }
 
     const result = await runParallelExecution(this.client, this.config, plan);
@@ -372,11 +426,11 @@ export class SprintRunner {
 
   // --- Private helpers ---
 
-  private transition(phase: SprintPhase): void {
+  private transition(phase: SprintPhase, model?: string): void {
     const previous = this.state.phase;
     this.state.phase = phase;
-    this.log.info({ from: previous, to: phase }, "Phase transition");
-    this.events.emitTyped("phase:change", { from: previous, to: phase });
+    this.log.info({ from: previous, to: phase, model }, "Phase transition");
+    this.events.emitTyped("phase:change", { from: previous, to: phase, model });
   }
 
   private async checkPaused(): Promise<void> {
@@ -385,17 +439,32 @@ export class SprintRunner {
     }
   }
 
-  private persistState(): void {
-    const filePath = path.join(
+  private get stateFilePath(): string {
+    return path.join(
       this.config.projectPath,
       "docs",
       "sprints",
       `sprint-${this.config.sprintNumber}-state.json`,
     );
+  }
+
+  private persistState(): void {
     try {
-      saveState(this.state, filePath);
+      saveState(this.state, this.stateFilePath);
     } catch (err: unknown) {
       this.log.warn({ err }, "Failed to persist sprint state");
     }
+  }
+
+  /** Try to load a previous state for this sprint. Returns null if none exists. */
+  private tryLoadPreviousState(): SprintState | null {
+    try {
+      if (fs.existsSync(this.stateFilePath)) {
+        return loadState(this.stateFilePath);
+      }
+    } catch (err: unknown) {
+      this.log.warn({ err }, "Failed to load previous state — starting fresh");
+    }
+    return null;
   }
 }
