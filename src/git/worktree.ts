@@ -52,7 +52,7 @@ export async function createWorktree(
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     // Clean up the branch on any failure
-    await execFile("git", ["branch", "-D", branch]).catch(() => {});
+    await execFile("git", ["branch", "-D", branch]).catch((err) => log.debug({ err: String(err) }, "branch cleanup failed (non-critical)"));
     throw new Error(`Failed to add worktree at '${path}': ${message}`);
   }
 }

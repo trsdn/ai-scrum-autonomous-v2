@@ -53,7 +53,15 @@ const STATE_VERSION = "1";
 
 export function saveState(state: SprintState, filePath: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify({ ...state, version: STATE_VERSION }, null, 2), "utf-8");
+  const tmpPath = filePath + ".tmp";
+  const data = JSON.stringify({ ...state, version: STATE_VERSION }, null, 2);
+  fs.writeFileSync(tmpPath, data, "utf-8");
+  // fsync to ensure data is flushed to disk before rename
+  const fd = fs.openSync(tmpPath, "r");
+  fs.fsyncSync(fd);
+  fs.closeSync(fd);
+  // Atomic rename replaces target file
+  fs.renameSync(tmpPath, filePath);
 }
 
 export function loadState(filePath: string): SprintState {

@@ -30,7 +30,12 @@ export function extractJson<T = unknown>(text: string): T {
   // Try fenced code block first (```json ... ``` or ``` ... ```)
   const fencedMatch = text.match(/```(?:json)?\s*\n([\s\S]*?)\n```/);
   if (fencedMatch) {
-    return JSON.parse(fencedMatch[1]) as T;
+    try {
+      return JSON.parse(fencedMatch[1]) as T;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to parse JSON from response: ${msg}. Input (first 200 chars): ${text.slice(0, 200)}`);
+    }
   }
 
   // Fall back to finding a top-level { or [
@@ -66,7 +71,12 @@ export function extractJson<T = unknown>(text: string): T {
     else if (ch === close) depth--;
 
     if (depth === 0) {
-      return JSON.parse(text.slice(start, i + 1)) as T;
+      try {
+        return JSON.parse(text.slice(start, i + 1)) as T;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`Failed to parse JSON from response: ${msg}. Input (first 200 chars): ${text.slice(0, 200)}`);
+      }
     }
   }
 
