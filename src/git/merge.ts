@@ -16,6 +16,37 @@ export interface PRMergeResult {
   reason?: string;
 }
 
+export interface PRStats {
+  prNumber: number;
+  additions: number;
+  deletions: number;
+  changedFiles: number;
+}
+
+/**
+ * Fetch PR stats (additions/deletions/files) for a branch.
+ * Returns undefined if no open or merged PR found.
+ */
+export async function getPRStats(branch: string): Promise<PRStats | undefined> {
+  const log = logger.child({ module: "merge" });
+  try {
+    const json = await execGh([
+      "pr", "list",
+      "--head", branch,
+      "--state", "all",
+      "--json", "number,additions,deletions,changedFiles",
+      "--limit", "1",
+    ]);
+    const prs = JSON.parse(json) as PRStats[];
+    if (prs.length > 0) {
+      return prs[0]!;
+    }
+  } catch (err: unknown) {
+    log.debug({ branch, err }, "Could not fetch PR stats");
+  }
+  return undefined;
+}
+
 /**
  * Find and merge a PR by its head branch name using `gh pr merge`.
  * Returns success: false if no PR found or merge fails.

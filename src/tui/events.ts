@@ -24,11 +24,19 @@ export interface SprintEngineEvents {
 
 type EventKey = keyof SprintEngineEvents;
 
+/**
+ * Type-safe event bus for SprintRunner ↔ UI communication.
+ *
+ * Wraps Node's EventEmitter with typed `emitTyped` / `onTyped` methods
+ * so callers get compile-time safety on event names and payloads.
+ */
 export class SprintEventBus extends EventEmitter {
+  /** Emit an event with a type-checked payload. */
   emitTyped<K extends EventKey>(event: K, payload: SprintEngineEvents[K]): void {
     this.emit(event, payload);
   }
 
+  /** Subscribe to an event with a type-checked listener. */
   onTyped<K extends EventKey>(event: K, listener: (payload: SprintEngineEvents[K]) => void): this {
     return this.on(event, listener as (...args: unknown[]) => void);
   }

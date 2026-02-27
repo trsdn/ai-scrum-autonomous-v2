@@ -343,7 +343,15 @@ export class SprintRunner {
       }
     }
 
-    // Holistic drift check
+    // Holistic drift check — update expectedFiles with actual changes per issue
+    for (const r of result.results) {
+      const issueInPlan = plan.sprint_issues.find((i) => i.number === r.issueNumber);
+      if (issueInPlan && r.filesChanged.length > 0) {
+        const existing = new Set(issueInPlan.expectedFiles);
+        for (const f of r.filesChanged) existing.add(f);
+        issueInPlan.expectedFiles = [...existing];
+      }
+    }
     const allChanged = result.results.flatMap((r) => r.filesChanged);
     const allExpected = plan.sprint_issues.flatMap((i) => i.expectedFiles);
     const driftReport = await holisticDriftCheck(allChanged, allExpected);

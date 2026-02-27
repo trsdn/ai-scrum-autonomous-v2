@@ -10,6 +10,7 @@ import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
 import { mergeIssuePR } from "../git/merge.js";
 import { setLabel } from "../github/labels.js";
+import { addComment } from "../github/issues.js";
 import { logger } from "../logger.js";
 
 import type { SprintEventBus } from "../tui/events.js";
@@ -72,6 +73,7 @@ export async function runParallelExecution(
               result.status = "failed";
               result.qualityGatePassed = false;
               await setLabel(result.issueNumber, "status:blocked");
+              await addComment(result.issueNumber, `**Block reason:** PR merge failed — ${mergeResult.reason ?? "unknown"}`).catch(() => {});
             } else {
               log.info({ issue: result.issueNumber, branch: result.branch, pr: mergeResult.prNumber }, "PR merged");
             }

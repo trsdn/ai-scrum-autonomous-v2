@@ -96,6 +96,10 @@ export async function escalateToStakeholder(
 
   // Send ntfy notification if configured
   if (config.ntfyEnabled && config.ntfyTopic) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(config.ntfyTopic)) {
+      log.error({ topic: config.ntfyTopic }, "invalid ntfy topic — must match [a-zA-Z0-9_-]+");
+      return;
+    }
     try {
       await execFile("curl", [
         "-s",
