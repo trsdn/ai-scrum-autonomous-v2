@@ -22,6 +22,7 @@ import { appendToSprintLog } from "../documentation/sprint-log.js";
 import { addComment } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
 import { getChangedFiles } from "../git/diff-analysis.js";
+import { getPRStats } from "../git/merge.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
 import type { SprintEventBus } from "../tui/events.js";
@@ -366,6 +367,21 @@ export async function executeIssue(
       log.error({ err, worktreePath }, "failed to remove worktree — orphaned worktree may need manual cleanup");
     }
 
+    // Enrich with PR stats if available
+    let prStats: HuddleEntry["prStats"];
+    try {
+      const stats = await getPRStats(branch);
+      if (stats) {
+        prStats = stats;
+        if (filesChanged.length === 0 && stats.changedFiles > 0) {
+          log.info({ prNumber: stats.prNumber, changedFiles: stats.changedFiles }, "PR has files — overriding local diff");
+          filesChanged = [`(${stats.changedFiles} files via PR #${stats.prNumber})`];
+        }
+      }
+    } catch {
+      // Non-critical — proceed with local diff data
+    }
+
     // Step 8: Huddle — format comment, post to issue, append to sprint log
     const huddleEntry: HuddleEntry = {
       issueNumber: issue.number,
@@ -378,6 +394,7 @@ export async function executeIssue(
       timestamp: new Date(),
       cleanupWarning,
       errorMessage,
+      prStats,
     };
 
     const comment = formatHuddleComment(huddleEntry);

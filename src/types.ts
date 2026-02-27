@@ -130,6 +130,7 @@ export interface HuddleEntry {
   timestamp: Date;
   cleanupWarning?: string;
   errorMessage?: string;
+  prStats?: { prNumber: number; additions: number; deletions: number; changedFiles: number };
 }
 
 // --- Ceremonies ---

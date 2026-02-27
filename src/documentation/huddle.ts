@@ -61,6 +61,13 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     files,
   );
 
+  if (entry.prStats) {
+    lines.push(
+      "",
+      `**PR #${entry.prStats.prNumber}**: +${entry.prStats.additions} −${entry.prStats.deletions} (${entry.prStats.changedFiles} files)`,
+    );
+  }
+
   if (entry.cleanupWarning) {
     lines.push("", entry.cleanupWarning);
   }
@@ -84,6 +91,10 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     `- **Quality**: ${qualityStatus}`,
     `- **Files changed**: ${entry.filesChanged.length}`,
   ];
+
+  if (entry.prStats) {
+    lines.push(`- **PR**: #${entry.prStats.prNumber} (+${entry.prStats.additions} −${entry.prStats.deletions})`);
+  }
 
   if (entry.errorMessage) {
     lines.push(`- **Error**: ${entry.errorMessage}`);
