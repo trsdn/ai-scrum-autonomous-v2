@@ -451,3 +451,19 @@ footer {
 main.chat-open {
   grid-template-columns: 280px 1fr 380px;
 }
+
+/* GitHub links */
+.gh-link {
+  color: var(--blue);
+  text-decoration: none;
+}
+.gh-link:hover {
+  text-decoration: underline;
+  color: #79c0ff;
+}
+#sprint-label .gh-link {
+  color: inherit;
+}
+#sprint-label .gh-link:hover {
+  color: var(--blue);
+}

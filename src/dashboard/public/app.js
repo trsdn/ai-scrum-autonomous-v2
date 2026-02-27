@@ -13,6 +13,7 @@
   let activeSprintNumber = 0; // The sprint actually running
   let viewingSprintNumber = 0; // The sprint being displayed
   let isViewingActive = true; // Whether we're viewing the active sprint
+  let repoUrl = null; // GitHub repo URL for linking
 
   // Chat state
   let chatSessions = []; // { id, role, model }
@@ -196,7 +197,12 @@
 
   function renderHeader() {
     const displayNumber = viewingSprintNumber || state.sprintNumber || "—";
-    sprintLabel.textContent = `Sprint ${displayNumber}`;
+    if (repoUrl) {
+      const milestoneUrl = `${repoUrl}/milestone/${displayNumber}`;
+      sprintLabel.innerHTML = `<a href="${milestoneUrl}" target="_blank" rel="noopener" class="gh-link">Sprint ${displayNumber} ↗</a>`;
+    } else {
+      sprintLabel.textContent = `Sprint ${displayNumber}`;
+    }
 
     // Show viewing indicator when not on active sprint
     if (!isViewingActive && activeSprintNumber > 0) {
@@ -247,9 +253,12 @@
     for (const issue of issues) {
       const li = document.createElement("li");
       li.className = `issue-${issue.status}`;
+      const issueLink = repoUrl
+        ? `<a href="${repoUrl}/issues/${issue.number}" target="_blank" rel="noopener" class="gh-link">#${issue.number}</a>`
+        : `#${issue.number}`;
       li.innerHTML = `
         <span class="issue-icon">${statusIcon(issue.status)}</span>
-        <span class="issue-number">#${issue.number}</span>
+        <span class="issue-number">${issueLink}</span>
         <span class="issue-title">${escapeHtml(issue.title)}</span>
       `;
       issueList.appendChild(li);
@@ -381,6 +390,19 @@
       if (res.ok) {
         availableSprints = await res.json();
         updateNavButtons();
+      }
+    } catch { /* ignore */ }
+  }
+
+  async function loadRepoInfo() {
+    try {
+      const res = await fetch("/api/repo");
+      if (res.ok) {
+        const data = await res.json();
+        repoUrl = data.url || null;
+        // Re-render to add links
+        renderHeader();
+        renderIssues();
       }
     } catch { /* ignore */ }
   }
@@ -661,4 +683,5 @@
 
   connect();
   requestNotificationPermission();
+  loadRepoInfo();
 })();
