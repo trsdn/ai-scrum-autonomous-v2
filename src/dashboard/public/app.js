@@ -413,53 +413,47 @@
       return;
     }
 
-    // Load historical sprint state via REST
+    // Load historical sprint: state + issues in parallel (both cached, instant)
     try {
-      const res = await fetch(`/api/sprints/${sprintNumber}/state`);
-      if (res.ok) {
-        state = await res.json();
+      const [stateRes, issuesRes] = await Promise.all([
+        fetch(`/api/sprints/${sprintNumber}/state`),
+        fetch(`/api/sprints/${sprintNumber}/issues`),
+      ]);
+
+      if (stateRes.ok) {
+        state = await stateRes.json();
         if (state.startedAt) state.startedAt = new Date(state.startedAt);
-
-        // Build issues from state results
-        issues = [];
-        if (state.result && state.result.results) {
-          issues = state.result.results.map((r) => ({
-            number: r.issueNumber,
-            title: r.title || `Issue #${r.issueNumber}`,
-            status: r.status === "completed" ? "done" : "failed",
-          }));
-        } else if (state.plan && state.plan.sprint_issues) {
-          issues = state.plan.sprint_issues.map((i) => ({
-            number: i.number,
-            title: i.title,
-            status: "planned",
-          }));
-        }
-
-        // Build activities from saved state
-        activities = [];
-        if (state.phase && state.phase !== "init") {
-          if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
-          if (state.result) {
-            addActivity("phase", "Executing issues", null, "done");
-            for (const r of (state.result.results || [])) {
-              const label = `#${r.issueNumber} ${r.title || ""}`.trim();
-              addActivity("issue", label, null, r.status === "completed" ? "done" : "failed");
-            }
-          }
-          if (state.review) addActivity("phase", "Sprint review", null, "done");
-          if (state.retro) addActivity("phase", "Retrospective", null, "done");
-        }
-
-        // If no issues found from state, show empty state message
-        if (issues.length === 0 && state.phase === "init") {
-          addActivity("sprint", `Sprint ${sprintNumber}`, "No saved state available", "done");
-        }
-
-        renderIssues();
-        renderHeader();
-        renderActivities();
       }
+
+      if (issuesRes.ok) {
+        issues = await issuesRes.json();
+      } else {
+        issues = [];
+      }
+
+      // Build activities from saved state
+      activities = [];
+      if (state.phase && state.phase !== "init") {
+        if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
+        if (state.result) {
+          addActivity("phase", "Executing issues", null, "done");
+          for (const r of (state.result.results || [])) {
+            const label = `#${r.issueNumber} ${r.title || ""}`.trim();
+            addActivity("issue", label, null, r.status === "completed" ? "done" : "failed");
+          }
+        }
+        if (state.review) addActivity("phase", "Sprint review", null, "done");
+        if (state.retro) addActivity("phase", "Retrospective", null, "done");
+      }
+
+      // If no issues found, show empty state message
+      if (issues.length === 0 && state.phase === "init") {
+        addActivity("sprint", `Sprint ${sprintNumber}`, "No saved state available", "done");
+      }
+
+      renderIssues();
+      renderHeader();
+      renderActivities();
     } catch {
       addLog("error", `Failed to load Sprint ${sprintNumber} state`);
     }
