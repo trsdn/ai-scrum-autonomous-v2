@@ -88,6 +88,11 @@ export async function runSprintRetro(
     const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const retro = extractJson<RetroResult>(response.response);
 
+    // Ensure arrays exist (model may omit them)
+    retro.wentWell = retro.wentWell ?? [];
+    retro.wentBadly = retro.wentBadly ?? [];
+    retro.improvements = retro.improvements ?? [];
+
     log.info(
       {
         wentWell: retro.wentWell.length,
