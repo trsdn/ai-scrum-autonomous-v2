@@ -70,6 +70,29 @@ describe("extractJson", () => {
   it("throws when no JSON is present", () => {
     expect(() => extractJson("no json here")).toThrow("No JSON found");
   });
+
+  it("throws on empty string", () => {
+    expect(() => extractJson("")).toThrow("No JSON found");
+  });
+
+  it("throws on whitespace-only string", () => {
+    expect(() => extractJson("   \n\n  ")).toThrow("No JSON found");
+  });
+
+  it("handles JSON with escaped quotes in strings", () => {
+    const text = '{"msg":"say \\"hello\\""}';
+    expect(extractJson(text)).toEqual({ msg: 'say "hello"' });
+  });
+
+  it("extracts first JSON when multiple objects exist", () => {
+    const text = '{"first":1} and {"second":2}';
+    expect(extractJson(text)).toEqual({ first: 1 });
+  });
+
+  it("handles fenced block with extra whitespace", () => {
+    const text = 'text\n```json\n  \n{"data": true}\n  \n```\nmore';
+    expect(extractJson(text)).toEqual({ data: true });
+  });
 });
 
 // --- runSprintPlanning (mocked) ---

@@ -93,7 +93,13 @@ export async function getMilestone(
 
   // gh --paginate may return NDJSON (one JSON array per line)
   const pages = json.trim().split("\n").filter((line) => line.trim());
-  const milestones = pages.flatMap((page) => JSON.parse(page) as GitHubMilestone[]);
+  const milestones = pages.flatMap((page) => {
+    try {
+      return JSON.parse(page) as GitHubMilestone[];
+    } catch {
+      return [];
+    }
+  });
   return milestones.find((m) => m.title === title);
 }
 

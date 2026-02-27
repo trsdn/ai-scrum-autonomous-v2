@@ -96,4 +96,39 @@ describe("velocity", () => {
     expect(entries[0]?.planned).toBe(entry.planned);
     expect(entries[0]?.done).toBe(entry.done);
   });
+
+  it("readVelocity skips separator rows (---|---)", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    const content = [
+      "| Sprint | Date | Goal | Planned | Done | Carry | Hours | Issues/Hr | Notes |",
+      "|--------|------|------|---------|------|-------|-------|-----------|-------|",
+      "| 1 | 2025-01-01 | MVP | 5 | 4 | 1 | 3 | 1.3 | ok |",
+    ].join("\n");
+    fs.writeFileSync(filePath, content, "utf-8");
+
+    const entries = readVelocity(filePath);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.sprint).toBe(1);
+  });
+
+  it("readVelocity skips malformed rows with too few columns", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    const content = [
+      "| Sprint | Date | Goal | Planned | Done | Carry | Hours | Issues/Hr | Notes |",
+      "| 1 | 2025-01-01 |",
+      "| 2 | 2025-02-01 | Sprint 2 | 8 | 7 | 1 | 4 | 1.75 | great |",
+    ].join("\n");
+    fs.writeFileSync(filePath, content, "utf-8");
+
+    const entries = readVelocity(filePath);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.sprint).toBe(2);
+  });
+
+  it("readVelocity handles empty file", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    fs.writeFileSync(filePath, "", "utf-8");
+    const entries = readVelocity(filePath);
+    expect(entries).toEqual([]);
+  });
 });

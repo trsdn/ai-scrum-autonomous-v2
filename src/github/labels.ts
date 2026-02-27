@@ -87,6 +87,6 @@ export async function getLabels(
     "--json",
     "labels",
   ]);
-  const result = JSON.parse(json) as { labels: { name: string }[] };
-  return result.labels;
+  const result = JSON.parse(json) as { labels?: { name: string }[] };
+  return result.labels ?? [];
 }

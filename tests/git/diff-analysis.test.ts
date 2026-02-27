@@ -120,4 +120,23 @@ describe("diff-analysis", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("error handling", () => {
+    it("diffStat returns empty result for nonexistent branch", async () => {
+      const stat = await diffStat("nonexistent-branch", "main");
+      expect(stat.filesChanged).toBe(0);
+      expect(stat.linesChanged).toBe(0);
+      expect(stat.files).toEqual([]);
+    });
+
+    it("getChangedFiles returns empty array for nonexistent branch", async () => {
+      const files = await getChangedFiles("nonexistent-branch", "main");
+      expect(files).toEqual([]);
+    });
+
+    it("isNewOrModified returns false for nonexistent branch", async () => {
+      const result = await isNewOrModified("README.md", "nonexistent-branch", "main");
+      expect(result).toBe(false);
+    });
+  });
 });
