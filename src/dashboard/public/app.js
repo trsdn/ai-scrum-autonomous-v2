@@ -9,6 +9,10 @@
   let issues = [];
   let activities = [];
   let elapsedTimer = null;
+  let availableSprints = [];
+  let activeSprintNumber = 0; // The sprint actually running
+  let viewingSprintNumber = 0; // The sprint being displayed
+  let isViewingActive = true; // Whether we're viewing the active sprint
 
   // --- DOM refs ---
   const $ = (id) => document.getElementById(id);
@@ -17,6 +21,9 @@
   const issueCount = $("issue-count");
   const elapsedEl = $("elapsed");
   const btnStart = $("btn-start");
+  const btnPrev = $("btn-prev");
+  const btnNext = $("btn-next");
+  const viewingIndicator = $("viewing-indicator");
   const issueList = $("issue-list");
   const activityList = $("activity-list");
   const logPanel = $("log-panel");
@@ -68,7 +75,11 @@
       case "sprint:state":
         state = msg.payload;
         if (state.startedAt) state.startedAt = new Date(state.startedAt);
+        activeSprintNumber = state.sprintNumber;
+        if (viewingSprintNumber === 0) viewingSprintNumber = activeSprintNumber;
+        isViewingActive = viewingSprintNumber === activeSprintNumber;
         renderHeader();
+        loadSprintList();
         break;
 
       case "sprint:issues":
@@ -78,7 +89,10 @@
         break;
 
       case "sprint:event":
-        handleSprintEvent(msg.eventName, msg.payload);
+        // Only process events if viewing the active sprint
+        if (isViewingActive) {
+          handleSprintEvent(msg.eventName, msg.payload);
+        }
         break;
     }
   }
@@ -148,12 +162,25 @@
   // --- Rendering ---
 
   function renderHeader() {
-    sprintLabel.textContent = `Sprint ${state.sprintNumber || "—"}`;
+    const displayNumber = viewingSprintNumber || state.sprintNumber || "—";
+    sprintLabel.textContent = `Sprint ${displayNumber}`;
+
+    // Show viewing indicator when not on active sprint
+    if (!isViewingActive && activeSprintNumber > 0) {
+      viewingIndicator.style.display = "inline";
+      viewingIndicator.textContent = `👁 viewing — Sprint ${activeSprintNumber} running`;
+    } else {
+      viewingIndicator.style.display = "none";
+    }
+
     phaseBadge.textContent = state.phase;
     phaseBadge.className = `phase-badge phase-${state.phase}`;
 
     const done = issues.filter((i) => i.status === "done").length;
     issueCount.textContent = `${done}/${issues.length} done`;
+
+    // Update nav button states
+    updateNavButtons();
 
     // Elapsed timer
     if (elapsedTimer) clearInterval(elapsedTimer);
@@ -166,10 +193,11 @@
       elapsedEl.textContent = "0m 00s";
     }
 
-    // Toggle start button
+    // Toggle start button — only on active sprint
     const running = state.phase !== "init" && state.phase !== "complete" && state.phase !== "failed";
-    btnStart.disabled = running;
+    btnStart.disabled = running || !isViewingActive;
     btnStart.textContent = running ? "⏳ Running" : "▶ Start";
+    if (!isViewingActive) btnStart.textContent = "▶ Start (switch to active)";
   }
 
   function updateElapsed() {
@@ -312,6 +340,90 @@
     return div.innerHTML;
   }
 
+  // --- Sprint navigation ---
+
+  async function loadSprintList() {
+    try {
+      const res = await fetch("/api/sprints");
+      if (res.ok) {
+        availableSprints = await res.json();
+        updateNavButtons();
+      }
+    } catch { /* ignore */ }
+  }
+
+  function updateNavButtons() {
+    if (availableSprints.length === 0) {
+      btnPrev.disabled = true;
+      btnNext.disabled = true;
+      return;
+    }
+    const numbers = availableSprints.map((s) => s.sprintNumber);
+    const minSprint = Math.min(...numbers);
+    const maxSprint = Math.max(...numbers);
+    btnPrev.disabled = viewingSprintNumber <= minSprint;
+    // Allow navigating one beyond max to see next potential sprint
+    btnNext.disabled = viewingSprintNumber > maxSprint;
+  }
+
+  async function switchToSprint(sprintNumber) {
+    viewingSprintNumber = sprintNumber;
+    isViewingActive = sprintNumber === activeSprintNumber;
+
+    if (isViewingActive) {
+      // Switch back to live view — request fresh state from WS
+      send({ type: "sprint:switch", sprintNumber });
+      // The server will send back sprint:state and sprint:issues
+      activities = [];
+      renderActivities();
+      return;
+    }
+
+    // Load historical sprint state via REST
+    try {
+      const res = await fetch(`/api/sprints/${sprintNumber}/state`);
+      if (res.ok) {
+        state = await res.json();
+        if (state.startedAt) state.startedAt = new Date(state.startedAt);
+
+        // Build issues from state results
+        issues = [];
+        if (state.result && state.result.results) {
+          issues = state.result.results.map((r) => ({
+            number: r.issueNumber,
+            title: r.title || `Issue #${r.issueNumber}`,
+            status: r.status === "completed" ? "done" : "failed",
+          }));
+        } else if (state.plan && state.plan.sprint_issues) {
+          issues = state.plan.sprint_issues.map((i) => ({
+            number: i.number,
+            title: i.title,
+            status: "planned",
+          }));
+        }
+
+        // Build activities from saved state
+        activities = [];
+        if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
+        if (state.result) {
+          addActivity("phase", "Executing issues", null, "done");
+          for (const r of state.result.results) {
+            const label = `#${r.issueNumber} ${r.title || ""}`.trim();
+            addActivity("issue", label, null, r.status === "completed" ? "done" : "failed");
+          }
+        }
+        if (state.review) addActivity("phase", "Sprint review", null, "done");
+        if (state.retro) addActivity("phase", "Retrospective", null, "done");
+
+        renderIssues();
+        renderHeader();
+        renderActivities();
+      }
+    } catch {
+      addLog("error", `Failed to load Sprint ${sprintNumber} state`);
+    }
+  }
+
   // --- Activity elapsed timer ---
   setInterval(() => {
     const spans = document.querySelectorAll(".activity-elapsed[data-started]");
@@ -327,9 +439,29 @@
   // --- Init ---
 
   btnStart.addEventListener("click", () => {
+    if (!isViewingActive) {
+      switchToSprint(activeSprintNumber);
+      return;
+    }
     send({ type: "sprint:start" });
     btnStart.disabled = true;
     btnStart.textContent = "⏳ Starting…";
+  });
+
+  btnPrev.addEventListener("click", () => {
+    if (viewingSprintNumber > 1) {
+      switchToSprint(viewingSprintNumber - 1);
+    }
+  });
+
+  btnNext.addEventListener("click", () => {
+    switchToSprint(viewingSprintNumber + 1);
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" && !btnPrev.disabled) btnPrev.click();
+    if (e.key === "ArrowRight" && !btnNext.disabled) btnNext.click();
   });
 
   connect();

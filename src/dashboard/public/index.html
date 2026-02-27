@@ -11,8 +11,13 @@
   <header id="header">
     <div class="header-left">
       <h1>🏃 Sprint Runner</h1>
-      <span id="sprint-label" class="sprint-badge">Sprint —</span>
+      <div class="sprint-nav">
+        <button id="btn-prev" class="btn btn-nav" title="Previous sprint">◀</button>
+        <span id="sprint-label" class="sprint-badge">Sprint —</span>
+        <button id="btn-next" class="btn btn-nav" title="Next sprint">▶</button>
+      </div>
       <span id="phase-badge" class="phase-badge phase-init">init</span>
+      <span id="viewing-indicator" class="viewing-indicator" style="display:none">👁 viewing</span>
     </div>
     <div class="header-right">
       <span id="issue-count" class="issue-count">0/0 done</span>

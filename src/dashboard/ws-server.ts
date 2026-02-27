@@ -53,6 +53,10 @@ export interface DashboardServerOptions {
   getIssues: () => IssueEntry[];
   onStart?: () => void;
   onSwitchSprint?: (sprintNumber: number) => void;
+  /** Project root for loading sprint state files. */
+  projectPath?: string;
+  /** Currently active sprint number (the one being executed). */
+  activeSprintNumber?: number;
 }
 
 export class DashboardWebServer {
@@ -177,6 +181,13 @@ export class DashboardWebServer {
 
   private handleHttp(req: http.IncomingMessage, res: http.ServerResponse): void {
     const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
+
+    // API routes
+    if (url.pathname.startsWith("/api/")) {
+      this.handleApi(url.pathname, res);
+      return;
+    }
+
     let filePath = path.join(this.publicDir, url.pathname === "/" ? "index.html" : url.pathname);
 
     // Prevent directory traversal
@@ -199,6 +210,99 @@ export class DashboardWebServer {
     } catch {
       res.writeHead(404);
       res.end("Not Found");
+    }
+  }
+
+  /** Handle REST API requests. */
+  private handleApi(pathname: string, res: http.ServerResponse): void {
+    res.setHeader("Content-Type", "application/json");
+
+    if (pathname === "/api/sprints") {
+      // List available sprints from state files
+      const sprints = this.listSprints();
+      res.writeHead(200);
+      res.end(JSON.stringify(sprints));
+      return;
+    }
+
+    // /api/sprints/:number/state
+    const stateMatch = pathname.match(/^\/api\/sprints\/(\d+)\/state$/);
+    if (stateMatch) {
+      const num = parseInt(stateMatch[1], 10);
+      const sprintState = this.loadSprintState(num);
+      if (sprintState) {
+        res.writeHead(200);
+        res.end(JSON.stringify(sprintState));
+      } else {
+        res.writeHead(200);
+        res.end(JSON.stringify({ sprintNumber: num, phase: "init", startedAt: null }));
+      }
+      return;
+    }
+
+    res.writeHead(404);
+    res.end(JSON.stringify({ error: "Not found" }));
+  }
+
+  /** List available sprints by scanning state files and milestones. */
+  private listSprints(): { sprintNumber: number; phase: string; isActive: boolean }[] {
+    const projectPath = this.options.projectPath ?? process.cwd();
+    const sprintsDir = path.join(projectPath, "docs", "sprints");
+    const sprints: { sprintNumber: number; phase: string; isActive: boolean }[] = [];
+
+    try {
+      const files = fs.readdirSync(sprintsDir);
+      for (const file of files) {
+        const match = file.match(/^sprint-(\d+)-state\.json$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          try {
+            const raw = fs.readFileSync(path.join(sprintsDir, file), "utf-8");
+            const state = JSON.parse(raw) as { phase?: string };
+            sprints.push({
+              sprintNumber: num,
+              phase: state.phase ?? "unknown",
+              isActive: num === this.options.activeSprintNumber,
+            });
+          } catch {
+            sprints.push({ sprintNumber: num, phase: "unknown", isActive: false });
+          }
+        }
+      }
+    } catch {
+      // No sprints dir yet
+    }
+
+    // Ensure active sprint is in the list
+    const activeNum = this.options.activeSprintNumber;
+    if (activeNum && !sprints.some((s) => s.sprintNumber === activeNum)) {
+      const currentState = this.options.getState();
+      sprints.push({
+        sprintNumber: activeNum,
+        phase: currentState.phase,
+        isActive: true,
+      });
+    }
+
+    return sprints.sort((a, b) => a.sprintNumber - b.sprintNumber);
+  }
+
+  /** Load sprint state from disk. */
+  private loadSprintState(sprintNumber: number): SprintState | null {
+    // If this is the active sprint, return live state
+    if (sprintNumber === this.options.activeSprintNumber) {
+      return this.options.getState();
+    }
+
+    const projectPath = this.options.projectPath ?? process.cwd();
+    const filePath = path.join(projectPath, "docs", "sprints", `sprint-${sprintNumber}-state.json`);
+    try {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const state = JSON.parse(raw) as SprintState;
+      state.startedAt = new Date(state.startedAt);
+      return state;
+    } catch {
+      return null;
     }
   }
 }
