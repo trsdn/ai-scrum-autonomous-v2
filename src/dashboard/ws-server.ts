@@ -13,6 +13,7 @@ import type { SprintEventBus, SprintEngineEvents } from "../tui/events.js";
 import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
+import { loadSprintHistory } from "./sprint-history.js";
 
 const log = logger.child({ component: "ws-server" });
 
@@ -303,10 +304,18 @@ export class DashboardWebServer {
     res.setHeader("Content-Type", "application/json");
 
     if (pathname === "/api/sprints") {
-      // List available sprints from state files
       const sprints = this.listSprints();
       res.writeHead(200);
       res.end(JSON.stringify(sprints));
+      return;
+    }
+
+    if (pathname === "/api/sprints/history") {
+      const projectPath = this.options.projectPath ?? process.cwd();
+      const velocityPath = path.join(projectPath, "docs", "sprints", "velocity.md");
+      const history = loadSprintHistory(velocityPath);
+      res.writeHead(200);
+      res.end(JSON.stringify(history));
       return;
     }
 

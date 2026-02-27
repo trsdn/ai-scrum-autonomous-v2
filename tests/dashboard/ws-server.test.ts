@@ -201,4 +201,13 @@ describe("DashboardWebServer", () => {
     expect(data.sprintNumber).toBe(999);
     expect(data.phase).toBe("init");
   });
+
+  it("serves /api/sprints/history", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/history`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+  });
 });

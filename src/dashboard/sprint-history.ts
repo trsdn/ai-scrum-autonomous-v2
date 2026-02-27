@@ -1,36 +1,41 @@
 /**
- * Sprint History — Phase 5 (Dashboard)
+ * Sprint History — Dashboard
  *
- * Loads and structures historical sprint data for dashboard
- * visualization (velocity charts, trend lines, improvement tracking).
+ * Loads historical sprint data from velocity.md for dashboard display.
  */
 
+import { readVelocity } from "../documentation/velocity.js";
 import type { SprintMetrics } from "../types.js";
 
 /** A single sprint's historical record for visualization. */
 export interface SprintHistoryEntry {
-  /** Sequential sprint number. */
   sprintNumber: number;
-  /** ISO-8601 date string of sprint completion. */
   date: string;
-  /** The sprint's computed metrics. */
   metrics: SprintMetrics;
-  /** List of improvements applied during or after this sprint. */
   improvements: string[];
 }
 
 /**
  * Load historical sprint data for dashboard display.
- *
- * @returns Sprint history entries sorted by sprintNumber ascending.
+ * Parses velocity.md into structured entries.
  */
-export async function loadSprintHistory(): Promise<SprintHistoryEntry[]> {
-  // TODO: Phase 5 — load historical sprint data from velocity.md and sprint logs
-  //
-  // Planned approach:
-  //   1. Parse docs/sprints/velocity.md for per-sprint metrics
-  //   2. Parse individual sprint-NNN-retro.md files for improvements
-  //   3. Merge into SprintHistoryEntry[] sorted chronologically
+export function loadSprintHistory(velocityPath?: string): SprintHistoryEntry[] {
+  const entries = readVelocity(velocityPath);
 
-  return [];
+  return entries.map((e) => ({
+    sprintNumber: e.sprint,
+    date: e.date,
+    metrics: {
+      planned: e.planned,
+      completed: e.done,
+      failed: e.carry,
+      pointsPlanned: e.planned,
+      pointsCompleted: e.done,
+      velocity: e.issuesPerHr,
+      avgDuration: e.hours > 0 && e.done > 0 ? (e.hours / e.done) * 60 : 0,
+      firstPassRate: e.planned > 0 ? e.done / e.planned : 0,
+      driftIncidents: 0,
+    },
+    improvements: [],
+  }));
 }
