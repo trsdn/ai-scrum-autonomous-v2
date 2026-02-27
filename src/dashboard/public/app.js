@@ -387,28 +387,29 @@
 
   function updateNavButtons() {
     if (availableSprints.length === 0) {
-      btnPrev.disabled = true;
-      btnNext.disabled = true;
+      // Even without sprint list, allow navigating if we know the active sprint
+      btnPrev.disabled = viewingSprintNumber <= 1;
+      btnNext.disabled = false;
       return;
     }
     const numbers = availableSprints.map((s) => s.sprintNumber);
-    const minSprint = Math.min(...numbers);
+    const minSprint = Math.min(...numbers, 1); // Always allow sprint 1
     const maxSprint = Math.max(...numbers);
     btnPrev.disabled = viewingSprintNumber <= minSprint;
-    // Allow navigating one beyond max to see next potential sprint
     btnNext.disabled = viewingSprintNumber > maxSprint;
   }
 
   async function switchToSprint(sprintNumber) {
+    if (sprintNumber < 1) return;
     viewingSprintNumber = sprintNumber;
     isViewingActive = sprintNumber === activeSprintNumber;
 
     if (isViewingActive) {
       // Switch back to live view — request fresh state from WS
       send({ type: "sprint:switch", sprintNumber });
-      // The server will send back sprint:state and sprint:issues
       activities = [];
       renderActivities();
+      renderHeader();
       return;
     }
 
@@ -437,16 +438,23 @@
 
         // Build activities from saved state
         activities = [];
-        if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
-        if (state.result) {
-          addActivity("phase", "Executing issues", null, "done");
-          for (const r of state.result.results) {
-            const label = `#${r.issueNumber} ${r.title || ""}`.trim();
-            addActivity("issue", label, null, r.status === "completed" ? "done" : "failed");
+        if (state.phase && state.phase !== "init") {
+          if (state.plan) addActivity("phase", "Planning sprint", "completed", "done");
+          if (state.result) {
+            addActivity("phase", "Executing issues", null, "done");
+            for (const r of (state.result.results || [])) {
+              const label = `#${r.issueNumber} ${r.title || ""}`.trim();
+              addActivity("issue", label, null, r.status === "completed" ? "done" : "failed");
+            }
           }
+          if (state.review) addActivity("phase", "Sprint review", null, "done");
+          if (state.retro) addActivity("phase", "Retrospective", null, "done");
         }
-        if (state.review) addActivity("phase", "Sprint review", null, "done");
-        if (state.retro) addActivity("phase", "Retrospective", null, "done");
+
+        // If no issues found from state, show empty state message
+        if (issues.length === 0 && state.phase === "init") {
+          addActivity("sprint", `Sprint ${sprintNumber}`, "No saved state available", "done");
+        }
 
         renderIssues();
         renderHeader();
@@ -455,6 +463,8 @@
     } catch {
       addLog("error", `Failed to load Sprint ${sprintNumber} state`);
     }
+    // Refresh sprint list (might have changed)
+    loadSprintList();
   }
 
   // --- Activity elapsed timer ---

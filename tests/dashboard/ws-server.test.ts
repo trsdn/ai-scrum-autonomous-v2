@@ -210,4 +210,63 @@ describe("DashboardWebServer", () => {
     const data = await res.json();
     expect(Array.isArray(data)).toBe(true);
   });
+
+  // --- Sprint navigation edge cases ---
+
+  it("/api/sprints includes active sprint even without state files", async () => {
+    options = makeOptions({ activeSprintNumber: 3 });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
+    const data = await res.json() as { sprintNumber: number; isActive: boolean }[];
+    const active = data.find((s) => s.sprintNumber === 3);
+    expect(active).toBeDefined();
+    expect(active!.isActive).toBe(true);
+  });
+
+  it("/api/sprints fills gaps from 1 to active sprint", async () => {
+    options = makeOptions({ activeSprintNumber: 3 });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
+    const data = await res.json() as { sprintNumber: number }[];
+    const numbers = data.map((s) => s.sprintNumber);
+    // Should have sprint 1, 2, 3 (gaps filled)
+    expect(numbers).toContain(1);
+    expect(numbers).toContain(2);
+    expect(numbers).toContain(3);
+  });
+
+  it("/api/sprints/1/state returns init state for sprint without state file", async () => {
+    options = makeOptions({ activeSprintNumber: 2 });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
+    expect(res.status).toBe(200);
+    const data = await res.json() as { sprintNumber: number; phase: string };
+    expect(data.sprintNumber).toBe(1);
+    expect(data.phase).toBe("init");
+  });
+
+  it("/api/sprints returns sorted sprints", async () => {
+    options = makeOptions({ activeSprintNumber: 5 });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
+    const data = await res.json() as { sprintNumber: number }[];
+    for (let i = 1; i < data.length; i++) {
+      expect(data[i].sprintNumber).toBeGreaterThan(data[i - 1].sprintNumber);
+    }
+  });
+
+  it("returns 404 for unknown API routes", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/unknown`);
+    expect(res.status).toBe(404);
+  });
 });

@@ -338,28 +338,38 @@ export class DashboardWebServer {
     res.end(JSON.stringify({ error: "Not found" }));
   }
 
-  /** List available sprints by scanning state files and milestones. */
+  /** List available sprints by scanning state files, log files, and filling gaps. */
   private listSprints(): { sprintNumber: number; phase: string; isActive: boolean }[] {
     const projectPath = this.options.projectPath ?? process.cwd();
     const sprintsDir = path.join(projectPath, "docs", "sprints");
-    const sprints: { sprintNumber: number; phase: string; isActive: boolean }[] = [];
+    const sprintMap = new Map<number, { phase: string; isActive: boolean }>();
 
+    // Scan for state files (sprint-N-state.json)
     try {
       const files = fs.readdirSync(sprintsDir);
       for (const file of files) {
-        const match = file.match(/^sprint-(\d+)-state\.json$/);
-        if (match) {
-          const num = parseInt(match[1], 10);
+        // Match state files
+        const stateMatch = file.match(/^sprint-(\d+)-state\.json$/);
+        if (stateMatch) {
+          const num = parseInt(stateMatch[1], 10);
           try {
             const raw = fs.readFileSync(path.join(sprintsDir, file), "utf-8");
             const state = JSON.parse(raw) as { phase?: string };
-            sprints.push({
-              sprintNumber: num,
+            sprintMap.set(num, {
               phase: state.phase ?? "unknown",
               isActive: num === this.options.activeSprintNumber,
             });
           } catch {
-            sprints.push({ sprintNumber: num, phase: "unknown", isActive: false });
+            sprintMap.set(num, { phase: "unknown", isActive: false });
+          }
+        }
+
+        // Match log files (sprint-N-log.md) — sprints that ran but may not have state files
+        const logMatch = file.match(/^sprint-(\d+)-log\.md$/);
+        if (logMatch) {
+          const num = parseInt(logMatch[1], 10);
+          if (!sprintMap.has(num)) {
+            sprintMap.set(num, { phase: "complete", isActive: false });
           }
         }
       }
@@ -369,16 +379,24 @@ export class DashboardWebServer {
 
     // Ensure active sprint is in the list
     const activeNum = this.options.activeSprintNumber;
-    if (activeNum && !sprints.some((s) => s.sprintNumber === activeNum)) {
+    if (activeNum && !sprintMap.has(activeNum)) {
       const currentState = this.options.getState();
-      sprints.push({
-        sprintNumber: activeNum,
-        phase: currentState.phase,
-        isActive: true,
-      });
+      sprintMap.set(activeNum, { phase: currentState.phase, isActive: true });
     }
 
-    return sprints.sort((a, b) => a.sprintNumber - b.sprintNumber);
+    // Fill gaps: if we have sprint 3, ensure 1 and 2 exist too
+    if (sprintMap.size > 0) {
+      const maxSprint = Math.max(...sprintMap.keys());
+      for (let i = 1; i < maxSprint; i++) {
+        if (!sprintMap.has(i)) {
+          sprintMap.set(i, { phase: "complete", isActive: false });
+        }
+      }
+    }
+
+    return Array.from(sprintMap.entries())
+      .map(([num, data]) => ({ sprintNumber: num, ...data }))
+      .sort((a, b) => a.sprintNumber - b.sprintNumber);
   }
 
   /** Load sprint state from disk. */
