@@ -171,18 +171,6 @@ describe("listIssues", () => {
 });
 
 describe("createIssue validation", () => {
-  it("throws when title is undefined", async () => {
-    await expect(
-      createIssue({ title: undefined as any, body: "test" }),
-    ).rejects.toThrow("cannot be undefined or null");
-  });
-
-  it("throws when title is null", async () => {
-    await expect(
-      createIssue({ title: null as any, body: "test" }),
-    ).rejects.toThrow("cannot be undefined or null");
-  });
-
   it("throws when title is empty string", async () => {
     await expect(
       createIssue({ title: "", body: "test" }),
@@ -195,16 +183,47 @@ describe("createIssue validation", () => {
     ).rejects.toThrow("cannot be empty");
   });
 
-  it("throws when title contains 'undefined'", async () => {
+  it("throws when title is exactly 'undefined'", async () => {
     await expect(
-      createIssue({ title: "chore(process): undefined", body: "test" }),
-    ).rejects.toThrow("contains invalid value");
+      createIssue({ title: "undefined", body: "test" }),
+    ).rejects.toThrow('cannot be "undefined"');
   });
 
-  it("throws when title contains 'Undefined' (case insensitive)", async () => {
+  it("throws when title is exactly 'Undefined' (case insensitive)", async () => {
     await expect(
-      createIssue({ title: "Fix Undefined bug", body: "test" }),
-    ).rejects.toThrow("contains invalid value");
+      createIssue({ title: "Undefined", body: "test" }),
+    ).rejects.toThrow('cannot be "undefined"');
+  });
+
+  it("allows titles containing the word 'undefined' in context", async () => {
+    mockExecFileSuccess("https://github.com/owner/repo/issues/1");
+    mockExecFile.mockImplementationOnce(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: "https://github.com/owner/repo/issues/1", stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    ).mockImplementationOnce(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { 
+            stdout: JSON.stringify({
+              number: 1,
+              title: "Fix undefined behavior in parser",
+              body: "Body",
+              labels: [],
+              state: "open",
+            }), 
+            stderr: "" 
+          },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    const result = await createIssue({ title: "Fix undefined behavior in parser", body: "Body" });
+    expect(result.number).toBe(1);
   });
 
   it("succeeds with valid title", async () => {
@@ -238,5 +257,28 @@ describe("createIssue validation", () => {
     const result = await createIssue({ title: "Valid title", body: "Body" });
     expect(result.number).toBe(1);
     expect(result.title).toBe("Valid title");
+  });
+});
+
+describe("updateIssue validation", () => {
+  it("validates title when provided", async () => {
+    await expect(
+      async () => {
+        const { updateIssue } = await import("../../src/github/issues.js");
+        return updateIssue(1, { title: "undefined" });
+      }
+    ).rejects.toThrow('cannot be "undefined"');
+  });
+
+  it("allows valid title updates", async () => {
+    mockExecFileSuccess("");
+    const { updateIssue } = await import("../../src/github/issues.js");
+    await expect(updateIssue(1, { title: "Fix undefined behavior" })).resolves.not.toThrow();
+  });
+
+  it("allows updates without title", async () => {
+    mockExecFileSuccess("");
+    const { updateIssue } = await import("../../src/github/issues.js");
+    await expect(updateIssue(1, { body: "New body" })).resolves.not.toThrow();
   });
 });

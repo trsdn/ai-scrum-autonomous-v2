@@ -130,16 +130,13 @@ export interface CreateIssueOptions {
   labels?: string[];
 }
 
-/** Validate issue title is non-empty and doesn't contain "undefined" */
+/** Validate issue title is non-empty and not exactly "undefined" */
 function validateIssueTitle(title: string): void {
-  if (title === undefined || title === null) {
-    throw new Error("Issue title cannot be undefined or null");
-  }
   if (typeof title !== "string" || title.trim() === "") {
     throw new Error("Issue title cannot be empty");
   }
-  if (title.toLowerCase().includes("undefined")) {
-    throw new Error(`Issue title contains invalid value: ${title}`);
+  if (title.toLowerCase() === "undefined") {
+    throw new Error(`Issue title cannot be "undefined": ${title}`);
   }
 }
 
@@ -185,6 +182,7 @@ export async function updateIssue(
   const args = ["issue", "edit", String(number)];
 
   if (options.title) {
+    validateIssueTitle(options.title);
     args.push("--title", options.title);
   }
   if (options.body) {
