@@ -157,6 +157,13 @@
       case "session:list":
         acpSessions = msg.payload || [];
         renderSessionList();
+        // Auto-open newest active session if panel is visible and no session is being viewed
+        if (sessionPanel.style.display !== "none" && !viewingSessionId) {
+          const newest = acpSessions.find((s) => !s.endedAt);
+          if (newest) {
+            openSessionViewer(newest.sessionId, newest.role, newest.issueNumber);
+          }
+        }
         break;
 
       case "session:output":
@@ -168,9 +175,17 @@
   function handleSprintEvent(name, payload) {
     switch (name) {
       case "sprint:start":
+        // Save old sprint's activities before clearing
+        if (viewingSprintNumber > 0 && activities.length > 0) {
+          activityCache.set(viewingSprintNumber, [...activities]);
+        }
+        activities = [];
         state.sprintNumber = payload.sprintNumber;
         state.phase = "refine";
         state.startedAt = new Date();
+        activeSprintNumber = payload.sprintNumber;
+        viewingSprintNumber = payload.sprintNumber;
+        isViewingActive = true;
         renderHeader();
         addActivity("sprint", `Sprint ${payload.sprintNumber} started`, null, "active");
         break;
@@ -218,12 +233,16 @@
         break;
 
       case "issue:fail":
-        updateIssueStatus(payload.issueNumber, "failed");
+        updateIssueStatus(payload.issueNumber, "failed", payload.reason);
         updateActivityStatus(payload.issueNumber, "failed", payload.reason);
         break;
 
       case "sprint:complete":
         state.phase = "complete";
+        // Freeze final elapsed time
+        if (state.startedAt) {
+          state.finalElapsed = Date.now() - new Date(state.startedAt).getTime();
+        }
         renderHeader();
         addActivity("sprint", `Sprint ${payload.sprintNumber} complete`, null, "done");
         showNotification("Sprint Complete", `Sprint ${payload.sprintNumber} finished successfully`);
@@ -283,6 +302,12 @@
       if (state.startedAt && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
         updateElapsed();
         elapsedTimer = setInterval(updateElapsed, 1000);
+      } else if (state.finalElapsed) {
+        // Show frozen final elapsed time
+        const totalSec = Math.floor(state.finalElapsed / 1000);
+        const min = Math.floor(totalSec / 60);
+        const sec = totalSec % 60;
+        elapsedEl.textContent = `${min}m ${String(sec).padStart(2, "0")}s ✓`;
       } else if (state.startedAt) {
         updateElapsed();
       } else {
@@ -295,6 +320,33 @@
     btnStart.disabled = running || !isViewingActive;
     btnStart.textContent = running ? "⏳ Running" : "▶ Start";
     if (!isViewingActive) btnStart.textContent = "▶ Start (switch to active)";
+
+    // Update phase stepper
+    updatePhaseStepper(state.phase);
+  }
+
+  const PHASE_ORDER = ["refine", "plan", "execute", "review", "retro", "complete"];
+
+  function updatePhaseStepper(currentPhase) {
+    const stepper = document.getElementById("phase-stepper");
+    if (!stepper) return;
+    const steps = stepper.querySelectorAll(".step");
+    const currentIdx = PHASE_ORDER.indexOf(currentPhase);
+    const isFailed = currentPhase === "failed";
+
+    steps.forEach((step) => {
+      const phase = step.dataset.phase;
+      const idx = PHASE_ORDER.indexOf(phase);
+      step.classList.remove("step-done", "step-active", "step-failed");
+      if (isFailed) {
+        if (idx < currentIdx || currentIdx === -1) step.classList.add("step-done");
+        else step.classList.add("step-failed");
+      } else if (idx < currentIdx) {
+        step.classList.add("step-done");
+      } else if (idx === currentIdx) {
+        step.classList.add("step-active");
+      }
+    });
   }
 
   function updateElapsed() {
@@ -318,6 +370,7 @@
         <span class="issue-icon">${statusIcon(issue.status)}</span>
         <span class="issue-number">${issueLink}</span>
         <span class="issue-title">${escapeHtml(issue.title)}</span>
+        ${issue.failReason ? `<span class="issue-fail-reason">${escapeHtml(issue.failReason)}</span>` : ""}
       `;
       issueList.appendChild(li);
     }
@@ -349,10 +402,11 @@
     renderActivities();
   }
 
-  function updateIssueStatus(issueNumber, status) {
+  function updateIssueStatus(issueNumber, status, failReason) {
     const issue = issues.find((i) => i.number === issueNumber);
     if (issue) {
       issue.status = status;
+      if (failReason) issue.failReason = failReason;
       renderIssues();
       renderHeader();
     }
@@ -830,7 +884,8 @@
     sessionViewer.style.display = "flex";
     const issueLabel = issueNumber ? ` — #${issueNumber}` : "";
     sessionViewerTitle.textContent = `${role}${issueLabel}`;
-    sessionOutput.textContent = "";
+    sessionOutput.innerHTML = "";
+    sessionOutput._rawText = "";
     // Subscribe to output stream
     send({ type: "session:subscribe", sessionId });
   }
@@ -844,9 +899,30 @@
     sessionListEl.style.display = "";
   }
 
+  /** Minimal markdown → HTML renderer for ACP session output. */
+  function renderMarkdown(text) {
+    return escapeHtml(text)
+      // Code blocks: ```lang\n...\n```
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="md-code-block"><code>$2</code></pre>')
+      // Inline code: `code`
+      .replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
+      // Bold: **text**
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Headers: ### text
+      .replace(/^### (.+)$/gm, '<div class="md-h3">$1</div>')
+      .replace(/^## (.+)$/gm, '<div class="md-h2">$1</div>')
+      .replace(/^# (.+)$/gm, '<div class="md-h1">$1</div>')
+      // Bullet lists: - item
+      .replace(/^- (.+)$/gm, '<div class="md-li">• $1</div>')
+      // Preserve line breaks
+      .replace(/\n/g, '<br>');
+  }
+
   function handleSessionOutput(payload) {
     if (payload.sessionId !== viewingSessionId) return;
-    sessionOutput.textContent += payload.text;
+    // Append and re-render full output as markdown
+    sessionOutput._rawText = (sessionOutput._rawText || "") + payload.text;
+    sessionOutput.innerHTML = renderMarkdown(sessionOutput._rawText);
     // Auto-scroll to bottom
     sessionOutput.scrollTop = sessionOutput.scrollHeight;
   }
@@ -864,7 +940,7 @@
   btnCloseSessions.addEventListener("click", toggleSessionPanel);
   btnBackSessions.addEventListener("click", closeSessionViewer);
 
-  // Refresh session list every 5 seconds for elapsed times
+  // Refresh session list every 2 seconds for elapsed times
   setInterval(() => {
     if (sessionPanel.style.display !== "none" && !viewingSessionId) {
       renderSessionList();
