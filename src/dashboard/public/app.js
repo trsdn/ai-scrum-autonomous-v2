@@ -188,6 +188,19 @@
         addActivity("phase", phaseLabel(payload.to), detail, "active");
         break;
 
+      case "sprint:planned":
+        // Planning completed — update issue list with planned issues
+        if (payload.issues && Array.isArray(payload.issues)) {
+          issues = payload.issues.map((i) => ({
+            number: i.number,
+            title: i.title,
+            status: "planned",
+          }));
+          renderIssues();
+          addActivity("phase", `${payload.issues.length} issues planned`, null, "done");
+        }
+        break;
+
       case "issue:start":
         updateIssueStatus(payload.issue.number, "in-progress");
         const issueLabel = `#${payload.issue.number} ${payload.issue.title}`;
@@ -485,12 +498,13 @@
         state = { ...cached.state };
         issues = [...cached.issues];
       }
-      // Clear activities — server will replay buffered events to rebuild them
-      activities = [];
+      // Restore cached activities instead of clearing
+      const cachedActivities = activityCache.get(sprintNumber);
+      activities = cachedActivities ? [...cachedActivities] : [];
       renderIssues();
       renderHeader();
       renderActivities();
-      // Request fresh state + event replay from server
+      // Request fresh state + issues from server (new events will append)
       send({ type: "sprint:switch", sprintNumber });
       return;
     }

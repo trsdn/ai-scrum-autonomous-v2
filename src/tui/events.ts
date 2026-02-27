@@ -14,6 +14,7 @@ export interface SprintEngineEvents {
   "session:start": { sessionId: string; role: string; issueNumber?: number; model?: string };
   "session:end": { sessionId: string };
   "sprint:start": { sprintNumber: number; resumed?: boolean };
+  "sprint:planned": { issues: { number: number; title: string }[] };
   "sprint:complete": { sprintNumber: number };
   "sprint:error": { error: string };
   "sprint:paused": Record<string, never>;
