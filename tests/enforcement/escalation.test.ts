@@ -77,3 +77,33 @@ describe("escalateToStakeholder with special characters", () => {
     }
   });
 });
+
+describe("ntfy topic validation", () => {
+  beforeEach(() => {
+    execFileSpy.mockClear();
+  });
+
+  const baseEvent: EscalationEvent = {
+    level: "should",
+    reason: "test",
+    detail: "detail",
+    context: {},
+    timestamp: new Date("2025-01-01T00:00:00Z"),
+  };
+
+  it("sends notification for valid topic names", async () => {
+    for (const topic of ["my-topic", "sprint_123", "ABC"]) {
+      execFileSpy.mockClear();
+      await escalateToStakeholder(baseEvent, { ntfyEnabled: true, ntfyTopic: topic });
+      expect(execFileSpy).toHaveBeenCalled();
+    }
+  });
+
+  it("rejects invalid topic names and skips notification", async () => {
+    for (const topic of ["bad topic", "topic/path", "topic@name", "has spaces"]) {
+      execFileSpy.mockClear();
+      await escalateToStakeholder(baseEvent, { ntfyEnabled: true, ntfyTopic: topic });
+      expect(execFileSpy).not.toHaveBeenCalled();
+    }
+  });
+});
