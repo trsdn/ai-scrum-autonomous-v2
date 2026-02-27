@@ -123,7 +123,9 @@ export async function setMilestone(
 export async function closeMilestone(title: string): Promise<void> {
   const milestone = await getMilestone(title);
   if (!milestone) {
-    throw new Error(`Milestone not found: ${title}`);
+    const message = `Milestone not found: "${title}". Create it with: gh api repos/{owner}/{repo}/milestones -f title="${title}"`;
+    logger.warn({ title }, message);
+    throw new Error(message);
   }
 
   await execGh([

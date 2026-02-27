@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getMilestone, getNextOpenMilestone, parseSprintFromTitle } from "../../src/github/milestones.js";
+import { getMilestone, getNextOpenMilestone, parseSprintFromTitle, closeMilestone } from "../../src/github/milestones.js";
+import { logger } from "../../src/logger.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -154,5 +155,55 @@ describe("getNextOpenMilestone", () => {
 
     const result = await getNextOpenMilestone();
     expect(result!.sprintNumber).toBe(7);
+  });
+});
+
+describe("closeMilestone", () => {
+  it("throws error with helpful message when milestone not found", async () => {
+    mockExecFileSuccess(JSON.stringify([]));
+
+    await expect(closeMilestone("Sprint 99")).rejects.toThrow(
+      'Milestone not found: "Sprint 99". Create it with: gh api repos/{owner}/{repo}/milestones -f title="Sprint 99"'
+    );
+  });
+
+  it("logs warning before throwing when milestone not found", async () => {
+    const warnSpy = vi.spyOn(logger, "warn");
+    mockExecFileSuccess(JSON.stringify([]));
+
+    await expect(closeMilestone("Sprint 99")).rejects.toThrow();
+    
+    expect(warnSpy).toHaveBeenCalledWith(
+      { title: "Sprint 99" },
+      'Milestone not found: "Sprint 99". Create it with: gh api repos/{owner}/{repo}/milestones -f title="Sprint 99"'
+    );
+  });
+
+  it("successfully closes existing milestone", async () => {
+    const infoSpy = vi.spyOn(logger, "info");
+    const milestone = { title: "Sprint 1", number: 1, description: "", state: "open" };
+    
+    // Mock both calls: getMilestone returns the milestone, then PATCH succeeds
+    mockExecFile
+      .mockImplementationOnce(
+        ((_cmd: unknown, _args: unknown, callback: unknown) => {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            null,
+            { stdout: JSON.stringify([milestone]), stderr: "" },
+          );
+        }) as typeof cp.execFile,
+      )
+      .mockImplementationOnce(
+        ((_cmd: unknown, _args: unknown, callback: unknown) => {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            null,
+            { stdout: "", stderr: "" },
+          );
+        }) as typeof cp.execFile,
+      );
+
+    await closeMilestone("Sprint 1");
+    
+    expect(infoSpy).toHaveBeenCalledWith({ title: "Sprint 1" }, "Milestone closed");
   });
 });
