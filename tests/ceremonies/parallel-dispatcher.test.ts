@@ -22,6 +22,7 @@ vi.mock("../../src/git/merge.js", () => ({
 
 vi.mock("../../src/github/labels.js", () => ({
   setLabel: vi.fn().mockResolvedValue(undefined),
+  setBlockedStatus: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../src/logger.js", () => {
@@ -42,7 +43,7 @@ import { runParallelExecution } from "../../src/ceremonies/parallel-dispatcher.j
 import { buildExecutionGroups } from "../../src/ceremonies/dep-graph.js";
 import { executeIssue } from "../../src/ceremonies/execution.js";
 import { mergeBranch } from "../../src/git/merge.js";
-import { setLabel } from "../../src/github/labels.js";
+import { setBlockedStatus } from "../../src/github/labels.js";
 
 // --- Helpers ---
 
@@ -199,7 +200,10 @@ describe("runParallelExecution", () => {
     const failedResult = result.results.find((r) => r.issueNumber === 2);
     expect(failedResult?.status).toBe("failed");
     expect(failedResult?.qualityGatePassed).toBe(false);
-    expect(setLabel).toHaveBeenCalledWith(2, "status:blocked");
+    expect(setBlockedStatus).toHaveBeenCalledWith(
+      2,
+      "Merge conflict detected in: src/a.ts",
+    );
   });
 
   it("skips merging when autoMerge is disabled", async () => {

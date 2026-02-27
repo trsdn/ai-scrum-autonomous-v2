@@ -20,7 +20,7 @@ import {
 } from "../documentation/huddle.js";
 import { appendToSprintLog } from "../documentation/sprint-log.js";
 import { addComment } from "../github/issues.js";
-import { setLabel } from "../github/labels.js";
+import { setLabel, setBlockedStatus } from "../github/labels.js";
 import { getChangedFiles } from "../git/diff-analysis.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
@@ -372,12 +372,28 @@ export async function executeIssue(
     appendToSprintLog(config.sprintNumber, logEntry, undefined, config.sprintSlug);
 
     // Step 9: Set final label
-    const finalLabel = status === "completed" ? "status:done" : "status:blocked";
     try {
-      await setLabel(issue.number, finalLabel);
-      log.info({ status, finalLabel }, "final status set");
+      if (status === "completed") {
+        await setLabel(issue.number, "status:done");
+        log.info({ status }, "final status set");
+      } else {
+        // Build block reason from failure context
+        const failedChecks = qualityResult.checks
+          .filter((c) => !c.passed)
+          .map((c) => `${c.name}: ${c.detail}`)
+          .join(", ");
+        const reviewIssues = codeReview && !codeReview.approved
+          ? `Code review issues: ${codeReview.issues.join(", ")}`
+          : "";
+        const blockReason = [failedChecks, reviewIssues, cleanupWarning]
+          .filter(Boolean)
+          .join("; ") || "Quality gate failed";
+        
+        await setBlockedStatus(issue.number, blockReason);
+        log.info({ status, blockReason }, "final status set");
+      }
     } catch (err: unknown) {
-      log.warn({ err, issueNumber: issue.number, finalLabel }, "failed to set final label — non-critical");
+      log.warn({ err, issueNumber: issue.number, status }, "failed to set final label — non-critical");
     }
   }
 

@@ -38,6 +38,7 @@ vi.mock("../../src/github/issues.js", () => ({
 
 vi.mock("../../src/github/labels.js", () => ({
   setLabel: vi.fn().mockResolvedValue(undefined),
+  setBlockedStatus: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../src/git/diff-analysis.js", () => ({
@@ -82,7 +83,7 @@ const { appendToSprintLog } = await import(
   "../../src/documentation/sprint-log.js"
 );
 const { addComment } = await import("../../src/github/issues.js");
-const { setLabel } = await import("../../src/github/labels.js");
+const { setLabel, setBlockedStatus } = await import("../../src/github/labels.js");
 await import("../../src/git/diff-analysis.js");
 
 const { executeIssue, handleQualityFailure } = await import(
@@ -235,8 +236,11 @@ describe("executeIssue", () => {
     expect(result.status).toBe("failed");
     expect(result.qualityGatePassed).toBe(false);
 
-    // Final label should be blocked
-    expect(setLabel).toHaveBeenCalledWith(42, "status:blocked");
+    // Final label should be blocked with documented reason
+    expect(setBlockedStatus).toHaveBeenCalledWith(
+      42,
+      expect.stringContaining("tests-pass: 2 tests failed"),
+    );
   });
 
   it("cleans up worktree even when ACP session fails", async () => {

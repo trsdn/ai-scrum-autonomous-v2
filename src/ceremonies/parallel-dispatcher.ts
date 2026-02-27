@@ -9,7 +9,7 @@ import type {
 import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
 import { mergeBranch } from "../git/merge.js";
-import { setLabel } from "../github/labels.js";
+import { setBlockedStatus } from "../github/labels.js";
 import { logger } from "../logger.js";
 
 import type { SprintEventBus } from "../tui/events.js";
@@ -64,13 +64,15 @@ export async function runParallelExecution(
 
             if (!mergeResult.success) {
               mergeConflicts++;
+              const conflictFiles = mergeResult.conflictFiles?.join(", ") || "unknown files";
+              const blockReason = `Merge conflict detected in: ${conflictFiles}`;
               log.warn(
                 { issue: result.issueNumber, branch: result.branch, conflictFiles: mergeResult.conflictFiles },
-                "merge conflict — marking as failed",
+                "merge conflict — marking as blocked",
               );
               result.status = "failed";
               result.qualityGatePassed = false;
-              await setLabel(result.issueNumber, "status:blocked");
+              await setBlockedStatus(result.issueNumber, blockReason);
             } else {
               log.info({ issue: result.issueNumber, branch: result.branch }, "merged to base");
             }

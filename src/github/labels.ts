@@ -1,4 +1,4 @@
-import { execGh } from "./issues.js";
+import { execGh, addComment } from "./issues.js";
 import { logger } from "../logger.js";
 
 /** Standard status labels used by the sprint runner. */
@@ -87,4 +87,14 @@ export async function getLabels(
   ]);
   const result = JSON.parse(json) as { labels?: { name: string }[] };
   return result.labels ?? [];
+}
+
+/** Set blocked status with documented reason. */
+export async function setBlockedStatus(
+  issueNumber: number,
+  reason: string,
+): Promise<void> {
+  logger.debug({ issueNumber, reason }, "Setting blocked status with reason");
+  await addComment(issueNumber, `🚫 **Blocked**: ${reason}`);
+  await setLabel(issueNumber, "status:blocked");
 }
