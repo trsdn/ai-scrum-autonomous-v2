@@ -65,6 +65,34 @@ header {
   font-weight: 600;
 }
 
+.sprint-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-nav {
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-nav:hover { background: var(--bg-hover); color: var(--text); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.viewing-indicator {
+  font-size: 12px;
+  color: var(--yellow);
+  padding: 2px 8px;
+  border: 1px solid var(--yellow);
+  border-radius: 12px;
+}
+
 .phase-badge {
   padding: 2px 10px;
   border-radius: 12px;

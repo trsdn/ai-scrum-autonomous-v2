@@ -169,4 +169,36 @@ describe("DashboardWebServer", () => {
     const text = await res.text();
     expect(text).not.toContain('"dependencies"');
   });
+
+  it("serves /api/sprints with available sprints", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
+    expect(res.status).toBe(200);
+    const data = await res.json() as { sprintNumber: number; phase: string; isActive: boolean }[];
+    // Should at least include the active sprint from getState
+    expect(Array.isArray(data)).toBe(true);
+  });
+
+  it("serves /api/sprints/:number/state for active sprint", async () => {
+    options = makeOptions({ activeSprintNumber: 1 });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
+    expect(res.status).toBe(200);
+    const data = await res.json() as { sprintNumber: number; phase: string };
+    expect(data.sprintNumber).toBe(1);
+    expect(data.phase).toBe("init");
+  });
+
+  it("returns empty state for nonexistent sprint", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/999/state`);
+    expect(res.status).toBe(200);
+    const data = await res.json() as { sprintNumber: number; phase: string };
+    expect(data.sprintNumber).toBe(999);
+    expect(data.phase).toBe("init");
+  });
 });
