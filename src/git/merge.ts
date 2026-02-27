@@ -1,5 +1,6 @@
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
+import { execGh } from "../github/issues.js";
 import { logger } from "../logger.js";
 
 const execFile = promisify(execFileCb);
@@ -7,6 +8,68 @@ const execFile = promisify(execFileCb);
 export interface MergeResult {
   success: boolean;
   conflictFiles?: string[];
+}
+
+export interface PRMergeResult {
+  success: boolean;
+  prNumber?: number;
+  reason?: string;
+}
+
+/**
+ * Find and merge a PR by its head branch name using `gh pr merge`.
+ * Returns success: false if no PR found or merge fails.
+ */
+export async function mergeIssuePR(
+  branch: string,
+  options: { squash?: boolean; deleteBranch?: boolean } = {},
+): Promise<PRMergeResult> {
+  const log = logger.child({ module: "merge" });
+
+  // Find PR by head branch
+  let prNumber: number | undefined;
+  try {
+    const json = await execGh([
+      "pr", "list",
+      "--head", branch,
+      "--state", "open",
+      "--json", "number",
+      "--limit", "1",
+    ]);
+    const prs = JSON.parse(json) as { number: number }[];
+    if (prs.length > 0) {
+      prNumber = prs[0]!.number;
+    }
+  } catch (err: unknown) {
+    log.warn({ branch, err }, "Failed to find PR for branch");
+    return { success: false, reason: "Could not find PR for branch" };
+  }
+
+  if (!prNumber) {
+    log.info({ branch }, "No open PR found for branch — skipping merge");
+    return { success: false, reason: "No open PR found" };
+  }
+
+  // Merge via gh CLI
+  const args = ["pr", "merge", String(prNumber)];
+  if (options.squash) {
+    args.push("--squash");
+  } else {
+    args.push("--merge");
+  }
+  if (options.deleteBranch) {
+    args.push("--delete-branch");
+  }
+
+  try {
+    await execGh(args);
+    log.info({ prNumber, branch, squash: options.squash }, "PR merged via GitHub");
+    return { success: true, prNumber };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    log.warn({ prNumber, branch, err: message }, "PR merge failed");
+    return { success: false, prNumber, reason: message };
+  }
 }
 
 /**

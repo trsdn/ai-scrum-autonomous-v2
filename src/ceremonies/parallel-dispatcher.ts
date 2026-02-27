@@ -8,7 +8,7 @@ import type {
 } from "../types.js";
 import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
-import { mergeBranch } from "../git/merge.js";
+import { mergeIssuePR } from "../git/merge.js";
 import { setLabel } from "../github/labels.js";
 import { logger } from "../logger.js";
 
@@ -55,24 +55,25 @@ export async function runParallelExecution(
         const result = outcome.value;
         allResults.push(result);
 
-        // Merge successful branches back to base
+        // Merge successful branches back to base via GitHub PR
         if (config.autoMerge && result.status === "completed") {
           try {
-            const mergeResult = await mergeBranch(result.branch, config.baseBranch, {
+            const mergeResult = await mergeIssuePR(result.branch, {
               squash: config.squashMerge,
+              deleteBranch: config.deleteBranchAfterMerge,
             });
 
             if (!mergeResult.success) {
               mergeConflicts++;
               log.warn(
-                { issue: result.issueNumber, branch: result.branch, conflictFiles: mergeResult.conflictFiles },
-                "merge conflict — marking as failed",
+                { issue: result.issueNumber, branch: result.branch, reason: mergeResult.reason },
+                "PR merge failed — marking as failed",
               );
               result.status = "failed";
               result.qualityGatePassed = false;
               await setLabel(result.issueNumber, "status:blocked");
             } else {
-              log.info({ issue: result.issueNumber, branch: result.branch }, "merged to base");
+              log.info({ issue: result.issueNumber, branch: result.branch, pr: mergeResult.prNumber }, "PR merged");
             }
           } catch (err: unknown) {
             mergeConflicts++;
