@@ -23,6 +23,7 @@
       <span id="issue-count" class="issue-count">0/0 done</span>
       <span id="elapsed" class="elapsed">0m 00s</span>
       <button id="btn-start" class="btn btn-primary" title="Start sprint">▶ Start</button>
+      <button id="btn-chat" class="btn" title="Open Agent Chat">💬 Chat</button>
     </div>
   </header>
 
@@ -40,6 +41,29 @@
       <ul id="activity-list"></ul>
       <h2>Log</h2>
       <div id="log-panel"></div>
+    </section>
+
+    <!-- Chat panel (slide-out) -->
+    <section id="chat-panel" class="panel chat-panel" style="display:none">
+      <div class="chat-header">
+        <h2>Agent Chat</h2>
+        <div class="chat-controls">
+          <select id="chat-role">
+            <option value="general">General</option>
+            <option value="researcher">Researcher</option>
+            <option value="planner">Planner</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+          <button id="btn-new-chat" class="btn btn-small">+ New</button>
+          <button id="btn-close-chat" class="btn btn-small" title="Close panel">✕</button>
+        </div>
+      </div>
+      <div id="chat-sessions-bar"></div>
+      <div id="chat-messages"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="Type a message…" rows="2"></textarea>
+        <button id="btn-send" class="btn btn-primary btn-small" disabled>Send</button>
+      </div>
     </section>
   </main>
 
