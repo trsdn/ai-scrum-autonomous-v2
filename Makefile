@@ -1,4 +1,4 @@
-.PHONY: help check fix lint format typecheck test test-quick coverage build notify clean install test-setup test-cleanup test-web
+.PHONY: help check fix lint format typecheck test test-quick coverage build notify clean install test-setup test-cleanup test-web test-e2e
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -76,3 +76,6 @@ test-cleanup: ## Remove all test sprint artifacts
 
 test-web: ## Run web dashboard in test mode
 	npx tsx src/index.ts web --config sprint-runner.test.yaml
+
+test-e2e: ## Run Playwright E2E tests (requires test-setup first)
+	npx playwright test --reporter=list
