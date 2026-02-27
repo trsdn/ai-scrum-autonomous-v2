@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Shared type definitions for the Sprint Runner
 
 // --- Sprint Planning ---

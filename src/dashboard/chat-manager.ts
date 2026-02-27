@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 /**
  * Chat Manager — manages interactive ACP chat sessions for the web dashboard.
  *
