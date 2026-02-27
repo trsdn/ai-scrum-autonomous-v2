@@ -23,6 +23,7 @@
       <span id="issue-count" class="issue-count">0/0 done</span>
       <span id="elapsed" class="elapsed">0m 00s</span>
       <button id="btn-start" class="btn btn-primary" title="Start sprint">▶ Start</button>
+      <button id="btn-sessions" class="btn" title="View ACP Sessions">🔍 Sessions</button>
       <button id="btn-chat" class="btn" title="Open Agent Chat">💬 Chat</button>
     </div>
   </header>
@@ -63,6 +64,22 @@
       <div class="chat-input-row">
         <textarea id="chat-input" placeholder="Type a message…" rows="2"></textarea>
         <button id="btn-send" class="btn btn-primary btn-small" disabled>Send</button>
+      </div>
+    </section>
+
+    <!-- Session viewer panel (slide-out) -->
+    <section id="session-panel" class="panel session-panel" style="display:none">
+      <div class="session-header">
+        <h2>ACP Sessions</h2>
+        <button id="btn-close-sessions" class="btn btn-small" title="Close panel">✕</button>
+      </div>
+      <ul id="session-list" class="session-list"></ul>
+      <div id="session-viewer" class="session-viewer" style="display:none">
+        <div class="session-viewer-header">
+          <button id="btn-back-sessions" class="btn btn-small">← Back</button>
+          <span id="session-viewer-title"></span>
+        </div>
+        <pre id="session-output" class="session-output"></pre>
       </div>
     </section>
   </main>
