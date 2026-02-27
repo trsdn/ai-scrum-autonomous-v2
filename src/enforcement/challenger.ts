@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { diffStat } from "../git/diff-analysis.js";
 import { getIssue } from "../github/issues.js";
 import { logger } from "../logger.js";

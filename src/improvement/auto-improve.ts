@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 /**
  * Auto-Improvement — Phase 4 (Self-Improvement)
  *

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { type AcpClient } from "./client.js";
 import type { McpServer } from "@agentclientprotocol/sdk";
 import { logger as defaultLogger, type Logger } from "../logger.js";

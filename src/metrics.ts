@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import type { SprintResult, SprintMetrics } from "./types.js";
 
 /**

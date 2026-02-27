@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, IssueResult } from "../types.js";
 import { mergeBranch } from "../git/merge.js";

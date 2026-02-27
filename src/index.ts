@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 
 /**
  * Sprint Runner CLI — ACP-powered autonomous sprint engine.

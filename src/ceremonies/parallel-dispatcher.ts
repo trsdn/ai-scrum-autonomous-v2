@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import pLimit from "p-limit";
 import type { AcpClient } from "../acp/client.js";
 import type {

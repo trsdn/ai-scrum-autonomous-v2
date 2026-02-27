@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 /**
  * Config Tuner — Phase 4 (Self-Improvement)
  *

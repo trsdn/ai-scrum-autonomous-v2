@@ -1,3 +1,4 @@
+// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import fs from "node:fs";
 import path from "node:path";
 import { logger } from "../logger.js";
