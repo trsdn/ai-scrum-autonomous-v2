@@ -583,6 +583,8 @@ program
         getState: () => runner.getState(),
         getIssues: () => currentIssues,
         onStart,
+        projectPath: process.cwd(),
+        activeSprintNumber: initialSprint,
       });
 
       await dashboardServer.start();
