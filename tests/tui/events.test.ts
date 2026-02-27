@@ -12,10 +12,12 @@ vi.mock("../../src/acp/client.js", () => ({
 
 const makeConfig = (): SprintConfig => ({
   sprintNumber: 1,
+  sprintPrefix: "Sprint",
+  sprintSlug: "sprint",
   projectPath: "/tmp/test",
   baseBranch: "main",
   worktreeBase: "../worktrees",
-  branchPattern: "sprint/{sprint}/issue-{issue}",
+  branchPattern: "{prefix}/{sprint}/issue-{issue}",
   maxParallelSessions: 2,
   maxIssuesPerSprint: 5,
   maxDriftIncidents: 2,

@@ -4,8 +4,8 @@ import { logger } from "../logger.js";
 
 const DEFAULT_OUTPUT_DIR = "docs/sprints";
 
-function logPath(sprintNumber: number, outputDir: string): string {
-  return path.join(outputDir, `sprint-${sprintNumber}-log.md`);
+function logPath(sprintNumber: number, outputDir: string, slug: string = "sprint"): string {
+  return path.join(outputDir, `${slug}-${sprintNumber}-log.md`);
 }
 
 export function createSprintLog(
@@ -13,10 +13,12 @@ export function createSprintLog(
   goal: string,
   plannedCount: number,
   outputDir: string = DEFAULT_OUTPUT_DIR,
+  prefix: string = "Sprint",
+  slug: string = "sprint",
 ): string {
   const date = new Date().toISOString().slice(0, 10);
   const content = [
-    `# Sprint ${sprintNumber} Log — ${date}`,
+    `# ${prefix} ${sprintNumber} Log — ${date}`,
     "",
     `**Goal**: ${goal}`,
     `**Planned**: ${plannedCount} issues`,
@@ -25,7 +27,7 @@ export function createSprintLog(
     "",
   ].join("\n");
 
-  const filePath = logPath(sprintNumber, outputDir);
+  const filePath = logPath(sprintNumber, outputDir, slug);
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, content, "utf-8");
@@ -39,8 +41,9 @@ export function appendToSprintLog(
   sprintNumber: number,
   entry: string,
   outputDir: string = DEFAULT_OUTPUT_DIR,
+  slug: string = "sprint",
 ): void {
-  const filePath = logPath(sprintNumber, outputDir);
+  const filePath = logPath(sprintNumber, outputDir, slug);
   try {
     fs.appendFileSync(filePath, entry + "\n", "utf-8");
   } catch (err: unknown) {
@@ -51,7 +54,8 @@ export function appendToSprintLog(
 export function readSprintLog(
   sprintNumber: number,
   outputDir: string = DEFAULT_OUTPUT_DIR,
+  slug: string = "sprint",
 ): string {
-  const filePath = logPath(sprintNumber, outputDir);
+  const filePath = logPath(sprintNumber, outputDir, slug);
   return fs.readFileSync(filePath, "utf-8");
 }

@@ -86,10 +86,12 @@ function makeMockClient() {
 
 const config: SprintConfig = {
   sprintNumber: 1,
+  sprintPrefix: "Sprint",
+  sprintSlug: "sprint",
   projectPath: "/tmp/project",
   baseBranch: "main",
   worktreeBase: "../wt",
-  branchPattern: "sprint/{sprint}/issue-{issue}",
+  branchPattern: "{prefix}/{sprint}/issue-{issue}",
   maxParallelSessions: 4,
   maxIssuesPerSprint: 8,
   maxDriftIncidents: 2,

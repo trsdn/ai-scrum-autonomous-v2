@@ -24,6 +24,8 @@ export interface IssueCacheOptions {
   maxSprint: number;
   /** Function to load saved sprint state from disk. */
   loadState?: (sprintNumber: number) => SprintState | null;
+  /** Sprint prefix for milestone queries (default: "Sprint"). */
+  sprintPrefix?: string;
 }
 
 export class SprintIssueCache {
@@ -122,7 +124,7 @@ export class SprintIssueCache {
 
       // Fetch from GitHub milestone
       const ghIssues = await listIssues({
-        milestone: `Sprint ${sprintNumber}`,
+        milestone: `${this.options.sprintPrefix ?? "Sprint"} ${sprintNumber}`,
         state: "all",
       });
 

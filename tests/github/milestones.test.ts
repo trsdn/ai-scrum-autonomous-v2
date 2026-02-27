@@ -93,6 +93,14 @@ describe("parseSprintFromTitle", () => {
     expect(parseSprintFromTitle("Sprint")).toBeUndefined();
     expect(parseSprintFromTitle("My Sprint 3")).toBeUndefined();
   });
+
+  it("parses custom prefix 'Test Sprint 1'", () => {
+    expect(parseSprintFromTitle("Test Sprint 1", "Test Sprint")).toBe(1);
+  });
+
+  it("returns undefined when title doesn't match custom prefix", () => {
+    expect(parseSprintFromTitle("Sprint 1", "Test Sprint")).toBeUndefined();
+  });
 });
 
 describe("getNextOpenMilestone", () => {

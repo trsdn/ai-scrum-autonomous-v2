@@ -92,6 +92,8 @@ project:
     expect(config.sprint.max_retries).toBe(2);
     expect(config.git.squash_merge).toBe(true);
     expect(config.copilot.mcp_servers).toEqual([]);
+    expect(config.sprint.prefix).toBe("Sprint");
+    expect(config.git.branch_pattern).toBe("{prefix}/{sprint}/issue-{issue}");
   });
 
   it("throws on missing config file", () => {
@@ -181,5 +183,22 @@ escalation:
     const file = writeTmpConfig(yaml);
     const config = loadConfig(file);
     expect(config.escalation.notifications.ntfy_topic).toBe("env-topic");
+  });
+});
+
+describe("prefixToSlug", () => {
+  it("converts Sprint to sprint", async () => {
+    const { prefixToSlug } = await import("../src/config.js");
+    expect(prefixToSlug("Sprint")).toBe("sprint");
+  });
+
+  it("converts Test Sprint to test-sprint", async () => {
+    const { prefixToSlug } = await import("../src/config.js");
+    expect(prefixToSlug("Test Sprint")).toBe("test-sprint");
+  });
+
+  it("strips special characters", async () => {
+    const { prefixToSlug } = await import("../src/config.js");
+    expect(prefixToSlug("Sprint!@#")).toBe("sprint");
   });
 });

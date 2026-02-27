@@ -198,6 +198,8 @@ export interface PhaseConfig {
 
 export interface SprintConfig {
   sprintNumber: number;
+  sprintPrefix: string;
+  sprintSlug: string;
   projectPath: string;
   baseBranch: string;
   worktreeBase: string;

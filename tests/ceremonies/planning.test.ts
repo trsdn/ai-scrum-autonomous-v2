@@ -148,10 +148,12 @@ const { createSprintLog } = await import(
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
     sprintNumber: 3,
+    sprintPrefix: "Sprint",
+    sprintSlug: "sprint",
     projectPath: "/tmp/test-project",
     baseBranch: "main",
     worktreeBase: "/tmp/worktrees",
-    branchPattern: "feat/{issue}-{slug}",
+    branchPattern: "{prefix}/{sprint}/issue-{issue}",
     maxParallelSessions: 2,
     maxIssuesPerSprint: 5,
     maxDriftIncidents: 2,
@@ -254,7 +256,7 @@ describe("runSprintPlanning", () => {
     expect(createMilestone).toHaveBeenCalledOnce();
 
     // Sprint log created
-    expect(createSprintLog).toHaveBeenCalledWith(3, planResponse.rationale, 2);
+    expect(createSprintLog).toHaveBeenCalledWith(3, planResponse.rationale, 2, undefined, "Sprint", "sprint");
   });
 
   it("skips milestone creation when it already exists", async () => {

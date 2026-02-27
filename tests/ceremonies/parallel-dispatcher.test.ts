@@ -75,10 +75,12 @@ function makeResult(n: number, status: "completed" | "failed" = "completed"): Is
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
     sprintNumber: 1,
+    sprintPrefix: "Sprint",
+    sprintSlug: "sprint",
     projectPath: "/project",
     baseBranch: "main",
     worktreeBase: "/tmp/wt",
-    branchPattern: "sprint/{sprint}/issue-{issue}",
+    branchPattern: "{prefix}/{sprint}/issue-{issue}",
     maxParallelSessions: 3,
     maxIssuesPerSprint: 10,
     maxDriftIncidents: 2,

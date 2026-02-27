@@ -19,7 +19,7 @@
  */
 
 import { Command, InvalidArgumentError } from "commander";
-import { loadConfig, type ConfigFile } from "./config.js";
+import { loadConfig, type ConfigFile, prefixToSlug } from "./config.js";
 import { AcpClient } from "./acp/client.js";
 import { runSprintPlanning } from "./ceremonies/planning.js";
 import { executeIssue } from "./ceremonies/execution.js";
@@ -38,8 +38,12 @@ import type { SprintConfig, SprintIssue } from "./types.js";
 
 /** Build a SprintConfig from the parsed config file and a sprint number. */
 function buildSprintConfig(config: ConfigFile, sprintNumber: number): SprintConfig {
+  const prefix = config.sprint.prefix;
+  const slug = prefixToSlug(prefix);
   return {
     sprintNumber,
+    sprintPrefix: prefix,
+    sprintSlug: slug,
     projectPath: process.cwd(),
     baseBranch: config.project.base_branch,
     worktreeBase: config.git.worktree_base,
@@ -335,10 +339,10 @@ program
       // Auto-detect sprint from milestones if not specified
       let initialSprint = opts.sprint as number | undefined;
       if (!initialSprint) {
-        const next = await getNextOpenMilestone();
+        const next = await getNextOpenMilestone(config.sprint.prefix);
         if (!next) {
-          console.error("❌ No open sprint milestones found.");
-          console.error("   Create a milestone named 'Sprint N' in GitHub, or use --sprint <number>.");
+          console.error(`❌ No open sprint milestones found (prefix: "${config.sprint.prefix}").`);
+          console.error(`   Create a milestone named '${config.sprint.prefix} N' in GitHub, or use --sprint <number>.`);
           process.exit(1);
         }
         initialSprint = next.sprintNumber;
@@ -362,7 +366,7 @@ program
       let initialIssues: { number: number; title: string; status: "planned" | "in-progress" | "done" | "failed" }[] = [];
       try {
         const milestoneIssues = await listIssues({
-          milestone: `Sprint ${initialSprint}`,
+          milestone: `${config.sprint.prefix} ${initialSprint}`,
           state: "open",
         });
 
@@ -486,10 +490,10 @@ program
       // Auto-detect sprint
       let initialSprint = opts.sprint as number | undefined;
       if (!initialSprint) {
-        const next = await getNextOpenMilestone();
+        const next = await getNextOpenMilestone(config.sprint.prefix);
         if (!next) {
-          console.error("❌ No open sprint milestones found.");
-          console.error("   Create a milestone named 'Sprint N' in GitHub, or use --sprint <number>.");
+          console.error(`❌ No open sprint milestones found (prefix: "${config.sprint.prefix}").`);
+          console.error(`   Create a milestone named '${config.sprint.prefix} N' in GitHub, or use --sprint <number>.`);
           process.exit(1);
         }
         initialSprint = next.sprintNumber;
@@ -509,7 +513,7 @@ program
       let currentIssues: { number: number; title: string; status: "planned" | "in-progress" | "done" | "failed" }[] = [];
       try {
         const milestoneIssues = await listIssues({
-          milestone: `Sprint ${initialSprint}`,
+          milestone: `${config.sprint.prefix} ${initialSprint}`,
           state: "open",
         });
 
@@ -585,6 +589,8 @@ program
         onStart,
         projectPath: process.cwd(),
         activeSprintNumber: initialSprint,
+        sprintPrefix: config.sprint.prefix,
+        sprintSlug: prefixToSlug(config.sprint.prefix),
       });
 
       await dashboardServer.start();
@@ -637,14 +643,14 @@ program
       // Attempt to load sprint log for context
       let logContent: string;
       try {
-        logContent = readSprintLog(opts.sprint);
+        logContent = readSprintLog(opts.sprint, undefined, prefixToSlug(config.sprint.prefix));
       } catch {
-        console.error(`❌ No sprint log found for Sprint ${opts.sprint}.`);
+        console.error(`❌ No sprint log found for ${config.sprint.prefix} ${opts.sprint}.`);
         console.error("   Run the full-cycle or execute issues first to generate sprint data.");
         process.exit(1);
       }
 
-      console.log(`📋 Sprint ${opts.sprint} log loaded (${logContent.length} chars)`);
+      console.log(`📋 ${config.sprint.prefix} ${opts.sprint} log loaded (${logContent.length} chars)`);
       console.log("⚠️  Sprint review requires a SprintResult from execution.");
       console.log("   Use 'full-cycle' for an end-to-end run, or provide sprint state.");
       console.log("   Sprint log preview:\n");
@@ -669,14 +675,14 @@ program
       // Attempt to load sprint log for context
       let logContent: string;
       try {
-        logContent = readSprintLog(opts.sprint);
+        logContent = readSprintLog(opts.sprint, undefined, prefixToSlug(config.sprint.prefix));
       } catch {
-        console.error(`❌ No sprint log found for Sprint ${opts.sprint}.`);
+        console.error(`❌ No sprint log found for ${config.sprint.prefix} ${opts.sprint}.`);
         console.error("   Run the full-cycle or execute issues first to generate sprint data.");
         process.exit(1);
       }
 
-      console.log(`📋 Sprint ${opts.sprint} log loaded (${logContent.length} chars)`);
+      console.log(`📋 ${config.sprint.prefix} ${opts.sprint} log loaded (${logContent.length} chars)`);
       console.log("⚠️  Sprint retro requires SprintResult and ReviewResult from prior ceremonies.");
       console.log("   Use 'full-cycle' for an end-to-end run, or provide sprint state.");
       console.log("   Sprint log preview:\n");
@@ -730,13 +736,13 @@ program
 
       let logContent: string;
       try {
-        logContent = readSprintLog(opts.sprint);
+        logContent = readSprintLog(opts.sprint, undefined, prefixToSlug(config.sprint.prefix));
       } catch {
-        console.error(`❌ No sprint log found for Sprint ${opts.sprint}.`);
+        console.error(`❌ No sprint log found for ${config.sprint.prefix} ${opts.sprint}.`);
         process.exit(1);
       }
 
-      console.log(`📈 Sprint ${opts.sprint} Metrics`);
+      console.log(`📈 ${config.sprint.prefix} ${opts.sprint} Metrics`);
       console.log("─".repeat(40));
       console.log(logContent);
     } catch (err: unknown) {

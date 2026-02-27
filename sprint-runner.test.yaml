@@ -1,5 +1,9 @@
-# Sprint Runner Configuration
-# See src/config.ts for schema and validation
+# Sprint Runner Test Configuration
+# Use this config to run test sprints that are isolated from production.
+# Usage: npx tsx src/index.ts run --config sprint-runner.test.yaml
+#
+# Creates "Test Sprint N" milestones, "test-sprint-N-state.json" files,
+# and "test-sprint/N/issue-N" branches — fully isolated from production sprints.
 
 project:
   name: "ai-scrum-autonomous-v2"
@@ -7,34 +11,32 @@ project:
 
 copilot:
   executable: "copilot"
-  max_parallel_sessions: 4
-  session_timeout_ms: 600000
+  max_parallel_sessions: 2
+  session_timeout_ms: 300000
   auto_approve_tools: true
 
-  # Global MCP servers — attached to every ACP session
   mcp_servers:
     - name: "github"
       type: "stdio"
       command: "npx"
       args: ["-y", "@github/mcp-server"]
 
-  # Global instructions — prepended to every prompt
   instructions: []
 
-  # Per-phase configuration (model + additional MCPs + instructions)
   phases:
     planner:
-      model: "claude-opus-4.6"
+      model: "claude-sonnet-4.5"
     worker:
       model: "claude-sonnet-4.5"
     reviewer:
-      model: "claude-opus-4.6"
+      model: "claude-sonnet-4.5"
 
 sprint:
-  max_issues: 8
+  prefix: "Test Sprint"
+  max_issues: 3
   max_drift_incidents: 2
-  max_retries: 2
-  enable_challenger: true
+  max_retries: 1
+  enable_challenger: false
   auto_revert_drift: false
 
 quality_gates:
@@ -42,9 +44,9 @@ quality_gates:
   require_lint: true
   require_types: true
   max_diff_lines: 300
-  require_challenger: true
+  require_challenger: false
   require_ci_green: true
-  ci_wait_timeout_ms: 300000
+  ci_wait_timeout_ms: 180000
 
 escalation:
   notifications:

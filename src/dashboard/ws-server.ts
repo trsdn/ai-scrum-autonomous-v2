@@ -65,6 +65,10 @@ export interface DashboardServerOptions {
   projectPath?: string;
   /** Currently active sprint number (the one being executed). */
   activeSprintNumber?: number;
+  /** Sprint prefix for milestone titles (default: "Sprint"). */
+  sprintPrefix?: string;
+  /** Sprint slug for file naming (default: "sprint"). */
+  sprintSlug?: string;
 }
 
 export interface TrackedSession {
@@ -150,6 +154,7 @@ export class DashboardWebServer {
     this.issueCache = new SprintIssueCache({
       maxSprint: activeNum,
       loadState: (n) => this.loadSprintState(n),
+      sprintPrefix: this.options.sprintPrefix,
     });
     // Preload in background — don't block server start
     this.issueCache.preload().then(() => {
@@ -563,13 +568,16 @@ export class DashboardWebServer {
     const projectPath = this.options.projectPath ?? process.cwd();
     const sprintsDir = path.join(projectPath, "docs", "sprints");
     const sprintMap = new Map<number, { phase: string; isActive: boolean }>();
+    const slug = this.options.sprintSlug ?? "sprint";
+    const stateRegex = new RegExp(`^${slug}-(\\d+)-state\\.json$`);
+    const logRegex = new RegExp(`^${slug}-(\\d+)-log\\.md$`);
 
-    // Scan for state files (sprint-N-state.json)
+    // Scan for state files ({slug}-N-state.json)
     try {
       const files = fs.readdirSync(sprintsDir);
       for (const file of files) {
         // Match state files
-        const stateMatch = file.match(/^sprint-(\d+)-state\.json$/);
+        const stateMatch = file.match(stateRegex);
         if (stateMatch) {
           const num = parseInt(stateMatch[1], 10);
           try {
@@ -584,8 +592,8 @@ export class DashboardWebServer {
           }
         }
 
-        // Match log files (sprint-N-log.md) — sprints that ran but may not have state files
-        const logMatch = file.match(/^sprint-(\d+)-log\.md$/);
+        // Match log files ({slug}-N-log.md) — sprints that ran but may not have state files
+        const logMatch = file.match(logRegex);
         if (logMatch) {
           const num = parseInt(logMatch[1], 10);
           if (!sprintMap.has(num)) {
@@ -627,7 +635,7 @@ export class DashboardWebServer {
     }
 
     const projectPath = this.options.projectPath ?? process.cwd();
-    const filePath = path.join(projectPath, "docs", "sprints", `sprint-${sprintNumber}-state.json`);
+    const filePath = path.join(projectPath, "docs", "sprints", `${this.options.sprintSlug ?? "sprint"}-${sprintNumber}-state.json`);
     try {
       const raw = fs.readFileSync(filePath, "utf-8");
       const state = JSON.parse(raw) as SprintState;

@@ -89,7 +89,10 @@ export async function runParallelExecution(
           status: "failed",
           qualityGatePassed: false,
           qualityDetails: { passed: false, checks: [] },
-          branch: `sprint/${config.sprintNumber}/issue-${issueNumber}`,
+          branch: config.branchPattern
+            .replace("{prefix}", config.sprintSlug)
+            .replace("{sprint}", String(config.sprintNumber))
+            .replace("{issue}", String(issueNumber)),
           duration_ms: 0,
           filesChanged: [],
           retryCount: 0,
