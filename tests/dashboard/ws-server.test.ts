@@ -328,4 +328,96 @@ describe("DashboardWebServer", () => {
     expect(data2).toHaveLength(1);
     expect(data2[0].endedAt).toBeDefined();
   });
+
+  // --- Event buffer & sprint switch ---
+
+  it("replays buffered events on sprint:switch", async () => {
+    options = makeOptions({ activeSprintNumber: 2 });
+    const state: SprintState = { version: "1", sprintNumber: 2, phase: "execute", startedAt: new Date() };
+    options.getState = () => state;
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const bus = options.eventBus;
+
+    // Emit some events to fill the buffer
+    bus.emitTyped("log", { level: "info", message: "event-1" });
+    bus.emitTyped("log", { level: "info", message: "event-2" });
+
+    // Wait briefly for events to be buffered
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Connect and wait for initial messages, then send sprint:switch
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const allMessages: { type: string; eventName?: string; payload?: unknown }[] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      let initialCount = 0;
+      ws.on("message", (data) => {
+        const msg = JSON.parse(data.toString());
+        if (initialCount < 2) {
+          initialCount++;
+          if (initialCount === 2) {
+            // Send sprint:switch after initial messages
+            ws.send(JSON.stringify({ type: "sprint:switch", sprintNumber: 2 }));
+          }
+          return;
+        }
+        allMessages.push(msg);
+        // Expect: sprint:state + sprint:issues + 2 replayed events = 4 messages
+        if (allMessages.length >= 4) {
+          ws.close();
+          resolve();
+        }
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+    });
+
+    // First two should be sprint:state and sprint:issues
+    expect(allMessages[0].type).toBe("sprint:state");
+    expect(allMessages[1].type).toBe("sprint:issues");
+
+    // Then replayed events
+    const replayed = allMessages.filter((m) => m.type === "sprint:event");
+    expect(replayed).toHaveLength(2);
+    expect(replayed[0]).toMatchObject({
+      type: "sprint:event",
+      eventName: "log",
+      payload: { level: "info", message: "event-1" },
+    });
+    expect(replayed[1]).toMatchObject({
+      type: "sprint:event",
+      eventName: "log",
+      payload: { level: "info", message: "event-2" },
+    });
+  });
+
+  it("state API returns 'complete' for sprint with log file but no state file", async () => {
+    // Create a temp dir with a log file but no state file
+    const { mkdtempSync, writeFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const tmpDir = mkdtempSync(join(import.meta.dirname ?? ".", "sprint-state-test-"));
+    const sprintsDir = join(tmpDir, "docs", "sprints");
+    const { mkdirSync } = await import("node:fs");
+    mkdirSync(sprintsDir, { recursive: true });
+    // Write a log file for sprint 1 (no state file)
+    writeFileSync(join(sprintsDir, "sprint-1-log.md"), "# Sprint 1 Log\n");
+
+    options = makeOptions({ activeSprintNumber: 5, projectPath: tmpDir, sprintSlug: "sprint" });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
+    expect(res.status).toBe(200);
+    const data = await res.json() as { sprintNumber: number; phase: string };
+    expect(data.sprintNumber).toBe(1);
+    expect(data.phase).toBe("complete");
+
+    // Cleanup
+    const { rmSync } = await import("node:fs");
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
 });
