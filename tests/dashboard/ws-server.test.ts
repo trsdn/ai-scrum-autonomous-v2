@@ -1,0 +1,172 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { WebSocket } from "ws";
+import { DashboardWebServer, type DashboardServerOptions } from "../../src/dashboard/ws-server.js";
+import { SprintEventBus } from "../../src/tui/events.js";
+import type { SprintState } from "../../src/runner.js";
+
+function makeOptions(overrides?: Partial<DashboardServerOptions>): DashboardServerOptions {
+  const bus = new SprintEventBus();
+  const state: SprintState = {
+    version: "1",
+    sprintNumber: 1,
+    phase: "init",
+    startedAt: new Date(),
+  };
+  return {
+    port: 0, // random available port
+    host: "127.0.0.1",
+    eventBus: bus,
+    getState: () => state,
+    getIssues: () => [
+      { number: 1, title: "Test issue", status: "planned" },
+    ],
+    ...overrides,
+  };
+}
+
+function getPort(server: DashboardWebServer): number {
+  // Access internal server to get assigned port
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addr = (server as any).server?.address();
+  return addr?.port ?? 0;
+}
+
+describe("DashboardWebServer", () => {
+  let server: DashboardWebServer;
+  let options: DashboardServerOptions;
+
+  beforeEach(() => {
+    options = makeOptions();
+    server = new DashboardWebServer(options);
+  });
+
+  afterEach(async () => {
+    await server.stop();
+  });
+
+  it("starts and stops without error", async () => {
+    await server.start();
+    const port = getPort(server);
+    expect(port).toBeGreaterThan(0);
+    await server.stop();
+  });
+
+  it("serves index.html for root path", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/`);
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("Sprint Runner");
+    expect(text).toContain("<!DOCTYPE html>");
+  });
+
+  it("serves CSS file", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/style.css`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/css");
+  });
+
+  it("sends initial state on WebSocket connect", async () => {
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const messages: unknown[] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      ws.on("message", (data) => {
+        messages.push(JSON.parse(data.toString()));
+        if (messages.length >= 2) {
+          ws.close();
+          resolve();
+        }
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+    });
+
+    // First message: sprint state
+    expect(messages[0]).toMatchObject({
+      type: "sprint:state",
+      payload: { sprintNumber: 1, phase: "init" },
+    });
+
+    // Second message: issues
+    expect(messages[1]).toMatchObject({
+      type: "sprint:issues",
+      payload: [{ number: 1, title: "Test issue", status: "planned" }],
+    });
+  });
+
+  it("relays event bus events to WebSocket clients", async () => {
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const events: unknown[] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      let initialCount = 0;
+      ws.on("message", (data) => {
+        const msg = JSON.parse(data.toString());
+        if (msg.type === "sprint:state" || msg.type === "sprint:issues") {
+          initialCount++;
+          // After initial messages, emit an event
+          if (initialCount === 2) {
+            options.eventBus.emitTyped("log", { level: "info", message: "test log" });
+          }
+          return;
+        }
+        events.push(msg);
+        ws.close();
+        resolve();
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+    });
+
+    expect(events[0]).toMatchObject({
+      type: "sprint:event",
+      eventName: "log",
+      payload: { level: "info", message: "test log" },
+    });
+  });
+
+  it("handles client sprint:start message", async () => {
+    let started = false;
+    options.onStart = () => { started = true; };
+    server = new DashboardWebServer(options);
+
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+
+    await new Promise<void>((resolve, reject) => {
+      ws.on("open", () => {
+        ws.send(JSON.stringify({ type: "sprint:start" }));
+        setTimeout(() => {
+          ws.close();
+          resolve();
+        }, 200);
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+    });
+
+    expect(started).toBe(true);
+  });
+
+  it("returns 403 for directory traversal attempts", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/../../package.json`);
+    // Should return index.html (SPA fallback) or 403, not the actual file
+    expect(res.status).not.toBe(500);
+    const text = await res.text();
+    expect(text).not.toContain('"dependencies"');
+  });
+});

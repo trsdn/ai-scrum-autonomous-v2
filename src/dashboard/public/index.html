@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Runner — Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <div class="header-left">
+      <h1>🏃 Sprint Runner</h1>
+      <span id="sprint-label" class="sprint-badge">Sprint —</span>
+      <span id="phase-badge" class="phase-badge phase-init">init</span>
+    </div>
+    <div class="header-right">
+      <span id="issue-count" class="issue-count">0/0 done</span>
+      <span id="elapsed" class="elapsed">0m 00s</span>
+      <button id="btn-start" class="btn btn-primary" title="Start sprint">▶ Start</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main>
+    <!-- Left panel: Issues -->
+    <section id="issues-panel" class="panel">
+      <h2>Issues</h2>
+      <ul id="issue-list"></ul>
+    </section>
+
+    <!-- Right panel: Activity + Log -->
+    <section id="activity-panel" class="panel">
+      <h2>Activity</h2>
+      <ul id="activity-list"></ul>
+      <h2>Log</h2>
+      <div id="log-panel"></div>
+    </section>
+  </main>
+
+  <!-- Connection status -->
+  <footer>
+    <span id="connection-status" class="status-dot status-disconnected"></span>
+    <span id="connection-label">Disconnected</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

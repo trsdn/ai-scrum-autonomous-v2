@@ -469,6 +469,159 @@ program
     }
   });
 
+// --- web dashboard ---
+program
+  .command("web")
+  .description("Launch web dashboard — browser-based sprint monitor on localhost")
+  .option("--sprint <number>", "Override sprint number (skip auto-detection)", parseSprintNumber)
+  .option("--port <number>", "Dashboard server port (default: 9100)", (v) => parseInt(v, 10), 9100)
+  .option("--run", "Start sprint execution immediately")
+  .option("--once", "Run only one sprint instead of looping (implies --run)")
+  .option("--log-file <path>", "Log file path (default: sprint-runner.log)", "sprint-runner.log")
+  .option("--no-open", "Don't auto-open browser")
+  .action(async (opts) => {
+    try {
+      const config = loadConfig(program.opts().config);
+
+      // Auto-detect sprint
+      let initialSprint = opts.sprint as number | undefined;
+      if (!initialSprint) {
+        const next = await getNextOpenMilestone();
+        if (!next) {
+          console.error("❌ No open sprint milestones found.");
+          console.error("   Create a milestone named 'Sprint N' in GitHub, or use --sprint <number>.");
+          process.exit(1);
+        }
+        initialSprint = next.sprintNumber;
+      }
+
+      redirectLogToFile(opts.logFile as string);
+      logger.info({ sprint: initialSprint }, "Launching web dashboard");
+
+      const eventBus = new SprintEventBus();
+      const sprintConfig = buildSprintConfig(config, initialSprint);
+      const runner = new SprintRunner(sprintConfig, eventBus);
+
+      // Load saved state
+      runner.loadSavedState();
+
+      // Load initial issues
+      let currentIssues: { number: number; title: string; status: "planned" | "in-progress" | "done" | "failed" }[] = [];
+      try {
+        const milestoneIssues = await listIssues({
+          milestone: `Sprint ${initialSprint}`,
+          state: "open",
+        });
+
+        const savedState = runner.getState();
+        const completedIssues = new Set<number>();
+        const failedIssues = new Set<number>();
+        if (savedState?.result) {
+          for (const r of savedState.result.results) {
+            if (r.status === "completed") completedIssues.add(r.issueNumber);
+            else failedIssues.add(r.issueNumber);
+          }
+        }
+
+        currentIssues = milestoneIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          status: completedIssues.has(i.number) ? "done" as const
+            : failedIssues.has(i.number) ? "failed" as const
+            : "planned" as const,
+        }));
+      } catch {
+        // Non-critical
+      }
+
+      // Update issues from events
+      eventBus.onTyped("issue:start", ({ issue }) => {
+        const existing = currentIssues.find((i) => i.number === issue.number);
+        if (existing) {
+          existing.status = "in-progress";
+        } else {
+          currentIssues.push({ number: issue.number, title: issue.title, status: "in-progress" });
+        }
+      });
+      eventBus.onTyped("issue:done", ({ issueNumber }) => {
+        const issue = currentIssues.find((i) => i.number === issueNumber);
+        if (issue) issue.status = "done";
+      });
+      eventBus.onTyped("issue:fail", ({ issueNumber }) => {
+        const issue = currentIssues.find((i) => i.number === issueNumber);
+        if (issue) issue.status = "failed";
+      });
+
+      // Start/loop functions
+      const startLoop = () => {
+        SprintRunner.sprintLoop(
+          (sprintNumber) => buildSprintConfig(config, sprintNumber),
+          eventBus,
+        ).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          eventBus.emitTyped("sprint:error", { error: msg });
+          eventBus.emitTyped("log", { level: "error", message: `Sprint loop crashed: ${msg}` });
+        });
+      };
+
+      const startOnce = () => {
+        runner.fullCycle().catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          eventBus.emitTyped("sprint:error", { error: msg });
+          eventBus.emitTyped("log", { level: "error", message: `Sprint crashed: ${msg}` });
+        });
+      };
+
+      const onStart = opts.once ? startOnce : startLoop;
+
+      // Launch WebSocket server
+      const { DashboardWebServer } = await import("./dashboard/ws-server.js");
+      const dashboardServer = new DashboardWebServer({
+        port: opts.port as number,
+        host: "localhost",
+        eventBus,
+        getState: () => runner.getState(),
+        getIssues: () => currentIssues,
+        onStart,
+      });
+
+      await dashboardServer.start();
+      const url = `http://localhost:${opts.port as number}`;
+      console.log(`\n  🌐 Dashboard running at ${url}\n`);
+
+      // Auto-open browser
+      if (opts.open !== false) {
+        const { exec } = await import("node:child_process");
+        const openCmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+        exec(`${openCmd} ${url}`);
+      }
+
+      // Graceful shutdown
+      const cleanup = async () => {
+        await dashboardServer.stop();
+        process.exit(0);
+      };
+      process.on("SIGINT", () => { cleanup(); });
+      process.on("SIGTERM", () => { cleanup(); });
+
+      // Catch unhandled errors
+      process.on("unhandledRejection", (reason: unknown) => {
+        const msg = reason instanceof Error ? reason.message : String(reason);
+        eventBus.emitTyped("sprint:error", { error: msg });
+        eventBus.emitTyped("log", { level: "error", message: `Unhandled error: ${msg}` });
+      });
+
+      // Auto-start if flags set
+      if (opts.run || opts.once) {
+        onStart();
+      }
+    } catch (err: unknown) {
+      logger.error({ err }, "Web dashboard failed");
+      console.error("❌ Web dashboard failed:", err instanceof Error ? err.message : err);
+      process.exit(1);
+    }
+  });
+
 // --- review ---
 program
   .command("review")

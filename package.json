@@ -8,7 +8,7 @@
     "sprint-runner": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/dashboard/public dist/dashboard/public",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest run",
@@ -41,6 +41,7 @@
     "pino": "^9.0.0",
     "pino-pretty": "^11.0.0",
     "react": "^19.2.4",
+    "ws": "^8.19.0",
     "yaml": "^2.4.0",
     "zod": "^3.23.0"
   },
@@ -48,6 +49,7 @@
     "@eslint/js": "^9.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^19.2.14",
+    "@types/ws": "^8.18.1",
     "@vitest/coverage-v8": "^2.0.0",
     "eslint": "^9.0.0",
     "prettier": "^3.3.0",
