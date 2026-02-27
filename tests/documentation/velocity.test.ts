@@ -131,4 +131,44 @@ describe("velocity", () => {
     const entries = readVelocity(filePath);
     expect(entries).toEqual([]);
   });
+
+  it("appendVelocity updates existing sprint entry instead of duplicating", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    // First append
+    appendVelocity(entry, filePath);
+    // Second append with same sprint number but different data
+    appendVelocity(
+      { ...entry, done: 5, carry: 0, notes: "Updated notes" },
+      filePath,
+    );
+
+    const entries = readVelocity(filePath);
+    expect(entries).toHaveLength(1); // Should have only 1 entry, not 2
+    expect(entries[0]?.sprint).toBe(1);
+    expect(entries[0]?.done).toBe(5); // Should have updated value
+    expect(entries[0]?.notes).toBe("Updated notes");
+  });
+
+  it("appendVelocity handles undefined notes field by defaulting to empty string", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    const entryWithUndefinedNotes = { ...entry, notes: undefined as any };
+    appendVelocity(entryWithUndefinedNotes, filePath);
+
+    const content = fs.readFileSync(filePath, "utf-8");
+    expect(content).not.toContain("undefined");
+
+    const entries = readVelocity(filePath);
+    expect(entries[0]?.notes).toBe("");
+  });
+
+  it("appendVelocity appends new sprint entries without affecting existing different sprints", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    appendVelocity(entry, filePath);
+    appendVelocity({ ...entry, sprint: 2, done: 6 }, filePath);
+
+    const entries = readVelocity(filePath);
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.sprint).toBe(1);
+    expect(entries[1]?.sprint).toBe(2);
+  });
 });
