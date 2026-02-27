@@ -28,13 +28,45 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
   const { exit } = useApp();
   const initialState = runner.getState();
 
+  // Build initial activities from saved state (for resume display)
+  const buildInitialActivities = (): ActivityItem[] => {
+    if (initialState.phase === "init") return [];
+    const phaseOrder: SprintPhase[] = ["refine", "plan", "execute", "review", "retro"];
+    const phaseLabels: Record<string, string> = {
+      refine: "Refining backlog",
+      plan: "Planning sprint",
+      execute: "Executing issues",
+      review: "Sprint review",
+      retro: "Retrospective",
+    };
+    const items: ActivityItem[] = [];
+    for (const p of phaseOrder) {
+      if (p === initialState.phase) {
+        // Current phase was interrupted — show as last completed
+        items.push({ label: phaseLabels[p], status: "done", detail: "previous run" });
+        break;
+      }
+      items.push({ label: phaseLabels[p], status: "done", detail: "previous run" });
+    }
+    return items;
+  };
+
   const [phase, setPhase] = React.useState<SprintPhase>(initialState.phase);
   const [sprintNumber, setSprintNumber] = React.useState(initialState.sprintNumber);
   const [startedAt, setStartedAt] = React.useState(initialState.startedAt);
   const [issues, setIssues] = React.useState<IssueEntry[]>(initialIssues ?? []);
-  const [activities, setActivities] = React.useState<ActivityItem[]>([]);
+  const [activities, setActivities] = React.useState<ActivityItem[]>(buildInitialActivities());
   const [currentIssue, setCurrentIssue] = React.useState<number | null>(null);
-  const [logEntries, setLogEntries] = React.useState<LogEntry[]>([]);
+  const [logEntries, setLogEntries] = React.useState<LogEntry[]>(() => {
+    if (initialState.phase !== "init") {
+      const time = new Date().toLocaleTimeString();
+      const msg = initialState.phase === "failed"
+        ? `Previous run failed: ${initialState.error ?? "unknown error"}`
+        : `Loaded saved state — phase: ${initialState.phase}`;
+      return [{ time, level: (initialState.phase === "failed" ? "error" : "info") as LogEntry["level"], message: msg }];
+    }
+    return [];
+  });
   const [isPaused, setIsPaused] = React.useState(false);
 
   const completedCount = issues.filter((i) => i.status === "done").length;
