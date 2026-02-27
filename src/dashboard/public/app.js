@@ -9,6 +9,7 @@
   let issues = [];
   let activities = [];
   let elapsedTimer = null;
+  let elapsedTimerStartedAt = null; // Track which startedAt the timer is running for
   let availableSprints = [];
   let activeSprintNumber = 0; // The sprint actually running
   let viewingSprintNumber = 0; // The sprint being displayed
@@ -259,15 +260,21 @@
     // Update nav button states
     updateNavButtons();
 
-    // Elapsed timer
-    if (elapsedTimer) clearInterval(elapsedTimer);
-    if (state.startedAt && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
-      updateElapsed();
-      elapsedTimer = setInterval(updateElapsed, 1000);
-    } else if (state.startedAt) {
-      updateElapsed();
-    } else {
-      elapsedEl.textContent = "0m 00s";
+    // Elapsed timer — only restart if startedAt changed
+    const currentStartedAt = state.startedAt ? new Date(state.startedAt).getTime() : null;
+    if (currentStartedAt !== elapsedTimerStartedAt) {
+      if (elapsedTimer) clearInterval(elapsedTimer);
+      elapsedTimer = null;
+      elapsedTimerStartedAt = currentStartedAt;
+
+      if (state.startedAt && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
+        updateElapsed();
+        elapsedTimer = setInterval(updateElapsed, 1000);
+      } else if (state.startedAt) {
+        updateElapsed();
+      } else {
+        elapsedEl.textContent = "0m 00s";
+      }
     }
 
     // Toggle start button — only on active sprint
