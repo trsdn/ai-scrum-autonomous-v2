@@ -85,7 +85,7 @@ const { addComment } = await import("../../src/github/issues.js");
 const { setLabel } = await import("../../src/github/labels.js");
 await import("../../src/git/diff-analysis.js");
 
-const { executeIssue, handleQualityFailure } = await import(
+const { executeIssue } = await import(
   "../../src/ceremonies/execution.js"
 );
 
@@ -307,94 +307,3 @@ describe("executeIssue", () => {
   });
 });
 
-// --- handleQualityFailure ---
-
-describe("handleQualityFailure", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns failing result when retryCount >= maxRetries", async () => {
-    const mockClient = makeMockClient();
-    const config = makeConfig({ maxRetries: 2 });
-
-    const result = await handleQualityFailure(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockClient as any,
-      config,
-      makeIssue(),
-      "/tmp/worktrees/issue-42",
-      failingQuality,
-      2,
-    );
-
-    expect(result.passed).toBe(false);
-    // No ACP session should be created
-    expect(mockClient.createSession).not.toHaveBeenCalled();
-  });
-
-  it("retries and returns passing result on second attempt", async () => {
-    const mockClient = makeMockClient();
-    const config = makeConfig({ maxRetries: 2 });
-
-    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
-
-    const result = await handleQualityFailure(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockClient as any,
-      config,
-      makeIssue(),
-      "/tmp/worktrees/issue-42",
-      failingQuality,
-      0,
-    );
-
-    expect(result.passed).toBe(true);
-    expect(mockClient.createSession).toHaveBeenCalledOnce();
-    expect(mockClient.sendPrompt).toHaveBeenCalledOnce();
-    expect(mockClient.endSession).toHaveBeenCalledOnce();
-  });
-
-  it("retries recursively until maxRetries is reached", async () => {
-    const mockClient = makeMockClient();
-    const config = makeConfig({ maxRetries: 3 });
-
-    // All retries fail
-    vi.mocked(runQualityGate).mockResolvedValue(failingQuality);
-
-    const result = await handleQualityFailure(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mockClient as any,
-      config,
-      makeIssue(),
-      "/tmp/worktrees/issue-42",
-      failingQuality,
-      0,
-    );
-
-    expect(result.passed).toBe(false);
-    // Should have created 3 sessions (retries 0→1, 1→2, 2→3=max)
-    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
-    expect(runQualityGate).toHaveBeenCalledTimes(3);
-  });
-
-  it("ends ACP session even when sendPrompt fails during retry", async () => {
-    const mockClient = makeMockClient();
-    mockClient.sendPrompt.mockRejectedValue(new Error("retry failed"));
-    const config = makeConfig({ maxRetries: 1 });
-
-    await expect(
-      handleQualityFailure(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        mockClient as any,
-        config,
-        makeIssue(),
-        "/tmp/worktrees/issue-42",
-        failingQuality,
-        0,
-      ),
-    ).rejects.toThrow("retry failed");
-
-    expect(mockClient.endSession).toHaveBeenCalledWith("session-abc");
-  });
-});
