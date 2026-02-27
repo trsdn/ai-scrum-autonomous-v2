@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Typed event system for SprintRunner → TUI communication.
 
 import { EventEmitter } from "node:events";

@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { execGh } from "../github/issues.js";
 import { addComment } from "../github/issues.js";
 import { logger } from "../logger.js";

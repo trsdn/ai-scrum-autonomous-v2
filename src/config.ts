@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 // Config loader: parse sprint-runner.config.yaml with Zod validation
 
 import * as fs from "node:fs";

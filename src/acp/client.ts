@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { spawn, type ChildProcess } from "node:child_process";
 import {
   ClientSideConnection,

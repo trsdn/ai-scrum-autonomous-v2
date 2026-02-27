@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { logger } from "../logger.js";
 import type { DriftReport } from "../types.js";
 

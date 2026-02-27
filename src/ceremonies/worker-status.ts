@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 export interface WorkerStatus {
   issueNumber: number;
   status: "queued" | "running" | "completed" | "failed";

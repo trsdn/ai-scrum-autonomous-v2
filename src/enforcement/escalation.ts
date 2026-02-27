@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
 import { createIssue } from "../github/issues.js";

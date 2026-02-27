@@ -1,4 +1,3 @@
-// Copyright (c) 2025 trsdn. MIT License — see LICENSE for details.
 import type { HuddleEntry } from "../types.js";
 
 function statusIcon(status: "completed" | "failed"): string {
