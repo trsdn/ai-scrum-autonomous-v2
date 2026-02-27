@@ -355,17 +355,29 @@ program
       const sprintConfig = buildSprintConfig(config, initialSprint);
       const runner = new SprintRunner(sprintConfig, eventBus);
 
-      // Load milestone issues for initial display
-      let initialIssues: { number: number; title: string; status: "planned" }[] = [];
+      // Load saved sprint state (if any) to restore dashboard on restart
+      const savedState = runner.loadSavedState();
+
+      // Load milestone issues for initial display, enriched with saved state
+      let initialIssues: { number: number; title: string; status: "planned" | "in-progress" | "done" | "failed" }[] = [];
       try {
         const milestoneIssues = await listIssues({
           milestone: `Sprint ${initialSprint}`,
           state: "open",
         });
+
+        // If we have a saved plan, use it to determine issue status
+        const completedIssues = new Set<number>();
+        if (savedState?.result) {
+          for (const r of savedState.result.results) {
+            if (r.status === "completed") completedIssues.add(r.issueNumber);
+          }
+        }
+
         initialIssues = milestoneIssues.map((i) => ({
           number: i.number,
           title: i.title,
-          status: "planned" as const,
+          status: completedIssues.has(i.number) ? "done" as const : "planned" as const,
         }));
       } catch {
         // Non-critical — dashboard works without pre-loaded issues
