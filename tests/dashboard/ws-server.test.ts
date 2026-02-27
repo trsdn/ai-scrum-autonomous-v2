@@ -269,4 +269,23 @@ describe("DashboardWebServer", () => {
     const res = await fetch(`http://127.0.0.1:${port}/api/unknown`);
     expect(res.status).toBe(404);
   });
+
+  it("serves /api/repo with repo URL", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/repo`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    // Should have a url field (may be null in test env without git remote)
+    expect(data).toHaveProperty("url");
+  });
+
+  it("serves /api/sprints/:n/issues from cache", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/issues`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+  });
 });
