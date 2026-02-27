@@ -5,12 +5,12 @@ import type { SprintPhase } from "../runner.js";
 import type { SprintIssue, QualityResult } from "../types.js";
 
 export interface SprintEngineEvents {
-  "phase:change": { from: SprintPhase; to: SprintPhase };
-  "issue:start": { issue: SprintIssue };
+  "phase:change": { from: SprintPhase; to: SprintPhase; model?: string };
+  "issue:start": { issue: SprintIssue; model?: string };
   "issue:done": { issueNumber: number; quality: QualityResult; duration_ms: number };
   "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
   "worker:output": { sessionId: string; text: string };
-  "sprint:start": { sprintNumber: number };
+  "sprint:start": { sprintNumber: number; resumed?: boolean };
   "sprint:complete": { sprintNumber: number };
   "sprint:error": { error: string };
   "sprint:paused": Record<string, never>;

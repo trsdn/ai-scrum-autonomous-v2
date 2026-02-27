@@ -385,15 +385,23 @@ program
         SprintRunner.sprintLoop(
           (sprintNumber) => buildSprintConfig(config, sprintNumber),
           eventBus,
-        ).finally(() => {
-          setTimeout(() => { cleanup(); process.exit(0); }, 2000);
+        ).then((results) => {
+          const allComplete = results.every((s) => s.phase === "complete");
+          if (allComplete && results.length > 0) {
+            // All sprints done — keep dashboard open, user can quit with [q]
+            eventBus.emitTyped("log", { level: "info", message: "All sprints complete. Press [q] to quit." });
+          }
+          // On failure: dashboard stays open so user can see the error
         });
       };
 
       // Start single sprint (called by --once flag)
       const startOnce = () => {
-        runner.fullCycle().finally(() => {
-          setTimeout(() => { cleanup(); process.exit(0); }, 2000);
+        runner.fullCycle().then((state) => {
+          if (state.phase === "complete") {
+            eventBus.emitTyped("log", { level: "info", message: "Sprint complete. Press [q] to quit." });
+          }
+          // On failure: dashboard stays open so user can see the error
         });
       };
 
