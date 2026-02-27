@@ -8,6 +8,8 @@
 import * as http from "node:http";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { WebSocketServer, type WebSocket } from "ws";
 import type { SprintEventBus, SprintEngineEvents } from "../tui/events.js";
 import type { SprintState } from "../runner.js";
@@ -70,6 +72,7 @@ export class DashboardWebServer {
   private wss: WebSocketServer | null = null;
   private chatManager: ChatManager | null = null;
   private issueCache: SprintIssueCache | null = null;
+  private repoUrl: string | null = null;
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
 
@@ -331,6 +334,11 @@ export class DashboardWebServer {
   private handleApi(pathname: string, res: http.ServerResponse): void {
     res.setHeader("Content-Type", "application/json");
 
+    if (pathname === "/api/repo") {
+      this.handleRepoInfo(res);
+      return;
+    }
+
     if (pathname === "/api/sprints") {
       const sprints = this.listSprints();
       res.writeHead(200);
@@ -392,6 +400,35 @@ export class DashboardWebServer {
     const cached = this.issueCache?.get(sprintNumber) ?? [];
     res.writeHead(200);
     res.end(JSON.stringify(cached));
+  }
+
+  /** Return repo info (URL cached after first detection). */
+  private async handleRepoInfo(res: http.ServerResponse): Promise<void> {
+    if (!this.repoUrl) {
+      this.repoUrl = await this.detectRepoUrl();
+    }
+    res.writeHead(200);
+    res.end(JSON.stringify({ url: this.repoUrl }));
+  }
+
+  /** Detect GitHub repo URL from git remote. */
+  private async detectRepoUrl(): Promise<string | null> {
+    const execFileAsync = promisify(execFile);
+    try {
+      const cwd = this.options.projectPath ?? process.cwd();
+      const { stdout } = await execFileAsync("git", ["remote", "get-url", "origin"], { cwd });
+      const raw = stdout.trim();
+      // Convert SSH URLs: git@github.com:owner/repo.git → https://github.com/owner/repo
+      if (raw.startsWith("git@")) {
+        const match = raw.match(/git@([^:]+):(.+?)(?:\.git)?$/);
+        if (match) return `https://${match[1]}/${match[2]}`;
+      }
+      // HTTPS URLs: strip .git suffix
+      return raw.replace(/\.git$/, "");
+    } catch {
+      log.debug("Could not detect repo URL from git remote");
+      return null;
+    }
   }
 
   /** List available sprints by scanning state files, log files, and filling gaps. */
