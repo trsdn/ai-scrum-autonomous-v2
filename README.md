@@ -1,359 +1,290 @@
-# Copilot Scrum Autonomous
+# AI Scrum Sprint Runner
 
-[![Optimized for GitHub Copilot CLI](https://img.shields.io/badge/Optimized%20for-GitHub%20Copilot%20CLI-blue?logo=github)](https://docs.github.com/en/copilot)
-[![Framework Docs](https://img.shields.io/badge/Framework-AI--Scrum-6c63ff)](https://trsdn.github.io/ai-scrum/)
-[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/trsdn/TBD/raw/coverage-badge.json)](https://github.com/trsdn/ai-scrum-autonomous-v2/actions)
+[![CI](https://github.com/trsdn/ai-scrum-autonomous-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/trsdn/ai-scrum-autonomous-v2/actions)
+[![Optimized for GitHub Copilot CLI](https://img.shields.io/badge/Powered%20by-GitHub%20Copilot%20ACP-blue?logo=github)](https://docs.github.com/en/copilot)
 
-A template repository for **autonomous Scrum development** powered by GitHub Copilot CLI. The AI agent acts as both **Product Owner and Scrum Master**, while the human serves as a **Stakeholder** with veto rights.
+**ACP-powered autonomous sprint engine** that orchestrates GitHub Copilot CLI via the Agent Client Protocol to run full Scrum sprints — planning, execution, review, and retrospective — without manual intervention.
 
-> **This is the AUTONOMOUS variant.** For the PO-driven variant where the human drives each sprint phase manually, see [copilot-scrum-guided](https://github.com/trsdn/copilot-scrum-guided).
->
-> 📖 **[Read the full framework documentation →](https://trsdn.github.io/ai-scrum/)**
+The AI agent acts as **PO + Scrum Master**. The human is the **Stakeholder** with veto rights.
 
 ---
 
-## What This Is
+## Features
 
-A production-tested methodology for running full Scrum sprints with GitHub Copilot CLI as the autonomous driver. The agent plans sprints, executes issues, reviews deliverables, and runs retrospectives — only escalating to the human for strategic decisions.
+- **Full Sprint Lifecycle** — Refine → Plan → Execute → Review → Retro, all automated
+- **Parallel Issue Execution** — Multiple issues worked on simultaneously via git worktrees
+- **Quality Gates** — Tests, lint, type check, diff size, challenger review — all enforced externally
+- **Web Dashboard** — Real-time sprint monitoring, issue tracking, ACP session viewer
+- **Agent Chat** — Open ad-hoc ACP sessions with pre-configured roles (researcher, planner, reviewer)
+- **Sprint Navigation** — Browse historical sprints with instant loading via issue cache
+- **Drift Control** — Detects and escalates scope drift automatically
+- **Test Isolation** — Run test sprints with a separate prefix, fully isolated from production
+- **Notifications** — Push notifications via [ntfy.sh](https://ntfy.sh) when tasks complete or input is needed
 
-This template is **domain-agnostic**. It was extracted from a real production workflow and works for any software project using GitHub Copilot CLI.
+## Quick Start
 
-## The Operating Model
+### Prerequisites
 
-| Role | Who | Responsibility |
-|------|-----|----------------|
-| **Stakeholder** | Human | Strategic direction, veto right, escalation decisions |
-| **PO + Scrum Master** | Copilot Agent | Backlog management, sprint execution, quality gates, ceremonies |
+- **Node.js** ≥ 18
+- **GitHub Copilot CLI** with ACP support — `copilot --acp --stdio`
+- **`gh` CLI** authenticated — `gh auth login`
 
-The agent operates autonomously through full sprint cycles. The stakeholder is only involved when escalation criteria are met.
-
-### Escalation Model
-
-| Level | When | Examples |
-|-------|------|----------|
-| ⛔ **MUST Escalate** | Strategic, ADR, constitution, dependencies, production, spending | "Should we add a new framework?" |
-| ⚠️ **SHOULD Escalate** | Scope > 8, deprioritize high, big refactor, close >5 stale | "Planning 9 issues, OK?" |
-| ✅ **Autonomous** | Everything else | Sprint planning, code, tests, config, docs, CI |
-
-## Sprint Cycle
-
-```
-Planning → Start → [Execute with Huddles] → Review → Retro → repeat
-```
-
-| Phase | Slash Command | What Happens |
-|-------|---------------|--------------|
-| **Planning** | `/sprint-planning` | Triage backlog, ICE score, select scope, assign labels + milestone |
-| **Start** | `/sprint-start` | Create sprint log, begin execution (no consent gate) |
-| **Execute** | *(automatic)* | Issue by issue with quality gates and huddles |
-| **Review** | `/sprint-review` | Gather evidence, delivery report, notify stakeholder |
-| **Retro** | `/sprint-retro` | What went well/badly, velocity, process improvements |
-
-Sprints flow automatically — planning leads directly into execution without manual intervention.
-
-## Key Features
-
-- **ICE Scoring** — Impact × Confidence / Effort for prioritization
-- **Quality Gates** — Test gate (≥3 tests/feature), CI gate, Definition of Done
-- **Agent Dispatch** — Specialized agents for code/tests/review, lightweight agents for commands/search
-- **Daily Huddles** — Documented on issues + sprint log after each task
-- **Verification Before Completion** — "Evidence before claims, always"
-- **Notifications** — Push notifications via [ntfy.sh](https://ntfy.sh)
-- **Velocity Tracking** — Sprint-over-sprint performance data
-
-## Prerequisites
-
-- **GitHub Copilot subscription** (Pro, Pro+, Business, or Enterprise) — [plans](https://github.com/features/copilot/plans)
-- **Copilot CLI** installed — [installation guide](https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli)
-- **Experimental mode enabled** — Autopilot mode is experimental and must be activated:
-  ```bash
-  copilot --experimental    # Enable on first launch (persisted in config)
-  ```
-  Once inside a session, press `Shift+Tab` to cycle to **Autopilot mode** — this lets the agent continue working until a task is complete, which is essential for autonomous sprints.
-
-## Getting Started
-
-### 1. Use as Template
-
-Click **"Use this template"** on GitHub, or:
+### Install & Run
 
 ```bash
-gh repo create my-project --template trsdn/copilot-scrum-autonomous --clone
-cd my-project
+# Install dependencies
+npm install
+
+# Launch web dashboard (auto-detects sprint from milestones)
+npx tsx src/index.ts web
+
+# Or with a specific sprint
+npx tsx src/index.ts web --sprint 1
 ```
 
-### 2. Customize for Your Project
+The dashboard opens at `http://localhost:9100` with live sprint status, issue tracking, and agent chat.
 
-| File | What to Change |
-|------|----------------|
-| `AGENTS.md` | Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}` placeholders |
-| `AGENTS.md` | Add your project-specific commands, coding conventions, key files |
-| `docs/architecture/ADR.md` | Add your architectural decisions |
-| `.github/agents/*.agent.md` | Customize agent expertise for your domain |
-| `.github/copilot-instructions.md` | Adjust Copilot behavior and conventions |
-| `Makefile` | Add project-specific targets |
-| `package.json` | Configure your project metadata |
-| `.github/workflows/ci.yml` | Adjust CI for your language/framework |
+### Test Mode
 
-### 3. Set Up Notifications (Optional)
+Run the sprint runner against dummy issues without affecting your real backlog:
 
 ```bash
-# Install ntfy on your phone (iOS/Android)
-# Subscribe to a secret topic
+# 1. Create test data (2 sprints × 3 issues)
+make test-setup
 
-echo 'export NTFY_TOPIC="your-secret-topic"' >> ~/.zshrc
-source ~/.zshrc
+# 2. Launch dashboard in test mode
+make test-web
 
-# Test
-curl -d "Hello from Copilot!" ntfy.sh/$NTFY_TOPIC
+# 3. Clean up everything when done
+make test-cleanup
 ```
 
-### 4. Start Your First Sprint
+Test mode uses `sprint-runner.test.yaml` with `prefix: "Test Sprint"` — separate milestones, branches, state files, and dashboard view. See [Testing](#testing-the-sprint-runner) for details.
 
-```bash
-# Open GitHub Copilot CLI in your project
-copilot
-
-# Run sprint planning
-/sprint-planning
-
-# Execution starts automatically after planning
-```
-
-## How It Works
-
-### The Sprint Cycle in Detail
-
-1. **Planning** (`/sprint-planning`)
-   - Reviews open issues and their status labels
-   - Triages unlabeled issues with ICE scoring
-   - Elaborates top issues with acceptance criteria
-   - Selects sprint scope (~7 issues based on velocity)
-   - Assigns `status:planned` label and sprint milestone
-   - Proceeds directly to execution
-
-2. **Execution** (automatic)
-   - Works through issues one at a time
-   - Creates worktree per issue, implements, tests, PRs
-   - Runs daily huddle after each issue (documented on issue + sprint log)
-   - Quality gates: tests (≥3/feature), CI green, Definition of Done
-
-3. **Review** (`/sprint-review`)
-   - Gathers evidence (commits, PRs, closed issues)
-   - Creates delivery report with metrics
-   - Accepts deliverables autonomously (unless MUST criteria met)
-   - Sends sprint summary notification
-
-4. **Retro** (`/sprint-retro`)
-   - What went well / what didn't
-   - Key learnings and action items
-   - Velocity tracking update
-   - **Process & tooling improvements** (mandatory Step 8)
-
-### Agent Dispatch
-
-| Task | Agent | Use Case |
-|------|-------|----------|
-| Code changes | `@code-developer` | Multi-file reasoning, refactoring |
-| Writing tests | `@test-engineer` | Behavior understanding, TDD |
-| Code review | `@code-review` | Structured review with checklists |
-| Research/docs | `@research-agent` / `@documentation-agent` | Synthesis, technical writing |
-| Decision review | `@challenger` | Adversarial review of decisions and sprints |
-| CI failures | `@ci-fixer` | Diagnose and fix CI/CD failures |
-
-## Sprint Documentation & Artifacts
-
-Every sprint produces structured documentation that creates an audit trail and preserves knowledge across sessions.
-
-### Where Things Are Stored
-
-| Artifact | Location | Created By | Purpose |
-|----------|----------|------------|---------|
-| Sprint log | `docs/sprints/sprint-N-log.md` | Sprint Start | Huddle decisions, learnings, plan changes during execution |
-| Velocity data | `docs/sprints/velocity.md` | Sprint Retro | Sprint-over-sprint performance tracking |
-| Issue comments | GitHub Issues | Huddles | Traceable audit trail per issue |
-| Implementation plans | `docs/plans/` | Planning / Writing Plans | Detailed implementation specs |
-| ADRs | `docs/architecture/ADR.md` | As needed | Immutable architectural decisions |
-| Process rules | `docs/constitution/PROCESS.md` | Sprint Retro | Evolving process constitution |
-
-### The Huddle Documentation Rule
-
-After each issue is completed, a **daily huddle** is performed and documented in **two places**:
-
-1. **Comment on the completed GitHub issue** — creates a traceable, permanent record:
-   ```bash
-   gh issue comment 42 --body "### Huddle — Sprint 5, Issue 3/7 done
-   **Outcome**: Implemented rate limiter with token bucket, 95% test coverage
-   **Key learning**: Redis connection pooling needed for production scale
-   **Decision**: Re-prioritize #45 above #43 based on this finding
-   **Next**: #45 — Connection pool configuration"
-   ```
-
-2. **Append to sprint log** (`docs/sprints/sprint-N-log.md`) — preserves context for retros:
-   ```markdown
-   ### Huddle — After Issue #42 (2025-01-15 14:30)
-   **Completed**: #42 — Rate limiter implemented
-   **Sprint progress**: 3/7 issues done
-   **Key learning**: Redis pooling impacts performance at scale
-   **Plan check**: Reordered — #45 now before #43
-   **Next up**: #45 — Connection pool configuration
-   ```
-
-### Sprint Log Template
-
-Created automatically at sprint start (`docs/sprints/sprint-N-log.md`):
-
-```markdown
-# Sprint N Log — [Date]
-
-**Goal**: [One-sentence sprint goal]
-**Planned**: [N] issues
-
-## Huddles
-[Appended after each issue completes]
-```
-
-### Velocity Tracking
-
-Updated each sprint retro in `docs/sprints/velocity.md`:
-
-```markdown
-| Sprint | Date | Goal | Planned | Done | Carry | ~Hours | Issues/Hr | Notes |
-|--------|------|------|---------|------|-------|--------|-----------|-------|
-| 1      | ...  | ...  | 7       | 7    | 0     | 3.0    | 2.3       | First sprint |
-| 2      | ...  | ...  | 7       | 5    | 2     | 3.5    | 1.4       | Integration heavy |
-```
-
-This data drives sprint sizing — the agent uses historical velocity to determine how many issues to plan.
-
-## Directory Structure
-
-```
-├── AGENTS.md                        # Project-specific agent instructions
-├── .github/
-│   ├── copilot-instructions.md      # Main Copilot instructions
-│   ├── agents/                      # Specialized agent definitions
-│   │   ├── challenger.agent.md
-│   │   ├── ci-fixer.agent.md
-│   │   ├── code-worker.agent.md
-│   │   ├── quality-reviewer.agent.md
-│   │   └── sprint-planner.agent.md
-│   ├── skills/                      # Reusable workflow skills
-│   │   ├── code-review/SKILL.md
-│   │   ├── create-pr/SKILL.md
-│   │   ├── direction-gate/SKILL.md
-│   │   ├── sprint-planning/SKILL.md
-│   │   └── tdd-workflow/SKILL.md
-│   ├── workflows/
-│   │   ├── ci.yml                   # CI: lint, typecheck, test, build
-│   │   └── release.yml              # Semantic release
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.yml
-│   │   ├── feature_request.yml
-│   │   └── config.yml
-│   └── PULL_REQUEST_TEMPLATE.md
-├── src/                             # TypeScript source code
-│   ├── index.ts                     # CLI entry point (Commander.js)
-│   ├── config.ts                    # Zod-validated YAML config loader
-│   ├── runner.ts                    # Sprint lifecycle state machine
-│   ├── types.ts                     # Shared TypeScript interfaces
-│   ├── logger.ts                    # pino structured logger
-│   ├── metrics.ts                   # Sprint metrics calculation
-│   ├── acp/                         # Agent Client Protocol integration
-│   ├── ceremonies/                  # Sprint ceremonies (plan, execute, review, retro)
-│   ├── enforcement/                 # Quality gates, drift control, escalation
-│   ├── git/                         # Git operations (worktree, merge, diff)
-│   ├── github/                      # GitHub API via gh CLI
-│   ├── documentation/               # Sprint logs, huddles, velocity tracking
-│   ├── improvement/                 # Auto-improve stubs
-│   └── dashboard/                   # Web UI stubs
-├── prompts/                         # Prompt templates for ACP sessions
-├── tests/                           # Vitest test suite
-├── docs/
-│   ├── constitution/
-│   │   ├── PROCESS.md               # Development process constitution
-│   │   └── PHILOSOPHY.md            # Project philosophy and principles
-│   ├── architecture/
-│   │   └── ADR.md                   # Architectural Decision Records
-│   ├── research/
-│   │   └── JOURNAL.md               # Research findings journal
-│   ├── sprints/
-│   │   ├── velocity.md              # Sprint velocity tracking
-│   │   └── SPRINT-LOG-TEMPLATE.md   # Template for sprint logs
-│   └── plans/
-│       └── .gitkeep
-├── scripts/copilot-notify.sh        # Push notification script
-├── sprint-runner.config.yaml        # Sprint runner configuration
-├── package.json                     # Node.js project configuration
-├── tsconfig.json                    # TypeScript configuration
-├── Makefile                         # Common development targets
-└── .gitignore
-```
-
-## Customization Guide
-
-### Adding Agents
-
-Create `.github/agents/your-agent.agent.md`:
-
-```markdown
-# Agent: Your Domain Expert
-
-## Role
-[What this agent specializes in]
-
-## Capabilities
-- [Capability 1]
-- [Capability 2]
-
-## Tools
-- [Available tools]
-
-## Guidelines
-- [Domain-specific rules]
-```
-
-Agents in `.github/agents/` are automatically discovered by GitHub Copilot CLI.
-
-### Adding Skills
-
-Create `.github/skills/your-skill/SKILL.md`:
-
-```markdown
----
-name: your-skill
-description: "Short description of when to use this skill. Triggers on: 'keyword1', 'keyword2'."
 ---
 
-# Your Workflow Skill
+## CLI Commands
 
-## Steps
+| Command | Description |
+|---------|-------------|
+| `web` | Launch web dashboard (recommended) |
+| `dashboard` | Launch TUI dashboard |
+| `full-cycle` | Run complete sprint: refine → plan → execute → review → retro |
+| `plan` | Run sprint planning only |
+| `execute-issue --issue N --sprint N` | Execute a single issue |
+| `check-quality --branch <branch>` | Run quality gates on a branch |
+| `refine` | Refine `type:idea` issues into actionable work |
+| `review --sprint N` | Run sprint review ceremony |
+| `retro --sprint N` | Run sprint retrospective |
+| `metrics --sprint N` | Show sprint metrics |
+| `drift-report` | Analyze scope drift |
+| `pause` / `resume` | Pause/resume sprint execution |
+| `status` | Show active worker status |
 
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
+**Global option:** `--config <path>` — use a different config file (default: `sprint-runner.config.yaml`)
+
+---
+
+## Web Dashboard
+
+The dashboard (`sprint-runner web`) provides:
+
+| Area | What It Does |
+|------|-------------|
+| **Sprint Header** | Current sprint, phase badge, elapsed timer, issue count |
+| **Issue List** | All sprint issues with status (planned → in-progress → done/failed) |
+| **Activity Log** | Real-time phase transitions, worker progress, errors |
+| **Sprint Navigation** | Browse historical sprints with ← → buttons or arrow keys |
+| **Session Viewer** | See active/completed ACP sessions and their output |
+| **Agent Chat** | Open new ACP sessions with pre-configured roles |
+| **GitHub Links** | Click issue numbers and sprint labels to open in GitHub |
+| **Browser Notifications** | Alert when sprints complete or errors occur |
+
+---
+
+## Configuration
+
+Configuration lives in `sprint-runner.config.yaml` (Zod-validated):
+
+```yaml
+project:
+  name: "my-project"
+  base_branch: "main"
+
+sprint:
+  prefix: "Sprint"        # Change to "Test Sprint" for isolation
+  max_issues: 8
+  max_retries: 2
+  enable_challenger: true
+
+copilot:
+  max_parallel_sessions: 4
+  session_timeout_ms: 600000
+  phases:
+    planner:
+      model: "claude-opus-4.6"
+    worker:
+      model: "claude-sonnet-4.5"
+    reviewer:
+      model: "claude-opus-4.6"
+
+quality_gates:
+  require_tests: true
+  require_lint: true
+  require_types: true
+  max_diff_lines: 300
+  require_ci_green: true
+
+git:
+  branch_pattern: "{prefix}/{sprint}/issue-{issue}"
+  auto_merge: true
+  squash_merge: true
 ```
 
-Skills in `.github/skills/` are available in both GitHub Copilot CLI and VS Code Insiders.
+### Sprint Prefix (Test Isolation)
 
-### Language Adaptation
+The `sprint.prefix` field controls naming for **everything**:
 
-This project uses TypeScript with ESM modules. Key tooling:
+| Prefix | Milestones | Branches | State Files |
+|--------|-----------|----------|-------------|
+| `"Sprint"` (default) | Sprint 1 | sprint/1/issue-N | sprint-1-state.json |
+| `"Test Sprint"` | Test Sprint 1 | test-sprint/1/issue-N | test-sprint-1-state.json |
 
-- **Build**: `npm run build` (tsc)
-- **Test**: `npm run test` (vitest)
-- **Lint**: `npm run lint` (eslint)
-- **Type check**: `npm run typecheck` (tsc --noEmit)
+Switch configs to isolate test runs completely:
 
-### Customization Reference
+```bash
+npx tsx src/index.ts web --config sprint-runner.test.yaml
+```
 
-| What | Where | Purpose |
-|------|-------|---------|
-| Project-specific instructions | `AGENTS.md` | Commands, conventions, repo structure |
-| Copilot behavior & process | `.github/copilot-instructions.md` | Sprint process, escalation, DoD |
-| Specialized agents | `.github/agents/*.agent.md` | Domain-specific agent roles |
-| Workflow skills | `.github/skills/*/SKILL.md` | Reusable workflow skills |
-| CI pipeline | `.github/workflows/ci.yml` | Build, test, lint automation |
+---
+
+## Testing the Sprint Runner
+
+### Setup → Run → Cleanup
+
+```bash
+# Create test milestones and issues in GitHub
+./scripts/test-setup.sh              # or: make test-setup
+
+# Run dashboard against test data
+npx tsx src/index.ts web --config sprint-runner.test.yaml    # or: make test-web
+
+# Remove all test artifacts (milestones, issues, branches, files)
+./scripts/test-cleanup.sh            # or: make test-cleanup
+```
+
+### What `test-setup.sh` Creates
+
+- **2 milestones**: "Test Sprint 1", "Test Sprint 2"
+- **6 issues**: 3 per sprint, with realistic acceptance criteria
+- **Labels**: All tagged `test-run` + `status:ready`
+- **Customizable**: `./scripts/test-setup.sh 3 4` → 3 sprints × 4 issues
+
+### What `test-cleanup.sh` Removes
+
+- All "Test Sprint" milestones (deleted from GitHub)
+- All `test-run` labeled issues (closed)
+- All `test-sprint/*` branches (local + remote)
+- All `test-sprint-*-state.json` and `test-sprint-*-log.md` files
+- Sprint worktrees
+
+Use `--keep-issues` to preserve test issues for re-use:
+
+```bash
+./scripts/test-cleanup.sh --keep-issues
+```
+
+### Unit Tests
+
+```bash
+make test              # Run all tests (vitest)
+make test-quick        # Fast fail (--bail 1)
+make coverage          # With coverage report
+make check             # Lint + types + tests
+```
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────┐
+│                 Web Dashboard                     │
+│  Sprint Status │ Issue List │ Chat │ Sessions     │
+└────────┬───────────────────────────┬──────────────┘
+         │ WebSocket                 │ REST API
+┌────────┴───────────────────────────┴──────────────┐
+│              Dashboard Server                      │
+│  Event Bridge │ Issue Cache │ Chat Manager          │
+└────────┬───────────────────────────────────────────┘
+         │ SprintEventBus
+┌────────┴───────────────────────────────────────────┐
+│              Sprint Runner (State Machine)          │
+│  init → refine → plan → execute → review → retro   │
+├─────────────┬──────────────┬───────────────────────┤
+│ Ceremonies  │ Enforcement  │ Infrastructure         │
+│ · Planning  │ · Quality    │ · ACP Client           │
+│ · Execution │ · Drift      │ · Git Worktrees        │
+│ · Review    │ · Escalation │ · GitHub API (gh CLI)   │
+│ · Retro     │ · Challenger │ · Sprint Docs           │
+└─────────────┴──────────────┴───────────────────────┘
+         │ ACP (Agent Client Protocol)
+┌────────┴───────────────────────────────────────────┐
+│          GitHub Copilot CLI (copilot --acp)         │
+└────────────────────────────────────────────────────┘
+```
+
+### Directory Structure
+
+```
+src/
+├── index.ts                 # CLI entry point (Commander.js)
+├── config.ts                # Zod-validated YAML config loader
+├── runner.ts                # Sprint lifecycle state machine
+├── types.ts                 # Shared TypeScript interfaces
+├── acp/                     # ACP client, session pool, permissions
+├── ceremonies/              # Planning, execution, review, retro
+├── enforcement/             # Quality gates, drift control, escalation, challenger
+├── git/                     # Worktree, merge, diff analysis
+├── github/                  # Issues, labels, milestones (via gh CLI)
+├── documentation/           # Sprint logs, huddles, velocity
+├── dashboard/               # Web UI server + static files
+│   ├── ws-server.ts         # HTTP + WebSocket + REST API
+│   ├── chat-manager.ts      # ACP chat session management
+│   ├── issue-cache.ts       # In-memory sprint issue cache
+│   └── public/              # HTML, CSS, JS (vanilla, no build step)
+└── tui/                     # Terminal UI (Ink/React)
+
+scripts/
+├── test-setup.sh            # Create test issues and milestones
+├── test-cleanup.sh          # Remove all test artifacts
+└── copilot-notify.sh        # Push notifications via ntfy.sh
+
+docs/
+├── constitution/            # PROCESS.md, PHILOSOPHY.md
+├── architecture/            # ADR.md
+└── sprints/                 # State files, logs, velocity.md
+```
+
+---
+
+## Makefile Targets
+
+```bash
+make help              # Show all targets
+make check             # Lint + types + tests
+make fix               # Auto-fix lint + format
+make test              # Run tests
+make test-quick        # Fast fail
+make coverage          # Tests with coverage
+make build             # Build TypeScript
+make test-setup        # Create test sprint data
+make test-cleanup      # Remove test artifacts
+make test-web          # Run dashboard in test mode
+make notify MSG="Done" # Send push notification
+```
+
+---
 
 ## Philosophy
 
@@ -365,132 +296,7 @@ This project uses TypeScript with ESM modules. Key tooling:
 - **Sprint discipline** over feature chasing
 - **Continuous process improvement** over static workflows
 
-*Inspired by the [Agile Manifesto](https://agilemanifesto.org), adapted for human-AI collaboration.*
-
-<details>
-<summary><strong>How the Agile Manifesto maps to AI-Scrum</strong></summary>
-
-#### Values
-
-| Agile Manifesto (2001) | AI-Scrum (2025) | Why It Changed |
-|------------------------|-----------------|----------------|
-| Individuals and interactions over processes | Autonomous execution over constant approval | The agent *is* the process — it needs clear rails, not watercooler chats |
-| Working software over documentation | Verified evidence over claimed completion | The agent will *say* it works — make it *prove* it works |
-| Customer collaboration over contracts | Clear escalation over open-ended discussion | The human can't be in every loop — define when to interrupt |
-| Responding to change over following a plan | Sprint discipline over feature chasing | The agent *loves* to chase — it needs focus constraints |
-
-#### The 12 Principles
-
-| Agile Principle | AI-Scrum Equivalent |
-|----------------|-------------------|
-| Satisfy customer through early, continuous delivery | Small, tested diffs — one feature per PR |
-| Welcome changing requirements | Welcome scope changes — route through backlog |
-| Deliver working software frequently | Sprint cycles with CI verification |
-| Business people and developers work together daily | Human brings judgment; agent brings throughput |
-| Build around motivated individuals, trust them | The agent is not a junior dev — give it constraints, not motivation |
-| Face-to-face conversation | Huddles documented in two places (issue + sprint log) |
-| Working software is primary measure of progress | Evidence before assertions, always |
-| Sustainable development, constant pace | Velocity is descriptive, not prescriptive |
-| Continuous attention to technical excellence | Quality gates are non-negotiable |
-| Simplicity — maximize work not done | Prefer config over code, existing over new |
-| Best architectures emerge from self-organizing teams | Best architecture emerges from small, tested diffs |
-| Regularly reflect and adjust | Process improvements compound |
-
-</details>
-
 > **Focus, Quality, Incremental, Improve** — in that order.
-
-1. **Protect Focus** — Complete what you start before moving on
-2. **Quality Gates** — Every change is tested, reviewed, and verified
-3. **Small, Testable Diffs** — One feature per PR (~150 lines ideal)
-4. **Continuous Improvement** — Every retro produces actionable improvements
-
-## Process Deep Dive
-
-The development process is defined in [`docs/constitution/PROCESS.md`](docs/constitution/PROCESS.md). Below is additional context, rationale, and learnings for human readers.
-
-<details>
-<summary><strong>Why Each Principle Matters</strong></summary>
-
-#### 1. Protect Focus
-
-- Context switching wastes 15-30min per switch
-- Unfinished work creates technical debt and stale branches
-- Sprint carry-over demoralizes and inflates future estimates
-
-#### 2. Quality Gates
-
-- Merge-before-CI-green creates broken main branches
-- Coverage gates catch untested code paths
-- Strict schema validation catches real configuration bugs
-
-#### 3. Small, Testable Diffs
-
-- Small PRs pass CI faster and are easier to review
-- Bundling module + integration causes carry-over
-- Standalone units are easier to test and reason about
-
-#### 4. Continuous Improvement
-
-- Process improvements compound — each retro makes the next sprint smoother
-- Agent/skill creation eliminates recurring manual work
-- Root cause fixes prevent the same failures from recurring
-
-</details>
-
-<details>
-<summary><strong>Validated Pattern — Standalone-First Development</strong></summary>
-
-The most productive pattern for new modules:
-
-1. Build module as standalone unit (config + function/class)
-2. Write comprehensive tests (15-20 per module)
-3. Merge standalone module
-4. Wire into system in a separate PR with integration tests
-
-</details>
-
-<details>
-<summary><strong>Retro Review Questions</strong></summary>
-
-Ask these at every sprint retrospective:
-
-1. Did we manually do work that an agent should handle?
-2. Did any sub-agent fail or produce wrong output?
-3. Did we repeat a workflow that should be automated?
-4. Did any ceremony take too long or miss important steps?
-5. Were issues stuck with stale status labels?
-
-</details>
-
-<details>
-<summary><strong>Sprint Sizing — Velocity Data</strong></summary>
-
-Based on observed velocity across sprint types:
-
-| Sprint Type | Recommended Size | Velocity |
-|-------------|-----------------|----------|
-| Module-building | 7 issues | ~2.3 issues/hr |
-| Integration work | 5-6 issues | ~1.0-2.0 issues/hr |
-| Research | 7 issues | ~1.4-3.0 issues/hr |
-| Mixed | 7 issues | ~2.0 issues/hr |
-
-This data drives sprint sizing — the agent uses historical velocity to determine how many issues to plan.
-
-</details>
-
-<details>
-<summary><strong>Key Learnings</strong></summary>
-
-Codified learnings from sprint retrospectives:
-
-1. **Standalone-first, wire-later** is the most productive pattern for new modules
-2. **Coverage gates catch real bugs** — don't skip or disable them
-3. **Config-driven changes are faster** than code changes
-4. **Process improvements compound** — each retro makes the next sprint smoother
-5. **Stakeholder corrections are valuable** — listen when scope/framing is corrected
-
-</details>
 
 ## License
 
