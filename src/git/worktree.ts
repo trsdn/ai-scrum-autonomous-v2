@@ -13,12 +13,22 @@ export interface CreateWorktreeOptions {
 
 /**
  * Create a new branch from base and add a worktree at the given path.
+ * If the branch already exists (e.g. from a previous failed run), it is
+ * reset to the base ref so the worktree starts clean.
  */
 export async function createWorktree(
   options: CreateWorktreeOptions,
 ): Promise<void> {
   const { path, branch, base } = options;
   const log = logger.child({ module: "worktree" });
+
+  // Remove stale worktree first (must happen before branch reset)
+  try {
+    await execFile("git", ["worktree", "remove", path, "--force"]);
+    log.debug({ path }, "removed stale worktree");
+  } catch {
+    // No existing worktree at this path — that's fine
+  }
 
   try {
     // Create branch from base
@@ -27,9 +37,12 @@ export async function createWorktree(
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     if (message.includes("already exists")) {
-      throw new Error(`Branch '${branch}' already exists`);
+      // Branch left over from a previous run — reset it to base
+      log.info({ branch, base }, "branch already exists — resetting to base");
+      await execFile("git", ["branch", "-f", branch, base]);
+    } else {
+      throw new Error(`Failed to create branch '${branch}': ${message}`);
     }
-    throw new Error(`Failed to create branch '${branch}': ${message}`);
   }
 
   try {
@@ -38,10 +51,6 @@ export async function createWorktree(
     log.info({ path, branch }, "worktree created");
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
-    if (message.includes("already exists")) {
-      await execFile("git", ["branch", "-D", branch]).catch(() => {});
-      throw new Error(`Worktree path '${path}' already exists`);
-    }
     // Clean up the branch on any failure
     await execFile("git", ["branch", "-D", branch]).catch(() => {});
     throw new Error(`Failed to add worktree at '${path}': ${message}`);
