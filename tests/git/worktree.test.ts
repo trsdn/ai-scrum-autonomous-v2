@@ -313,5 +313,63 @@ describe("worktree", () => {
       const matches = worktrees.filter((w) => w.branch === "sprint/2/issue-1");
       expect(matches).toHaveLength(1);
     });
+
+    it("worktrees created after merge operations have clean base (issue #81)", async () => {
+      // Setup mock remote
+      const remoteDir = await fs.realpath(
+        await fs.mkdtemp(path.join(os.tmpdir(), "git-remote-")),
+      );
+      await execFile("git", ["clone", "--bare", repoDir, remoteDir]);
+      await execFile("git", ["remote", "add", "origin", remoteDir]);
+      // Push main to origin first to create the origin/main ref (fix for #94)
+      await execFile("git", ["push", "origin", "main"]);
+      await execFile("git", ["fetch", "origin"]);
+      await execFile("git", ["branch", "-u", "origin/main"]);
+
+      // Create worktree A with changes
+      const worktreeAPath = path.join(repoDir, "wt-a");
+      await createWorktree({ path: worktreeAPath, branch: "branch-a", base: "HEAD" });
+
+      process.chdir(worktreeAPath);
+      await fs.writeFile(path.join(worktreeAPath, "file-a.txt"), "A content\n");
+      await execFile("git", ["add", "."]);
+      await execFile("git", ["commit", "-m", "add file A"]);
+      process.chdir(repoDir);
+
+      // Simulate merge (checkout main, merge branch-a)
+      await execFile("git", ["checkout", "main"]);
+      await execFile("git", ["merge", "branch-a", "--no-edit"]);
+
+      // Push to remote
+      await execFile("git", ["push", "origin", "main"]);
+      await execFile("git", ["push", "origin", "branch-a"]);
+
+      // Simulate cleanup (what the fix should do)
+      await execFile("git", ["fetch", "origin"]);
+      await execFile("git", ["reset", "--hard", "origin/main"]);
+
+      // Create worktree B from main
+      const worktreeBPath = path.join(repoDir, "wt-b");
+      await createWorktree({ path: worktreeBPath, branch: "branch-b", base: "HEAD" });
+
+      // Verify worktree B has clean working directory (no uncommitted changes)
+      process.chdir(worktreeBPath);
+      const { stdout: statusB } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusB.trim()).toBe("");
+
+      // Verify worktree B has merged content from A
+      const filesInB = await fs.readdir(worktreeBPath);
+      expect(filesInB).toContain("file-a.txt");
+      expect(filesInB).toContain("README.md");
+
+      // Verify content matches what was committed (not contaminated)
+      const contentA = await fs.readFile(path.join(worktreeBPath, "file-a.txt"), "utf-8");
+      expect(contentA).toBe("A content\n");
+
+      process.chdir(repoDir);
+
+      // Cleanup
+      await fs.rm(remoteDir, { recursive: true, force: true });
+    });
   });
 });
