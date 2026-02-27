@@ -30,6 +30,16 @@ export async function createWorktree(
     // No existing worktree at this path — that's fine
   }
 
+  // Defense-in-depth: Sync base branch with remote before creating new branch (issue #81)
+  try {
+    await execFile("git", ["fetch", "origin", base]);
+    log.debug({ base }, "synced base branch with remote");
+  } catch (fetchErr: unknown) {
+    // Fetch failure is not critical (remote may not exist in tests or offline)
+    const fetchMsg = (fetchErr as Error).message ?? "";
+    log.debug({ base, error: fetchMsg }, "could not sync with remote (may be unavailable)");
+  }
+
   try {
     // Create branch from base
     await execFile("git", ["branch", branch, base]);

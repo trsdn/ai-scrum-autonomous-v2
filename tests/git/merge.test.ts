@@ -141,4 +141,120 @@ describe("merge", () => {
       ).rejects.toThrow("Failed to check conflicts");
     });
   });
+
+  describe("branch contamination prevention (issue #81)", () => {
+    it("resets target branch to clean state after merge to prevent contamination", async () => {
+      // Create feature branch with changes
+      await execFile("git", ["checkout", "-b", "feature-1"]);
+      await fs.writeFile(path.join(repoDir, "feature1.txt"), "feature 1 content\n");
+      await execFile("git", ["add", "."]);
+      await execFile("git", ["commit", "-m", "add feature 1"]);
+
+      // Merge feature-1 to main WITH cleanup
+      const result = await mergeBranch("feature-1", "main", { cleanup: true });
+      expect(result.success).toBe(true);
+
+      // Verify we're on main
+      const { stdout: currentBranch } = await execFile("git", ["branch", "--show-current"]);
+      expect(currentBranch.trim()).toBe("main");
+
+      // Verify working directory is clean (no uncommitted changes)
+      const { stdout: statusOutput } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusOutput.trim()).toBe("");
+
+      // Verify new branch from main has no uncommitted contamination
+      await execFile("git", ["checkout", "-b", "feature-2"]);
+      const { stdout: statusOutput2 } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusOutput2.trim()).toBe("");
+
+      // Verify feature-2 has the committed content from feature-1
+      const { stdout: lsFiles } = await execFile("git", ["ls-files"]);
+      expect(lsFiles).toContain("feature1.txt");
+    });
+
+    it("sequential merges do not contaminate subsequent branches", async () => {
+      // Setup mock remote
+      const remoteDir = await fs.realpath(
+        await fs.mkdtemp(path.join(os.tmpdir(), "git-remote-")),
+      );
+      await execFile("git", ["clone", "--bare", repoDir, remoteDir]);
+      await execFile("git", ["remote", "add", "origin", remoteDir]);
+      await execFile("git", ["fetch", "origin"]);
+      await execFile("git", ["branch", "-u", "origin/main", "main"]);
+
+      // Create and merge branch A
+      await execFile("git", ["checkout", "-b", "branch-a"]);
+      await fs.writeFile(path.join(repoDir, "file-a.txt"), "content A\n");
+      await execFile("git", ["add", "."]);
+      await execFile("git", ["commit", "-m", "add file A"]);
+      
+      const resultA = await mergeBranch("branch-a", "main", { cleanup: true });
+      expect(resultA.success).toBe(true);
+
+      // Verify main is on the expected branch
+      const { stdout: currentBranch } = await execFile("git", ["branch", "--show-current"]);
+      expect(currentBranch.trim()).toBe("main");
+
+      // Verify working directory is clean after merge
+      const { stdout: statusAfterA } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusAfterA.trim()).toBe("");
+
+      // Create branch B from main
+      await execFile("git", ["checkout", "-b", "branch-b"]);
+      
+      // Verify branch B does NOT contain uncommitted changes
+      const { stdout: statusB } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusB.trim()).toBe("");
+
+      // Verify branch B has file-a.txt from merged commit
+      const { stdout: lsFilesB } = await execFile("git", ["ls-files"]);
+      expect(lsFilesB).toContain("file-a.txt");
+
+      // Add changes to branch B
+      await fs.writeFile(path.join(repoDir, "file-b.txt"), "content B\n");
+      await execFile("git", ["add", "."]);
+      await execFile("git", ["commit", "-m", "add file B"]);
+
+      const resultB = await mergeBranch("branch-b", "main", { cleanup: true });
+      expect(resultB.success).toBe(true);
+
+      // Verify main working directory is clean
+      const { stdout: statusAfterB } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusAfterB.trim()).toBe("");
+
+      // Create branch C from main
+      await execFile("git", ["checkout", "-b", "branch-c"]);
+
+      // Verify branch C is clean (no uncommitted changes)
+      const { stdout: statusC } = await execFile("git", ["status", "--porcelain"]);
+      expect(statusC.trim()).toBe("");
+
+      // Verify branch C has both merged files
+      const { stdout: lsFilesC } = await execFile("git", ["ls-files"]);
+      expect(lsFilesC).toContain("file-a.txt");
+      expect(lsFilesC).toContain("file-b.txt");
+
+      // Cleanup
+      await fs.rm(remoteDir, { recursive: true, force: true });
+    });
+
+    it("handles cleanup gracefully when remote is unavailable", async () => {
+      // No remote setup - cleanup should not fail
+
+      await execFile("git", ["checkout", "-b", "feature-no-remote"]);
+      await fs.writeFile(path.join(repoDir, "file.txt"), "content\n");
+      await execFile("git", ["add", "."]);
+      await execFile("git", ["commit", "-m", "add file"]);
+
+      // Merge with cleanup enabled but no remote - should succeed gracefully
+      const result = await mergeBranch("feature-no-remote", "main", {
+        cleanup: true,
+      });
+      expect(result.success).toBe(true);
+
+      // Verify we're on main
+      const { stdout: branch } = await execFile("git", ["branch", "--show-current"]);
+      expect(branch.trim()).toBe("main");
+    });
+  });
 });

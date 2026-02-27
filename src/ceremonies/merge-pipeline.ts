@@ -43,6 +43,7 @@ export async function mergeCompletedBranches(
     try {
       const mergeResult = await mergeBranch(branch, baseBranch, {
         squash: config.squashMerge,
+        cleanup: true, // Prevent branch contamination (issue #81)
       });
 
       if (!mergeResult.success) {

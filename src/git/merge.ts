@@ -9,13 +9,21 @@ export interface MergeResult {
   conflictFiles?: string[];
 }
 
+export interface MergeOptions {
+  squash?: boolean;
+  cleanup?: boolean;
+}
+
 /**
  * Merge source branch into target branch with conflict detection.
+ * 
+ * @param cleanup - If true, resets target branch to origin/<target> after merge
+ *                  to prevent branch contamination in subsequent operations
  */
 export async function mergeBranch(
   source: string,
   target: string,
-  options: { squash?: boolean } = {},
+  options: MergeOptions = {},
 ): Promise<MergeResult> {
   const log = logger.child({ module: "merge" });
 
@@ -41,6 +49,23 @@ export async function mergeBranch(
     }
 
     log.info({ source, target, squash: options.squash }, "merge succeeded");
+
+    // Post-merge cleanup to prevent branch contamination (issue #81)
+    // Reset working directory to clean state - ensures subsequent branch
+    // creations from this target don't inherit uncommitted changes
+    if (options.cleanup) {
+      try {
+        await execFile("git", ["reset", "--hard", "HEAD"]);
+        log.debug({ target }, "reset working directory to clean state after merge");
+      } catch (cleanupErr: unknown) {
+        const cleanupMsg = (cleanupErr as Error).message ?? "";
+        log.warn(
+          { target, error: cleanupMsg },
+          "post-merge cleanup failed",
+        );
+      }
+    }
+
     return { success: true };
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
