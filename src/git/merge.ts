@@ -151,12 +151,12 @@ export async function mergeBranch(
       );
 
       // Abort the failed merge
-      await execFile("git", ["merge", "--abort"]).catch(() => {});
+      await execFile("git", ["merge", "--abort"]).catch((err) => log.debug({ err: String(err) }, "merge --abort failed (non-critical)"));
       return { success: false, conflictFiles };
     }
 
     // Abort any partial merge state
-    await execFile("git", ["merge", "--abort"]).catch(() => {});
+    await execFile("git", ["merge", "--abort"]).catch((err) => log.debug({ err: String(err) }, "merge --abort cleanup failed"));
     throw new Error(
       `Failed to merge '${source}' into '${target}': ${message}`,
     );

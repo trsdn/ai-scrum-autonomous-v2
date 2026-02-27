@@ -73,7 +73,7 @@ export async function runParallelExecution(
               result.status = "failed";
               result.qualityGatePassed = false;
               await setLabel(result.issueNumber, "status:blocked");
-              await addComment(result.issueNumber, `**Block reason:** PR merge failed — ${mergeResult.reason ?? "unknown"}`).catch(() => {});
+              await addComment(result.issueNumber, `**Block reason:** PR merge failed — ${mergeResult.reason ?? "unknown"}`).catch((err) => log.warn({ err: String(err), issue: result.issueNumber }, "failed to post block reason comment"));
             } else {
               log.info({ issue: result.issueNumber, branch: result.branch, pr: mergeResult.prNumber }, "PR merged");
             }

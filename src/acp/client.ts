@@ -17,6 +17,16 @@ import {
 
 const PROTOCOL_VERSION = 1;
 const DEFAULT_TIMEOUT_MS = 600_000; // 10 minutes
+const ACP_MAX_RETRIES = 3;
+
+/** Check if an ACP error is transient and worth retrying. */
+function isTransientAcpError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+  // Process exit is NOT transient — the connection is gone
+  if (msg.includes("process exited")) return false;
+  return msg.includes("timeout") || msg.includes("timed out") ||
+         msg.includes("econnreset") || msg.includes("econnrefused");
+}
 
 export interface AcpClientOptions {
   /** Path to the copilot CLI binary. Defaults to "copilot". */
@@ -291,54 +301,73 @@ export class AcpClient {
     const conn = this.requireConnection();
     const timeout = timeoutMs ?? this.defaultTimeoutMs;
 
-    // Reset chunk buffer for this turn
-    this.sessionChunks.set(sessionId, []);
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= ACP_MAX_RETRIES; attempt++) {
+      try {
+        // Reset chunk buffer for this turn
+        this.sessionChunks.set(sessionId, []);
 
-    this.log.info(
-      { sessionId, promptLength: prompt.length },
-      "sending prompt",
-    );
+        this.log.info(
+          { sessionId, promptLength: prompt.length },
+          "sending prompt",
+        );
 
-    const promptPromise = conn.prompt({
-      sessionId,
-      prompt: [{ type: "text", text: prompt }],
-    });
+        const promptPromise = conn.prompt({
+          sessionId,
+          prompt: [{ type: "text", text: prompt }],
+        });
 
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error(`Prompt timed out after ${timeout}ms`));
-      }, timeout);
-      // Allow the process to exit even if the timer is still active
-      if (typeof timer === "object" && "unref" in timer) {
-        timer.unref();
+        const timeoutPromise = new Promise<never>((_resolve, reject) => {
+          const timer = setTimeout(() => {
+            reject(new Error(`Prompt timed out after ${timeout}ms`));
+          }, timeout);
+          // Allow the process to exit even if the timer is still active
+          if (typeof timer === "object" && "unref" in timer) {
+            timer.unref();
+          }
+        });
+
+        // Track this promise so process exit can reject it
+        const tracker = { reject: (_err: Error) => {} };
+        const processExitPromise = new Promise<never>((_resolve, reject) => {
+          tracker.reject = reject;
+        });
+        this.inFlightPromises.add(tracker);
+
+        try {
+          const result = await Promise.race([promptPromise, timeoutPromise, processExitPromise]);
+
+          const chunks = this.sessionChunks.get(sessionId) ?? [];
+          const response = chunks.join("");
+
+          this.log.info(
+            { sessionId, stopReason: result.stopReason, responseLength: response.length },
+            "prompt completed",
+          );
+
+          return {
+            response,
+            stopReason: result.stopReason,
+          };
+        } finally {
+          this.inFlightPromises.delete(tracker);
+        }
+      } catch (err) {
+        lastError = err;
+        if (attempt < ACP_MAX_RETRIES && isTransientAcpError(err)) {
+          const delay = 1000 * Math.pow(2, attempt);
+          this.log.warn(
+            { sessionId, attempt: attempt + 1, maxRetries: ACP_MAX_RETRIES, delay, error: err instanceof Error ? err.message : String(err) },
+            "transient ACP error, retrying",
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+        throw err;
       }
-    });
-
-    // Track this promise so process exit can reject it
-    const tracker = { reject: (_err: Error) => {} };
-    const processExitPromise = new Promise<never>((_resolve, reject) => {
-      tracker.reject = reject;
-    });
-    this.inFlightPromises.add(tracker);
-
-    try {
-      const result = await Promise.race([promptPromise, timeoutPromise, processExitPromise]);
-
-      const chunks = this.sessionChunks.get(sessionId) ?? [];
-      const response = chunks.join("");
-
-      this.log.info(
-        { sessionId, stopReason: result.stopReason, responseLength: response.length },
-        "prompt completed",
-      );
-
-      return {
-        response,
-        stopReason: result.stopReason,
-      };
-    } finally {
-      this.inFlightPromises.delete(tracker);
     }
+    // Should never reach here, but TypeScript needs this
+    throw lastError;
   }
 
   /**

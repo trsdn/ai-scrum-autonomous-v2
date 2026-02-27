@@ -214,6 +214,27 @@ describe("saveState / loadState", () => {
     expect(fs.existsSync(filePath)).toBe(true);
   });
 
+  it("writes atomically via temp file", () => {
+    const state: SprintState = {
+      sprintNumber: 1,
+      phase: "plan",
+      startedAt: new Date(),
+    };
+    const filePath = path.join(tmpDir, "atomic.json");
+    const tmpPath = filePath + ".tmp";
+
+    saveState(state, filePath);
+
+    // Final file exists, .tmp does not linger
+    expect(fs.existsSync(filePath)).toBe(true);
+    expect(fs.existsSync(tmpPath)).toBe(false);
+
+    // Content is valid JSON with version
+    const loaded = loadState(filePath);
+    expect(loaded.phase).toBe("plan");
+    expect(loaded.sprintNumber).toBe(1);
+  });
+
   it("preserves optional fields", () => {
     const state: SprintState = {
       sprintNumber: 1,

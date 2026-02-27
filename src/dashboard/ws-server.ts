@@ -608,7 +608,8 @@ export class DashboardWebServer {
         res.writeHead(200);
         res.end(JSON.stringify([]));
       }
-    }).catch(() => {
+    }).catch((err) => {
+      log.debug({ err: String(err) }, "non-critical dashboard operation failed");
       res.writeHead(200);
       res.end(JSON.stringify([]));
     });

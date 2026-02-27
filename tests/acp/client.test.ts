@@ -336,7 +336,7 @@ describe("AcpClient", () => {
       ).rejects.toThrow("timed out");
 
       await client.disconnect();
-    });
+    }, 30_000);
 
     it("rejects immediately when process exits during sendPrompt", async () => {
       const mockProc = createMockProcess();
@@ -378,6 +378,47 @@ describe("AcpClient", () => {
       await expect(p1).rejects.toThrow("ACP process exited unexpectedly");
       await expect(p2).rejects.toThrow("ACP process exited unexpectedly");
       await expect(p3).rejects.toThrow("ACP process exited unexpectedly");
+    });
+
+    it("retries on transient timeout error", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      // Fail twice with transient error, then succeed
+      mockPrompt
+        .mockRejectedValueOnce(new Error("Prompt timed out after 600000ms"))
+        .mockRejectedValueOnce(new Error("ECONNRESET"))
+        .mockResolvedValueOnce({ stopReason: "end_turn" });
+
+      const client = new AcpClient({ logger: silentLogger });
+      await client.connect();
+      await client.createSession({ cwd: "/tmp" });
+
+      const result = await client.sendPrompt("session-123", "Hello");
+
+      expect(result.stopReason).toBe("end_turn");
+      expect(mockPrompt).toHaveBeenCalledTimes(3);
+
+      await client.disconnect();
+    }, 30_000);
+
+    it("does not retry on non-transient error", async () => {
+      const mockProc = createMockProcess();
+      mockSpawn.mockReturnValue(mockProc);
+
+      mockPrompt.mockRejectedValueOnce(new Error("Invalid session"));
+
+      const client = new AcpClient({ logger: silentLogger });
+      await client.connect();
+      await client.createSession({ cwd: "/tmp" });
+
+      await expect(
+        client.sendPrompt("session-123", "Hello"),
+      ).rejects.toThrow("Invalid session");
+
+      expect(mockPrompt).toHaveBeenCalledTimes(1);
+
+      await client.disconnect();
     });
 
     it("normal sendPrompt still works after fix", async () => {

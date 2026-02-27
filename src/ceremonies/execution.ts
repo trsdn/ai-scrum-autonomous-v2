@@ -416,7 +416,7 @@ export async function executeIssue(
         const blockReason = errorMessage
           ?? qualityResult?.checks.filter((c) => !c.passed).map((c) => `${c.name}: ${c.detail}`).join("; ")
           ?? "Unknown reason";
-        await addComment(issue.number, `**Block reason:** ${blockReason}`).catch(() => {});
+        await addComment(issue.number, `**Block reason:** ${blockReason}`).catch((err) => log.warn({ err: String(err), issue: issue.number }, "failed to post block reason comment"));
       }
       log.info({ status, finalLabel }, "final status set");
     } catch (err: unknown) {
