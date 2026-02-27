@@ -176,7 +176,7 @@
       case "issue:start":
         updateIssueStatus(payload.issue.number, "in-progress");
         const issueLabel = `#${payload.issue.number} ${payload.issue.title}`;
-        const model = payload.model ? `Agent: ${payload.model}` : null;
+        const model = payload.model ? `Worker Agent (${payload.model})` : "Worker Agent";
         addActivity("issue", issueLabel, model, "active");
         break;
 
@@ -204,8 +204,11 @@
       case "sprint:error":
         state.phase = "failed";
         renderHeader();
-        addActivity("sprint", "Sprint error", payload.error, "failed");
-        showNotification("Sprint Error", payload.error, true);
+        const errMsg = typeof payload.error === 'string' && payload.error.length > 200
+          ? payload.error.substring(0, 200) + '…'
+          : payload.error;
+        addActivity("sprint", "Sprint error", errMsg, "failed");
+        showNotification("Sprint Error", errMsg, true);
         break;
 
       case "log":
