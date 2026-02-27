@@ -176,12 +176,14 @@
         state.phase = "complete";
         renderHeader();
         addActivity("sprint", `Sprint ${payload.sprintNumber} complete`, null, "done");
+        showNotification("Sprint Complete", `Sprint ${payload.sprintNumber} finished successfully`);
         break;
 
       case "sprint:error":
         state.phase = "failed";
         renderHeader();
         addActivity("sprint", "Sprint error", payload.error, "failed");
+        showNotification("Sprint Error", payload.error, true);
         break;
 
       case "log":
@@ -467,6 +469,24 @@
     }
   }, 1000);
 
+  // --- Browser notifications ---
+
+  function requestNotificationPermission() {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }
+
+  function showNotification(title, body, isError) {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, {
+        body: body,
+        icon: isError ? "❌" : "✅",
+        tag: "sprint-runner",
+      });
+    }
+  }
+
   // --- Chat functions ---
 
   function handleChatCreated(payload) {
@@ -636,4 +656,5 @@
   });
 
   connect();
+  requestNotificationPermission();
 })();
