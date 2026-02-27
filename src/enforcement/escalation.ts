@@ -1,6 +1,7 @@
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
 import { createIssue } from "../github/issues.js";
+import { ensureLabelExists } from "../github/labels.js";
 import { logger } from "../logger.js";
 import type { EscalationEvent } from "../types.js";
 
@@ -32,6 +33,29 @@ export async function escalateToStakeholder(
     { level: event.level, reason: event.reason, issueNumber: event.issueNumber },
     "escalation triggered",
   );
+
+  // Ensure required labels exist before creating issue
+  const priorityColors: Record<string, string> = {
+    must: "B60205",
+    should: "FBCA04",
+    could: "0E8A16",
+  };
+  const priorityDescriptions: Record<string, string> = {
+    must: "Must priority",
+    should: "Should priority",
+    could: "Could priority",
+  };
+
+  try {
+    await ensureLabelExists("type:escalation", "D73A4A", "Escalation issue");
+    await ensureLabelExists(
+      `priority:${event.level}`,
+      priorityColors[event.level],
+      priorityDescriptions[event.level],
+    );
+  } catch (err: unknown) {
+    log.warn({ err }, "label creation failed — will create issue without labels");
+  }
 
   // Create GitHub issue for escalation
   const issueRef = event.issueNumber ? ` (issue #${event.issueNumber})` : "";

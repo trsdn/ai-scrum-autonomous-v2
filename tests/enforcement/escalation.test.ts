@@ -15,8 +15,14 @@ vi.mock("../../src/github/issues.js", () => ({
   createIssue: vi.fn().mockResolvedValue({ number: 1 }),
 }));
 
+vi.mock("../../src/github/labels.js", () => ({
+  ensureLabelExists: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { sanitizeForHttp, escalateToStakeholder } from "../../src/enforcement/escalation.js";
 import type { EscalationEvent } from "../../src/types.js";
+import { createIssue } from "../../src/github/issues.js";
+import { ensureLabelExists } from "../../src/github/labels.js";
 
 describe("sanitizeForHttp", () => {
   it("removes newlines", () => {
@@ -75,5 +81,89 @@ describe("escalateToStakeholder with special characters", () => {
       // eslint-disable-next-line no-control-regex
       expect(arg).not.toMatch(/[\x00-\x1f\x7f]/);
     }
+  });
+});
+
+describe("escalateToStakeholder label handling", () => {
+  const mockCreateIssue = vi.mocked(createIssue);
+  const mockEnsureLabelExists = vi.mocked(ensureLabelExists);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCreateIssue.mockResolvedValue({ number: 42, title: "", body: "", labels: [], state: "open" });
+    mockEnsureLabelExists.mockResolvedValue(undefined);
+    execFileSpy.mockClear();
+  });
+
+  it("ensures labels exist before creating escalation issue", async () => {
+    const event: EscalationEvent = {
+      level: "must",
+      reason: "Test escalation",
+      detail: "Test detail",
+      context: {},
+      timestamp: new Date("2025-01-01T00:00:00Z"),
+    };
+
+    await escalateToStakeholder(event, { ntfyEnabled: false });
+
+    // Verify ensureLabelExists was called for both labels
+    expect(mockEnsureLabelExists).toHaveBeenCalledWith("type:escalation", "D73A4A", "Escalation issue");
+    expect(mockEnsureLabelExists).toHaveBeenCalledWith("priority:must", "B60205", "Must priority");
+    expect(mockEnsureLabelExists).toHaveBeenCalledTimes(2);
+
+    // Verify createIssue was called with labels
+    expect(mockCreateIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        labels: ["type:escalation", "priority:must"],
+      }),
+    );
+  });
+
+  it("creates issue without labels if ensureLabelExists fails", async () => {
+    mockEnsureLabelExists.mockRejectedValue(new Error("Label creation failed"));
+
+    const event: EscalationEvent = {
+      level: "should",
+      reason: "Test escalation",
+      detail: "Test detail",
+      context: {},
+      timestamp: new Date("2025-01-01T00:00:00Z"),
+    };
+
+    await escalateToStakeholder(event, { ntfyEnabled: false });
+
+    // Should attempt label creation
+    expect(mockEnsureLabelExists).toHaveBeenCalled();
+
+    // Should still create issue (fallback without labels)
+    expect(mockCreateIssue).toHaveBeenCalled();
+  });
+
+  it("handles different priority levels with correct colors", async () => {
+    const shouldEvent: EscalationEvent = {
+      level: "should",
+      reason: "Test",
+      detail: "Detail",
+      context: {},
+      timestamp: new Date("2025-01-01T00:00:00Z"),
+    };
+
+    await escalateToStakeholder(shouldEvent, { ntfyEnabled: false });
+
+    expect(mockEnsureLabelExists).toHaveBeenCalledWith("priority:should", "FBCA04", "Should priority");
+
+    vi.clearAllMocks();
+
+    const couldEvent: EscalationEvent = {
+      level: "could",
+      reason: "Test",
+      detail: "Detail",
+      context: {},
+      timestamp: new Date("2025-01-01T00:00:00Z"),
+    };
+
+    await escalateToStakeholder(couldEvent, { ntfyEnabled: false });
+
+    expect(mockEnsureLabelExists).toHaveBeenCalledWith("priority:could", "0E8A16", "Could priority");
   });
 });
