@@ -46,6 +46,10 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     }
   }
 
+  if (entry.status === "failed" && entry.failureReason) {
+    lines.push("", `**Failure Reason**: ${entry.failureReason}`);
+  }
+
   lines.push(
     "",
     `**Files Changed** (${entry.filesChanged.length}):`,
@@ -78,6 +82,10 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     "**Quality Checks**:",
     checks,
   ];
+
+  if (entry.status === "failed" && entry.failureReason) {
+    lines.push("", `- **Failure Reason**: ${entry.failureReason}`);
+  }
 
   if (entry.cleanupWarning) {
     lines.push("", entry.cleanupWarning);

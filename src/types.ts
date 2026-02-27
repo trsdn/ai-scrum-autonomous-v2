@@ -129,6 +129,7 @@ export interface HuddleEntry {
   filesChanged: string[];
   timestamp: Date;
   cleanupWarning?: string;
+  failureReason?: string;
 }
 
 // --- Ceremonies ---

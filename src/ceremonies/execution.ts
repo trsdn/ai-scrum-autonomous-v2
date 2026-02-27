@@ -156,6 +156,7 @@ export async function executeIssue(
   let retryCount = 0;
   let filesChanged: string[] = [];
   let status: "completed" | "failed" = "failed";
+  let failureReason: string | undefined;
 
   try {
     // Step 3: Resolve session config and create ACP session
@@ -227,6 +228,7 @@ export async function executeIssue(
         log.info("plan posted to issue");
       } catch (err: unknown) {
         log.warn({ err }, "plan mode failed — proceeding with direct execution");
+        failureReason = `Plan mode failed: ${err instanceof Error ? err.message : String(err)}`;
       }
 
       // Step 5: Execution phase — switch to Agent Mode and implement
@@ -335,6 +337,13 @@ export async function executeIssue(
 
     // Final status: passed quality gate AND (no review OR review approved)
     status = qualityResult.passed ? "completed" : "failed";
+  } catch (err: unknown) {
+    // Catch execution failures that occur before quality gates run
+    log.error({ err }, "execution failed before completion");
+    status = "failed";
+    if (!failureReason) {
+      failureReason = `Execution failed: ${err instanceof Error ? err.message : String(err)}`;
+    }
   } finally {
     const duration_ms = Date.now() - startTime;
 
@@ -359,6 +368,7 @@ export async function executeIssue(
       filesChanged,
       timestamp: new Date(),
       cleanupWarning,
+      failureReason,
     };
 
     const comment = formatHuddleComment(huddleEntry);

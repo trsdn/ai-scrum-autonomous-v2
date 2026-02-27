@@ -56,6 +56,22 @@ describe("formatHuddleComment", () => {
     expect(result).toContain("❌ tests: 3 failures");
     expect(result).toContain("✅ lint: No errors");
   });
+
+  it("formats a failed huddle comment with failure reason", () => {
+    const entry = makeEntry({
+      status: "failed",
+      qualityResult: {
+        passed: false,
+        checks: [],
+      },
+      failureReason: "ACP session timed out after 300s",
+    });
+    const result = formatHuddleComment(entry);
+
+    expect(result).toContain("### ❌ Huddle");
+    expect(result).toContain("**Quality**: FAILED");
+    expect(result).toContain("**Failure Reason**: ACP session timed out after 300s");
+  });
 });
 
 describe("formatSprintLogEntry", () => {
@@ -85,5 +101,21 @@ describe("formatSprintLogEntry", () => {
     expect(result).toContain("- **Status**: failed");
     expect(result).toContain("- **Quality**: FAILED");
     expect(result).toContain("❌ types: 5 type errors");
+  });
+
+  it("formats a sprint log entry with failure reason", () => {
+    const entry = makeEntry({
+      status: "failed",
+      qualityResult: {
+        passed: false,
+        checks: [],
+      },
+      failureReason: "Execution failed: Worker produced no output",
+    });
+    const result = formatSprintLogEntry(entry);
+
+    expect(result).toContain("### ❌ #42");
+    expect(result).toContain("- **Status**: failed");
+    expect(result).toContain("- **Failure Reason**: Execution failed: Worker produced no output");
   });
 });
