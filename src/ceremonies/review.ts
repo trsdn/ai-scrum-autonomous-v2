@@ -70,6 +70,10 @@ export async function runSprintReview(
     const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const review = extractJson<ReviewResult>(response.response);
 
+    // Ensure arrays exist (model may omit them)
+    review.demoItems = review.demoItems ?? [];
+    review.openItems = review.openItems ?? [];
+
     log.info(
       { demoItems: review.demoItems.length, openItems: review.openItems.length },
       "Sprint review completed",
