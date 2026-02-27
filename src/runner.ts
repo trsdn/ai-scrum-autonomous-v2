@@ -407,7 +407,7 @@ export class SprintRunner {
         metrics.avgDuration > 0
           ? Math.round((metrics.completed / (metrics.avgDuration * metrics.planned / 3_600_000)) * 100) / 100
           : 0,
-      notes: review.summary,
+      notes: review.summary ?? "",
     });
 
     this.persistState();

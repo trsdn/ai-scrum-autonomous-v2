@@ -67,12 +67,37 @@ export function appendVelocity(
     const dir = path.dirname(filePath);
     fs.mkdirSync(dir, { recursive: true });
 
+    // Ensure notes field doesn't contain stringified undefined
+    const normalizedEntry = {
+      ...entry,
+      notes: entry.notes ?? "",
+    };
+
     if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, HEADER + formatRow(entry) + "\n", "utf-8");
+      fs.writeFileSync(
+        filePath,
+        HEADER + formatRow(normalizedEntry) + "\n",
+        "utf-8",
+      );
       return;
     }
 
-    fs.appendFileSync(filePath, formatRow(entry) + "\n", "utf-8");
+    // Read existing entries to check for duplicates
+    const existingEntries = readVelocity(filePath);
+    const existingIndex = existingEntries.findIndex(
+      (e) => e.sprint === normalizedEntry.sprint,
+    );
+
+    if (existingIndex >= 0) {
+      // Update existing entry (upsert)
+      existingEntries[existingIndex] = normalizedEntry;
+      // Rewrite entire file
+      const content = HEADER + existingEntries.map(formatRow).join("\n") + "\n";
+      fs.writeFileSync(filePath, content, "utf-8");
+    } else {
+      // Append new entry
+      fs.appendFileSync(filePath, formatRow(normalizedEntry) + "\n", "utf-8");
+    }
   } catch (err: unknown) {
     logger.warn({ err, filePath }, "Failed to write velocity data — continuing");
   }
