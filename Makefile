@@ -1,4 +1,4 @@
-.PHONY: help check fix lint format typecheck test test-quick coverage build notify clean install
+.PHONY: help check fix lint format typecheck test test-quick coverage build notify clean install test-setup test-cleanup test-web
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -65,3 +65,14 @@ notify: ## Send notification (MSG="your message")
 clean: ## Remove build artifacts
 	rm -rf dist/
 	rm -rf coverage/ .vitest/
+
+# === Test Sprint Runner ===
+
+test-setup: ## Create test issues and milestones
+	./scripts/test-setup.sh
+
+test-cleanup: ## Remove all test sprint artifacts
+	./scripts/test-cleanup.sh
+
+test-web: ## Run web dashboard in test mode
+	npx tsx src/index.ts web --config sprint-runner.test.yaml
