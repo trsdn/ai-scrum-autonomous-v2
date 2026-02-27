@@ -212,6 +212,7 @@ export interface SprintConfig {
   squashMerge: boolean;
   deleteBranchAfterMerge: boolean;
   sessionTimeoutMs: number;
+  /** @deprecated Use globalInstructions or per-phase instructions instead. */
   customInstructions: string;
   autoApproveTools: boolean;
   allowToolPatterns: string[];
