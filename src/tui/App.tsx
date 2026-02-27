@@ -5,12 +5,11 @@ import type { SprintPhase } from "../runner.js";
 import { Header } from "./Header.js";
 import { IssueList } from "./IssueList.js";
 import type { IssueEntry } from "./IssueList.js";
-import { WorkerPanel } from "./WorkerPanel.js";
+import { ActivityPanel } from "./WorkerPanel.js";
+import type { ActivityItem } from "./WorkerPanel.js";
 import { LogPanel } from "./LogPanel.js";
 import type { LogEntry } from "./LogPanel.js";
 import { CommandBar } from "./CommandBar.js";
-
-const MAX_WORKER_LINES = 20;
 
 export interface AppProps {
   runner: SprintRunner;
@@ -26,30 +25,53 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
   const [sprintNumber, setSprintNumber] = React.useState(initialState.sprintNumber);
   const [startedAt, setStartedAt] = React.useState(initialState.startedAt);
   const [issues, setIssues] = React.useState<IssueEntry[]>(initialIssues ?? []);
-  const [workerLines, setWorkerLines] = React.useState<string[]>([]);
+  const [activities, setActivities] = React.useState<ActivityItem[]>([]);
   const [currentIssue, setCurrentIssue] = React.useState<number | null>(null);
   const [logEntries, setLogEntries] = React.useState<LogEntry[]>([]);
   const [isPaused, setIsPaused] = React.useState(false);
 
   const completedCount = issues.filter((i) => i.status === "done").length;
 
+  // Build activity list from phase transitions and events
+  const addActivity = (label: string, status: ActivityItem["status"], detail?: string) => {
+    setActivities((prev) => {
+      // Mark previous active items as done
+      const updated = prev.map((a) =>
+        a.status === "active" ? { ...a, status: "done" as const } : a,
+      );
+      return [...updated, { label, status, detail }];
+    });
+  };
+
   React.useEffect(() => {
     const bus = runner.events;
 
     bus.onTyped("phase:change", ({ from, to }) => {
       setPhase(to);
-      // Reset state when a new sprint starts (init phase from any terminal state)
       if (to === "init" && (from === "complete" || from === "failed")) {
         setIssues([]);
-        setWorkerLines([]);
+        setActivities([]);
         setCurrentIssue(null);
         setStartedAt(new Date());
+      }
+      // Add activity for each phase
+      if (to !== "init" && to !== "paused") {
+        const labels: Record<string, string> = {
+          refine: "Refining backlog",
+          plan: "Planning sprint",
+          execute: "Executing issues",
+          review: "Sprint review",
+          retro: "Retrospective",
+          complete: "Sprint complete",
+          failed: "Sprint failed",
+        };
+        const status = (to === "complete" || to === "failed") ? "done" as const : "active" as const;
+        addActivity(labels[to] ?? to, status);
       }
     });
 
     bus.onTyped("issue:start", ({ issue }) => {
       setCurrentIssue(issue.number);
-      setWorkerLines([]);
       setIssues((prev) => {
         const exists = prev.some((i) => i.number === issue.number);
         if (exists) {
@@ -59,9 +81,10 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
         }
         return [...prev, { number: issue.number, title: issue.title, status: "in-progress" as const }];
       });
+      addActivity(`#${issue.number} ${issue.title}`, "active", "executing");
     });
 
-    bus.onTyped("issue:done", ({ issueNumber }) => {
+    bus.onTyped("issue:done", ({ issueNumber, duration_ms }) => {
       setIssues((prev) =>
         prev.map((i) =>
           i.number === issueNumber ? { ...i, status: "done" as const } : i,
@@ -70,9 +93,11 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
       if (currentIssue === issueNumber) {
         setCurrentIssue(null);
       }
+      const secs = Math.round(duration_ms / 1000);
+      addActivity(`#${issueNumber} done`, "done", `${secs}s`);
     });
 
-    bus.onTyped("issue:fail", ({ issueNumber }) => {
+    bus.onTyped("issue:fail", ({ issueNumber, reason }) => {
       setIssues((prev) =>
         prev.map((i) =>
           i.number === issueNumber ? { ...i, status: "failed" as const } : i,
@@ -81,10 +106,7 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
       if (currentIssue === issueNumber) {
         setCurrentIssue(null);
       }
-    });
-
-    bus.onTyped("worker:output", ({ text }) => {
-      setWorkerLines((prev) => [...prev, text].slice(-MAX_WORKER_LINES));
+      addActivity(`#${issueNumber} failed`, "done", reason);
     });
 
     bus.onTyped("sprint:paused", () => {
@@ -145,7 +167,6 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
 
   const { stdout } = useStdout();
   const termHeight = stdout?.rows ?? 24;
-  // Reserve: Header (3 lines) + CommandBar (1 line) + LogPanel (~8 lines)
   const logHeight = Math.max(6, Math.floor(termHeight * 0.25));
   const mainHeight = Math.max(4, termHeight - 3 - logHeight - 1);
 
@@ -160,11 +181,10 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
       />
       <Box height={mainHeight}>
         <IssueList issues={issues} />
-        <WorkerPanel
-          lines={workerLines}
+        <ActivityPanel
+          phase={phase}
           currentIssue={currentIssue}
-          model={null}
-          duration={null}
+          activities={activities.slice(-15)}
         />
       </Box>
       <LogPanel entries={logEntries} maxEntries={logHeight - 2} />
