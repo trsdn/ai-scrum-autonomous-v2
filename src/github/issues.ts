@@ -82,7 +82,11 @@ export async function getIssue(number: number): Promise<GitHubIssue> {
     "--json",
     "number,title,body,labels,state",
   ]);
-  return JSON.parse(json) as GitHubIssue;
+  try {
+    return JSON.parse(json) as GitHubIssue;
+  } catch {
+    throw new Error(`Failed to parse issue #${number} response: ${json.slice(0, 200)}`);
+  }
 }
 
 export interface ListIssuesOptions {
@@ -113,7 +117,11 @@ export async function listIssues(
   }
 
   const json = await execGh(args);
-  return JSON.parse(json) as GitHubIssue[];
+  try {
+    return JSON.parse(json) as GitHubIssue[];
+  } catch {
+    throw new Error(`Failed to parse issue list response: ${json.slice(0, 200)}`);
+  }
 }
 
 export interface CreateIssueOptions {

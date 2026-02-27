@@ -14,11 +14,18 @@ export async function diffStat(
 ): Promise<DiffStat> {
   const log = logger.child({ module: "diff-analysis" });
 
-  const { stdout } = await execFile("git", [
-    "diff",
-    "--numstat",
-    `${base}...${branch}`,
-  ]);
+  let stdout: string;
+  try {
+    const result = await execFile("git", [
+      "diff",
+      "--numstat",
+      `${base}...${branch}`,
+    ]);
+    stdout = result.stdout;
+  } catch (err: unknown) {
+    log.warn({ branch, base, err }, "git diff failed — returning empty diff");
+    return { linesChanged: 0, filesChanged: 0, files: [] };
+  }
 
   const files: string[] = [];
   let linesChanged = 0;
@@ -57,11 +64,18 @@ export async function getChangedFiles(
   const log = logger.child({ module: "diff-analysis" });
 
   const rangeSpec = base ? `${base}...${branch}` : branch;
-  const { stdout } = await execFile("git", [
-    "diff",
-    "--name-only",
-    rangeSpec,
-  ]);
+  let stdout: string;
+  try {
+    const result = await execFile("git", [
+      "diff",
+      "--name-only",
+      rangeSpec,
+    ]);
+    stdout = result.stdout;
+  } catch (err: unknown) {
+    log.warn({ branch, base, err }, "git diff failed — returning empty file list");
+    return [];
+  }
 
   const files = stdout
     .trim()
