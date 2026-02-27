@@ -109,6 +109,16 @@ export class SprintRunner {
     return this.client;
   }
 
+  /** Load saved state from disk (if any). Updates the runner's state for dashboard display. */
+  loadSavedState(): SprintState | null {
+    const previous = this.tryLoadPreviousState();
+    if (previous) {
+      this.state = { ...previous };
+      this.log.info({ phase: previous.phase }, "Loaded saved sprint state");
+    }
+    return previous;
+  }
+
   /** Run the full sprint cycle, resuming from a previous crash if state exists. */
   async fullCycle(): Promise<SprintState> {
     try {
