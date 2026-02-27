@@ -8,6 +8,13 @@ import type { IssueEntry } from "./IssueList.js";
 import { ActivityPanel } from "./WorkerPanel.js";
 import type { ActivityItem } from "./WorkerPanel.js";
 import { LogPanel } from "./LogPanel.js";
+
+function formatDuration(secs: number): string {
+  if (secs < 60) return `${secs}s`;
+  const mins = Math.floor(secs / 60);
+  const rem = secs % 60;
+  return `${mins}m${rem.toString().padStart(2, "0")}s`;
+}
 import type { LogEntry } from "./LogPanel.js";
 import { CommandBar } from "./CommandBar.js";
 
@@ -35,12 +42,31 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
   // Build activity list from phase transitions and events
   const addActivity = (label: string, status: ActivityItem["status"], detail?: string) => {
     setActivities((prev) => {
-      // Mark previous active items as done
+      // Mark previous active items as done (except issue-level items during execution)
       const updated = prev.map((a) =>
         a.status === "active" ? { ...a, status: "done" as const } : a,
       );
-      return [...updated, { label, status, detail }];
+      return [...updated, { label, status, detail, startedAt: status === "active" ? Date.now() : undefined }];
     });
+  };
+
+  // Add activity without closing previous active items (for parallel work)
+  const addParallelActivity = (label: string, status: ActivityItem["status"], detail?: string) => {
+    setActivities((prev) => [
+      ...prev,
+      { label, status, detail, startedAt: status === "active" ? Date.now() : undefined },
+    ]);
+  };
+
+  // Update an existing activity's detail (for progress updates)
+  const updateActivity = (issueNumber: number, detail: string) => {
+    setActivities((prev) =>
+      prev.map((a) =>
+        a.label.startsWith(`#${issueNumber} `) && a.status === "active"
+          ? { ...a, detail }
+          : a,
+      ),
+    );
   };
 
   React.useEffect(() => {
@@ -83,7 +109,11 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
         }
         return [...prev, { number: issue.number, title: issue.title, status: "in-progress" as const }];
       });
-      addActivity(`#${issue.number} ${issue.title}`, "active", model ?? "executing");
+      addParallelActivity(`#${issue.number} ${issue.title}`, "active", model ?? "starting");
+    });
+
+    bus.onTyped("issue:progress", ({ issueNumber, step }) => {
+      updateActivity(issueNumber, step);
     });
 
     bus.onTyped("issue:done", ({ issueNumber, duration_ms }) => {
@@ -96,7 +126,14 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
         setCurrentIssue(null);
       }
       const secs = Math.round(duration_ms / 1000);
-      addActivity(`#${issueNumber} done`, "done", `${secs}s`);
+      // Mark the issue's active entry as done
+      setActivities((prev) =>
+        prev.map((a) =>
+          a.label.startsWith(`#${issueNumber} `) && a.status === "active"
+            ? { ...a, status: "done" as const, detail: `completed ${formatDuration(secs)}` }
+            : a,
+        ),
+      );
     });
 
     bus.onTyped("issue:fail", ({ issueNumber, reason }) => {
@@ -108,7 +145,18 @@ export function App({ runner, onStart, initialIssues }: AppProps): React.ReactEl
       if (currentIssue === issueNumber) {
         setCurrentIssue(null);
       }
-      addActivity(`#${issueNumber} failed`, "done", reason);
+      // Mark the issue's active entry as failed
+      setActivities((prev) => {
+        const hasEntry = prev.some((a) => a.label.startsWith(`#${issueNumber} `) && a.status === "active");
+        if (hasEntry) {
+          return prev.map((a) =>
+            a.label.startsWith(`#${issueNumber} `) && a.status === "active"
+              ? { ...a, status: "done" as const, detail: `failed: ${reason}` }
+              : a,
+          );
+        }
+        return [...prev, { label: `#${issueNumber} failed`, status: "done" as const, detail: reason }];
+      });
     });
 
     bus.onTyped("sprint:paused", () => {

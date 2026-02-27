@@ -306,7 +306,7 @@ export class SprintRunner {
       this.events.emitTyped("issue:start", { issue, model: workerModel });
     }
 
-    const result = await runParallelExecution(this.client, this.config, plan);
+    const result = await runParallelExecution(this.client, this.config, plan, this.events);
     this.state.result = result;
 
     // Emit issue:done / issue:fail for each result
