@@ -91,6 +91,12 @@ export class AcpClient {
   // Track in-flight prompt promises so we can reject them if the process exits
   private inFlightPromises = new Set<{ reject: (err: Error) => void }>();
 
+  // Circuit breaker state
+  private consecutiveFailures = 0;
+  private circuitOpenUntil = 0;
+  private static readonly CIRCUIT_FAILURE_THRESHOLD = 3;
+  private static readonly CIRCUIT_RESET_MS = 60_000; // 1 minute
+
   constructor(options: AcpClientOptions = {}) {
     this.log = options.logger ?? defaultLogger.child({ component: "acp-client" });
     this.command = options.command ?? "copilot";
@@ -298,6 +304,8 @@ export class AcpClient {
     prompt: string,
     timeoutMs?: number,
   ): Promise<PromptResult> {
+    this.checkCircuitBreaker();
+
     const conn = this.requireConnection();
     const timeout = timeoutMs ?? this.defaultTimeoutMs;
 
@@ -345,6 +353,8 @@ export class AcpClient {
             "prompt completed",
           );
 
+          this.consecutiveFailures = 0;
+
           return {
             response,
             stopReason: result.stopReason,
@@ -353,6 +363,8 @@ export class AcpClient {
           this.inFlightPromises.delete(tracker);
         }
       } catch (err) {
+        this.consecutiveFailures++;
+        this.circuitOpenUntil = Date.now() + AcpClient.CIRCUIT_RESET_MS;
         lastError = err;
         if (attempt < ACP_MAX_RETRIES && isTransientAcpError(err)) {
           const delay = 1000 * Math.pow(2, attempt);
@@ -433,6 +445,20 @@ export class AcpClient {
       throw new Error("AcpClient is not connected — call connect() first");
     }
     return this.connection;
+  }
+
+  private checkCircuitBreaker(): void {
+    if (
+      this.consecutiveFailures >= AcpClient.CIRCUIT_FAILURE_THRESHOLD &&
+      Date.now() < this.circuitOpenUntil
+    ) {
+      throw new Error(
+        `ACP circuit breaker open — ${this.consecutiveFailures} consecutive failures. Retry after ${new Date(this.circuitOpenUntil).toISOString()}`,
+      );
+    }
+    if (Date.now() >= this.circuitOpenUntil) {
+      this.consecutiveFailures = 0;
+    }
   }
 
   private rejectAllInFlight(err: Error): void {

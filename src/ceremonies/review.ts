@@ -6,7 +6,7 @@ import type { SprintEventBus } from "../tui/events.js";
 import { calculateSprintMetrics, topFailedGates } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
-import { substitutePrompt, extractJson } from "./helpers.js";
+import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
@@ -48,8 +48,8 @@ export async function runSprintReview(
     REPO_NAME: path.basename(config.projectPath),
     SPRINT_NUMBER: String(config.sprintNumber),
     SPRINT_START_SHA: config.baseBranch,
-    SPRINT_ISSUES: JSON.stringify(issuesSummary),
-    VELOCITY_DATA: velocityStr,
+    SPRINT_ISSUES: sanitizePromptInput(JSON.stringify(issuesSummary)),
+    VELOCITY_DATA: sanitizePromptInput(velocityStr),
     BASE_BRANCH: config.baseBranch,
     METRICS: JSON.stringify(metrics),
     FAILED_GATES: failedGates,

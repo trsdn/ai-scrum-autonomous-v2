@@ -5,7 +5,7 @@ import type { SprintConfig, RefinedIssue } from "../types.js";
 import type { SprintEventBus } from "../tui/events.js";
 import { listIssues } from "../github/issues.js";
 import { logger } from "../logger.js";
-import { substitutePrompt, extractJson } from "./helpers.js";
+import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 
@@ -49,7 +49,7 @@ export async function runRefinement(
     REPO_OWNER: "",
     REPO_NAME: path.basename(config.projectPath),
     SPRINT_NUMBER: String(config.sprintNumber),
-    VELOCITY_DATA: velocityStr,
+    VELOCITY_DATA: sanitizePromptInput(velocityStr),
     BASE_BRANCH: config.baseBranch,
   });
 

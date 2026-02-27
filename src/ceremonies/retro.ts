@@ -12,7 +12,7 @@ import { calculateSprintMetrics } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { createIssue } from "../github/issues.js";
 import { logger } from "../logger.js";
-import { substitutePrompt, extractJson } from "./helpers.js";
+import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
@@ -49,11 +49,20 @@ export async function runSprintRetro(
     log.debug("No previous retro file found — using empty context");
   }
 
-  // Read sprint runner config for context
+  // Read sprint runner config for context (filtered to sprint-relevant keys)
   let runnerConfig = "";
   const configPath = path.join(config.projectPath, "sprint-runner.config.yaml");
   try {
-    runnerConfig = await fs.readFile(configPath, "utf-8");
+    const rawConfig = await fs.readFile(configPath, "utf-8");
+    // Filter to sprint-relevant keys only
+    const lines = rawConfig.split("\n");
+    const relevantKeys = ["sprintPrefix", "qualityGate", "maxParallel", "sessionTimeout", "backlogLabels", "maxRetries"];
+    const filteredLines = lines.filter(line => {
+      const trimmed = line.trim();
+      if (trimmed === "" || trimmed.startsWith("#")) return true;
+      return relevantKeys.some(key => trimmed.startsWith(key));
+    });
+    runnerConfig = filteredLines.join("\n");
   } catch {
     log.debug("No sprint runner config found");
   }
@@ -67,9 +76,9 @@ export async function runSprintRetro(
     REPO_OWNER: "",
     REPO_NAME: path.basename(config.projectPath),
     SPRINT_NUMBER: String(config.sprintNumber),
-    SPRINT_REVIEW_DATA: JSON.stringify({ review, metrics }),
+    SPRINT_REVIEW_DATA: sanitizePromptInput(JSON.stringify({ review, metrics })),
     VELOCITY_DATA: velocityStr,
-    PREVIOUS_RETRO_IMPROVEMENTS: previousImprovements,
+    PREVIOUS_RETRO_IMPROVEMENTS: sanitizePromptInput(previousImprovements),
     SPRINT_RUNNER_CONFIG: runnerConfig,
   });
 

@@ -1,5 +1,4 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import { AcpClient } from "./acp/client.js";
 import { resolveSessionConfig } from "./acp/session-config.js";
 import { runRefinement } from "./ceremonies/refinement.js";
@@ -14,6 +13,14 @@ import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
 import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
 import { logger as defaultLogger } from "./logger.js";
+import {
+  STATE_VERSION,
+  saveState,
+  loadState,
+  getStatePath,
+  acquireLock,
+  releaseLock,
+} from "./state-manager.js";
 import { SprintEventBus } from "./tui/events.js";
 import type {
   SprintConfig,
@@ -47,34 +54,8 @@ export interface SprintState {
   error?: string;
 }
 
-const STATE_VERSION = "1";
-
-// --- State persistence ---
-
-export function saveState(state: SprintState, filePath: string): void {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  const tmpPath = filePath + ".tmp";
-  const data = JSON.stringify({ ...state, version: STATE_VERSION }, null, 2);
-  fs.writeFileSync(tmpPath, data, "utf-8");
-  // fsync to ensure data is flushed to disk before rename
-  const fd = fs.openSync(tmpPath, "r");
-  fs.fsyncSync(fd);
-  fs.closeSync(fd);
-  // Atomic rename replaces target file
-  fs.renameSync(tmpPath, filePath);
-}
-
-export function loadState(filePath: string): SprintState {
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const parsed = JSON.parse(raw) as SprintState;
-  if (parsed.version && parsed.version !== STATE_VERSION) {
-    throw new Error(
-      `Incompatible sprint state version: got '${parsed.version}', expected '${STATE_VERSION}'. Delete the state file and restart.`,
-    );
-  }
-  parsed.startedAt = new Date(parsed.startedAt);
-  return parsed;
-}
+// Re-export state persistence for consumers
+export { saveState, loadState };
 
 // --- Sprint Runner ---
 
@@ -129,6 +110,7 @@ export class SprintRunner {
 
   /** Run the full sprint cycle, resuming from a previous crash if state exists. */
   async fullCycle(): Promise<SprintState> {
+    acquireLock(this.config);
     try {
       // Check for previous state to resume from
       const previous = this.tryLoadPreviousState();
@@ -240,6 +222,8 @@ export class SprintRunner {
 
       this.persistState();
       return this.state;
+    } finally {
+      releaseLock(this.config);
     }
   }
 
@@ -481,12 +465,7 @@ export class SprintRunner {
   }
 
   private get stateFilePath(): string {
-    return path.join(
-      this.config.projectPath,
-      "docs",
-      "sprints",
-      `${this.config.sprintSlug}-${this.config.sprintNumber}-state.json`,
-    );
+    return getStatePath(this.config);
   }
 
   private persistState(): void {
