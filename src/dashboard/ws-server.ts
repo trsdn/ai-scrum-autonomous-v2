@@ -12,6 +12,7 @@ import { WebSocketServer, type WebSocket } from "ws";
 import type { SprintEventBus, SprintEngineEvents } from "../tui/events.js";
 import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
+import { ChatManager, type ChatRole } from "./chat-manager.js";
 
 const log = logger.child({ component: "ws-server" });
 
@@ -23,7 +24,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -31,8 +32,11 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "chat:create" | "chat:send" | "chat:close" | "ping";
   sprintNumber?: number;
+  sessionId?: string;
+  role?: string;
+  message?: string;
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -62,12 +66,12 @@ export interface DashboardServerOptions {
 export class DashboardWebServer {
   private server: http.Server | null = null;
   private wss: WebSocketServer | null = null;
+  private chatManager: ChatManager | null = null;
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
 
   constructor(options: DashboardServerOptions) {
     this.options = options;
-    // Resolve public dir relative to compiled JS location
     this.publicDir = path.join(path.dirname(new URL(import.meta.url).pathname), "public");
   }
 
@@ -93,7 +97,7 @@ export class DashboardWebServer {
       ws.on("message", (data) => {
         try {
           const msg = JSON.parse(data.toString()) as ClientMessage;
-          this.handleClientMessage(msg);
+          this.handleClientMessage(msg, ws);
         } catch {
           log.warn("Invalid WebSocket message from client");
         }
@@ -113,6 +117,10 @@ export class DashboardWebServer {
   }
 
   async stop(): Promise<void> {
+    if (this.chatManager) {
+      await this.chatManager.shutdown();
+      this.chatManager = null;
+    }
     if (this.wss) {
       for (const ws of this.wss.clients) {
         ws.close();
@@ -162,7 +170,7 @@ export class DashboardWebServer {
     }
   }
 
-  private handleClientMessage(msg: ClientMessage): void {
+  private handleClientMessage(msg: ClientMessage, ws: WebSocket): void {
     switch (msg.type) {
       case "sprint:start":
         log.info("Dashboard client requested sprint start");
@@ -174,8 +182,85 @@ export class DashboardWebServer {
           this.options.onSwitchSprint?.(msg.sprintNumber);
         }
         break;
+      case "chat:create":
+        this.handleChatCreate(msg.role as ChatRole | undefined, ws);
+        break;
+      case "chat:send":
+        if (msg.sessionId && msg.message) {
+          this.handleChatSend(msg.sessionId, msg.message, ws);
+        }
+        break;
+      case "chat:close":
+        if (msg.sessionId) {
+          this.handleChatClose(msg.sessionId);
+        }
+        break;
       case "ping":
         break;
+    }
+  }
+
+  /** Lazy-initialize chat manager. */
+  private getChatManager(): ChatManager {
+    if (!this.chatManager) {
+      this.chatManager = new ChatManager({
+        projectPath: this.options.projectPath ?? process.cwd(),
+        onStreamChunk: (chatId, text) => {
+          this.broadcast({
+            type: "chat:chunk",
+            payload: { sessionId: chatId, text },
+          });
+        },
+      });
+    }
+    return this.chatManager;
+  }
+
+  private async handleChatCreate(role: ChatRole | undefined, ws: WebSocket): Promise<void> {
+    const validRole = role ?? "general";
+    try {
+      const session = await this.getChatManager().createSession(validRole);
+      this.sendTo(ws, {
+        type: "chat:created",
+        payload: {
+          sessionId: session.id,
+          role: session.role,
+          model: session.model,
+        },
+      });
+      log.info({ chatId: session.id, role: validRole }, "Chat session created via dashboard");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, role: validRole }, "Failed to create chat session");
+      this.sendTo(ws, {
+        type: "chat:error",
+        payload: { error: `Failed to create session: ${msg}` },
+      });
+    }
+  }
+
+  private async handleChatSend(sessionId: string, message: string, ws: WebSocket): Promise<void> {
+    try {
+      const response = await this.getChatManager().sendMessage(sessionId, message);
+      this.sendTo(ws, {
+        type: "chat:done",
+        payload: { sessionId, response },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, sessionId }, "Chat message failed");
+      this.sendTo(ws, {
+        type: "chat:error",
+        payload: { sessionId, error: msg },
+      });
+    }
+  }
+
+  private async handleChatClose(sessionId: string): Promise<void> {
+    try {
+      await this.getChatManager().closeSession(sessionId);
+    } catch (err: unknown) {
+      log.warn({ err, sessionId }, "Failed to close chat session");
     }
   }
 

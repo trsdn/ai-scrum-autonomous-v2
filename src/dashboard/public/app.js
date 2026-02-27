@@ -14,6 +14,12 @@
   let viewingSprintNumber = 0; // The sprint being displayed
   let isViewingActive = true; // Whether we're viewing the active sprint
 
+  // Chat state
+  let chatSessions = []; // { id, role, model }
+  let activeChatId = null;
+  let chatMessages = {}; // chatId -> [{ role, content }]
+  let chatStreaming = {}; // chatId -> current streaming text
+
   // --- DOM refs ---
   const $ = (id) => document.getElementById(id);
   const sprintLabel = $("sprint-label");
@@ -23,12 +29,21 @@
   const btnStart = $("btn-start");
   const btnPrev = $("btn-prev");
   const btnNext = $("btn-next");
+  const btnChat = $("btn-chat");
   const viewingIndicator = $("viewing-indicator");
   const issueList = $("issue-list");
   const activityList = $("activity-list");
   const logPanel = $("log-panel");
   const connStatus = $("connection-status");
   const connLabel = $("connection-label");
+  const chatPanel = $("chat-panel");
+  const chatRole = $("chat-role");
+  const btnNewChat = $("btn-new-chat");
+  const btnCloseChat = $("btn-close-chat");
+  const chatSessionsBar = $("chat-sessions-bar");
+  const chatMessagesEl = $("chat-messages");
+  const chatInput = $("chat-input");
+  const btnSend = $("btn-send");
 
   // --- WebSocket ---
 
@@ -93,6 +108,22 @@
         if (isViewingActive) {
           handleSprintEvent(msg.eventName, msg.payload);
         }
+        break;
+
+      case "chat:created":
+        handleChatCreated(msg.payload);
+        break;
+
+      case "chat:chunk":
+        handleChatChunk(msg.payload);
+        break;
+
+      case "chat:done":
+        handleChatDone(msg.payload);
+        break;
+
+      case "chat:error":
+        handleChatError(msg.payload);
         break;
     }
   }
@@ -436,6 +467,132 @@
     }
   }, 1000);
 
+  // --- Chat functions ---
+
+  function handleChatCreated(payload) {
+    const session = { id: payload.sessionId, role: payload.role, model: payload.model };
+    chatSessions.push(session);
+    chatMessages[session.id] = [];
+    chatStreaming[session.id] = "";
+    activeChatId = session.id;
+    renderChatTabs();
+    renderChatMessages();
+    btnSend.disabled = false;
+    chatInput.focus();
+    addChatSystemMessage(`Session started — ${session.role} agent (${session.model || "default"})`);
+  }
+
+  function handleChatChunk(payload) {
+    const { sessionId, text } = payload;
+    if (!chatStreaming[sessionId]) chatStreaming[sessionId] = "";
+    chatStreaming[sessionId] += text;
+    if (sessionId === activeChatId) {
+      renderChatMessages();
+    }
+  }
+
+  function handleChatDone(payload) {
+    const { sessionId, response } = payload;
+    chatStreaming[sessionId] = "";
+    if (!chatMessages[sessionId]) chatMessages[sessionId] = [];
+    chatMessages[sessionId].push({ role: "assistant", content: response });
+    if (sessionId === activeChatId) {
+      renderChatMessages();
+    }
+    btnSend.disabled = false;
+    chatInput.disabled = false;
+  }
+
+  function handleChatError(payload) {
+    const msg = payload.error || "Unknown error";
+    if (payload.sessionId && payload.sessionId === activeChatId) {
+      addChatSystemMessage(`Error: ${msg}`);
+    } else {
+      addChatSystemMessage(`Error: ${msg}`);
+    }
+    btnSend.disabled = false;
+    chatInput.disabled = false;
+  }
+
+  function addChatSystemMessage(text) {
+    if (!activeChatId) return;
+    if (!chatMessages[activeChatId]) chatMessages[activeChatId] = [];
+    chatMessages[activeChatId].push({ role: "system", content: text });
+    renderChatMessages();
+  }
+
+  function sendChatMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !activeChatId) return;
+
+    chatMessages[activeChatId].push({ role: "user", content: text });
+    chatInput.value = "";
+    btnSend.disabled = true;
+    chatInput.disabled = true;
+    renderChatMessages();
+
+    send({ type: "chat:send", sessionId: activeChatId, message: text });
+  }
+
+  function createChatSession() {
+    const role = chatRole.value;
+    send({ type: "chat:create", role });
+    addLog("info", `Creating ${role} chat session…`);
+  }
+
+  function toggleChatPanel() {
+    const visible = chatPanel.style.display !== "none";
+    chatPanel.style.display = visible ? "none" : "flex";
+    document.querySelector("main").classList.toggle("chat-open", !visible);
+    btnChat.textContent = visible ? "💬 Chat" : "💬 Close";
+    if (!visible && chatSessions.length === 0) {
+      createChatSession();
+    }
+  }
+
+  function renderChatTabs() {
+    chatSessionsBar.innerHTML = "";
+    for (const session of chatSessions) {
+      const tab = document.createElement("button");
+      tab.className = `chat-tab${session.id === activeChatId ? " active" : ""}`;
+      tab.textContent = `${session.role}`;
+      tab.onclick = () => {
+        activeChatId = session.id;
+        renderChatTabs();
+        renderChatMessages();
+      };
+      chatSessionsBar.appendChild(tab);
+    }
+  }
+
+  function renderChatMessages() {
+    chatMessagesEl.innerHTML = "";
+    if (!activeChatId) return;
+
+    const msgs = chatMessages[activeChatId] || [];
+    for (const msg of msgs) {
+      const div = document.createElement("div");
+      if (msg.role === "system") {
+        div.className = "chat-msg chat-msg-system";
+      } else {
+        div.className = `chat-msg chat-msg-${msg.role}`;
+      }
+      div.textContent = msg.content;
+      chatMessagesEl.appendChild(div);
+    }
+
+    // Show streaming text
+    const streaming = chatStreaming[activeChatId];
+    if (streaming) {
+      const div = document.createElement("div");
+      div.className = "chat-msg chat-msg-assistant chat-msg-streaming";
+      div.textContent = streaming;
+      chatMessagesEl.appendChild(div);
+    }
+
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
   // --- Init ---
 
   btnStart.addEventListener("click", () => {
@@ -460,8 +617,22 @@
 
   // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
+    // Don't capture arrow keys when typing in chat
+    if (document.activeElement === chatInput) return;
     if (e.key === "ArrowLeft" && !btnPrev.disabled) btnPrev.click();
     if (e.key === "ArrowRight" && !btnNext.disabled) btnNext.click();
+  });
+
+  // Chat controls
+  btnChat.addEventListener("click", toggleChatPanel);
+  btnNewChat.addEventListener("click", createChatSession);
+  btnCloseChat.addEventListener("click", toggleChatPanel);
+  btnSend.addEventListener("click", sendChatMessage);
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendChatMessage();
+    }
   });
 
   connect();
