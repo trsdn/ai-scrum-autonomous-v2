@@ -105,12 +105,23 @@ export async function runSprintRetro(
     // Create improvement issues for non-auto-applicable items
     for (const improvement of retro.improvements) {
       if (!improvement.autoApplicable) {
+        // Validate fields before creating issue (ACP may return undefined fields)
+        const title = improvement.title;
+        const description = improvement.description;
+        if (!title || typeof title !== "string" || title.trim().length === 0) {
+          log.warn({ improvement }, "Skipping improvement with missing or empty title");
+          continue;
+        }
+        if (!description || typeof description !== "string" || description.trim().length === 0) {
+          log.warn({ title }, "Skipping improvement with missing or empty description");
+          continue;
+        }
         await createIssue({
-          title: `chore(process): ${improvement.title}`,
-          body: improvement.description,
+          title: `chore(process): ${title}`,
+          body: description,
           labels: ["type:chore", "scope:process"],
         });
-        log.info({ title: improvement.title }, "Created improvement issue");
+        log.info({ title }, "Created improvement issue");
       }
     }
 
