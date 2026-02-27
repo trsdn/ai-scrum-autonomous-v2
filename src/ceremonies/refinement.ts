@@ -68,7 +68,9 @@ export async function runRefinement(
     const result = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
     const parsed = extractJson<RefinementResponse>(result.response);
 
-    const refined: RefinedIssue[] = parsed.refined_issues.map((issue) => ({
+    // Ensure refined_issues array exists (model may omit it)
+    const refinedIssues = parsed.refined_issues ?? [];
+    const refined: RefinedIssue[] = refinedIssues.map((issue) => ({
       number: issue.number,
       title: issue.title,
       ice_score: issue.ice_score,

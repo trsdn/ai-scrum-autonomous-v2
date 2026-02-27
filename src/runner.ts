@@ -330,7 +330,7 @@ export class SprintRunner {
       } else {
         this.events.emitTyped("issue:fail", {
           issueNumber: r.issueNumber,
-          reason: r.qualityDetails.checks.filter(c => !c.passed).map(c => c.name).join(", ") || "execution failed",
+          reason: (r.qualityDetails?.checks ?? []).filter(c => !c.passed).map(c => c.name).join(", ") || "execution failed",
           duration_ms: r.duration_ms,
         });
       }

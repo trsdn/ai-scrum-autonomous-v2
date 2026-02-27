@@ -38,12 +38,18 @@ export async function waitForCiGreen(
       "status,conclusion,name",
     ]);
 
-    const checks: Array<{ name: string; status: string; conclusion: string }> =
-      JSON.parse(raw) as Array<{
+    let checks: Array<{ name: string; status: string; conclusion: string }>;
+    try {
+      checks = JSON.parse(raw) as Array<{
         name: string;
         status: string;
         conclusion: string;
       }>;
+    } catch {
+      logger.warn({ branch }, "Failed to parse CI check response, retrying…");
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+      continue;
+    }
 
     if (checks.length === 0) {
       logger.debug({ branch }, "No CI runs found yet, retrying…");
@@ -77,11 +83,16 @@ export async function waitForCiGreen(
     "status,conclusion,name",
   ]);
 
-  const checks = JSON.parse(raw) as Array<{
-    name: string;
-    status: string;
-    conclusion: string;
-  }>;
+  let checks: Array<{ name: string; status: string; conclusion: string }> = [];
+  try {
+    checks = JSON.parse(raw) as Array<{
+      name: string;
+      status: string;
+      conclusion: string;
+    }>;
+  } catch {
+    logger.warn({ branch }, "Failed to parse CI check response on timeout");
+  }
 
   logger.warn({ branch, timeoutMs }, "CI check polling timed out");
   return {

@@ -36,23 +36,27 @@ export function readVelocity(filePath: string = DEFAULT_FILE_PATH): VelocityEntr
   // Skip the header row (separator already filtered by startsWith("| "))
   const dataLines = lines.slice(1);
 
-  return dataLines.map((line) => {
-    const cols = line
-      .split("|")
-      .slice(1, -1)
-      .map((c) => c.trim());
-    return {
-      sprint: Number(cols[0]),
-      date: cols[1] ?? "",
-      goal: cols[2] ?? "",
-      planned: Number(cols[3]),
-      done: Number(cols[4]),
-      carry: Number(cols[5]),
-      hours: Number(cols[6]),
-      issuesPerHr: Number(cols[7]),
-      notes: cols[8] ?? "",
-    };
-  });
+  return dataLines
+    .map((line) => {
+      const cols = line
+        .split("|")
+        .slice(1, -1)
+        .map((c) => c.trim());
+      // Skip malformed rows (separator lines, incomplete data)
+      if (cols.length < 8 || cols[0] === "---" || cols[0] === "") return null;
+      return {
+        sprint: Number(cols[0]),
+        date: cols[1] ?? "",
+        goal: cols[2] ?? "",
+        planned: Number(cols[3]),
+        done: Number(cols[4]),
+        carry: Number(cols[5]),
+        hours: Number(cols[6]),
+        issuesPerHr: Number(cols[7]),
+        notes: cols[8] ?? "",
+      };
+    })
+    .filter((e): e is VelocityEntry => e !== null);
 }
 
 export function appendVelocity(
