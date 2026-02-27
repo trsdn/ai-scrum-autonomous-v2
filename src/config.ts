@@ -8,29 +8,29 @@ import { z } from "zod";
 // --- Zod Schemas ---
 
 const NameValueSchema = z.object({
-  name: z.string(),
-  value: z.string(),
+  name: z.string().min(1),
+  value: z.string().min(1),
 });
 
 const McpServerStdioSchema = z.object({
   type: z.literal("stdio"),
-  name: z.string(),
-  command: z.string(),
+  name: z.string().min(1),
+  command: z.string().min(1),
   args: z.array(z.string()).default([]),
   env: z.array(NameValueSchema).optional(),
 });
 
 const McpServerHttpSchema = z.object({
   type: z.literal("http"),
-  name: z.string(),
-  url: z.string(),
+  name: z.string().min(1),
+  url: z.string().url(),
   headers: z.array(NameValueSchema).optional(),
 });
 
 const McpServerSseSchema = z.object({
   type: z.literal("sse"),
-  name: z.string(),
-  url: z.string(),
+  name: z.string().min(1),
+  url: z.string().url(),
   headers: z.array(NameValueSchema).optional(),
 });
 
@@ -47,12 +47,12 @@ const PhaseConfigSchema = z.object({
 });
 
 const ProjectSchema = z.object({
-  name: z.string(),
-  base_branch: z.string().default("main"),
+  name: z.string().min(1),
+  base_branch: z.string().min(1).default("main"),
 });
 
 const CopilotSchema = z.object({
-  executable: z.string().default("copilot"),
+  executable: z.string().min(1).default("copilot"),
   max_parallel_sessions: z.number().int().min(1).max(20).default(4),
   session_timeout_ms: z.number().int().min(0).default(600000),
   auto_approve_tools: z.boolean().default(true),
@@ -63,7 +63,7 @@ const CopilotSchema = z.object({
 });
 
 const SprintSchema = z.object({
-  prefix: z.string().default("Sprint"),
+  prefix: z.string().min(1).default("Sprint"),
   max_issues: z.number().int().min(1).default(8),
   max_drift_incidents: z.number().int().min(0).default(2),
   max_retries: z.number().int().min(0).default(2),
@@ -95,9 +95,10 @@ const EscalationSchema = z.object({
 });
 
 const GitSchema = z.object({
-  worktree_base: z.string().default("../sprint-worktrees"),
+  worktree_base: z.string().min(1).default("../sprint-worktrees"),
   branch_pattern: z
     .string()
+    .min(1)
     .default("{prefix}/{sprint}/issue-{issue}"),
   auto_merge: z.boolean().default(true),
   squash_merge: z.boolean().default(true),
