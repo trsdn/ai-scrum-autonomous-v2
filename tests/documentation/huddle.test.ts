@@ -20,6 +20,7 @@ function makeEntry(overrides: Partial<HuddleEntry> = {}): HuddleEntry {
     duration_ms: 125_000,
     filesChanged: ["src/login.ts", "tests/login.test.ts"],
     timestamp: new Date("2025-01-15T10:30:00Z"),
+    retryCount: 0,
     ...overrides,
   };
 }
@@ -85,5 +86,15 @@ describe("formatSprintLogEntry", () => {
     expect(result).toContain("- **Status**: failed");
     expect(result).toContain("- **Quality**: FAILED");
     expect(result).toContain("❌ types: 5 type errors");
+  });
+
+  it("includes retry count in sprint log entry", () => {
+    const entryWithRetries = makeEntry({ retryCount: 2 });
+    const resultWithRetries = formatSprintLogEntry(entryWithRetries);
+    expect(resultWithRetries).toContain("- **Retries**: 2");
+
+    const entryNoRetries = makeEntry({ retryCount: 0 });
+    const resultNoRetries = formatSprintLogEntry(entryNoRetries);
+    expect(resultNoRetries).toContain("- **Retries**: 0");
   });
 });

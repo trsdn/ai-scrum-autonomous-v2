@@ -90,6 +90,7 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     `- **Duration**: ${duration}`,
     `- **Quality**: ${qualityStatus}`,
     `- **Files changed**: ${entry.filesChanged.length}`,
+    `- **Retries**: ${entry.retryCount}`,
   ];
 
   if (entry.prStats) {

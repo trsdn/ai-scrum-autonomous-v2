@@ -395,6 +395,7 @@ export async function executeIssue(
       cleanupWarning,
       errorMessage,
       prStats,
+      retryCount,
     };
 
     const comment = formatHuddleComment(huddleEntry);

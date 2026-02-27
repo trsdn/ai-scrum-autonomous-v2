@@ -131,6 +131,7 @@ export interface HuddleEntry {
   cleanupWarning?: string;
   errorMessage?: string;
   prStats?: { prNumber: number; additions: number; deletions: number; changedFiles: number };
+  retryCount: number;
 }
 
 // --- Ceremonies ---
