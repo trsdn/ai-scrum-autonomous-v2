@@ -1,0 +1,480 @@
+{
+  "version": "1",
+  "sprintNumber": 1,
+  "phase": "failed",
+  "startedAt": "2026-02-27T09:23:00.248Z",
+  "plan": {
+    "sprintNumber": 1,
+    "sprint_issues": [
+      {
+        "number": 4,
+        "title": "Remove redundant execGh call in ensureLabelExists",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "medium",
+        "depends_on": []
+      },
+      {
+        "number": 3,
+        "title": "Add CONTRIBUTING.md with development setup guide",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "medium",
+        "depends_on": []
+      },
+      {
+        "number": 2,
+        "title": "Add .editorconfig for consistent formatting",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "medium",
+        "depends_on": []
+      },
+      {
+        "number": 20,
+        "title": "Add JSDoc to exported functions in src/logger.ts",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "none",
+        "depends_on": []
+      },
+      {
+        "number": 21,
+        "title": "Add JSDoc to exported functions in src/metrics.ts",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "none",
+        "depends_on": []
+      },
+      {
+        "number": 25,
+        "title": "Add README badge for test coverage",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "none",
+        "depends_on": []
+      },
+      {
+        "number": 26,
+        "title": "Add return type annotations to src/ceremonies/helpers.ts",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "none",
+        "depends_on": []
+      },
+      {
+        "number": 27,
+        "title": "Add @deprecated JSDoc tag to unused customInstructions field",
+        "effort": 1,
+        "ice_score": 0,
+        "priority": "none",
+        "depends_on": []
+      }
+    ],
+    "execution_groups": [
+      [
+        4,
+        3,
+        2,
+        20,
+        21,
+        25,
+        26,
+        27
+      ]
+    ],
+    "estimated_points": 8,
+    "velocity_capacity": 8,
+    "rationale": "Sprint 1 was already planned by a previous run with 8 independent 1-point tasks. Prioritized medium-priority items (#2, #3, #4) first in sequencing. All issues are independent with no cross-dependencies, so they form a single parallel execution group. No stakeholder-flagged (critical/high) or bug issues exist. Sprint is at capacity — 3 unlabeled issues (#44, #45, #46) deferred to backlog pending grooming. ICE scores are 0 (not assigned by stakeholder)."
+  },
+  "result": {
+    "results": [
+      {
+        "issueNumber": 2,
+        "status": "failed",
+        "qualityGatePassed": false,
+        "qualityDetails": {
+          "passed": false,
+          "checks": []
+        },
+        "branch": "sprint/1/issue-2",
+        "duration_ms": 0,
+        "filesChanged": [],
+        "retryCount": 0,
+        "points": 0
+      },
+      {
+        "issueNumber": 3,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 28 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "118 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": true,
+          "feedback": "APPROVED: Clean documentation-only change with solid validation tests for CONTRIBUTING.md content.\n\n- [suggestion] The diff output shows a `[m` escape character artifact on line 18 of the test file in the diff, but the actual file content is clean — this is just a git diff rendering artifact, no action needed.",
+          "issues": []
+        },
+        "branch": "sprint/1/issue-3",
+        "duration_ms": 291881,
+        "filesChanged": [
+          "CONTRIBUTING.md",
+          "tests/contributing.test.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 4,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 32 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "22 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": true,
+          "feedback": "APPROVED: Clean removal of a redundant `execGh` call that duplicated the label-list query, with correctly updated test expectations.\n\n- [suggestion] The `--search` flag on `gh label list` does substring matching, so the `labels.some((l) => l.name === name)` exact-match check is good and necessary — just noting the logic is sound.",
+          "issues": []
+        },
+        "branch": "sprint/1/issue-4",
+        "duration_ms": 254592,
+        "filesChanged": [
+          "src/github/labels.ts",
+          "tests/github/labels.test.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 20,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 30 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "24 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": true,
+          "feedback": "APPROVED: JSDoc comments accurately document exported interfaces and the `createLogger` function with correct parameter/return descriptions.\n\n- [suggestion] The exported `redirectLogToFile` function (line 40) already has a JSDoc comment but it predates this PR — its `@param` tag is missing. Consider adding `@param filePath` for consistency with the new `createLogger` doc.",
+          "issues": []
+        },
+        "branch": "sprint/1/issue-20",
+        "duration_ms": 290345,
+        "filesChanged": [
+          "src/logger.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 21,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 32 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "24 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": true,
+          "feedback": "APPROVED: JSDoc comments accurately describe all four exported functions with correct parameter/return documentation and no code logic changes.",
+          "issues": []
+        },
+        "branch": "sprint/1/issue-21",
+        "duration_ms": 415862,
+        "filesChanged": [
+          "src/metrics.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 25,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 32 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "31 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": false,
+          "feedback": "CHANGES_REQUESTED: Committed state has TBD placeholders and missing safeguards that will break CI on main.\n\n**Issues found (committed state — note: working tree has partial fixes that are not yet committed):**\n\n- **Bug: `gistID: TBD` in CI workflow** — The `Update Coverage Badge` step uses `gistID: TBD`, which is not a valid gist ID. This will fail the CI pipeline on every push to `main`. Replace with a repository variable reference (the uncommitted working tree change `${{ vars.COVERAGE_GIST_ID }}` is the right fix — commit it).\n\n- **Bug: Missing guard on secrets/vars availability** — The `Update Coverage Badge` step only checks `if: github.ref == 'refs/heads/main'` but doesn't verify `secrets.GIST_SECRET` or the gist ID are configured. On forks or repos without these configured, this step will **fail the entire CI run**. The uncommitted working tree fix (`&& secrets.GIST_SECRET != '' && vars.COVERAGE_GIST_ID != ''`) addresses this — commit it.\n\n- **Regression: Coverage `reporter: [\"json-summary\"]` removes human-readable output** — The committed config sets only `json-summary` as the reporter, removing the default `text` reporter. This means CI logs and local runs of `npm run test:coverage` will produce no human-readable coverage table. Should be `[\"text\", \"json-summary\"]` (as in the uncommitted working tree fix).\n\n- **README badge URL has `TBD`** — `https://gist.githubusercontent.com/trsdn/TBD/raw/coverage-badge.json` will render a broken badge. This should use the actual gist ID once created, or be updated alongside the CI workflow fix.\n\n**Summary:** The uncommitted working tree changes fix 3 of the 4 issues. Commit those changes and replace the `TBD` in the README badge URL with the actual gist ID (or a variable-based approach) before merging.",
+          "issues": [
+            "**Bug: `gistID: TBD` in CI workflow** — The `Update Coverage Badge` step uses `gistID: TBD`, which is not a valid gist ID. This will fail the CI pipeline on every push to `main`. Replace with a repository variable reference (the uncommitted working tree change `${{ vars.COVERAGE_GIST_ID }}` is the right fix — commit it).",
+            "**Bug: Missing guard on secrets/vars availability** — The `Update Coverage Badge` step only checks `if: github.ref == 'refs/heads/main'` but doesn't verify `secrets.GIST_SECRET` or the gist ID are configured. On forks or repos without these configured, this step will **fail the entire CI run**. The uncommitted working tree fix (`&& secrets.GIST_SECRET != '' && vars.COVERAGE_GIST_ID != ''`) addresses this — commit it.",
+            "**Regression: Coverage `reporter: [\"json-summary\"]` removes human-readable output** — The committed config sets only `json-summary` as the reporter, removing the default `text` reporter. This means CI logs and local runs of `npm run test:coverage` will produce no human-readable coverage table. Should be `[\"text\", \"json-summary\"]` (as in the uncommitted working tree fix).",
+            "**README badge URL has `TBD`** — `https://gist.githubusercontent.com/trsdn/TBD/raw/coverage-badge.json` will render a broken badge. This should use the actual gist ID once created, or be updated alongside the CI workflow fix."
+          ]
+        },
+        "branch": "sprint/1/issue-25",
+        "duration_ms": 632192,
+        "filesChanged": [
+          ".github/workflows/ci.yml",
+          "README.md",
+          "vitest.config.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 26,
+        "status": "failed",
+        "qualityGatePassed": false,
+        "qualityDetails": {
+          "passed": false,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 32 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": false,
+              "detail": "3656 lines changed exceeds max 300"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": false,
+          "feedback": "CHANGES_REQUESTED: Branch `sprint/1/issue-26` has zero commits beyond `main` — no work has been implemented yet.\n\n- The branch HEAD (`f738cdb`) is identical to `main`. There are no file changes, no new commits, and no modifications to `src/ceremonies/helpers.ts`. The issue #26 (add return type annotations) has not been started.",
+          "issues": [
+            "The branch HEAD (`f738cdb`) is identical to `main`. There are no file changes, no new commits, and no modifications to `src/ceremonies/helpers.ts`. The issue #26 (add return type annotations) has not been started."
+          ]
+        },
+        "branch": "sprint/1/issue-26",
+        "duration_ms": 285459,
+        "filesChanged": [
+          "eslint.config.js",
+          "package-lock.json",
+          "package.json",
+          "src/ceremonies/execution.ts",
+          "src/ceremonies/parallel-dispatcher.ts",
+          "src/ceremonies/refinement.ts",
+          "src/ceremonies/retro.ts",
+          "src/ceremonies/review.ts",
+          "src/dashboard/chat-manager.ts",
+          "src/dashboard/issue-cache.ts",
+          "src/dashboard/public/app.js",
+          "src/dashboard/public/index.html",
+          "src/dashboard/public/style.css",
+          "src/dashboard/sprint-history.ts",
+          "src/dashboard/tcp-server.ts",
+          "src/dashboard/web-ui.ts",
+          "src/dashboard/ws-server.ts",
+          "src/documentation/velocity.ts",
+          "src/enforcement/ci-cd.ts",
+          "src/git/diff-analysis.ts",
+          "src/git/worktree.ts",
+          "src/github/issues.ts",
+          "src/github/labels.ts",
+          "src/github/milestones.ts",
+          "src/index.ts",
+          "src/runner.ts",
+          "src/tui/App.tsx",
+          "src/tui/WorkerPanel.tsx",
+          "src/tui/events.ts",
+          "tests/ceremonies/planning.test.ts",
+          "tests/dashboard/issue-cache.test.ts",
+          "tests/dashboard/ws-server.test.ts",
+          "tests/documentation/velocity.test.ts",
+          "tests/git/diff-analysis.test.ts",
+          "tests/git/worktree.test.ts"
+        ],
+        "retryCount": 0
+      },
+      {
+        "issueNumber": 27,
+        "status": "completed",
+        "qualityGatePassed": true,
+        "qualityDetails": {
+          "passed": true,
+          "checks": [
+            {
+              "name": "tests-exist",
+              "passed": true,
+              "detail": "Found 32 test file(s)"
+            },
+            {
+              "name": "tests-pass",
+              "passed": true,
+              "detail": "Tests passed"
+            },
+            {
+              "name": "lint-clean",
+              "passed": true,
+              "detail": "Lint clean"
+            },
+            {
+              "name": "types-clean",
+              "passed": true,
+              "detail": "Types clean"
+            },
+            {
+              "name": "diff-size",
+              "passed": true,
+              "detail": "1 lines changed (max 300)"
+            }
+          ]
+        },
+        "codeReview": {
+          "approved": true,
+          "feedback": "APPROVED: Adding `@deprecated` JSDoc tag to `customInstructions` field is a minimal, correct documentation-only change with no runtime impact.\n\n- [suggestion] The field is still referenced in `src/index.ts` — consider logging a deprecation warning at runtime when `customInstructions` is set, to surface the deprecation to users who don't read JSDoc. (Could be a follow-up issue.)",
+          "issues": []
+        },
+        "branch": "sprint/1/issue-27",
+        "duration_ms": 344867,
+        "filesChanged": [
+          "src/types.ts"
+        ],
+        "retryCount": 0
+      }
+    ],
+    "sprint": 1,
+    "parallelizationRatio": 8,
+    "avgWorktreeLifetime": 314399.75,
+    "mergeConflicts": 0
+  },
+  "error": "gh issue create --title 🚨 Escalation [must]: Excessive drift detected --body ## Escalation\n\n**Level:** must\n**Reason:** Excessive drift detected\n**Timestamp:** 2026-02-27T09:42:04.335Z\n\n### Detail\n\n45 unplanned file changes exceed threshold of 2\n\n### Context\n\n```json\n{\n  \"driftReport\": {\n    \"totalFilesChanged\": 45,\n    \"plannedChanges\": 0,\n    \"unplannedChanges\": [\n      \"CONTRIBUTING.md\",\n      \"tests/contributing.test.ts\",\n      \"src/github/labels.ts\",\n      \"tests/github/labels.test.ts\",\n      \"src/logger.ts\",\n      \"src/metrics.ts\",\n      \".github/workflows/ci.yml\",\n      \"README.md\",\n      \"vitest.config.ts\",\n      \"eslint.config.js\",\n      \"package-lock.json\",\n      \"package.json\",\n      \"src/ceremonies/execution.ts\",\n      \"src/ceremonies/parallel-dispatcher.ts\",\n      \"src/ceremonies/refinement.ts\",\n      \"src/ceremonies/retro.ts\",\n      \"src/ceremonies/review.ts\",\n      \"src/dashboard/chat-manager.ts\",\n      \"src/dashboard/issue-cache.ts\",\n      \"src/dashboard/public/app.js\",\n      \"src/dashboard/public/index.html\",\n      \"src/dashboard/public/style.css\",\n      \"src/dashboard/sprint-history.ts\",\n      \"src/dashboard/tcp-server.ts\",\n      \"src/dashboard/web-ui.ts\",\n      \"src/dashboard/ws-server.ts\",\n      \"src/documentation/velocity.ts\",\n      \"src/enforcement/ci-cd.ts\",\n      \"src/git/diff-analysis.ts\",\n      \"src/git/worktree.ts\",\n      \"src/github/issues.ts\",\n      \"src/github/labels.ts\",\n      \"src/github/milestones.ts\",\n      \"src/index.ts\",\n      \"src/runner.ts\",\n      \"src/tui/App.tsx\",\n      \"src/tui/WorkerPanel.tsx\",\n      \"src/tui/events.ts\",\n      \"tests/ceremonies/planning.test.ts\",\n      \"tests/dashboard/issue-cache.test.ts\",\n      \"tests/dashboard/ws-server.test.ts\",\n      \"tests/documentation/velocity.test.ts\",\n      \"tests/git/diff-analysis.test.ts\",\n      \"tests/git/worktree.test.ts\",\n      \"src/types.ts\"\n    ],\n    \"driftPercentage\": 100\n  }\n}\n``` --label type:escalation,priority:must failed: Command failed: gh issue create --title 🚨 Escalation [must]: Excessive drift detected --body ## Escalation\n\n**Level:** must\n**Reason:** Excessive drift detected\n**Timestamp:** 2026-02-27T09:42:04.335Z\n\n### Detail\n\n45 unplanned file changes exceed threshold of 2\n\n### Context\n\n```json\n{\n  \"driftReport\": {\n    \"totalFilesChanged\": 45,\n    \"plannedChanges\": 0,\n    \"unplannedChanges\": [\n      \"CONTRIBUTING.md\",\n      \"tests/contributing.test.ts\",\n      \"src/github/labels.ts\",\n      \"tests/github/labels.test.ts\",\n      \"src/logger.ts\",\n      \"src/metrics.ts\",\n      \".github/workflows/ci.yml\",\n      \"README.md\",\n      \"vitest.config.ts\",\n      \"eslint.config.js\",\n      \"package-lock.json\",\n      \"package.json\",\n      \"src/ceremonies/execution.ts\",\n      \"src/ceremonies/parallel-dispatcher.ts\",\n      \"src/ceremonies/refinement.ts\",\n      \"src/ceremonies/retro.ts\",\n      \"src/ceremonies/review.ts\",\n      \"src/dashboard/chat-manager.ts\",\n      \"src/dashboard/issue-cache.ts\",\n      \"src/dashboard/public/app.js\",\n      \"src/dashboard/public/index.html\",\n      \"src/dashboard/public/style.css\",\n      \"src/dashboard/sprint-history.ts\",\n      \"src/dashboard/tcp-server.ts\",\n      \"src/dashboard/web-ui.ts\",\n      \"src/dashboard/ws-server.ts\",\n      \"src/documentation/velocity.ts\",\n      \"src/enforcement/ci-cd.ts\",\n      \"src/git/diff-analysis.ts\",\n      \"src/git/worktree.ts\",\n      \"src/github/issues.ts\",\n      \"src/github/labels.ts\",\n      \"src/github/milestones.ts\",\n      \"src/index.ts\",\n      \"src/runner.ts\",\n      \"src/tui/App.tsx\",\n      \"src/tui/WorkerPanel.tsx\",\n      \"src/tui/events.ts\",\n      \"tests/ceremonies/planning.test.ts\",\n      \"tests/dashboard/issue-cache.test.ts\",\n      \"tests/dashboard/ws-server.test.ts\",\n      \"tests/documentation/velocity.test.ts\",\n      \"tests/git/diff-analysis.test.ts\",\n      \"tests/git/worktree.test.ts\",\n      \"src/types.ts\"\n    ],\n    \"driftPercentage\": 100\n  }\n}\n``` --label type:escalation,priority:must\ncould not add label: 'type:escalation' not found\n"
+}

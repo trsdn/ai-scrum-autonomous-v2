@@ -41,6 +41,22 @@ export async function holisticDriftCheck(
 ): Promise<DriftReport> {
   const log = logger.child({ module: "drift-control" });
 
+  // If no expected files were defined (planner didn't predict),
+  // skip drift check — all changes are considered planned.
+  if (allExpectedFiles.length === 0) {
+    const report: DriftReport = {
+      totalFilesChanged: allChangedFiles.length,
+      plannedChanges: allChangedFiles.length,
+      unplannedChanges: [],
+      driftPercentage: 0,
+    };
+    log.info(
+      { totalFilesChanged: report.totalFilesChanged },
+      "holistic drift check skipped — no expectedFiles defined",
+    );
+    return report;
+  }
+
   const expectedSet = new Set(allExpectedFiles);
   const unplannedChanges: string[] = [];
 

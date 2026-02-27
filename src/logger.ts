@@ -5,12 +5,26 @@ import * as path from "node:path";
 
 export type { Logger };
 
+/**
+ * Configuration options for creating a pino logger instance.
+ *
+ * @property level - Log severity threshold. Messages below this level are suppressed.
+ * @property name - Logger name included in every log entry.
+ * @property pretty - Enable pino-pretty for human-readable output. Defaults to true in non-production.
+ */
 export interface LoggerOptions {
   level?: "debug" | "info" | "warn" | "error";
   name?: string;
   pretty?: boolean;
 }
 
+/**
+ * Contextual metadata attached to child loggers for sprint-scoped logging.
+ *
+ * @property sprint - Sprint number.
+ * @property issue - Issue number being worked on.
+ * @property ceremony - Active ceremony name (e.g., "planning", "review").
+ */
 export interface SprintContext {
   sprint?: number;
   issue?: number;
@@ -46,6 +60,16 @@ export function redirectLogToFile(filePath: string): void {
   Object.assign(logger, newLogger);
 }
 
+/**
+ * Create a new pino logger with the given options.
+ *
+ * Sensitive fields (password, token, secret, apiKey, authorization) are
+ * automatically redacted. If {@link redirectLogToFile} was called, the
+ * logger writes to the file destination instead of stdout.
+ *
+ * @param options - Logger configuration. Defaults to info level with pretty output in non-production.
+ * @returns A configured pino Logger instance.
+ */
 export function createLogger(options: LoggerOptions = {}): Logger {
   const {
     level = "info",

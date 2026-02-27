@@ -35,29 +35,52 @@ export async function escalateToStakeholder(
 
   // Create GitHub issue for escalation
   const issueRef = event.issueNumber ? ` (issue #${event.issueNumber})` : "";
-  await createIssue({
-    title: `🚨 Escalation [${event.level}]: ${event.reason}`,
-    body: [
-      `## Escalation${issueRef}`,
-      "",
-      `**Level:** ${event.level}`,
-      `**Reason:** ${event.reason}`,
-      `**Timestamp:** ${event.timestamp.toISOString()}`,
-      "",
-      "### Detail",
-      "",
-      event.detail,
-      "",
-      "### Context",
-      "",
-      "```json",
-      JSON.stringify(event.context, null, 2),
-      "```",
-    ].join("\n"),
-    labels: ["type:escalation", `priority:${event.level}`],
-  });
-
-  log.info("escalation issue created");
+  try {
+    await createIssue({
+      title: `🚨 Escalation [${event.level}]: ${event.reason}`,
+      body: [
+        `## Escalation${issueRef}`,
+        "",
+        `**Level:** ${event.level}`,
+        `**Reason:** ${event.reason}`,
+        `**Timestamp:** ${event.timestamp.toISOString()}`,
+        "",
+        "### Detail",
+        "",
+        event.detail,
+        "",
+        "### Context",
+        "",
+        "```json",
+        JSON.stringify(event.context, null, 2),
+        "```",
+      ].join("\n"),
+      labels: ["type:escalation", `priority:${event.level}`],
+    });
+    log.info("escalation issue created");
+  } catch (err: unknown) {
+    // Fall back to creating without labels if label doesn't exist
+    log.warn({ err }, "escalation issue creation failed — retrying without labels");
+    try {
+      await createIssue({
+        title: `🚨 Escalation [${event.level}]: ${event.reason}`,
+        body: [
+          `## Escalation${issueRef}`,
+          "",
+          `**Level:** ${event.level}`,
+          `**Reason:** ${event.reason}`,
+          `**Timestamp:** ${event.timestamp.toISOString()}`,
+          "",
+          "### Detail",
+          "",
+          event.detail,
+        ].join("\n"),
+      });
+      log.info("escalation issue created (without labels)");
+    } catch (retryErr: unknown) {
+      log.error({ err: retryErr }, "escalation issue creation failed completely");
+    }
+  }
 
   // Send ntfy notification if configured
   if (config.ntfyEnabled && config.ntfyTopic) {

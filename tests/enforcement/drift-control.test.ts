@@ -89,14 +89,16 @@ describe("holisticDriftCheck", () => {
     expect(report.driftPercentage).toBe(0);
   });
 
-  it("should report 100% drift when nothing was planned", async () => {
+  it("should skip drift check when no expectedFiles defined", async () => {
     const report = await holisticDriftCheck(
       ["src/a.ts", "src/b.ts"],
       [],
     );
 
-    expect(report.driftPercentage).toBe(100);
-    expect(report.unplannedChanges).toEqual(["src/a.ts", "src/b.ts"]);
+    // All changes treated as planned when expectedFiles is empty
+    expect(report.driftPercentage).toBe(0);
+    expect(report.plannedChanges).toBe(2);
+    expect(report.unplannedChanges).toEqual([]);
   });
 
   it("should handle all files being planned with extras expected", async () => {

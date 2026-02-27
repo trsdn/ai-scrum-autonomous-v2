@@ -42,8 +42,6 @@ export async function ensureLabelExists(
   description?: string,
 ): Promise<void> {
   try {
-    // Check if label exists by listing it
-    await execGh(["label", "list", "--search", name, "--json", "name"]);
     const json = await execGh([
       "label",
       "list",

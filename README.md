@@ -2,6 +2,7 @@
 
 [![Optimized for GitHub Copilot CLI](https://img.shields.io/badge/Optimized%20for-GitHub%20Copilot%20CLI-blue?logo=github)](https://docs.github.com/en/copilot)
 [![Framework Docs](https://img.shields.io/badge/Framework-AI--Scrum-6c63ff)](https://trsdn.github.io/ai-scrum/)
+[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/trsdn/TBD/raw/coverage-badge.json)](https://github.com/trsdn/ai-scrum-autonomous-v2/actions)
 
 A template repository for **autonomous Scrum development** powered by GitHub Copilot CLI. The AI agent acts as both **Product Owner and Scrum Master**, while the human serves as a **Stakeholder** with veto rights.
 
