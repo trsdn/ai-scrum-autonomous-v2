@@ -68,6 +68,7 @@ const config: SprintConfig = {
   maxRetries: 2,
   enableChallenger: true,
   autoRevertDrift: false,
+  backlogLabels: [],
   autoMerge: true,
   squashMerge: true,
   deleteBranchAfterMerge: true,

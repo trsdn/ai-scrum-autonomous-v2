@@ -54,6 +54,7 @@ function buildSprintConfig(config: ConfigFile, sprintNumber: number): SprintConf
     maxRetries: config.sprint.max_retries,
     enableChallenger: config.sprint.enable_challenger,
     autoRevertDrift: config.sprint.auto_revert_drift,
+    backlogLabels: config.sprint.backlog_labels,
     autoMerge: config.git.auto_merge,
     squashMerge: config.git.squash_merge,
     deleteBranchAfterMerge: config.git.delete_branch_after_merge,
