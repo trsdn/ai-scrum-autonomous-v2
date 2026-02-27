@@ -52,12 +52,10 @@ describe("labels", () => {
   });
 
   it("ensureLabelExists creates label when not found", async () => {
-    mockExecGh
-      .mockResolvedValueOnce("[]") // first list call
-      .mockResolvedValueOnce("[]"); // second list call
+    mockExecGh.mockResolvedValueOnce("[]"); // list call
     await ensureLabelExists("new-label");
-    expect(mockExecGh).toHaveBeenCalledTimes(3);
-    expect(mockExecGh).toHaveBeenNthCalledWith(3, [
+    expect(mockExecGh).toHaveBeenCalledTimes(2);
+    expect(mockExecGh).toHaveBeenNthCalledWith(2, [
       "label",
       "create",
       "new-label",
@@ -66,19 +64,15 @@ describe("labels", () => {
   });
 
   it("ensureLabelExists skips creation when label exists", async () => {
-    mockExecGh
-      .mockResolvedValueOnce('[{"name": "bug"}]') // first list call
-      .mockResolvedValueOnce('[{"name": "bug"}]'); // second list call
+    mockExecGh.mockResolvedValueOnce('[{"name": "bug"}]'); // list call
     await ensureLabelExists("bug");
-    expect(mockExecGh).toHaveBeenCalledTimes(2);
+    expect(mockExecGh).toHaveBeenCalledTimes(1);
   });
 
   it("ensureLabelExists passes color and description", async () => {
-    mockExecGh
-      .mockResolvedValueOnce("[]")
-      .mockResolvedValueOnce("[]");
+    mockExecGh.mockResolvedValueOnce("[]"); // list call
     await ensureLabelExists("label", "ff0000", "A label");
-    expect(mockExecGh).toHaveBeenNthCalledWith(3, [
+    expect(mockExecGh).toHaveBeenNthCalledWith(2, [
       "label",
       "create",
       "label",
