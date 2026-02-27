@@ -121,6 +121,71 @@ copilot:
     const file = writeTmpConfig(invalid);
     expect(() => loadConfig(file)).toThrow();
   });
+
+  it("throws on invalid URL for HTTP MCP server", () => {
+    const invalid = `
+project:
+  name: "test"
+copilot:
+  mcp_servers:
+    - type: "http"
+      name: "test"
+      url: "not-a-url"
+`;
+    const file = writeTmpConfig(invalid);
+    expect(() => loadConfig(file)).toThrow();
+  });
+
+  it("throws on invalid URL for SSE MCP server", () => {
+    const invalid = `
+project:
+  name: "test"
+copilot:
+  mcp_servers:
+    - type: "sse"
+      name: "test"
+      url: "invalid"
+`;
+    const file = writeTmpConfig(invalid);
+    expect(() => loadConfig(file)).toThrow();
+  });
+
+  it("throws on empty project name", () => {
+    const invalid = `
+project:
+  name: ""
+`;
+    const file = writeTmpConfig(invalid);
+    expect(() => loadConfig(file)).toThrow();
+  });
+
+  it("throws on empty MCP server name", () => {
+    const invalid = `
+project:
+  name: "test"
+copilot:
+  mcp_servers:
+    - type: "stdio"
+      name: ""
+      command: "npx"
+`;
+    const file = writeTmpConfig(invalid);
+    expect(() => loadConfig(file)).toThrow();
+  });
+
+  it("throws on empty MCP server command", () => {
+    const invalid = `
+project:
+  name: "test"
+copilot:
+  mcp_servers:
+    - type: "stdio"
+      name: "test"
+      command: ""
+`;
+    const file = writeTmpConfig(invalid);
+    expect(() => loadConfig(file)).toThrow();
+  });
 });
 
 describe("substituteEnvVars", () => {
