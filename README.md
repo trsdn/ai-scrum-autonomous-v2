@@ -63,6 +63,19 @@ Test mode uses `sprint-runner.test.yaml` with `prefix: "Test Sprint"` — separa
 
 ---
 
+## Documentation
+
+For a comprehensive overview of the architecture, setup, and development workflow, see:
+
+📖 **[Repository Overview](docs/OVERVIEW.md)** — Complete guide for new developers and stakeholders
+
+Additional resources:
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Development setup, workflow, and code style
+- [docs/constitution/PHILOSOPHY.md](docs/constitution/PHILOSOPHY.md) — Project values and principles
+- [docs/architecture/ADR.md](docs/architecture/ADR.md) — Architectural Decision Records
+
+---
+
 ## CLI Commands
 
 | Command | Description |
