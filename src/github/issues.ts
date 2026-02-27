@@ -130,10 +130,25 @@ export interface CreateIssueOptions {
   labels?: string[];
 }
 
+/** Validate issue title is non-empty and doesn't contain "undefined" */
+function validateIssueTitle(title: string): void {
+  if (title === undefined || title === null) {
+    throw new Error("Issue title cannot be undefined or null");
+  }
+  if (typeof title !== "string" || title.trim() === "") {
+    throw new Error("Issue title cannot be empty");
+  }
+  if (title.toLowerCase().includes("undefined")) {
+    throw new Error(`Issue title contains invalid value: ${title}`);
+  }
+}
+
 /** Create a new issue and return its details. */
 export async function createIssue(
   options: CreateIssueOptions,
 ): Promise<GitHubIssue> {
+  validateIssueTitle(options.title);
+  
   const args = [
     "issue",
     "create",

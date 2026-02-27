@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getIssue, addComment, listIssues, execGh } from "../../src/github/issues.js";
+import { getIssue, addComment, listIssues, execGh, createIssue } from "../../src/github/issues.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -167,5 +167,76 @@ describe("listIssues", () => {
       ],
       expect.any(Function),
     );
+  });
+});
+
+describe("createIssue validation", () => {
+  it("throws when title is undefined", async () => {
+    await expect(
+      createIssue({ title: undefined as any, body: "test" }),
+    ).rejects.toThrow("cannot be undefined or null");
+  });
+
+  it("throws when title is null", async () => {
+    await expect(
+      createIssue({ title: null as any, body: "test" }),
+    ).rejects.toThrow("cannot be undefined or null");
+  });
+
+  it("throws when title is empty string", async () => {
+    await expect(
+      createIssue({ title: "", body: "test" }),
+    ).rejects.toThrow("cannot be empty");
+  });
+
+  it("throws when title is only whitespace", async () => {
+    await expect(
+      createIssue({ title: "   ", body: "test" }),
+    ).rejects.toThrow("cannot be empty");
+  });
+
+  it("throws when title contains 'undefined'", async () => {
+    await expect(
+      createIssue({ title: "chore(process): undefined", body: "test" }),
+    ).rejects.toThrow("contains invalid value");
+  });
+
+  it("throws when title contains 'Undefined' (case insensitive)", async () => {
+    await expect(
+      createIssue({ title: "Fix Undefined bug", body: "test" }),
+    ).rejects.toThrow("contains invalid value");
+  });
+
+  it("succeeds with valid title", async () => {
+    mockExecFileSuccess("https://github.com/owner/repo/issues/1");
+    // Mock the getIssue call that follows createIssue
+    mockExecFile.mockImplementationOnce(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: "https://github.com/owner/repo/issues/1", stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    ).mockImplementationOnce(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { 
+            stdout: JSON.stringify({
+              number: 1,
+              title: "Valid title",
+              body: "Body",
+              labels: [],
+              state: "open",
+            }), 
+            stderr: "" 
+          },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    const result = await createIssue({ title: "Valid title", body: "Body" });
+    expect(result.number).toBe(1);
+    expect(result.title).toBe("Valid title");
   });
 });
