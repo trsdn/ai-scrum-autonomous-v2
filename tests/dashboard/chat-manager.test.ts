@@ -36,6 +36,7 @@ vi.mock("node:fs", async (importOriginal) => {
     ...actual,
     existsSync: vi.fn().mockReturnValue(false),
     readFileSync: vi.fn().mockReturnValue(""),
+    readdirSync: vi.fn().mockReturnValue([]),
   };
 });
 
@@ -92,25 +93,28 @@ describe("ChatManager", () => {
       expect(sendPromptCall[1]).toContain("Respond helpfully and concisely");
     });
 
-    it("includes AGENTS.md content when file exists", async () => {
+    it("loads role context from .aiscrum/roles/ when directory exists", async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readFileSync).mockReturnValue("# Project Agents");
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true } as unknown as fs.Dirent,
+      ]);
+      vi.mocked(fs.readFileSync).mockReturnValue("# Refiner Agent Instructions\nCustom refiner context");
 
-      await manager.createSession("general");
+      await manager.createSession("refiner");
 
       const prompt = vi.mocked(AcpClient.prototype.sendPrompt).mock.calls[0][1] as string;
-      expect(prompt).toContain("Project Context (from AGENTS.md)");
-      expect(prompt).toContain("# Project Agents");
+      expect(prompt).toContain("# Refiner Agent Instructions");
+      expect(prompt).toContain("Custom refiner context");
     });
 
-    it("works when AGENTS.md does not exist", async () => {
+    it("falls back to hardcoded prompts when role folder does not exist", async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
       const session = await manager.createSession("planner");
       expect(session.role).toBe("planner");
 
       const prompt = vi.mocked(AcpClient.prototype.sendPrompt).mock.calls[0][1] as string;
-      expect(prompt).not.toContain("Project Context");
+      expect(prompt).toContain("Planning Agent");
     });
 
     it("reuses the ACP client on second createSession call", async () => {

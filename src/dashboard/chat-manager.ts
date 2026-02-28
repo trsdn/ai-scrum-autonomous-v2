@@ -215,19 +215,41 @@ export class ChatManager {
   }
 
   private buildSystemPrompt(role: ChatRole): string {
-    const rolePrompt = ROLE_PROMPTS[role];
+    // Try to load from .aiscrum/roles/<role>/ — each role is a self-contained context capsule
+    const roleDir = path.join(this.options.projectPath, ".aiscrum", "roles", role);
+    const roleContext = this.loadRoleContext(roleDir);
 
-    // Try to load AGENTS.md for project context
-    let agentsContext = "";
-    try {
-      const agentsPath = path.join(this.options.projectPath, "AGENTS.md");
-      if (fs.existsSync(agentsPath)) {
-        agentsContext = `\n\n## Project Context (from AGENTS.md)\n\n${fs.readFileSync(agentsPath, "utf-8")}`;
-      }
-    } catch {
-      // Non-critical
+    if (roleContext) {
+      return `${roleContext}\n\nYou are in an interactive chat session. Respond helpfully and concisely.`;
     }
 
-    return `${rolePrompt}${agentsContext}\n\nRespond helpfully and concisely. You are in an interactive chat session.`;
+    // Fallback to hardcoded prompts if role folder doesn't exist
+    return `${ROLE_PROMPTS[role]}\n\nRespond helpfully and concisely. You are in an interactive chat session.`;
+  }
+
+  /** Recursively load all .md files from a role directory. */
+  private loadRoleContext(dir: string): string | null {
+    try {
+      if (!fs.existsSync(dir)) return null;
+
+      const parts: string[] = [];
+      const walk = (d: string) => {
+        for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+          const full = path.join(d, entry.name);
+          if (entry.isDirectory()) {
+            walk(full);
+          } else if (entry.name.endsWith(".md")) {
+            parts.push(fs.readFileSync(full, "utf-8"));
+          }
+        }
+      };
+      walk(dir);
+
+      if (parts.length === 0) return null;
+      log.info({ dir, fileCount: parts.length }, "Loaded role context");
+      return parts.join("\n\n---\n\n");
+    } catch {
+      return null;
+    }
   }
 }
