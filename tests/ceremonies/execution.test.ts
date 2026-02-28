@@ -64,6 +64,9 @@ vi.mock("node:fs/promises", () => ({
         if (filePath.includes("item-planner")) {
           return Promise.resolve("Plan for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}");
         }
+        if (filePath.includes("tdd")) {
+          return Promise.resolve("TDD tests for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}\nPlan: {{IMPLEMENTATION_PLAN}}");
+        }
         return Promise.resolve("Worker prompt for issue #{{ISSUE_NUMBER}}");
       }),
   },
@@ -105,6 +108,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     maxDriftIncidents: 2,
     maxRetries: 2,
     enableChallenger: false,
+    enableTdd: false,
     autoRevertDrift: false,
   backlogLabels: [],
     autoMerge: true,
@@ -395,6 +399,50 @@ describe("executeIssue", () => {
         }),
       }),
     );
+  });
+
+  it("runs TDD phase between plan and implement when enableTdd is true", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue(["src/foo.ts"]);
+
+    const config = makeConfig({ enableTdd: true });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, config, makeIssue());
+
+    expect(result.status).toBe("completed");
+
+    // 3 sessions: planner + test-engineer + developer
+    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
+
+    // 3 sendPrompt calls: planner + test-engineer + developer
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
+
+    // Verify the TDD prompt was sent (2nd sendPrompt call)
+    const tddPromptCall = mockClient.sendPrompt.mock.calls[1];
+    expect(tddPromptCall[1]).toContain("TDD tests for issue #42");
+  });
+
+  it("skips TDD phase when enableTdd is false", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue(["src/foo.ts"]);
+
+    const config = makeConfig({ enableTdd: false });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, config, makeIssue());
+
+    expect(result.status).toBe("completed");
+
+    // Only 2 sessions: planner + developer (no test-engineer)
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+
+    // Only 2 sendPrompt calls: planner + developer
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
   });
 });
 

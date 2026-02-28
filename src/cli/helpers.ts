@@ -24,6 +24,7 @@ export function buildSprintConfig(config: ConfigFile, sprintNumber: number): Spr
     maxDriftIncidents: config.sprint.max_drift_incidents,
     maxRetries: config.sprint.max_retries,
     enableChallenger: config.sprint.enable_challenger,
+    enableTdd: config.sprint.enable_tdd,
     autoRevertDrift: config.sprint.auto_revert_drift,
     backlogLabels: config.sprint.backlog_labels,
     autoMerge: config.git.auto_merge,

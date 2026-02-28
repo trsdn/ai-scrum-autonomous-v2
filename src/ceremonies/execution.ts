@@ -114,6 +114,60 @@ async function planPhase(ctx: ExecutionContext): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
+// Sub-phase: TDD — Test-Engineer writes tests before implementation
+// ---------------------------------------------------------------------------
+
+/** Create ACP session for Test-Engineer to write failing tests based on the plan. */
+async function tddPhase(ctx: ExecutionContext, implementationPlan: string): Promise<void> {
+  const { client, config, issue, eventBus, log, worktreePath, progress } = ctx;
+  const testConfig = await resolveSessionConfig(config, "test-engineer");
+  const promptVars: Record<string, string> = {
+    ...buildPromptVars(ctx),
+    IMPLEMENTATION_PLAN: implementationPlan,
+  };
+
+  const { sessionId } = await client.createSession({
+    cwd: worktreePath,
+    mcpServers: testConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "test-engineer",
+    issueNumber: issue.number,
+    model: testConfig.model,
+  });
+
+  try {
+    await client.setMode(sessionId, ACP_MODES.AGENT);
+    if (testConfig.model) {
+      await client.setModel(sessionId, testConfig.model);
+    }
+    log.info("test-engineer session started");
+    progress("writing tests (TDD)");
+
+    const tddTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "test-engineer", "prompts", "tdd.md");
+    const tddTemplate = await fs.readFile(tddTemplatePath, "utf-8");
+    let tddPrompt = substitutePrompt(tddTemplate, promptVars);
+
+    if (testConfig.instructions) {
+      tddPrompt = testConfig.instructions + "\n\n" + tddPrompt;
+    }
+
+    await client.sendPrompt(sessionId, tddPrompt, config.sessionTimeoutMs);
+
+    await addComment(
+      issue.number,
+      `### 🧪 TDD — Tests Written (pre-implementation)\n\nTest-Engineer wrote tests based on the implementation plan. Developer will now implement to make them pass.`,
+    ).catch((err) => log.warn({ err: String(err) }, "failed to post TDD comment"));
+
+    log.info("TDD tests written");
+  } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
+    await client.endSession(sessionId);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Sub-phase: Implement
 // ---------------------------------------------------------------------------
 
@@ -456,6 +510,11 @@ export async function executeIssue(
   try {
     // Step 3: Plan phase (own ACP session as planner)
     const implementationPlan = await planPhase(ctx);
+
+    // Step 3b: TDD phase (optional — test-engineer writes tests before implementation)
+    if (config.enableTdd && implementationPlan) {
+      await tddPhase(ctx, implementationPlan);
+    }
 
     // Step 4: Implement phase (own ACP session as developer)
     try {

@@ -12,6 +12,7 @@ export type CeremonyPhase =
   | "planner"
   | "worker"
   | "reviewer"
+  | "test-engineer"
   | "refinement"
   | "planning"
   | "review"

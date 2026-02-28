@@ -69,6 +69,7 @@ const SprintSchema = z.object({
   max_drift_incidents: z.number().int().min(0).default(2),
   max_retries: z.number().int().min(0).default(2),
   enable_challenger: z.boolean().default(true),
+  enable_tdd: z.boolean().default(false),
   auto_revert_drift: z.boolean().default(false),
   backlog_labels: z.array(z.string()).default([]),
 });

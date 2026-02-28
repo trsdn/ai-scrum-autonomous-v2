@@ -60,6 +60,7 @@ export interface ExecutionLimits {
   maxRetries: number;
   maxDriftIncidents: number;
   enableChallenger: boolean;
+  enableTdd: boolean;
   autoRevertDrift: boolean;
   backlogLabels: string[];
 }
