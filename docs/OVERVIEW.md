@@ -143,8 +143,13 @@ scripts/               Utility and notification scripts
 | Linting | ESLint + Prettier |
 ## Further Reading
 
+- [`docs/architecture/DIAGRAMS.md`](architecture/DIAGRAMS.md) — Mermaid architecture and flow diagrams
+- [`docs/architecture/ADR.md`](architecture/ADR.md) — Architectural Decision Records (ADR-001 through ADR-009)
+- [`docs/API.md`](API.md) — Module-level API reference (all public exports)
+- [`docs/DEPLOYMENT.md`](DEPLOYMENT.md) — Deployment and operations guide
+- [`docs/TROUBLESHOOTING.md`](TROUBLESHOOTING.md) — Failure modes, diagnostics, recovery
+- [`docs/TESTING.md`](TESTING.md) — Test strategy and infrastructure
 - [`docs/constitution/PROCESS.md`](constitution/PROCESS.md) — Development process, DoD, ceremonies
 - [`docs/constitution/PHILOSOPHY.md`](constitution/PHILOSOPHY.md) — Values and principles
-- [`docs/architecture/ADR.md`](architecture/ADR.md) — Architectural Decision Records
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — Contribution guidelines
 - [`CHANGELOG.md`](../CHANGELOG.md) — Release history
