@@ -22,11 +22,25 @@
     <div class="header-right">
       <span id="issue-count" class="issue-count">0/0 done</span>
       <span id="elapsed" class="elapsed">0m 00s</span>
+      <select id="mode-toggle" class="mode-toggle" title="Execution mode">
+        <option value="autonomous">🤖 Autonomous</option>
+        <option value="hitl">👤 Human-in-the-Loop</option>
+      </select>
       <button id="btn-start" class="btn btn-primary" title="Start sprint">▶ Start</button>
+      <button id="btn-pause" class="btn btn-warn" title="Pause sprint" style="display:none">⏸ Pause</button>
+      <button id="btn-resume" class="btn btn-primary" title="Resume sprint" style="display:none">▶ Resume</button>
+      <button id="btn-stop" class="btn btn-danger" title="Stop sprint" style="display:none">⏹ Stop</button>
       <button id="btn-sessions" class="btn" title="View ACP Sessions">🔍 Sessions</button>
       <button id="btn-chat" class="btn" title="Open Agent Chat">💬 Chat</button>
     </div>
   </header>
+
+  <!-- Navigation Tabs -->
+  <nav id="tab-nav" class="tab-nav">
+    <button class="tab-btn tab-active" data-tab="sprint">🏃 Sprint</button>
+    <button class="tab-btn" data-tab="backlog">📋 Backlog</button>
+    <button class="tab-btn" data-tab="ideas">💡 Ideas</button>
+  </nav>
 
   <!-- Phase Stepper -->
   <nav id="phase-stepper" class="phase-stepper">
@@ -45,19 +59,50 @@
 
   <!-- Main content -->
   <main>
-    <!-- Left panel: Issues -->
-    <section id="issues-panel" class="panel">
-      <h2>Issues</h2>
-      <ul id="issue-list"></ul>
-    </section>
+    <!-- Sprint Tab (default) -->
+    <div id="tab-sprint" class="tab-content tab-visible">
+      <!-- Left panel: Issues -->
+      <section id="issues-panel" class="panel">
+        <h2>Issues</h2>
+        <ul id="issue-list"></ul>
+      </section>
 
-    <!-- Right panel: Activity + Log -->
-    <section id="activity-panel" class="panel">
-      <h2>Activity</h2>
-      <ul id="activity-list"></ul>
-      <h2>Log</h2>
-      <div id="log-panel"></div>
-    </section>
+      <!-- Right panel: Activity + Log -->
+      <section id="activity-panel" class="panel">
+        <h2>Activity</h2>
+        <ul id="activity-list"></ul>
+        <h2>Log</h2>
+        <div id="log-panel"></div>
+      </section>
+    </div>
+
+    <!-- Backlog Tab -->
+    <div id="tab-backlog" class="tab-content" style="display:none">
+      <section class="panel panel-full">
+        <div class="backlog-header">
+          <h2>📋 Backlog</h2>
+          <span id="backlog-count" class="badge">0 issues</span>
+          <button id="btn-refresh-backlog" class="btn btn-small">🔄 Refresh</button>
+        </div>
+        <p class="tab-description">Refined issues ready for sprint planning. These have acceptance criteria and are not assigned to a sprint.</p>
+        <ul id="backlog-list" class="backlog-list"></ul>
+        <div id="backlog-empty" class="empty-state" style="display:none">No refined issues in backlog. Refine ideas first.</div>
+      </section>
+    </div>
+
+    <!-- Ideas Tab -->
+    <div id="tab-ideas" class="tab-content" style="display:none">
+      <section class="panel panel-full">
+        <div class="backlog-header">
+          <h2>💡 Ideas</h2>
+          <span id="ideas-count" class="badge">0 ideas</span>
+          <button id="btn-refresh-ideas" class="btn btn-small">🔄 Refresh</button>
+        </div>
+        <p class="tab-description">Raw ideas awaiting refinement. Label issues with <code>type:idea</code> to see them here.</p>
+        <ul id="ideas-list" class="backlog-list"></ul>
+        <div id="ideas-empty" class="empty-state" style="display:none">No ideas found. Create issues with the <code>type:idea</code> label.</div>
+      </section>
+    </div>
 
     <!-- Chat panel (slide-out) -->
     <section id="chat-panel" class="panel chat-panel" style="display:none">

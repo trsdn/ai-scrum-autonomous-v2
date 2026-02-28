@@ -414,7 +414,27 @@ function registerWeb(program: Command): void {
           getState: () => runner.getState(),
           getIssues: () => currentIssues,
           onStart,
+          onPause: () => runner.pause(),
+          onResume: () => runner.resume(),
+          onStop: () => {
+            runner.pause();
+            eventBus.emitTyped("log", { level: "warn", message: "Sprint stopped by user" });
+          },
           onSwitchSprint: switchToSprint,
+          onModeChange: (mode) => {
+            if (mode === "hitl") {
+              eventBus.onTyped("phase:change", () => {
+                try {
+                  const state = runner.getState();
+                  if (state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
+                    runner.pause();
+                    eventBus.emitTyped("log", { level: "info", message: `HITL: Paused at ${state.phase} — review and click Resume to continue` });
+                  }
+                } catch (err) { logger.warn({ err }, "HITL auto-pause failed"); }
+              });
+            }
+            logger.info({ mode }, "execution mode changed");
+          },
           projectPath: process.cwd(),
           activeSprintNumber: initialSprint,
           sprintPrefix: config.sprint.prefix,

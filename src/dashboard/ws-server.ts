@@ -38,11 +38,12 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
   sprintNumber?: number;
   sessionId?: string;
   role?: string;
   message?: string;
+  mode?: string;
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -62,7 +63,11 @@ export interface DashboardServerOptions {
   getState: () => SprintState;
   getIssues: () => IssueEntry[];
   onStart?: () => void;
+  onPause?: () => void;
+  onResume?: () => void;
+  onStop?: () => void;
   onSwitchSprint?: (sprintNumber: number) => void | Promise<void>;
+  onModeChange?: (mode: "autonomous" | "hitl") => void;
   /** Project root for loading sprint state files. */
   projectPath?: string;
   /** Currently active sprint number (the one being executed). */
@@ -394,6 +399,25 @@ export class DashboardWebServer {
             });
         }
         break;
+      case "sprint:pause":
+        log.info("Dashboard client requested sprint pause");
+        this.options.onPause?.();
+        break;
+      case "sprint:resume":
+        log.info("Dashboard client requested sprint resume");
+        this.options.onResume?.();
+        break;
+      case "sprint:stop":
+        log.info("Dashboard client requested sprint stop");
+        this.options.onStop?.();
+        break;
+      case "mode:set":
+        if (msg.mode === "autonomous" || msg.mode === "hitl") {
+          log.info({ mode: msg.mode }, "Dashboard client changed execution mode");
+          this.options.onModeChange?.(msg.mode);
+          this.broadcast({ type: "sprint:event", eventName: "mode:changed", payload: { mode: msg.mode } });
+        }
+        break;
       case "chat:create":
         this.handleChatCreate(msg.role as ChatRole | undefined, ws);
         break;
@@ -627,6 +651,18 @@ export class DashboardWebServer {
       return;
     }
 
+    // /api/backlog — refined issues not in any open sprint milestone
+    if (pathname === "/api/backlog") {
+      this.handleBacklogRequest(res);
+      return;
+    }
+
+    // /api/ideas — type:idea issues awaiting refinement
+    if (pathname === "/api/ideas") {
+      this.handleIdeasRequest(res);
+      return;
+    }
+
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
   }
@@ -674,6 +710,50 @@ export class DashboardWebServer {
       }
     }).catch((err) => {
       log.debug({ err: String(err) }, "non-critical dashboard operation failed");
+      res.writeHead(200);
+      res.end(JSON.stringify([]));
+    });
+  }
+
+  /** Return backlog issues (refined, not assigned to an open sprint). */
+  private handleBacklogRequest(res: http.ServerResponse): void {
+    import("../github/issues.js").then(async ({ listIssues }) => {
+      try {
+        const ghIssues = await listIssues({ state: "open", labels: ["status:refined"] });
+        const backlog = ghIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          labels: i.labels.map((l) => l.name),
+        }));
+        res.writeHead(200);
+        res.end(JSON.stringify(backlog));
+      } catch {
+        res.writeHead(200);
+        res.end(JSON.stringify([]));
+      }
+    }).catch(() => {
+      res.writeHead(200);
+      res.end(JSON.stringify([]));
+    });
+  }
+
+  /** Return idea issues (type:idea, awaiting refinement). */
+  private handleIdeasRequest(res: http.ServerResponse): void {
+    import("../github/issues.js").then(async ({ listIssues }) => {
+      try {
+        const ghIssues = await listIssues({ state: "open", labels: ["type:idea"] });
+        const ideas = ghIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          body: (i.body ?? "").slice(0, 200),
+        }));
+        res.writeHead(200);
+        res.end(JSON.stringify(ideas));
+      } catch {
+        res.writeHead(200);
+        res.end(JSON.stringify([]));
+      }
+    }).catch(() => {
       res.writeHead(200);
       res.end(JSON.stringify([]));
     });
