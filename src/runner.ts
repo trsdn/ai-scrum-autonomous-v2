@@ -12,6 +12,7 @@ import { calculateSprintMetrics } from "./metrics.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
 import { getIssue } from "./github/issues.js";
+import type { IssueCreationState } from "./github/issue-rate-limiter.js";
 import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
 import { logger as defaultLogger } from "./logger.js";
 import {
@@ -52,6 +53,7 @@ export interface SprintState {
   review?: ReviewResult;
   retro?: RetroResult;
   startedAt: Date;
+  issuesCreatedCount?: number;
   error?: string;
 }
 
@@ -87,6 +89,7 @@ export class SprintRunner {
       sprintNumber: config.sprintNumber,
       phase: "init",
       startedAt: new Date(),
+      issuesCreatedCount: 0,
     };
     this.log = defaultLogger.child({
       component: "sprint-runner",
@@ -103,7 +106,7 @@ export class SprintRunner {
   loadSavedState(): SprintState | null {
     const previous = this.tryLoadPreviousState();
     if (previous) {
-      this.state = { ...previous };
+      this.state = { ...previous, issuesCreatedCount: previous.issuesCreatedCount ?? 0 };
       this.log.info({ phase: previous.phase }, "Loaded saved sprint state");
     }
     return previous;
@@ -118,7 +121,7 @@ export class SprintRunner {
       const resuming = previous && previous.phase !== "complete" && previous.plan;
 
       if (resuming && previous.plan) {
-        this.state = { ...previous, error: undefined };
+        this.state = { ...previous, error: undefined, issuesCreatedCount: previous.issuesCreatedCount ?? 0 };
         this.log.info({ resumeFrom: previous.phase }, "Resuming sprint from previous state");
         this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber, resumed: true });
         this.events.emitTyped("log", { level: "info", message: `Resuming Sprint ${this.config.sprintNumber} from ${previous.phase} phase` });
@@ -327,7 +330,12 @@ export class SprintRunner {
       this.events.emitTyped("issue:start", { issue, model: workerModel });
     }
 
-    const result = await runParallelExecution(this.client, this.config, plan, this.events);
+    const result = await runParallelExecution(
+      this.client,
+      this.config,
+      plan,
+      this.events,
+    );
     this.state.result = result;
 
     // Emit issue:done / issue:fail for each result
@@ -376,8 +384,12 @@ export class SprintRunner {
           context: { driftReport },
           timestamp: new Date(),
         },
-        { ntfyEnabled: false },
+        {
+          ntfyEnabled: false,
+          maxIssuesCreatedPerSprint: this.config.maxIssuesCreatedPerSprint,
+        },
         this.events,
+        this.state as IssueCreationState,
       );
       this.pause();
     }
@@ -424,7 +436,14 @@ export class SprintRunner {
   /** Run the retrospective phase */
   async runRetro(result: SprintResult, review: ReviewResult): Promise<RetroResult> {
     this.log.info("Running sprint retro");
-    const retro = await runSprintRetro(this.client, this.config, result, review, this.events);
+    const retro = await runSprintRetro(
+      this.client,
+      this.config,
+      result,
+      review,
+      this.events,
+      this.state as IssueCreationState,
+    );
     this.state.retro = retro;
     this.persistState();
     this.log.info(

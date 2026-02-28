@@ -65,6 +65,7 @@ const CopilotSchema = z.object({
 const SprintSchema = z.object({
   prefix: z.string().min(1).default("Sprint"),
   max_issues: z.number().int().min(1).default(8),
+  max_issues_created_per_sprint: z.number().int().min(1).default(10),
   max_drift_incidents: z.number().int().min(0).default(2),
   max_retries: z.number().int().min(0).default(2),
   enable_challenger: z.boolean().default(true),

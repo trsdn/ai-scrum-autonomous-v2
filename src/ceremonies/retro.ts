@@ -10,7 +10,7 @@ import type {
 import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
-import { createIssue } from "../github/issues.js";
+import { createIssueRateLimited, type IssueCreationState } from "../github/issue-rate-limiter.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
@@ -25,6 +25,7 @@ export async function runSprintRetro(
   result: SprintResult,
   review: ReviewResult,
   eventBus?: SprintEventBus,
+  state: IssueCreationState = { issuesCreatedCount: 0 },
 ): Promise<RetroResult> {
   const log = logger.child({ ceremony: "retro" });
 
@@ -128,12 +129,20 @@ export async function runSprintRetro(
           log.warn({ title }, "Skipping improvement with missing or empty description");
           continue;
         }
-        await createIssue({
-          title: `chore(process): ${title}`,
-          body: description,
-          labels: ["type:chore", "scope:process"],
-        });
-        log.info({ title }, "Created improvement issue");
+        const issue = await createIssueRateLimited(
+          {
+            title: `chore(process): ${title}`,
+            body: description,
+            labels: ["type:chore", "scope:process"],
+          },
+          state,
+          config.maxIssuesCreatedPerSprint ?? 10,
+        );
+        if (issue) {
+          log.info({ title, number: issue.number }, "Created improvement issue");
+        } else {
+          log.warn({ title }, "Skipped improvement issue due to rate limit");
+        }
       }
     }
 
