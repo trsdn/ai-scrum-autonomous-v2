@@ -61,10 +61,15 @@
   const btnStopSession = $("btn-stop-session");
   const sessionMessageInput = $("session-message-input");
   const btnSendSession = $("btn-send-session");
+  const btnPause = $("btn-pause");
+  const btnResume = $("btn-resume");
+  const btnStop = $("btn-stop");
+  const modeToggle = $("mode-toggle");
 
   // Session viewer state
   let acpSessions = [];
   let viewingSessionId = null;
+  let executionMode = "autonomous"; // "autonomous" | "hitl"
 
   // --- WebSocket ---
 
@@ -331,11 +336,25 @@
       }
     }
 
-    // Toggle start button — only on active sprint
-    const running = state.phase !== "init" && state.phase !== "complete" && state.phase !== "failed";
-    btnStart.disabled = running || !isViewingActive;
-    btnStart.textContent = running ? "⏳ Running" : "▶ Start";
+    // Toggle sprint control buttons based on phase
+    const running = state.phase !== "init" && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "paused";
+    const paused = state.phase === "paused";
+    const idle = state.phase === "init" || state.phase === "complete" || state.phase === "failed";
+
+    // Start button: only when idle and viewing active sprint
+    btnStart.style.display = idle ? "" : "none";
+    btnStart.disabled = !isViewingActive;
     if (!isViewingActive) btnStart.textContent = "▶ Start (switch to active)";
+    else btnStart.textContent = "▶ Start";
+
+    // Pause button: only when running
+    btnPause.style.display = (running && isViewingActive) ? "" : "none";
+
+    // Resume button: only when paused
+    btnResume.style.display = (paused && isViewingActive) ? "" : "none";
+
+    // Stop button: when running or paused
+    btnStop.style.display = ((running || paused) && isViewingActive) ? "" : "none";
 
     // Update phase stepper
     updatePhaseStepper(state.phase);
@@ -822,6 +841,124 @@
     btnStart.disabled = true;
     btnStart.textContent = "⏳ Starting…";
   });
+
+  btnPause.addEventListener("click", () => {
+    send({ type: "sprint:pause" });
+    addLog("info", "Pause requested…");
+  });
+
+  btnResume.addEventListener("click", () => {
+    send({ type: "sprint:resume" });
+    addLog("info", "Resuming sprint…");
+  });
+
+  btnStop.addEventListener("click", () => {
+    if (!confirm("Stop this sprint? Execution will be halted.")) return;
+    send({ type: "sprint:stop" });
+    addLog("warn", "Sprint stop requested");
+  });
+
+  modeToggle.addEventListener("change", () => {
+    executionMode = modeToggle.value;
+    send({ type: "mode:set", mode: executionMode });
+    addLog("info", `Switched to ${executionMode === "hitl" ? "Human-in-the-Loop" : "Autonomous"} mode`);
+  });
+
+  // --- Tab Navigation ---
+
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("tab-active"));
+      btn.classList.add("tab-active");
+      document.querySelectorAll(".tab-content").forEach((c) => {
+        c.style.display = "none";
+        c.classList.remove("tab-visible");
+      });
+      const target = $("tab-" + tab);
+      if (target) {
+        target.style.display = "";
+        target.classList.add("tab-visible");
+      }
+      if (tab === "backlog") loadBacklog();
+      if (tab === "ideas") loadIdeas();
+    });
+  });
+
+  // --- Backlog & Ideas ---
+
+  async function loadBacklog() {
+    try {
+      const res = await fetch("/api/backlog");
+      if (!res.ok) return;
+      const items = await res.json();
+      const list = $("backlog-list");
+      const empty = $("backlog-empty");
+      const count = $("backlog-count");
+      list.innerHTML = "";
+      count.textContent = `${items.length} issue${items.length !== 1 ? "s" : ""}`;
+      if (items.length === 0) {
+        empty.style.display = "";
+        return;
+      }
+      empty.style.display = "none";
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.className = "backlog-item";
+        const issueLink = repoUrl
+          ? `<a href="${repoUrl}/issues/${item.number}" target="_blank" rel="noopener" class="gh-link">#${item.number}</a>`
+          : `#${item.number}`;
+        const labels = (item.labels || [])
+          .filter((l) => l !== "status:refined")
+          .map((l) => `<span class="label-tag">${escapeHtml(l)}</span>`)
+          .join("");
+        li.innerHTML = `
+          <span class="backlog-number">${issueLink}</span>
+          <span class="backlog-title">${escapeHtml(item.title)}</span>
+          <span class="backlog-labels">${labels}</span>
+        `;
+        list.appendChild(li);
+      }
+    } catch {
+      addLog("error", "Failed to load backlog");
+    }
+  }
+
+  async function loadIdeas() {
+    try {
+      const res = await fetch("/api/ideas");
+      if (!res.ok) return;
+      const items = await res.json();
+      const list = $("ideas-list");
+      const empty = $("ideas-empty");
+      const count = $("ideas-count");
+      list.innerHTML = "";
+      count.textContent = `${items.length} idea${items.length !== 1 ? "s" : ""}`;
+      if (items.length === 0) {
+        empty.style.display = "";
+        return;
+      }
+      empty.style.display = "none";
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.className = "backlog-item idea-item";
+        const issueLink = repoUrl
+          ? `<a href="${repoUrl}/issues/${item.number}" target="_blank" rel="noopener" class="gh-link">#${item.number}</a>`
+          : `#${item.number}`;
+        li.innerHTML = `
+          <span class="backlog-number">${issueLink}</span>
+          <span class="backlog-title">${escapeHtml(item.title)}</span>
+          ${item.body ? `<span class="idea-body">${escapeHtml(item.body)}</span>` : ""}
+        `;
+        list.appendChild(li);
+      }
+    } catch {
+      addLog("error", "Failed to load ideas");
+    }
+  }
+
+  $("btn-refresh-backlog")?.addEventListener("click", loadBacklog);
+  $("btn-refresh-ideas")?.addEventListener("click", loadIdeas);
 
   btnPrev.addEventListener("click", () => {
     if (viewingSprintNumber > 1) {
