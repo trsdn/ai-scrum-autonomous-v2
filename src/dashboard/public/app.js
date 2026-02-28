@@ -723,7 +723,7 @@
     if (pendingIdeaContext && session.role === "refiner") {
       const ctx = pendingIdeaContext;
       pendingIdeaContext = null;
-      const msg = `Please help me refine this idea into an actionable issue:\n\n**Issue #${ctx.number}: ${ctx.title}**\n\n${ctx.body || "(no description yet)"}`;
+      const msg = `Refine issue #${ctx.number} ("${ctx.title}"). Start by reading the full issue with \`gh issue view ${ctx.number}\`, then ask me clarifying questions before drafting the refined version.`;
       chatMessages[session.id].push({ role: "user", content: msg });
       btnSend.disabled = true;
       chatInput.disabled = true;
@@ -983,7 +983,9 @@
       document.querySelector("main").classList.add("chat-open");
       btnChat.textContent = "💬 Close";
     }
-    // Create refiner session
+    // Set dropdown to refiner for consistency
+    chatRole.value = "refiner";
+    // Create refiner session directly
     send({ type: "chat:create", role: "refiner" });
     addLog("info", `Starting refinement chat for #${idea.number}…`);
   }
