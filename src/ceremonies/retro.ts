@@ -69,7 +69,7 @@ export async function runSprintRetro(
   }
 
   // Read prompt template
-  const templatePath = path.join(config.projectPath, "prompts", "retro.md");
+  const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "retro", "prompts", "retro.md");
   const template = await fs.readFile(templatePath, "utf-8");
 
   const prompt = substitutePrompt(template, {
