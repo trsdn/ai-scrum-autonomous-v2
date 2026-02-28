@@ -195,6 +195,7 @@ export class ChatManager {
         for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
           const full = path.join(d, entry.name);
           if (entry.isDirectory()) {
+            if (entry.name === "log") return;
             walk(full);
           } else if (entry.name.endsWith(".md")) {
             parts.push(fs.readFileSync(full, "utf-8"));

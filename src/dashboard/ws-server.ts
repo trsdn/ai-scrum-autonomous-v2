@@ -15,6 +15,7 @@ import type { SprintEventBus, SprintEngineEvents } from "../events.js";
 import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
+import { writeSessionLog } from "./session-logger.js";
 import { sessionController } from "./session-control.js";
 import { loadSprintHistory } from "./sprint-history.js";
 import { SprintIssueCache } from "./issue-cache.js";
@@ -561,6 +562,13 @@ export class DashboardWebServer {
 
   private async handleChatClose(sessionId: string): Promise<void> {
     try {
+      const session = this.getChatManager().getSession(sessionId);
+      if (session) {
+        writeSessionLog(session, {
+          projectPath: this.options.projectPath ?? process.cwd(),
+          sprintNumber: this.options.activeSprintNumber ?? 1,
+        });
+      }
       await this.getChatManager().closeSession(sessionId);
     } catch (err: unknown) {
       log.warn({ err, sessionId }, "Failed to close chat session");
