@@ -19,6 +19,7 @@ export async function runCodeReview(
   issue: SprintIssue,
   branch: string,
   worktreePath: string,
+  eventBus?: import("../events.js").SprintEventBus,
 ): Promise<CodeReviewResult> {
   const log = logger.child({ module: "code-review", issue: issue.number });
 
@@ -30,6 +31,12 @@ export async function runCodeReview(
   const { sessionId } = await client.createSession({
     cwd: worktreePath,
     mcpServers: sessionConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "reviewer",
+    issueNumber: issue.number,
+    model: sessionConfig.model,
   });
 
   try {
@@ -85,6 +92,7 @@ export async function runCodeReview(
 
     return { approved, feedback: response, issues };
   } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
     await client.endSession(sessionId);
   }
 }
