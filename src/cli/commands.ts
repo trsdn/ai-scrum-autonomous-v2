@@ -25,6 +25,7 @@ import {
   parseSprintNumber,
   parseIssueNumber,
 } from "./helpers.js";
+import { initProject } from "./init.js";
 
 /** Register all CLI commands on the given Commander program. */
 export function registerCommands(program: Command): void {
@@ -41,6 +42,7 @@ export function registerCommands(program: Command): void {
   registerResume(program);
   registerMetrics(program);
   registerDriftReport(program);
+  registerInit(program);
 }
 
 // --- plan ---
@@ -654,6 +656,49 @@ function registerDriftReport(program: Command): void {
       } catch (err: unknown) {
         logger.error({ err }, "Drift report failed");
         console.error("❌ Drift report failed:", err instanceof Error ? err.message : err);
+        process.exit(1);
+      }
+    });
+}
+
+// --- init ---
+function registerInit(program: Command): void {
+  program
+    .command("init")
+    .description("Initialize a project with .aiscrum/ roles and config")
+    .option("--path <dir>", "Target project directory", process.cwd())
+    .option("--force", "Overwrite existing files", false)
+    .action(async (opts) => {
+      try {
+        console.log("🚀 Initializing AI Scrum Sprint Runner...\n");
+
+        const result = initProject({
+          targetPath: opts.path,
+          force: opts.force,
+        });
+
+        if (result.created.length > 0) {
+          console.log("  ✅ Created:");
+          for (const f of result.created) {
+            console.log(`     ${f}`);
+          }
+        }
+
+        if (result.skipped.length > 0) {
+          console.log("\n  ⏭️  Skipped (already exist):");
+          for (const f of result.skipped) {
+            console.log(`     ${f}`);
+          }
+        }
+
+        console.log(`\n✅ Initialized! ${result.created.length} files created, ${result.skipped.length} skipped.`);
+
+        if (result.configPath) {
+          console.log(`\n📝 Edit ${result.configPath} to configure your project.`);
+        }
+      } catch (err: unknown) {
+        logger.error({ err }, "Init failed");
+        console.error("❌ Init failed:", err instanceof Error ? err.message : err);
         process.exit(1);
       }
     });
