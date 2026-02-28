@@ -587,6 +587,39 @@ main.chat-open {
   margin: 0;
 }
 
+.session-input-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0 0;
+}
+
+.session-input-bar input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+.session-input-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.session-viewer-header .btn-danger {
+  margin-left: auto;
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+}
+
+.session-viewer-header .btn-danger:hover {
+  background: #b71c1c;
+}
+
 /* Grid adjustment when session panel is open */
 main.session-open {
   grid-template-columns: 280px 1fr 380px;
@@ -655,3 +688,17 @@ main.session-open {
 .md-h2 { font-size: 14px; font-weight: 600; margin: 6px 0 3px; color: var(--text); }
 .md-h3 { font-size: 13px; font-weight: 600; margin: 4px 0 2px; color: var(--text-dim); }
 .md-li { padding-left: 12px; }
+
+/* Session control status messages */
+.session-status-msg {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(79, 140, 255, 0.1);
+  border-radius: 4px;
+  margin-top: 4px;
+  animation: fadeIn 0.2s ease;
+}
+.session-status-warn { color: #ff9800; background: rgba(255, 152, 0, 0.1); }
+.session-status-err { color: #d32f2f; background: rgba(211, 47, 47, 0.1); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

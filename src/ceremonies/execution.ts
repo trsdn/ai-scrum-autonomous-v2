@@ -27,6 +27,7 @@ import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js
 import { logger } from "../logger.js";
 import type { SprintEventBus } from "../events.js";
 import { handleQualityFailure, buildBranch, buildQualityGateConfig } from "./quality-retry.js";
+import { sessionController } from "../dashboard/session-control.js";
 
 // Re-export for backward compatibility
 export { handleQualityFailure } from "./quality-retry.js";
@@ -165,6 +166,25 @@ export async function executeIssue(
 
       // Step 6: Send worker prompt to ACP
       await client.sendPrompt(sessionId, workerPrompt, config.sessionTimeoutMs);
+
+      // Step 6b: Process any queued interactive messages from dashboard
+      while (sessionController.hasPending(sessionId) && !sessionController.shouldStop(sessionId)) {
+        const messages = sessionController.drain(sessionId);
+        for (const msg of messages) {
+          if (msg.type === "user-message" && msg.content) {
+            log.info({ sessionId }, "sending queued user message to session");
+            eventBus?.emitTyped("worker:output", { sessionId, text: `\n\n---\n**User message:** ${msg.content}\n---\n\n` });
+            await client.sendPrompt(sessionId, msg.content, config.sessionTimeoutMs);
+          }
+        }
+      }
+
+      // Check for stop signal
+      if (sessionController.shouldStop(sessionId)) {
+        log.warn({ sessionId, issue: issue.number }, "session stopped by user");
+        eventBus?.emitTyped("worker:output", { sessionId, text: "\n\n⏹ Session stopped by user.\n" });
+      }
+      sessionController.cleanup(sessionId);
     } finally {
       eventBus?.emitTyped("session:end", { sessionId });
       await client.endSession(sessionId);

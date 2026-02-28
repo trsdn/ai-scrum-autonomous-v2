@@ -15,6 +15,7 @@ import type { SprintEventBus, SprintEngineEvents } from "../events.js";
 import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
+import { sessionController } from "./session-control.js";
 import { loadSprintHistory } from "./sprint-history.js";
 import { SprintIssueCache } from "./issue-cache.js";
 import { listSprintMilestones } from "../github/milestones.js";
@@ -29,7 +30,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "session:list" | "session:output" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -37,7 +38,7 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "session:subscribe" | "session:unsubscribe" | "chat:create" | "chat:send" | "chat:close" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:switch" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
   sprintNumber?: number;
   sessionId?: string;
   role?: string;
@@ -410,6 +411,37 @@ export class DashboardWebServer {
       case "session:unsubscribe":
         if (msg.sessionId) {
           this.sessionSubscribers.get(msg.sessionId)?.delete(ws);
+        }
+        break;
+      case "session:send-message":
+        if (msg.sessionId && msg.message) {
+          const targetSession = this.sessions.get(msg.sessionId);
+          if (targetSession && !targetSession.endedAt) {
+            sessionController.enqueue(msg.sessionId, msg.message);
+            this.sendTo(ws, {
+              type: "session:status",
+              payload: { sessionId: msg.sessionId, action: "message-queued", message: msg.message },
+            });
+            log.info({ sessionId: msg.sessionId }, "user message queued for session");
+          } else {
+            this.sendTo(ws, {
+              type: "session:status",
+              payload: { sessionId: msg.sessionId, action: "error", error: "Session not active" },
+            });
+          }
+        }
+        break;
+      case "session:stop":
+        if (msg.sessionId) {
+          const stopSession = this.sessions.get(msg.sessionId);
+          if (stopSession && !stopSession.endedAt) {
+            sessionController.requestStop(msg.sessionId);
+            this.sendTo(ws, {
+              type: "session:status",
+              payload: { sessionId: msg.sessionId, action: "stop-requested" },
+            });
+            log.warn({ sessionId: msg.sessionId }, "user requested session stop");
+          }
         }
         break;
       case "ping":
