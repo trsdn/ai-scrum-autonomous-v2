@@ -439,6 +439,7 @@ function registerWeb(program: Command): void {
           activeSprintNumber: initialSprint,
           sprintPrefix: config.sprint.prefix,
           sprintSlug: prefixToSlug(config.sprint.prefix),
+          maxIssuesPerSprint: config.sprint.max_issues,
         });
 
         await dashboardServer.start();

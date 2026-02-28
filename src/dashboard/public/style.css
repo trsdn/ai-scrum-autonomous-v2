@@ -862,3 +862,46 @@ main.session-open {
 }
 .idea-item:hover .btn-refine { opacity: 1; }
 .btn-refine:hover { filter: brightness(1.15); }
+
+/* Backlog action buttons */
+.backlog-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.backlog-item:hover .backlog-actions { opacity: 1; }
+.btn-plan {
+  background: var(--green, #2ea043);
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.btn-plan:hover { filter: brightness(1.15); }
+.btn-plan:disabled { opacity: 0.5; cursor: wait; }
+
+/* Capacity badge */
+.capacity-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg-hover);
+  color: var(--text-dim);
+}
+.capacity-full {
+  background: var(--red, #da3633);
+  color: #fff;
+}
+
+/* Planning animation */
+.backlog-item.planning { opacity: 0.6; }
+.backlog-item.planned-done {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s, transform 0.3s;
+}
