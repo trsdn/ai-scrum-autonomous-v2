@@ -31,7 +31,7 @@ copilot:
       model: "claude-opus-4.6"
 
 sprint:
-  max_issues: 8
+  max_issues: 6
   max_drift_incidents: 2
   max_retries: 2
   enable_challenger: true
