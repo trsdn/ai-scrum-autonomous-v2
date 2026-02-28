@@ -50,20 +50,31 @@ interface ExecutionContext {
 // Sub-phase: Plan
 // ---------------------------------------------------------------------------
 
-/** Create ACP session, switch to Plan mode, generate and post implementation plan. */
-async function planPhase(ctx: ExecutionContext, sessionId: string): Promise<string> {
-  const { client, config, issue, log, progress } = ctx;
+/** Create ACP session in Plan mode, generate implementation plan, tear down session. */
+async function planPhase(ctx: ExecutionContext): Promise<string> {
+  const { client, config, issue, eventBus, log, worktreePath, progress } = ctx;
   const plannerConfig = await resolveSessionConfig(config, "planner");
-
   const promptVars = buildPromptVars(ctx);
 
   let implementationPlan = "";
+
+  const { sessionId } = await client.createSession({
+    cwd: worktreePath,
+    mcpServers: plannerConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "planner",
+    issueNumber: issue.number,
+    model: plannerConfig.model,
+  });
+
   try {
     await client.setMode(sessionId, ACP_MODES.PLAN);
     if (plannerConfig.model) {
       await client.setModel(sessionId, plannerConfig.model);
     }
-    log.info("switched to Plan mode");
+    log.info("planner session started in Plan mode");
     progress("planning implementation");
 
     const planTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "planner", "prompts", "item-planner.md");
@@ -94,6 +105,9 @@ async function planPhase(ctx: ExecutionContext, sessionId: string): Promise<stri
     log.info("plan posted to issue");
   } catch (err: unknown) {
     log.warn({ err }, "plan mode failed — proceeding with direct execution");
+  } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
+    await client.endSession(sessionId);
   }
 
   return implementationPlan;
@@ -103,50 +117,70 @@ async function planPhase(ctx: ExecutionContext, sessionId: string): Promise<stri
 // Sub-phase: Implement
 // ---------------------------------------------------------------------------
 
-/** Switch to Agent mode, send worker prompt, handle interactive messages. */
-async function implementPhase(ctx: ExecutionContext, sessionId: string, implementationPlan: string): Promise<void> {
-  const { client, config, issue, eventBus, log, progress } = ctx;
+/** Create ACP session in Agent mode, implement the plan, tear down session. Returns captured output lines. */
+async function implementPhase(ctx: ExecutionContext, implementationPlan: string): Promise<string[]> {
+  const { client, config, issue, eventBus, log, worktreePath, progress } = ctx;
   const workerConfig = await resolveSessionConfig(config, "worker");
   const promptVars = buildPromptVars(ctx);
 
-  await client.setMode(sessionId, ACP_MODES.AGENT);
-  if (workerConfig.model) {
-    await client.setModel(sessionId, workerConfig.model);
-  }
-  log.info("switched to Agent mode");
-  progress("implementing");
+  const { sessionId } = await client.createSession({
+    cwd: worktreePath,
+    mcpServers: workerConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "developer",
+    issueNumber: issue.number,
+    model: workerConfig.model,
+  });
 
-  const workerTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "general", "prompts", "worker.md");
-  const workerTemplate = await fs.readFile(workerTemplatePath, "utf-8");
-  let workerPrompt = substitutePrompt(workerTemplate, promptVars);
+  let acpOutputLines: string[] = [];
+  try {
+    await client.setMode(sessionId, ACP_MODES.AGENT);
+    if (workerConfig.model) {
+      await client.setModel(sessionId, workerConfig.model);
+    }
+    log.info("developer session started in Agent mode");
+    progress("implementing");
 
-  if (workerConfig.instructions) {
-    workerPrompt = workerConfig.instructions + "\n\n" + workerPrompt;
-  }
+    const workerTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "general", "prompts", "worker.md");
+    const workerTemplate = await fs.readFile(workerTemplatePath, "utf-8");
+    let workerPrompt = substitutePrompt(workerTemplate, promptVars);
 
-  if (implementationPlan) {
-    workerPrompt += `\n\n## Implementation Plan (follow this)\n\n${implementationPlan}`;
-  }
+    if (workerConfig.instructions) {
+      workerPrompt = workerConfig.instructions + "\n\n" + workerPrompt;
+    }
 
-  await client.sendPrompt(sessionId, workerPrompt, config.sessionTimeoutMs);
+    if (implementationPlan) {
+      workerPrompt += `\n\n## Implementation Plan (follow this)\n\n${implementationPlan}`;
+    }
 
-  // Process queued interactive messages from dashboard
-  while (sessionController.hasPending(sessionId) && !sessionController.shouldStop(sessionId)) {
-    const messages = sessionController.drain(sessionId);
-    for (const msg of messages) {
-      if (msg.type === "user-message" && msg.content) {
-        log.info({ sessionId }, "sending queued user message to session");
-        eventBus?.emitTyped("worker:output", { sessionId, text: `\n\n---\n**User message:** ${msg.content}\n---\n\n` });
-        await client.sendPrompt(sessionId, msg.content, config.sessionTimeoutMs);
+    await client.sendPrompt(sessionId, workerPrompt, config.sessionTimeoutMs);
+
+    // Process queued interactive messages from dashboard
+    while (sessionController.hasPending(sessionId) && !sessionController.shouldStop(sessionId)) {
+      const messages = sessionController.drain(sessionId);
+      for (const msg of messages) {
+        if (msg.type === "user-message" && msg.content) {
+          log.info({ sessionId }, "sending queued user message to session");
+          eventBus?.emitTyped("worker:output", { sessionId, text: `\n\n---\n**User message:** ${msg.content}\n---\n\n` });
+          await client.sendPrompt(sessionId, msg.content, config.sessionTimeoutMs);
+        }
       }
     }
+
+    if (sessionController.shouldStop(sessionId)) {
+      log.warn({ sessionId, issue: issue.number }, "session stopped by user");
+      eventBus?.emitTyped("worker:output", { sessionId, text: "\n\n⏹ Session stopped by user.\n" });
+    }
+    sessionController.cleanup(sessionId);
+  } finally {
+    acpOutputLines = client.getSessionOutput(sessionId, 50);
+    eventBus?.emitTyped("session:end", { sessionId });
+    await client.endSession(sessionId);
   }
 
-  if (sessionController.shouldStop(sessionId)) {
-    log.warn({ sessionId, issue: issue.number }, "session stopped by user");
-    eventBus?.emitTyped("worker:output", { sessionId, text: "\n\n⏹ Session stopped by user.\n" });
-  }
-  sessionController.cleanup(sessionId);
+  return acpOutputLines;
 }
 
 // ---------------------------------------------------------------------------
@@ -159,7 +193,7 @@ interface ReviewOutcome {
   retryCount: number;
 }
 
-/** Run quality gate and code review. */
+/** Run quality gate and code review. Posts results as issue comments. */
 async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutcome> {
   const { client, config, issue, log, worktreePath, branch, progress } = ctx;
 
@@ -167,6 +201,16 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
   const gateConfig = buildQualityGateConfig(config);
   gateConfig.expectedFiles = issue.expectedFiles;
   let qualityResult = await runQualityGate(gateConfig, worktreePath, branch, config.baseBranch);
+
+  // Post quality gate results as issue comment
+  const qgChecks = qualityResult.checks.map(
+    (c) => `${c.passed ? "✅" : "❌"} **${c.name}**: ${c.detail}`
+  ).join("\n");
+  const qgStatus = qualityResult.passed ? "✅ Passed" : "❌ Failed";
+  await addComment(
+    issue.number,
+    `### 🔍 Quality Gate — ${qgStatus}\n\n${qgChecks}`,
+  ).catch((err) => log.warn({ err: String(err) }, "failed to post quality gate comment"));
 
   let retryCount = 0;
   if (!qualityResult.passed) {
@@ -178,8 +222,7 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
   if (qualityResult.passed) {
     try {
       progress("code review");
-      codeReview = await runCodeReview(client, config, issue, branch, worktreePath);
-      log.info({ approved: codeReview.approved, issues: codeReview.issues.length }, "code review completed");
+      codeReview = await runCodeReview(client, config, issue, branch, worktreePath, ctx.eventBus);
 
       if (!codeReview.approved) {
         const fixResult = await attemptCodeReviewFix(ctx, codeReview);
@@ -208,6 +251,12 @@ async function attemptCodeReviewFix(
     cwd: worktreePath,
     mcpServers: fixConfig.mcpServers,
   });
+  ctx.eventBus?.emitTyped("session:start", {
+    sessionId: fixSession,
+    role: "developer (fix)",
+    issueNumber: issue.number,
+    model: fixConfig.model,
+  });
   try {
     if (fixConfig.model) {
       await client.setModel(fixSession, fixConfig.model);
@@ -220,6 +269,7 @@ async function attemptCodeReviewFix(
     ].join("\n");
     await client.sendPrompt(fixSession, fixPrompt, config.sessionTimeoutMs);
   } finally {
+    ctx.eventBus?.emitTyped("session:end", { sessionId: fixSession });
     await client.endSession(fixSession);
   }
 
@@ -229,7 +279,7 @@ async function attemptCodeReviewFix(
 
   let newReview: CodeReviewResult | undefined = codeReview;
   if (newQuality.passed) {
-    newReview = await runCodeReview(client, config, issue, branch, worktreePath);
+    newReview = await runCodeReview(client, config, issue, branch, worktreePath, ctx.eventBus);
     log.info({ approved: newReview.approved }, "code review re-run after fix");
   }
 
@@ -404,38 +454,21 @@ export async function executeIssue(
   let timedOut = false;
 
   try {
-    // Step 3: Create ACP session
-    const plannerConfig = await resolveSessionConfig(config, "planner");
-    const { sessionId } = await client.createSession({
-      cwd: worktreePath,
-      mcpServers: plannerConfig.mcpServers,
-    });
-    eventBus?.emitTyped("session:start", {
-      sessionId,
-      role: "worker",
-      issueNumber: issue.number,
-      model: plannerConfig.model,
-    });
+    // Step 3: Plan phase (own ACP session as planner)
+    const implementationPlan = await planPhase(ctx);
 
+    // Step 4: Implement phase (own ACP session as developer)
     try {
-      // Step 4-5: Plan → Implement
-      const implementationPlan = await planPhase(ctx, sessionId);
-      await implementPhase(ctx, sessionId, implementationPlan);
+      acpOutputLines = await implementPhase(ctx, implementationPlan);
     } catch (err: unknown) {
-      // Detect timeout errors
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg.toLowerCase().includes("timed out")) {
         timedOut = true;
       }
       throw err;
-    } finally {
-      // Capture output before endSession clears it
-      acpOutputLines = client.getSessionOutput(sessionId, 50);
-      eventBus?.emitTyped("session:end", { sessionId });
-      await client.endSession(sessionId);
     }
 
-    // Step 6-7: Quality gate + code review
+    // Step 5-6: Quality gate + code review
     const reviewOutcome = await qualityAndReviewPhase(ctx);
     qualityResult = reviewOutcome.qualityResult;
     codeReview = reviewOutcome.codeReview;
@@ -463,7 +496,7 @@ export async function executeIssue(
     log.error({ err: errorMessage, issue: issue.number }, "issue execution failed");
     status = "failed";
   } finally {
-    // Step 9-11: Cleanup (worktree, huddle, labels)
+    // Step 8: Cleanup (worktree, huddle, labels)
     await cleanupPhase(ctx, { status, qualityResult, codeReview, retryCount, filesChanged, errorMessage, startTime, acpOutputLines, timedOut });
   }
 
