@@ -76,13 +76,13 @@ const QualityGatesSchema = z.object({
   require_tests: z.boolean().default(true),
   require_lint: z.boolean().default(true),
   require_types: z.boolean().default(true),
+  require_build: z.boolean().default(true),
   max_diff_lines: z.number().int().min(1).default(300),
   test_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "test"]),
   lint_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "lint"]),
   typecheck_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "typecheck"]),
+  build_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "build"]),
   require_challenger: z.boolean().default(true),
-  require_ci_green: z.boolean().default(true),
-  ci_wait_timeout_ms: z.number().int().min(0).default(300000),
 });
 
 const EscalationSchema = z.object({

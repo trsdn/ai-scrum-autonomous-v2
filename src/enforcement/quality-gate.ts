@@ -11,10 +11,12 @@ export interface QualityGateConfig {
   requireTests: boolean;
   requireLint: boolean;
   requireTypes: boolean;
+  requireBuild: boolean;
   maxDiffLines: number;
   testCommand: string | string[];
   lintCommand: string | string[];
   typecheckCommand: string | string[];
+  buildCommand: string | string[];
 }
 
 /** Normalize a command to an array, logging a warning for legacy string usage. */
@@ -111,7 +113,18 @@ export async function runQualityGate(
     });
   }
 
-  // 5. Check diff size
+  // 5. Check build succeeds
+  if (config.requireBuild) {
+    const result = await runCommand(config.buildCommand, worktreePath);
+    checks.push({
+      name: "build-pass",
+      passed: result.ok,
+      detail: result.ok ? "Build succeeded" : result.output,
+      category: "build",
+    });
+  }
+
+  // 6. Check diff size
   const stat = await diffStat(branch, baseBranch);
   const diffPassed = stat.linesChanged <= config.maxDiffLines;
   checks.push({

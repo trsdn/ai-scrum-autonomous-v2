@@ -41,10 +41,9 @@ quality_gates:
   require_tests: true
   require_lint: true
   require_types: true
+  require_build: true
   max_diff_lines: 300
   require_challenger: true
-  require_ci_green: true
-  ci_wait_timeout_ms: 300000
 
 escalation:
   notifications:

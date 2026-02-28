@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { SprintEventBus } from "../../src/tui/events.js";
+import { SprintEventBus } from "../../src/events.js";
 import { SprintRunner } from "../../src/runner.js";
 import type { SprintConfig } from "../../src/types.js";
 

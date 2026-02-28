@@ -1,6 +1,5 @@
 # AI Scrum Sprint Runner
 
-[![CI](https://github.com/trsdn/ai-scrum-autonomous-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/trsdn/ai-scrum-autonomous-v2/actions)
 [![Optimized for GitHub Copilot CLI](https://img.shields.io/badge/Powered%20by-GitHub%20Copilot%20ACP-blue?logo=github)](https://docs.github.com/en/copilot)
 
 **ACP-powered autonomous sprint engine** that orchestrates GitHub Copilot CLI via the Agent Client Protocol to run full Scrum sprints — planning, execution, review, and retrospective — without manual intervention.
@@ -154,8 +153,8 @@ quality_gates:
   require_tests: true
   require_lint: true
   require_types: true
+  require_build: true
   max_diff_lines: 300
-  require_ci_green: true
 
 git:
   branch_pattern: "{prefix}/{sprint}/issue-{issue}"
