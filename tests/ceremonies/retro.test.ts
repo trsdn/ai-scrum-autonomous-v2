@@ -203,13 +203,20 @@ describe("runSprintRetro", () => {
       makeReviewResult(),
     );
 
-    // Only "Stabilize CI" is non-auto-applicable
-    expect(createIssue).toHaveBeenCalledTimes(1);
+    // "Stabilize CI" (process, non-auto) → process issue
+    // "Update deps" (config, auto) → config issue for review
+    expect(createIssue).toHaveBeenCalledTimes(2);
     expect(createIssue).toHaveBeenCalledWith({
       title: "chore(process): Stabilize CI",
       body: "Add retry logic for flaky tests",
       labels: ["type:chore", "scope:process"],
     });
+    expect(createIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "chore(config): Update deps",
+        labels: ["type:chore", "scope:config", "needs:review"],
+      }),
+    );
   });
 
   it("skips improvements with empty title", async () => {
@@ -296,5 +303,46 @@ describe("runSprintRetro", () => {
     expect(eventBus.emitTyped).toHaveBeenCalledWith("session:end", {
       sessionId: "session-ret-1",
     });
+  });
+
+  it("auto-applies skill improvements via ACP session", async () => {
+    const skillResponse = {
+      wentWell: ["Good"],
+      wentBadly: [],
+      improvements: [
+        {
+          title: "Improve planner prompt",
+          description: "Add acceptance criteria reminder to planner prompt",
+          autoApplicable: true,
+          target: "skill" as const,
+        },
+      ],
+      previousImprovementsChecked: true,
+    };
+    const mockClient = makeMockClient();
+    mockClient.sendPrompt.mockResolvedValue({
+      response: JSON.stringify(skillResponse),
+      stopReason: "end_turn",
+    });
+
+    await runSprintRetro(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockClient as any,
+      makeConfig(),
+      makeSprintResult(),
+      makeReviewResult(),
+    );
+
+    // 2 sessions: retro + retro-apply
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+
+    // 2 sendPrompt: retro analysis + skill improvement application
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    const applyCall = mockClient.sendPrompt.mock.calls[1];
+    expect(applyCall[1]).toContain("Improve planner prompt");
+    expect(applyCall[1]).toContain(".aiscrum/roles/");
+
+    // No issues created for auto-applied skill improvements
+    expect(createIssue).not.toHaveBeenCalled();
   });
 });

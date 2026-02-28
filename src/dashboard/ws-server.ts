@@ -39,13 +39,14 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "blocked:comment" | "blocked:unblock" | "ping";
   sprintNumber?: number;
   issueNumber?: number;
   sessionId?: string;
   role?: string;
   message?: string;
   mode?: string;
+  body?: string;
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -501,6 +502,16 @@ export class DashboardWebServer {
         break;
       case "ping":
         break;
+      case "blocked:comment":
+        if (msg.issueNumber && msg.body) {
+          this.handleBlockedComment(msg.issueNumber, msg.body, ws);
+        }
+        break;
+      case "blocked:unblock":
+        if (msg.issueNumber) {
+          this.handleBlockedUnblock(msg.issueNumber, ws);
+        }
+        break;
     }
   }
 
@@ -684,6 +695,12 @@ export class DashboardWebServer {
       return;
     }
 
+    // /api/blocked — issues with status:blocked label
+    if (pathname === "/api/blocked") {
+      this.handleBlockedRequest(res);
+      return;
+    }
+
     // /api/sprint-capacity — current sprint capacity info
     if (pathname === "/api/sprint-capacity") {
       const sprintNum = this.options.activeSprintNumber ?? 1;
@@ -788,6 +805,51 @@ export class DashboardWebServer {
       res.writeHead(200);
       res.end(JSON.stringify([]));
     });
+  }
+
+  /** Return blocked issues (status:blocked label). */
+  private handleBlockedRequest(res: http.ServerResponse): void {
+    import("../github/issues.js").then(async ({ listIssues }) => {
+      try {
+        const ghIssues = await listIssues({ state: "open", labels: ["status:blocked"] });
+        const blocked = ghIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          body: (i.body ?? "").slice(0, 500),
+          labels: i.labels.map((l) => l.name),
+        }));
+        res.writeHead(200);
+        res.end(JSON.stringify(blocked));
+      } catch {
+        res.writeHead(200);
+        res.end(JSON.stringify([]));
+      }
+    }).catch(() => {
+      res.writeHead(200);
+      res.end(JSON.stringify([]));
+    });
+  }
+
+  /** Add a comment to a blocked issue. */
+  private async handleBlockedComment(issueNumber: number, body: string, ws: WebSocket): Promise<void> {
+    try {
+      const { addComment } = await import("../github/issues.js");
+      await addComment(issueNumber, body);
+      this.sendTo(ws, { type: "sprint:event", eventName: "blocked:commented", payload: { issueNumber } });
+    } catch (err: unknown) {
+      log.error({ err: String(err), issueNumber }, "Failed to add comment to blocked issue");
+    }
+  }
+
+  /** Remove status:blocked label from an issue. */
+  private async handleBlockedUnblock(issueNumber: number, ws: WebSocket): Promise<void> {
+    try {
+      const { removeLabel } = await import("../github/labels.js");
+      await removeLabel(issueNumber, "status:blocked");
+      this.sendTo(ws, { type: "sprint:event", eventName: "blocked:unblocked", payload: { issueNumber } });
+    } catch (err: unknown) {
+      log.error({ err: String(err), issueNumber }, "Failed to unblock issue");
+    }
   }
 
   /** Add an issue to the current sprint (set milestone + status:planned label). */

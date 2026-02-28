@@ -920,6 +920,12 @@ main.chat-open {
 .idea-item:hover .btn-refine { opacity: 1; }
 .btn-refine:hover { filter: brightness(1.15); }
 
+/* Blocked item styling */
+.blocked-item {
+  border-left: 3px solid var(--red, #e74c3c);
+}
+.blocked-item .btn { margin-left: 4px; }
+
 /* Backlog action buttons */
 .backlog-actions {
   display: flex;

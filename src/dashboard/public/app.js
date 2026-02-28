@@ -904,6 +904,7 @@
         target.classList.add("tab-visible");
       }
       if (tab === "backlog") loadBacklog();
+      if (tab === "blocked") loadBlocked();
       if (tab === "ideas") loadIdeas();
     });
   });
@@ -1078,6 +1079,61 @@
 
   $("btn-refresh-backlog")?.addEventListener("click", loadBacklog);
   $("btn-refresh-ideas")?.addEventListener("click", loadIdeas);
+  $("btn-refresh-blocked")?.addEventListener("click", loadBlocked);
+
+  async function loadBlocked() {
+    try {
+      const res = await fetch("/api/blocked");
+      if (!res.ok) return;
+      const items = await res.json();
+      const list = $("blocked-list");
+      const empty = $("blocked-empty");
+      const count = $("blocked-count");
+      list.innerHTML = "";
+      count.textContent = `${items.length} blocked`;
+      if (items.length === 0) {
+        empty.style.display = "";
+        return;
+      }
+      empty.style.display = "none";
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.className = "backlog-item blocked-item";
+        const issueLink = repoUrl
+          ? `<a href="${repoUrl}/issues/${item.number}" target="_blank" rel="noopener" class="gh-link">#${item.number}</a>`
+          : `#${item.number}`;
+        li.innerHTML = `
+          <span class="backlog-number">${issueLink}</span>
+          <span class="backlog-title">${escapeHtml(item.title)}</span>
+          ${item.body ? `<span class="idea-body">${escapeHtml(item.body.slice(0, 200))}</span>` : ""}
+        `;
+        const commentBtn = document.createElement("button");
+        commentBtn.className = "btn btn-small";
+        commentBtn.textContent = "💬 Comment";
+        commentBtn.onclick = () => {
+          const text = prompt("Add comment to #" + item.number + ":");
+          if (text) send({ type: "blocked:comment", issueNumber: item.number, body: text });
+        };
+        li.appendChild(commentBtn);
+
+        const unblockBtn = document.createElement("button");
+        unblockBtn.className = "btn btn-small btn-primary";
+        unblockBtn.textContent = "🔓 Unblock";
+        unblockBtn.onclick = () => {
+          send({ type: "blocked:unblock", issueNumber: item.number });
+          li.remove();
+          const remaining = list.children.length;
+          count.textContent = `${remaining} blocked`;
+          if (remaining === 0) empty.style.display = "";
+        };
+        li.appendChild(unblockBtn);
+
+        list.appendChild(li);
+      }
+    } catch {
+      addLog("error", "Failed to load blocked issues");
+    }
+  }
 
   btnPrev.addEventListener("click", () => {
     if (viewingSprintNumber > 1) {
