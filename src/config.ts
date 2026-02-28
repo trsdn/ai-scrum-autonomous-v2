@@ -93,6 +93,7 @@ const EscalationSchema = z
       .object({
         ntfy: z.boolean().default(false),
         ntfy_topic: z.string().default(""),
+        ntfy_server_url: z.string().url().default("https://ntfy.sh"),
       })
       .default({}),
   })

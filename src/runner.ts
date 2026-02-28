@@ -93,7 +93,7 @@ export class SprintRunner {
       startedAt: new Date(),
       issuesCreatedCount: 0,
     };
-    attachSprintNotifications(this.events, this.config.ntfy as any);
+    attachSprintNotifications(this.events, this.config.ntfy);
     this.log = defaultLogger.child({
       component: "sprint-runner",
       sprint: config.sprintNumber,

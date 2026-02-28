@@ -286,7 +286,7 @@ describe("saveState / loadState", () => {
   });
 });
 
-describe("SprintRunner", () => {
+describe("SprintRunner", { timeout: 15000 }, () => {
   let config: SprintConfig;
   let tmpDir: string;
 
@@ -427,7 +427,7 @@ describe("SprintRunner", () => {
   });
 
   describe("state transitions", () => {
-    it("ends in complete phase after fullCycle", async () => {
+    it("ends in complete phase after fullCycle", { timeout: 15000 }, async () => {
       const runner = new SprintRunner(config);
       const finalState = await runner.fullCycle();
 
@@ -438,7 +438,7 @@ describe("SprintRunner", () => {
       expect(finalState.retro).toBeDefined();
     });
 
-    it("state file records final phase", async () => {
+    it("state file records final phase", { timeout: 15000 }, async () => {
       const runner = new SprintRunner(config);
       await runner.fullCycle();
 

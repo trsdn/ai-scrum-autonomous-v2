@@ -73,6 +73,18 @@ export async function runSprintRetro(
   const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "retro", "prompts", "retro.md");
   const template = await fs.readFile(templatePath, "utf-8");
 
+  // Build failure diagnostics from sprint results
+  const failureDiagnostics = result.results
+    .filter((r) => r.status === "failed")
+    .map((r) => ({
+      issueNumber: r.issueNumber,
+      qualityChecks: r.qualityDetails.checks
+        .filter((c) => !c.passed)
+        .map((c) => `${c.name}: ${c.detail}`),
+      codeReviewFeedback: r.codeReview?.feedback ?? null,
+      retryCount: r.retryCount,
+    }));
+
   const prompt = substitutePrompt(template, {
     PROJECT_NAME: path.basename(config.projectPath),
     REPO_OWNER: "",
@@ -82,6 +94,7 @@ export async function runSprintRetro(
     VELOCITY_DATA: velocityStr,
     PREVIOUS_RETRO_IMPROVEMENTS: sanitizePromptInput(previousImprovements),
     SPRINT_RUNNER_CONFIG: runnerConfig,
+    FAILURE_DIAGNOSTICS: sanitizePromptInput(JSON.stringify(failureDiagnostics)),
   });
 
   // Create ACP session and send prompt

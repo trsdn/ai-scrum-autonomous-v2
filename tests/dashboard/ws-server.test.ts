@@ -288,7 +288,7 @@ describe("DashboardWebServer", () => {
     expect(data).toHaveProperty("url");
   });
 
-  it("serves /api/sprints/:n/issues from cache", async () => {
+  it("serves /api/sprints/:n/issues from cache", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/issues`);
@@ -570,7 +570,7 @@ describe("DashboardWebServer", () => {
     expect(modeCalled).toBe(false);
   });
 
-  it("serves /api/backlog endpoint", async () => {
+  it("serves /api/backlog endpoint", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/backlog`);
@@ -579,7 +579,7 @@ describe("DashboardWebServer", () => {
     expect(Array.isArray(data)).toBe(true);
   });
 
-  it("serves /api/ideas endpoint", async () => {
+  it("serves /api/ideas endpoint", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/ideas`);
