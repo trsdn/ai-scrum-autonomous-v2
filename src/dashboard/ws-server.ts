@@ -30,7 +30,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "backlog:planned" | "backlog:removed" | "backlog:error" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -38,8 +38,9 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "ping";
   sprintNumber?: number;
+  issueNumber?: number;
   sessionId?: string;
   role?: string;
   message?: string;
@@ -76,6 +77,8 @@ export interface DashboardServerOptions {
   sprintPrefix?: string;
   /** Sprint slug for file naming (default: "sprint"). */
   sprintSlug?: string;
+  /** Max issues per sprint for capacity display (default: 8). */
+  maxIssuesPerSprint?: number;
 }
 
 export interface TrackedSession {
@@ -418,6 +421,16 @@ export class DashboardWebServer {
           this.broadcast({ type: "sprint:event", eventName: "mode:changed", payload: { mode: msg.mode } });
         }
         break;
+      case "backlog:plan-issue":
+        if (msg.issueNumber) {
+          this.handlePlanIssue(msg.issueNumber, ws);
+        }
+        break;
+      case "backlog:remove-issue":
+        if (msg.issueNumber) {
+          this.handleRemoveFromSprint(msg.issueNumber, ws);
+        }
+        break;
       case "chat:create":
         this.handleChatCreate(msg.role as ChatRole | undefined, ws);
         break;
@@ -663,6 +676,16 @@ export class DashboardWebServer {
       return;
     }
 
+    // /api/sprint-capacity — current sprint capacity info
+    if (pathname === "/api/sprint-capacity") {
+      const sprintNum = this.options.activeSprintNumber ?? 1;
+      const maxIssues = this.options.maxIssuesPerSprint ?? 8;
+      const plannedCount = this.options.getIssues().length;
+      res.writeHead(200);
+      res.end(JSON.stringify({ sprintNumber: sprintNum, maxIssues, plannedCount }));
+      return;
+    }
+
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
   }
@@ -757,6 +780,48 @@ export class DashboardWebServer {
       res.writeHead(200);
       res.end(JSON.stringify([]));
     });
+  }
+
+  /** Add an issue to the current sprint (set milestone + status:planned label). */
+  private async handlePlanIssue(issueNumber: number, ws: WebSocket): Promise<void> {
+    const sprintNum = this.options.activeSprintNumber ?? 1;
+    const prefix = this.options.sprintPrefix ?? "Sprint";
+    const milestoneTitle = `${prefix} ${sprintNum}`;
+    try {
+      const { setLabel, removeLabel } = await import("../github/labels.js");
+      const { setMilestone, createMilestone, getMilestone } = await import("../github/milestones.js");
+      // Ensure milestone exists
+      const existing = await getMilestone(milestoneTitle);
+      if (!existing) {
+        await createMilestone(milestoneTitle);
+      }
+      await setMilestone(issueNumber, milestoneTitle);
+      await setLabel(issueNumber, "status:planned");
+      try { await removeLabel(issueNumber, "status:refined"); } catch { /* may not have it */ }
+      log.info({ issueNumber, milestoneTitle }, "Issue added to sprint");
+      this.sendTo(ws, { type: "backlog:planned", payload: { issueNumber, sprintNumber: sprintNum } } as ServerMessage);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, issueNumber }, "Failed to plan issue");
+      this.sendTo(ws, { type: "backlog:error", payload: { issueNumber, error: msg } } as ServerMessage);
+    }
+  }
+
+  /** Remove an issue from the sprint (remove milestone + planned label). */
+  private async handleRemoveFromSprint(issueNumber: number, ws: WebSocket): Promise<void> {
+    try {
+      const { setLabel, removeLabel } = await import("../github/labels.js");
+      await removeLabel(issueNumber, "status:planned");
+      await setLabel(issueNumber, "status:refined");
+      const { execGh } = await import("../github/issues.js");
+      await execGh(["issue", "edit", String(issueNumber), "--milestone", ""]);
+      log.info({ issueNumber }, "Issue removed from sprint");
+      this.sendTo(ws, { type: "backlog:removed", payload: { issueNumber } } as ServerMessage);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, issueNumber }, "Failed to remove issue from sprint");
+      this.sendTo(ws, { type: "backlog:error", payload: { issueNumber, error: msg } } as ServerMessage);
+    }
   }
 
   /** Return repo info (URL cached after first detection). */

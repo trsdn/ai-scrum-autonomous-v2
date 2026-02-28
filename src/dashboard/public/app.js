@@ -172,6 +172,18 @@
         handleChatError(msg.payload);
         break;
 
+      case "backlog:planned":
+        handleBacklogPlanned(msg.payload);
+        break;
+
+      case "backlog:removed":
+        handleBacklogRemoved(msg.payload);
+        break;
+
+      case "backlog:error":
+        handleBacklogError(msg.payload);
+        break;
+
       case "session:list":
         acpSessions = msg.payload || [];
         renderSessionList();
@@ -723,7 +735,7 @@
     if (pendingIdeaContext && session.role === "refiner") {
       const ctx = pendingIdeaContext;
       pendingIdeaContext = null;
-      const msg = `Please help me refine this idea into an actionable issue:\n\n**Issue #${ctx.number}: ${ctx.title}**\n\n${ctx.body || "(no description yet)"}`;
+      const msg = `Refine issue #${ctx.number} ("${ctx.title}"). Start by reading the full issue with \`gh issue view ${ctx.number}\`, then ask me clarifying questions before drafting the refined version.`;
       chatMessages[session.id].push({ role: "user", content: msg });
       btnSend.disabled = true;
       chatInput.disabled = true;
@@ -902,12 +914,25 @@
 
   async function loadBacklog() {
     try {
-      const res = await fetch("/api/backlog");
-      if (!res.ok) return;
-      const items = await res.json();
+      const [backlogRes, capRes] = await Promise.all([
+        fetch("/api/backlog"),
+        fetch("/api/sprint-capacity"),
+      ]);
+      if (!backlogRes.ok) return;
+      const items = await backlogRes.json();
       const list = $("backlog-list");
       const empty = $("backlog-empty");
       const count = $("backlog-count");
+      const capacityEl = $("sprint-capacity");
+
+      // Show capacity
+      if (capRes.ok) {
+        const cap = await capRes.json();
+        capacityEl.textContent = `Sprint ${cap.sprintNumber}: ${cap.plannedCount} / ${cap.maxIssues} slots`;
+        capacityEl.className = cap.plannedCount >= cap.maxIssues
+          ? "capacity-badge capacity-full" : "capacity-badge";
+      }
+
       list.innerHTML = "";
       count.textContent = `${items.length} issue${items.length !== 1 ? "s" : ""}`;
       if (items.length === 0) {
@@ -918,6 +943,7 @@
       for (const item of items) {
         const li = document.createElement("li");
         li.className = "backlog-item";
+        li.dataset.issueNumber = item.number;
         const issueLink = repoUrl
           ? `<a href="${repoUrl}/issues/${item.number}" target="_blank" rel="noopener" class="gh-link">#${item.number}</a>`
           : `#${item.number}`;
@@ -930,10 +956,72 @@
           <span class="backlog-title">${escapeHtml(item.title)}</span>
           <span class="backlog-labels">${labels}</span>
         `;
+        // Action buttons
+        const actions = document.createElement("span");
+        actions.className = "backlog-actions";
+
+        const planBtn = document.createElement("button");
+        planBtn.className = "btn btn-small btn-plan";
+        planBtn.textContent = "📋 + Sprint";
+        planBtn.onclick = () => planIssue(item.number, li);
+        actions.appendChild(planBtn);
+
+        const refineBtn = document.createElement("button");
+        refineBtn.className = "btn btn-small btn-refine";
+        refineBtn.textContent = "💬 Re-refine";
+        refineBtn.onclick = () => refineIdea(item);
+        actions.appendChild(refineBtn);
+
+        li.appendChild(actions);
         list.appendChild(li);
       }
     } catch {
       addLog("error", "Failed to load backlog");
+    }
+  }
+
+  function planIssue(issueNumber, listItem) {
+    listItem.classList.add("planning");
+    const btn = listItem.querySelector(".btn-plan");
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Planning…"; }
+    send({ type: "backlog:plan-issue", issueNumber });
+  }
+
+  function handleBacklogPlanned(payload) {
+    const { issueNumber, sprintNumber } = payload;
+    // Remove from backlog list with animation
+    const item = document.querySelector(`[data-issue-number="${issueNumber}"]`);
+    if (item) {
+      item.classList.add("planned-done");
+      setTimeout(() => item.remove(), 400);
+    }
+    addLog("info", `#${issueNumber} added to Sprint ${sprintNumber}`);
+    // Update capacity
+    const capEl = $("sprint-capacity");
+    if (capEl) fetch("/api/sprint-capacity").then(r => r.json()).then(cap => {
+      capEl.textContent = `Sprint ${cap.sprintNumber}: ${cap.plannedCount} / ${cap.maxIssues} slots`;
+      capEl.className = cap.plannedCount >= cap.maxIssues ? "capacity-badge capacity-full" : "capacity-badge";
+    }).catch(() => {});
+    // Update backlog count
+    const remaining = document.querySelectorAll("#backlog-list .backlog-item:not(.planned-done)").length;
+    const countEl = $("backlog-count");
+    if (countEl) countEl.textContent = `${remaining} issue${remaining !== 1 ? "s" : ""}`;
+  }
+
+  function handleBacklogRemoved(payload) {
+    addLog("info", `#${payload.issueNumber} removed from sprint`);
+    loadBacklog();
+  }
+
+  function handleBacklogError(payload) {
+    const { issueNumber, error } = payload;
+    addLog("error", `Failed to plan #${issueNumber}: ${error}`);
+    // Reset button state
+    const item = document.querySelector(`[data-issue-number="${issueNumber}"]`);
+    if (item) {
+      item.classList.remove("planning");
+      const btn = item.querySelector(".btn-plan");
+      if (btn) { btn.disabled = false; btn.textContent = "📋 + Sprint"; }
     }
   }
 
@@ -983,7 +1071,9 @@
       document.querySelector("main").classList.add("chat-open");
       btnChat.textContent = "💬 Close";
     }
-    // Create refiner session
+    // Set dropdown to refiner for consistency
+    chatRole.value = "refiner";
+    // Create refiner session directly
     send({ type: "chat:create", role: "refiner" });
     addLog("info", `Starting refinement chat for #${idea.number}…`);
   }
