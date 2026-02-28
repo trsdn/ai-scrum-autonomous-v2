@@ -609,8 +609,9 @@ describe("SprintRunner", () => {
 
       expect(escalateToStakeholder).toHaveBeenCalledWith(
         expect.objectContaining({ level: "must", reason: "Excessive drift detected" }),
-        expect.any(Object),
+        expect.objectContaining({ ntfyEnabled: false }),
         expect.anything(),
+        expect.objectContaining({ issuesCreatedCount: expect.any(Number) }),
       );
     });
   });

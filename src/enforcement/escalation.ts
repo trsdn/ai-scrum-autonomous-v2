@@ -1,6 +1,6 @@
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
-import { createIssue } from "../github/issues.js";
+import { createIssueRateLimited, type IssueCreationState } from "../github/issue-rate-limiter.js";
 import { ensureLabelExists } from "../github/labels.js";
 import { logger } from "../logger.js";
 import type { EscalationEvent } from "../types.js";
@@ -22,12 +22,16 @@ export function sanitizeForHttp(str: string): string {
 export interface EscalationConfig {
   ntfyTopic?: string;
   ntfyEnabled: boolean;
+  maxIssuesCreatedPerSprint?: number;
 }
+
+const DEFAULT_MAX_ISSUES = 10;
 
 export async function escalateToStakeholder(
   event: EscalationEvent,
   config: EscalationConfig,
   eventBus?: SprintEventBus,
+  state: IssueCreationState = { issuesCreatedCount: 0 },
 ): Promise<void> {
   const log = logger.child({ module: "escalation" });
 
@@ -50,39 +54,8 @@ export async function escalateToStakeholder(
   }
 
   try {
-    await createIssue({
-      title: `🚨 Escalation [${event.level}]: ${event.reason}`,
-      body: [
-        `## Escalation${issueRef}`,
-        "",
-        `**Level:** ${event.level}`,
-        `**Reason:** ${event.reason}`,
-        `**Timestamp:** ${event.timestamp.toISOString()}`,
-        "",
-        "### Detail",
-        "",
-        event.detail,
-        "",
-        "### Context",
-        "",
-        "```json",
-        JSON.stringify(event.context, null, 2),
-        "```",
-      ].join("\n"),
-      labels,
-    });
-    log.info("escalation issue created");
-
-    // MUST-level escalation: signal sprint pause
-    if (event.level === "must" && eventBus) {
-      log.warn("MUST escalation — signaling sprint pause");
-      eventBus.emitTyped("sprint:paused", {});
-    }
-  } catch (err: unknown) {
-    // Fall back to creating without labels if label doesn't exist
-    log.warn({ err }, "escalation issue creation failed — retrying without labels");
-    try {
-      await createIssue({
+    const issue = await createIssueRateLimited(
+      {
         title: `🚨 Escalation [${event.level}]: ${event.reason}`,
         body: [
           `## Escalation${issueRef}`,
@@ -94,9 +67,60 @@ export async function escalateToStakeholder(
           "### Detail",
           "",
           event.detail,
+          "",
+          "### Context",
+          "",
+          "```json",
+          JSON.stringify(event.context, null, 2),
+          "```",
         ].join("\n"),
-      });
-      log.info("escalation issue created (without labels)");
+        labels,
+      },
+      state,
+      config.maxIssuesCreatedPerSprint ?? DEFAULT_MAX_ISSUES,
+    );
+    
+    if (issue) {
+      log.info({ number: issue.number }, "escalation issue created");
+    } else {
+      log.warn(
+        { title: event.reason, level: event.level },
+        "⚠️  SAFETY-CRITICAL: Escalation issue creation rate-limited — manual intervention required",
+      );
+    }
+
+    // MUST-level escalation: signal sprint pause
+    if (event.level === "must" && eventBus) {
+      log.warn("MUST escalation — signaling sprint pause");
+      eventBus.emitTyped("sprint:paused", {});
+    }
+  } catch (err: unknown) {
+    // Fall back to creating without labels if label doesn't exist
+    log.warn({ err }, "escalation issue creation failed — retrying without labels");
+    try {
+      const retryIssue = await createIssueRateLimited(
+        {
+          title: `🚨 Escalation [${event.level}]: ${event.reason}`,
+          body: [
+            `## Escalation${issueRef}`,
+            "",
+            `**Level:** ${event.level}`,
+            `**Reason:** ${event.reason}`,
+            `**Timestamp:** ${event.timestamp.toISOString()}`,
+            "",
+            "### Detail",
+            "",
+            event.detail,
+          ].join("\n"),
+        },
+        state,
+        config.maxIssuesCreatedPerSprint ?? DEFAULT_MAX_ISSUES,
+      );
+      if (retryIssue) {
+        log.info({ number: retryIssue.number }, "escalation issue created (without labels)");
+      } else {
+        log.warn("escalation issue creation rate-limited on retry");
+      }
     } catch (retryErr: unknown) {
       log.error({ err: retryErr }, "escalation issue creation failed completely");
     }
