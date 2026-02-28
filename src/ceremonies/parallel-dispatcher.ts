@@ -1,4 +1,8 @@
 import pLimit from "p-limit";
+import path from "node:path";
+import os from "node:os";
+import { execFile as execFileCb } from "node:child_process";
+import { promisify } from "node:util";
 import type { AcpClient } from "../acp/client.js";
 import type {
   SprintConfig,
@@ -8,7 +12,8 @@ import type {
 } from "../types.js";
 import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
-import { mergeIssuePR } from "../git/merge.js";
+import { hasConflicts, mergeIssuePR } from "../git/merge.js";
+import { createWorktree, removeWorktree } from "../git/worktree.js";
 import { verifyMainBranch } from "../enforcement/quality-gate.js";
 import { buildQualityGateConfig } from "./quality-retry.js";
 import { escalateToStakeholder } from "../enforcement/escalation.js";
@@ -17,6 +22,68 @@ import { addComment } from "../github/issues.js";
 import { logger } from "../logger.js";
 
 import type { SprintEventBus } from "../events.js";
+
+const execFile = promisify(execFileCb);
+
+/**
+ * Verify a feature branch can merge cleanly into base and still pass tests.
+ * Creates a temporary worktree, merges base into it, and runs tests + type check.
+ */
+async function runPreMergeVerification(
+  branch: string,
+  config: SprintConfig,
+): Promise<{ passed: boolean; reason?: string }> {
+  const log = logger.child({ module: "pre-merge-verify" });
+
+  // 1. Check for conflicts first (fast, no worktree needed)
+  try {
+    const conflicts = await hasConflicts(branch, config.baseBranch);
+    if (conflicts) {
+      return { passed: false, reason: "Merge conflicts detected with " + config.baseBranch };
+    }
+  } catch (err) {
+    log.warn({ err }, "conflict check failed — proceeding to full verification");
+  }
+
+  // 2. Create temporary worktree
+  const tmpDir = path.join(os.tmpdir(), `pre-merge-${branch.replace(/\//g, "-")}-${Date.now()}`);
+  try {
+    await createWorktree({ path: tmpDir, branch: `pre-merge-test-${Date.now()}`, base: branch });
+
+    // 3. Merge base into it
+    await execFile("git", ["fetch", "origin", config.baseBranch], { cwd: tmpDir });
+    await execFile("git", ["merge", `origin/${config.baseBranch}`, "--no-edit"], { cwd: tmpDir });
+
+    // 4. Run tests + type check
+    const gateConfig = buildQualityGateConfig(config);
+    const testCmd = Array.isArray(gateConfig.testCommand) ? gateConfig.testCommand : gateConfig.testCommand.split(" ");
+    const typeCmd = Array.isArray(gateConfig.typecheckCommand) ? gateConfig.typecheckCommand : gateConfig.typecheckCommand.split(" ");
+
+    try {
+      await execFile(testCmd[0], testCmd.slice(1), { cwd: tmpDir, timeout: 120_000 });
+    } catch {
+      return { passed: false, reason: "Tests failed after merging " + config.baseBranch };
+    }
+
+    try {
+      await execFile(typeCmd[0], typeCmd.slice(1), { cwd: tmpDir, timeout: 60_000 });
+    } catch {
+      return { passed: false, reason: "Type check failed after merging " + config.baseBranch };
+    }
+
+    return { passed: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { passed: false, reason: `Pre-merge verification error: ${msg}` };
+  } finally {
+    // 5. Cleanup
+    try {
+      await removeWorktree(tmpDir);
+    } catch {
+      log.warn({ tmpDir }, "failed to cleanup pre-merge worktree");
+    }
+  }
+}
 
 /**
  * Execute sprint issues in parallel, respecting dependency groups.
@@ -61,6 +128,16 @@ export async function runParallelExecution(
 
         // Merge successful branches back to base via GitHub PR
         if (config.autoMerge && result.status === "completed") {
+          // Pre-merge verification: test feature branch with main merged in
+          const premerge = await runPreMergeVerification(result.branch, config);
+          if (!premerge.passed) {
+            log.warn({ issue: result.issueNumber, reason: premerge.reason }, "pre-merge verification failed");
+            result.status = "failed";
+            result.qualityGatePassed = false;
+            await setLabel(result.issueNumber, "status:blocked");
+            await addComment(result.issueNumber, `**Block reason:** Pre-merge verification failed — ${premerge.reason ?? "unknown"}`).catch((err) => log.warn({ err: String(err) }, "failed to post block comment"));
+            continue;
+          }
           try {
             const mergeResult = await mergeIssuePR(result.branch, {
               squash: config.squashMerge,

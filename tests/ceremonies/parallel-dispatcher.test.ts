@@ -18,14 +18,58 @@ vi.mock("../../src/ceremonies/execution.js", () => ({
 
 vi.mock("../../src/git/merge.js", () => ({
   mergeIssuePR: vi.fn(),
+  hasConflicts: vi.fn(),
 }));
+
+vi.mock("../../src/git/worktree.js", () => ({
+  createWorktree: vi.fn().mockResolvedValue(undefined),
+  removeWorktree: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../../src/ceremonies/quality-retry.js", () => ({
+  buildQualityGateConfig: vi.fn().mockReturnValue({
+    testCommand: ["npm", "test"],
+    typecheckCommand: ["npx", "tsc", "--noEmit"],
+    lintCommand: ["npx", "eslint"],
+    buildCommand: ["npm", "run", "build"],
+    requireTests: true,
+    requireLint: true,
+    requireTypes: true,
+    requireBuild: false,
+    maxDiffLines: 500,
+  }),
+}));
+
+const { mockExecFileAsync } = vi.hoisted(() => ({
+  mockExecFileAsync: vi.fn().mockResolvedValue({ stdout: "", stderr: "" }),
+}));
+
+vi.mock("node:child_process", () => ({
+  execFile: vi.fn(),
+}));
+
+vi.mock("node:util", async () => {
+  const actual = await vi.importActual<typeof import("node:util")>("node:util");
+  return {
+    ...actual,
+    promisify: vi.fn().mockReturnValue(mockExecFileAsync),
+  };
+});
 
 vi.mock("../../src/github/labels.js", () => ({
   setLabel: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("../../src/github/issues.js", () => ({
+  addComment: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("../../src/enforcement/escalation.js", () => ({
   escalateToStakeholder: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../../src/enforcement/quality-gate.js", () => ({
+  verifyMainBranch: vi.fn().mockResolvedValue({ passed: true, checks: [] }),
 }));
 
 vi.mock("../../src/logger.js", () => {
@@ -45,8 +89,10 @@ vi.mock("../../src/logger.js", () => {
 import { runParallelExecution } from "../../src/ceremonies/parallel-dispatcher.js";
 import { buildExecutionGroups } from "../../src/ceremonies/dep-graph.js";
 import { executeIssue } from "../../src/ceremonies/execution.js";
-import { mergeIssuePR } from "../../src/git/merge.js";
+import { hasConflicts, mergeIssuePR } from "../../src/git/merge.js";
+import { createWorktree, removeWorktree } from "../../src/git/worktree.js";
 import { setLabel } from "../../src/github/labels.js";
+import { addComment } from "../../src/github/issues.js";
 import { escalateToStakeholder } from "../../src/enforcement/escalation.js";
 
 // --- Helpers ---
@@ -129,6 +175,9 @@ const mockClient = {
 describe("runParallelExecution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: no conflicts, pre-merge verification passes
+    vi.mocked(hasConflicts).mockResolvedValue(false);
+    mockExecFileAsync.mockResolvedValue({ stdout: "", stderr: "" });
   });
 
   it("executes a single group of parallel issues", async () => {
@@ -396,5 +445,119 @@ describe("runParallelExecution", () => {
     expect(result.parallelizationRatio).toBe(1);
     expect(result.avgWorktreeLifetime).toBe(0);
     expect(result.mergeConflicts).toBe(0);
+  });
+
+  // --- Pre-merge verification tests ---
+
+  it("runs pre-merge verification before mergeIssuePR", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
+
+    await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    // hasConflicts should be called before mergeIssuePR
+    expect(hasConflicts).toHaveBeenCalledWith("sprint/1/issue-1", "main");
+    expect(createWorktree).toHaveBeenCalled();
+    expect(mergeIssuePR).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks issue and skips merge when pre-merge verification detects conflicts", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    vi.mocked(hasConflicts).mockResolvedValue(true);
+
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    expect(mergeIssuePR).not.toHaveBeenCalled();
+    expect(createWorktree).not.toHaveBeenCalled();
+    const issue1 = result.results.find((r) => r.issueNumber === 1)!;
+    expect(issue1.status).toBe("failed");
+    expect(issue1.qualityGatePassed).toBe(false);
+    expect(setLabel).toHaveBeenCalledWith(1, "status:blocked");
+    expect(addComment).toHaveBeenCalledWith(1, expect.stringContaining("Merge conflicts"));
+  });
+
+  it("blocks issue when tests fail in pre-merge verification", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    // execFile fails on test command (first call after fetch + merge)
+    mockExecFileAsync
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
+      .mockRejectedValueOnce(new Error("test failure"));  // npm test
+
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    expect(mergeIssuePR).not.toHaveBeenCalled();
+    const issue1 = result.results.find((r) => r.issueNumber === 1)!;
+    expect(issue1.status).toBe("failed");
+    expect(issue1.qualityGatePassed).toBe(false);
+    expect(setLabel).toHaveBeenCalledWith(1, "status:blocked");
+    expect(addComment).toHaveBeenCalledWith(1, expect.stringContaining("Tests failed"));
+  });
+
+  it("blocks issue when type check fails in pre-merge verification", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    // execFile: fetch ok, merge ok, tests ok, typecheck fails
+    mockExecFileAsync
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // npm test
+      .mockRejectedValueOnce(new Error("type error"));    // tsc --noEmit
+
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    expect(mergeIssuePR).not.toHaveBeenCalled();
+    const issue1 = result.results.find((r) => r.issueNumber === 1)!;
+    expect(issue1.status).toBe("failed");
+    expect(addComment).toHaveBeenCalledWith(1, expect.stringContaining("Type check failed"));
+  });
+
+  it("proceeds with merge when pre-merge verification passes", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
+
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    expect(hasConflicts).toHaveBeenCalled();
+    expect(createWorktree).toHaveBeenCalled();
+    expect(mergeIssuePR).toHaveBeenCalledTimes(1);
+    expect(removeWorktree).toHaveBeenCalled();
+    const issue1 = result.results.find((r) => r.issueNumber === 1)!;
+    expect(issue1.status).toBe("completed");
+  });
+
+  it("cleans up worktree even when pre-merge verification fails", async () => {
+    const issues = [makeIssue(1)];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1] },
+    ]);
+    vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
+    mockExecFileAsync
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
+      .mockRejectedValueOnce(new Error("test failure"));  // npm test
+
+    await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
+
+    expect(removeWorktree).toHaveBeenCalled();
   });
 });

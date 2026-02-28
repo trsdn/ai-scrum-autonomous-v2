@@ -11,14 +11,13 @@ import type {
 import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
-import { createIssueRateLimited, type IssueCreationState } from "../github/issue-rate-limiter.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 
 /**
  * Run the sprint retro ceremony: analyse sprint data, ask ACP for
- * improvements, and create GitHub issues for non-auto-applicable items.
+ * improvements, and auto-apply all improvement types.
  */
 export async function runSprintRetro(
   client: AcpClient,
@@ -26,7 +25,7 @@ export async function runSprintRetro(
   result: SprintResult,
   review: ReviewResult,
   eventBus?: SprintEventBus,
-  state: IssueCreationState = { issuesCreatedCount: 0 },
+  _state?: unknown,
 ): Promise<RetroResult> {
   const log = logger.child({ ceremony: "retro" });
 
@@ -129,7 +128,7 @@ export async function runSprintRetro(
       "Sprint retro completed",
     );
 
-    // Process improvements: auto-apply or create issues
+    // Process improvements: auto-apply all types
     for (const improvement of retro.improvements) {
       const title = improvement.title;
       const description = improvement.description;
@@ -142,41 +141,13 @@ export async function runSprintRetro(
         continue;
       }
 
-      if (improvement.autoApplicable && (improvement.target === "skill" || improvement.target === "agent")) {
-        // Auto-apply skill/agent improvements via ACP session
-        await applySkillImprovement(client, config, improvement, eventBus);
-        log.info({ title, target: improvement.target }, "Auto-applied improvement");
-      } else if (improvement.autoApplicable && improvement.target === "config") {
-        // Config changes create an issue for stakeholder review (safety)
-        const issue = await createIssueRateLimited(
-          {
-            title: `chore(config): ${title}`,
-            body: `**Auto-suggested config change:**\n\n${description}\n\n_This change was identified by the sprint retro as auto-applicable but requires stakeholder review._`,
-            labels: ["type:chore", "scope:config", "needs:review"],
-          },
-          state,
-          config.maxIssuesCreatedPerSprint ?? 10,
-        );
-        if (issue) {
-          log.info({ title, number: issue.number }, "Created config improvement issue for review");
-        }
-      } else {
-        // Non-auto-applicable or process improvements → create issue
-        const issue = await createIssueRateLimited(
-          {
-            title: `chore(process): ${title}`,
-            body: description,
-            labels: ["type:chore", "scope:process"],
-          },
-          state,
-          config.maxIssuesCreatedPerSprint ?? 10,
-        );
-        if (issue) {
-          log.info({ title, number: issue.number }, "Created improvement issue");
-        } else {
-          log.warn({ title }, "Skipped improvement issue due to rate limit");
-        }
+      if (!improvement.autoApplicable) {
+        log.warn({ title, target: improvement.target }, "Skipping non-auto-applicable improvement");
+        continue;
       }
+
+      await applyImprovement(client, config, improvement, eventBus);
+      log.info({ title, target: improvement.target }, "Auto-applied improvement");
     }
 
     return retro;
@@ -187,10 +158,10 @@ export async function runSprintRetro(
 }
 
 /**
- * Auto-apply a skill/agent improvement by sending the improvement description
- * to an ACP session that can edit the relevant files in .aiscrum/roles/.
+ * Auto-apply an improvement by sending the improvement description
+ * to an ACP session that edits the appropriate files based on target type.
  */
-async function applySkillImprovement(
+async function applyImprovement(
   client: AcpClient,
   config: SprintConfig,
   improvement: RetroImprovement,
@@ -207,6 +178,28 @@ async function applySkillImprovement(
     if (sessionConfig.model) {
       await client.setModel(sessionId, sessionConfig.model);
     }
+
+    let targetInstruction: string;
+    switch (improvement.target) {
+      case "skill":
+      case "agent":
+        targetInstruction =
+          "Edit files under `.aiscrum/roles/`. " +
+          "Look at the existing files to understand the structure, then make minimal targeted changes.";
+        break;
+      case "config":
+        targetInstruction =
+          "Edit `sprint-runner.config.yaml` in the project root. " +
+          "Preserve existing structure and comments. Only change the relevant settings.";
+        break;
+      case "process":
+        targetInstruction =
+          "Edit ceremony or enforcement code under `src/ceremonies/`, `src/enforcement/`, " +
+          "or prompt files under `.aiscrum/roles/*/prompts/`. " +
+          "Make minimal targeted changes to the relevant files.";
+        break;
+    }
+
     const prompt = [
       `## Apply Retro Improvement`,
       "",
@@ -214,12 +207,11 @@ async function applySkillImprovement(
       `**Target:** ${improvement.target}`,
       `**Description:** ${improvement.description}`,
       "",
-      `Apply this improvement by editing the appropriate files under \`.aiscrum/roles/\`.`,
-      `Look at the existing files to understand the structure, then make minimal targeted changes.`,
+      targetInstruction,
       `Do NOT create new files — only edit existing ones.`,
     ].join("\n");
     await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
-    log.info({ title: improvement.title }, "Applied skill/agent improvement via ACP");
+    log.info({ title: improvement.title }, "Applied improvement via ACP");
   } catch (err: unknown) {
     log.warn({ err: String(err), title: improvement.title }, "Failed to auto-apply improvement");
   } finally {

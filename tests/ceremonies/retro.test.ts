@@ -27,12 +27,8 @@ vi.mock("../../src/documentation/velocity.js", () => ({
   readVelocity: vi.fn().mockReturnValue([]),
 }));
 
-vi.mock("../../src/github/issues.js", () => ({
-  createIssue: vi.fn().mockResolvedValue({ number: 99, title: "improvement" }),
-}));
-
 vi.mock("../../src/logger.js", () => {
-  const noop = () => {};
+  const noop = vi.fn();
   const childLogger = {
     info: noop,
     debug: noop,
@@ -60,8 +56,8 @@ vi.mock("node:fs/promises", () => ({
   },
 }));
 
-const { createIssue } = await import("../../src/github/issues.js");
 const { runSprintRetro } = await import("../../src/ceremonies/retro.js");
+const { logger } = await import("../../src/logger.js");
 
 // --- Helpers ---
 
@@ -205,7 +201,7 @@ describe("runSprintRetro", () => {
       cwd: "/tmp/test-project",
       mcpServers: [],
     });
-    expect(mockClient.sendPrompt).toHaveBeenCalledOnce();
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
     expect(mockClient.endSession).toHaveBeenCalledWith("session-ret-1");
   });
 
@@ -220,20 +216,14 @@ describe("runSprintRetro", () => {
       makeReviewResult(),
     );
 
-    // "Stabilize CI" (process, non-auto) → process issue
-    // "Update deps" (config, auto) → config issue for review
-    expect(createIssue).toHaveBeenCalledTimes(2);
-    expect(createIssue).toHaveBeenCalledWith({
-      title: "chore(process): Stabilize CI",
-      body: "Add retry logic for flaky tests",
-      labels: ["type:chore", "scope:process"],
-    });
-    expect(createIssue).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "chore(config): Update deps",
-        labels: ["type:chore", "scope:config", "needs:review"],
-      }),
-    );
+    // "Stabilize CI" (process, non-auto) → skipped (not auto-applicable)
+    // "Update deps" (config, auto) → auto-applied via ACP
+    // 2 sessions: retro + retro-apply for config improvement
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    const applyCall = mockClient.sendPrompt.mock.calls[1];
+    expect(applyCall[1]).toContain("Update deps");
+    expect(applyCall[1]).toContain("sprint-runner.config.yaml");
   });
 
   it("skips improvements with empty title", async () => {
@@ -243,8 +233,8 @@ describe("runSprintRetro", () => {
         wentWell: [],
         wentBadly: [],
         improvements: [
-          { title: "", description: "some desc", autoApplicable: false, target: "process" },
-          { title: "Valid", description: "valid desc", autoApplicable: false, target: "process" },
+          { title: "", description: "some desc", autoApplicable: true, target: "process" },
+          { title: "Valid", description: "valid desc", autoApplicable: true, target: "process" },
         ],
         previousImprovementsChecked: false,
       }),
@@ -259,11 +249,12 @@ describe("runSprintRetro", () => {
       makeReviewResult(),
     );
 
-    // Only "Valid" should create an issue; empty title is skipped
-    expect(createIssue).toHaveBeenCalledTimes(1);
-    expect(createIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "chore(process): Valid" }),
-    );
+    // Only "Valid" should be auto-applied; empty title is skipped
+    // 2 sessions: retro + retro-apply for "Valid"
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    const applyCall = mockClient.sendPrompt.mock.calls[1];
+    expect(applyCall[1]).toContain("Valid");
   });
 
   it("handles missing previous retro file gracefully", async () => {
@@ -279,7 +270,7 @@ describe("runSprintRetro", () => {
     );
 
     expect(result.wentWell).toBeDefined();
-    expect(mockClient.sendPrompt).toHaveBeenCalledOnce();
+    expect(mockClient.sendPrompt).toHaveBeenCalled();
   });
 
   it("cleans up session on error", async () => {
@@ -337,6 +328,119 @@ describe("runSprintRetro", () => {
     expect(promptArg).toContain("3 tests failed");
   });
 
+  it("auto-applies config improvement via ACP session", async () => {
+    const configResponse = {
+      wentWell: ["Good"],
+      wentBadly: [],
+      improvements: [
+        {
+          title: "Update deps",
+          description: "Run npm audit fix",
+          autoApplicable: true,
+          target: "config" as const,
+        },
+      ],
+      previousImprovementsChecked: true,
+    };
+    const mockClient = makeMockClient();
+    mockClient.sendPrompt.mockResolvedValue({
+      response: JSON.stringify(configResponse),
+      stopReason: "end_turn",
+    });
+
+    await runSprintRetro(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockClient as any,
+      makeConfig(),
+      makeSprintResult(),
+      makeReviewResult(),
+    );
+
+    // 2 sessions: retro + retro-apply
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    const applyCall = mockClient.sendPrompt.mock.calls[1];
+    expect(applyCall[1]).toContain("Update deps");
+    expect(applyCall[1]).toContain("sprint-runner.config.yaml");
+  });
+
+  it("auto-applies process improvement via ACP session", async () => {
+    const processResponse = {
+      wentWell: ["Good"],
+      wentBadly: [],
+      improvements: [
+        {
+          title: "Add retry logic",
+          description: "Add retry for flaky CI steps",
+          autoApplicable: true,
+          target: "process" as const,
+        },
+      ],
+      previousImprovementsChecked: true,
+    };
+    const mockClient = makeMockClient();
+    mockClient.sendPrompt.mockResolvedValue({
+      response: JSON.stringify(processResponse),
+      stopReason: "end_turn",
+    });
+
+    await runSprintRetro(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockClient as any,
+      makeConfig(),
+      makeSprintResult(),
+      makeReviewResult(),
+    );
+
+    // 2 sessions: retro + retro-apply
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    const applyCall = mockClient.sendPrompt.mock.calls[1];
+    expect(applyCall[1]).toContain("Add retry logic");
+    expect(applyCall[1]).toContain("src/ceremonies/");
+    expect(applyCall[1]).toContain("src/enforcement/");
+  });
+
+  it("skips non-auto-applicable improvement with warning", async () => {
+    const response = {
+      wentWell: ["Good"],
+      wentBadly: [],
+      improvements: [
+        {
+          title: "Manual change needed",
+          description: "Requires stakeholder input",
+          autoApplicable: false,
+          target: "process" as const,
+        },
+      ],
+      previousImprovementsChecked: true,
+    };
+    const mockClient = makeMockClient();
+    mockClient.sendPrompt.mockResolvedValue({
+      response: JSON.stringify(response),
+      stopReason: "end_turn",
+    });
+
+    await runSprintRetro(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockClient as any,
+      makeConfig(),
+      makeSprintResult(),
+      makeReviewResult(),
+    );
+
+    // Only 1 session (retro), no retro-apply session
+    expect(mockClient.createSession).toHaveBeenCalledTimes(1);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(1);
+
+    // Logger warn should have been called for non-auto-applicable
+    const childLogger = (logger as unknown as { child: () => { warn: ReturnType<typeof vi.fn> } }).child();
+    expect(childLogger.warn).toHaveBeenCalledWith(
+      { title: "Manual change needed", target: "process" },
+      "Skipping non-auto-applicable improvement",
+    );
+  });
+
   it("auto-applies skill improvements via ACP session", async () => {
     const skillResponse = {
       wentWell: ["Good"],
@@ -375,6 +479,5 @@ describe("runSprintRetro", () => {
     expect(applyCall[1]).toContain(".aiscrum/roles/");
 
     // No issues created for auto-applied skill improvements
-    expect(createIssue).not.toHaveBeenCalled();
   });
 });
