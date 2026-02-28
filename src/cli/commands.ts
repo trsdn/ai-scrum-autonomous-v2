@@ -1,5 +1,5 @@
 /**
- * CLI command definitions — all 14 commands registered on the Commander program.
+ * CLI command definitions — all 13 commands registered on the Commander program.
  */
 
 import type { Command } from "commander";
@@ -33,7 +33,6 @@ export function registerCommands(program: Command): void {
   registerCheckQuality(program);
   registerRefine(program);
   registerFullCycle(program);
-  registerDashboard(program);
   registerWeb(program);
   registerReview(program);
   registerRetro(program);
@@ -262,157 +261,6 @@ function registerFullCycle(program: Command): void {
       } catch (err: unknown) {
         logger.error({ err }, "Full cycle failed");
         console.error("❌ Full cycle failed:", err instanceof Error ? err.message : err);
-        process.exit(1);
-      }
-    });
-}
-
-// --- dashboard ---
-function registerDashboard(program: Command): void {
-  program
-    .command("dashboard")
-    .description("Launch TUI dashboard — auto-detects sprint from GitHub milestones, loops continuously")
-    .option("--sprint <number>", "Override sprint number (skip auto-detection)", parseSprintNumber)
-    .option("--run", "Start sprint execution immediately")
-    .option("--once", "Run only one sprint instead of looping (implies --run)")
-    .option("--log-file <path>", "Log file path (default: sprint-runner.log)", "sprint-runner.log")
-    .action(async (opts) => {
-      try {
-        const config = loadConfigFromOpts(program.opts().config);
-
-        // Auto-detect sprint from milestones if not specified
-        let initialSprint = opts.sprint as number | undefined;
-        if (!initialSprint) {
-          const next = await getNextOpenMilestone(config.sprint.prefix);
-          if (!next) {
-            console.error(`❌ No open sprint milestones found (prefix: "${config.sprint.prefix}").`);
-            console.error(`   Create a milestone named '${config.sprint.prefix} N' in GitHub, or use --sprint <number>.`);
-            process.exit(1);
-          }
-          initialSprint = next.sprintNumber;
-        }
-
-        // Redirect all logger output to file so it doesn't corrupt the TUI
-        redirectLogToFile(opts.logFile as string);
-        logger.info({ sprint: initialSprint }, "Launching TUI dashboard");
-
-        // Shared event bus for the TUI across sprints
-        const eventBus = new SprintEventBus();
-
-        // For the TUI we need an initial runner to mount the component
-        const sprintConfig = buildSprintConfig(config, initialSprint);
-        const runner = new SprintRunner(sprintConfig, eventBus);
-
-        // Load saved sprint state (if any) to restore dashboard on restart
-        const savedState = runner.loadSavedState();
-
-        // Load milestone issues for initial display, enriched with saved state
-        let initialIssues: { number: number; title: string; status: "planned" | "in-progress" | "done" | "failed" }[] = [];
-        try {
-          const milestoneIssues = await listIssues({
-            milestone: `${config.sprint.prefix} ${initialSprint}`,
-            state: "open",
-          });
-
-          // If we have a saved plan, use it to determine issue status
-          const completedIssues = new Set<number>();
-          if (savedState?.result) {
-            for (const r of savedState.result.results) {
-              if (r.status === "completed") completedIssues.add(r.issueNumber);
-            }
-          }
-
-          initialIssues = milestoneIssues.map((i) => ({
-            number: i.number,
-            title: i.title,
-            status: completedIssues.has(i.number) ? "done" as const : "planned" as const,
-          }));
-        } catch {
-          // Non-critical — dashboard works without pre-loaded issues
-        }
-
-        // Dynamic import for Ink (ESM)
-        const { render } = await import("ink");
-        const { default: React } = await import("react");
-        const { App } = await import("../tui/index.js");
-
-        // Enter alternate screen buffer (like vim/htop)
-        process.stdout.write("\x1b[?1049h");
-        process.stdout.write("\x1b[H"); // cursor home
-
-        // Start sprint loop (called by [g]o key or --run flag)
-        const startLoop = () => {
-          SprintRunner.sprintLoop(
-            (sprintNumber) => buildSprintConfig(config, sprintNumber),
-            eventBus,
-          ).then((results) => {
-            const allComplete = results.every((s) => s.phase === "complete");
-            if (allComplete && results.length > 0) {
-              // All sprints done — keep dashboard open, user can quit with [q]
-              eventBus.emitTyped("log", { level: "info", message: "All sprints complete. Press [q] to quit." });
-            }
-            // On failure: dashboard stays open so user can see the error
-          }).catch((err: unknown) => {
-            const msg = err instanceof Error ? err.message : String(err);
-            eventBus.emitTyped("sprint:error", { error: msg });
-            eventBus.emitTyped("log", { level: "error", message: `Sprint loop crashed: ${msg}` });
-          });
-        };
-
-        // Start single sprint (called by --once flag)
-        const startOnce = () => {
-          runner.fullCycle().then((state) => {
-            if (state.phase === "complete") {
-              eventBus.emitTyped("log", { level: "info", message: "Sprint complete. Press [q] to quit." });
-            }
-            // On failure: dashboard stays open so user can see the error
-          }).catch((err: unknown) => {
-            const msg = err instanceof Error ? err.message : String(err);
-            eventBus.emitTyped("sprint:error", { error: msg });
-            eventBus.emitTyped("log", { level: "error", message: `Sprint crashed: ${msg}` });
-          });
-        };
-
-        const { unmount } = render(
-          React.createElement(App, {
-            runner,
-            onStart: opts.once ? startOnce : startLoop,
-            initialIssues,
-          }),
-        );
-
-        const cleanup = () => {
-          unmount();
-          process.stdout.write("\x1b[?1049l"); // restore main screen
-        };
-
-        // Restore screen on exit
-        process.on("exit", () => process.stdout.write("\x1b[?1049l"));
-        process.on("SIGINT", () => { cleanup(); process.exit(0); });
-        process.on("SIGTERM", () => { cleanup(); process.exit(0); });
-
-        // Catch unhandled errors — show in dashboard instead of crashing
-        process.on("unhandledRejection", (reason: unknown) => {
-          const msg = reason instanceof Error ? reason.message : String(reason);
-          eventBus.emitTyped("sprint:error", { error: msg });
-          eventBus.emitTyped("log", { level: "error", message: `Unhandled error: ${msg}` });
-        });
-        process.on("uncaughtException", (err: Error) => {
-          eventBus.emitTyped("sprint:error", { error: err.message });
-          eventBus.emitTyped("log", { level: "error", message: `Uncaught exception: ${err.message}` });
-        });
-
-        // Auto-start if --run or --once was passed
-        if (opts.run || opts.once) {
-          if (opts.once) {
-            startOnce();
-          } else {
-            startLoop();
-          }
-        }
-      } catch (err: unknown) {
-        logger.error({ err }, "Dashboard failed");
-        console.error("❌ Dashboard failed:", err instanceof Error ? err.message : err);
         process.exit(1);
       }
     });

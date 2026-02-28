@@ -15,8 +15,13 @@ vi.mock("../../src/github/issues.js", () => ({
   createIssue: vi.fn().mockResolvedValue({ number: 1 }),
 }));
 
+vi.mock("../../src/github/labels.js", () => ({
+  ensureLabelExists: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { sanitizeForHttp, escalateToStakeholder } from "../../src/enforcement/escalation.js";
 import type { EscalationEvent } from "../../src/types.js";
+import type { SprintEventBus } from "../../src/events.js";
 
 describe("sanitizeForHttp", () => {
   it("removes newlines", () => {
@@ -105,5 +110,42 @@ describe("ntfy topic validation", () => {
       await escalateToStakeholder(baseEvent, { ntfyEnabled: true, ntfyTopic: topic });
       expect(execFileSpy).not.toHaveBeenCalled();
     }
+  });
+});
+
+describe("MUST escalation pause", () => {
+  beforeEach(() => {
+    execFileSpy.mockClear();
+  });
+
+  const mustEvent: EscalationEvent = {
+    level: "must",
+    reason: "critical failure",
+    detail: "something went wrong",
+    context: {},
+    timestamp: new Date("2025-01-01T00:00:00Z"),
+  };
+
+  it("emits sprint:paused when level is must and eventBus is provided", async () => {
+    const mockEventBus = { emitTyped: vi.fn(), onTyped: vi.fn(), removeAllListeners: vi.fn() } as unknown as SprintEventBus;
+
+    await escalateToStakeholder(mustEvent, { ntfyEnabled: false }, mockEventBus);
+
+    expect(mockEventBus.emitTyped).toHaveBeenCalledWith("sprint:paused", {});
+  });
+
+  it("does NOT emit sprint:paused when level is should", async () => {
+    const mockEventBus = { emitTyped: vi.fn(), onTyped: vi.fn(), removeAllListeners: vi.fn() } as unknown as SprintEventBus;
+    const shouldEvent: EscalationEvent = { ...mustEvent, level: "should" };
+
+    await escalateToStakeholder(shouldEvent, { ntfyEnabled: false }, mockEventBus);
+
+    expect(mockEventBus.emitTyped).not.toHaveBeenCalledWith("sprint:paused", expect.anything());
+  });
+
+  it("does not error when level is must but eventBus is not provided", async () => {
+    await expect(
+      escalateToStakeholder(mustEvent, { ntfyEnabled: false }),
+    ).resolves.toBeUndefined();
   });
 });

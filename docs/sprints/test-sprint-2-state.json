@@ -1,0 +1,49 @@
+{
+  "version": "1",
+  "sprintNumber": 2,
+  "phase": "plan",
+  "startedAt": "2026-02-27T22:42:43.597Z",
+  "plan": {
+    "sprintNumber": 2,
+    "sprint_issues": [
+      {
+        "number": 159,
+        "title": "chore(process): Fix flaky ws-server.test.ts blocking unrelated PRs",
+        "effort": 2,
+        "ice_score": 336,
+        "priority": "normal",
+        "depends_on": []
+      },
+      {
+        "number": 161,
+        "title": "chore(process): Fix duplicate velocity.md entries for Sprint 1",
+        "effort": 2,
+        "ice_score": 360,
+        "priority": "normal",
+        "depends_on": []
+      },
+      {
+        "number": 162,
+        "title": "chore(process): Resolve carried-over issue #152 (missing milestone error message)",
+        "effort": 1,
+        "ice_score": 567,
+        "priority": "normal",
+        "depends_on": [
+          159
+        ]
+      }
+    ],
+    "execution_groups": [
+      [
+        159,
+        161
+      ],
+      [
+        162
+      ]
+    ],
+    "estimated_points": 5,
+    "velocity_capacity": 3,
+    "rationale": "All 4 eligible issues are type:chore from Sprint 1 retro. Selected 3, deferred #160 (quality gate improvement) as it's larger scope and #159 addresses the immediate symptom. #162 (carryover resolution) sequenced after #159 because it needs the flaky ws-server.test.ts fixed before the quality gate can pass. #159 and #161 are independent and run in parallel as Group 1."
+  }
+}

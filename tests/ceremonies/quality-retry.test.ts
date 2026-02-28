@@ -33,7 +33,7 @@ const { runQualityGate } = await import(
   "../../src/enforcement/quality-gate.js"
 );
 
-const { handleQualityFailure } = await import(
+const { handleQualityFailure, buildQualityGateConfig, DEFAULT_QUALITY_GATE_CONFIG } = await import(
   "../../src/ceremonies/quality-retry.js"
 );
 
@@ -201,5 +201,40 @@ describe("handleQualityFailure", () => {
     ).rejects.toThrow("retry failed");
 
     expect(mockClient.endSession).toHaveBeenCalledWith("session-abc");
+  });
+});
+
+// --- buildQualityGateConfig ---
+
+describe("buildQualityGateConfig", () => {
+  it("returns DEFAULT_QUALITY_GATE_CONFIG when config.qualityGate is undefined", () => {
+    const config = makeConfig();
+    const result = buildQualityGateConfig(config);
+    expect(result).toBe(DEFAULT_QUALITY_GATE_CONFIG);
+  });
+
+  it("returns the provided qualityGate when it exists on SprintConfig", () => {
+    const customGate = {
+      requireTests: false,
+      requireLint: false,
+      requireTypes: false,
+      requireBuild: false,
+      maxDiffLines: 1000,
+      testCommand: ["npx", "vitest"],
+      lintCommand: ["npx", "eslint"],
+      typecheckCommand: ["npx", "tsc"],
+      buildCommand: ["npx", "tsc", "-b"],
+    };
+    const config = makeConfig({ qualityGate: customGate });
+    const result = buildQualityGateConfig(config);
+    expect(result).toEqual(customGate);
+  });
+
+  it("DEFAULT_QUALITY_GATE_CONFIG has reasonable defaults", () => {
+    expect(DEFAULT_QUALITY_GATE_CONFIG.requireTests).toBe(true);
+    expect(DEFAULT_QUALITY_GATE_CONFIG.requireLint).toBe(true);
+    expect(DEFAULT_QUALITY_GATE_CONFIG.requireTypes).toBe(true);
+    expect(DEFAULT_QUALITY_GATE_CONFIG.requireBuild).toBe(true);
+    expect(DEFAULT_QUALITY_GATE_CONFIG.maxDiffLines).toBe(300);
   });
 });
