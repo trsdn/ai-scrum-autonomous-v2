@@ -48,6 +48,11 @@ export function buildSprintConfig(config: ConfigFile, sprintNumber: number): Spr
       typecheckCommand: config.quality_gates.typecheck_command,
       buildCommand: config.quality_gates.build_command,
     },
+    ntfy: {
+      enabled: config.escalation.notifications.ntfy,
+      topic: config.escalation.notifications.ntfy_topic,
+      serverUrl: config.escalation.notifications.ntfy_server_url,
+    },
   };
 }
 

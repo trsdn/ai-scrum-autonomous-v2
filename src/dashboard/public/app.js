@@ -26,6 +26,7 @@
   let chatMessages = {}; // chatId -> [{ role, content }]
   let chatStreaming = {}; // chatId -> current streaming text
   let pendingIdeaContext = null; // { number, title, body } — auto-sent after refiner session created
+  let pendingMessages = []; // Queue for messages sent while disconnected
 
   // --- DOM refs ---
   const $ = (id) => document.getElementById(id);
@@ -82,11 +83,31 @@
     ws.onopen = () => {
       connStatus.className = "status-dot status-connected";
       connLabel.textContent = "Connected";
+
+      // Flush pending messages
+      while (pendingMessages.length > 0) {
+        const msg = pendingMessages.shift();
+        ws.send(JSON.stringify(msg));
+      }
+
+      // Hide disconnect banner if shown
+      const banner = document.getElementById("disconnect-banner");
+      if (banner) banner.remove();
     };
 
     ws.onclose = () => {
       connStatus.className = "status-dot status-disconnected";
       connLabel.textContent = "Disconnected — reconnecting…";
+
+      // Show prominent disconnect banner
+      if (!document.getElementById("disconnect-banner")) {
+        const banner = document.createElement("div");
+        banner.id = "disconnect-banner";
+        banner.className = "disconnect-banner";
+        banner.innerHTML = "⚠️ Connection lost — reconnecting…";
+        document.body.insertBefore(banner, document.body.firstChild);
+      }
+
       setTimeout(connect, 2000);
     };
 
@@ -106,6 +127,8 @@
   function send(msg) {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(msg));
+    } else {
+      pendingMessages.push(msg);
     }
   }
 
@@ -293,6 +316,13 @@
       case "log":
         addLog(payload.level, payload.message);
         break;
+
+      case "mode:changed":
+        if (payload.mode === "autonomous" || payload.mode === "hitl") {
+          executionMode = payload.mode;
+          modeToggle.value = payload.mode;
+        }
+        break;
     }
   }
 
@@ -412,6 +442,8 @@
     elapsedEl.textContent = `${min}m ${String(sec).padStart(2, "0")}s`;
   }
 
+  const EXECUTION_STEPS = ["plan", "tdd", "implement", "quality gate", "code review"];
+
   function renderIssues() {
     issueList.innerHTML = "";
     if (!issues || !Array.isArray(issues)) return;
@@ -422,11 +454,23 @@
       const issueLink = repoUrl
         ? `<a href="${repoUrl}/issues/${issue.number}" target="_blank" rel="noopener" class="gh-link">#${issue.number}</a>`
         : `#${issue.number}`;
+
+      let stepsHtml = "";
+      if (issue.status === "in-progress" && issue.currentStep) {
+        stepsHtml = '<div class="issue-steps">' + EXECUTION_STEPS.map((step) => {
+          const isCurrent = issue.currentStep === step;
+          const isPast = EXECUTION_STEPS.indexOf(step) < EXECUTION_STEPS.indexOf(issue.currentStep);
+          const cls = isCurrent ? "step-current" : isPast ? "step-done" : "step-pending";
+          return `<span class="issue-step ${cls}">${escapeHtml(step)}</span>`;
+        }).join('<span class="step-sep">→</span>') + '</div>';
+      }
+
       li.innerHTML = `
         <span class="issue-icon">${statusIcon(issue.status)}</span>
         <span class="issue-number">${issueLink}</span>
         <span class="issue-title">${escapeHtml(issue.title)}</span>
         ${issue.failReason ? `<span class="issue-fail-reason">${escapeHtml(issue.failReason)}</span>` : ""}
+        ${stepsHtml}
       `;
       issueList.appendChild(li);
     }
@@ -440,6 +484,7 @@
       li.innerHTML = `
         <span class="activity-icon">${activityIcon(a.status)}</span>
         <div class="activity-content">
+          <span class="activity-time">${a.time || ""}</span>
           <div class="activity-label">${escapeHtml(a.label)}</div>
           ${a.detail ? `<div class="activity-detail">${escapeHtml(a.detail)}</div>` : ""}
         </div>
@@ -454,7 +499,8 @@
   // --- Activity helpers ---
 
   function addActivity(type, label, detail, status) {
-    activities.push({ type, label, detail, status, startedAt: status === "active" ? Date.now() : null });
+    const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    activities.push({ type, label, detail, status, startedAt: status === "active" ? Date.now() : null, time });
     renderActivities();
   }
 
@@ -469,6 +515,13 @@
   }
 
   function updateActivityDetail(issueNumber, step) {
+    // Update issue step indicator
+    const issue = issues.find((i) => i.number === issueNumber);
+    if (issue) {
+      issue.currentStep = step;
+      renderIssues();
+    }
+    // Update activity feed
     const prefix = `#${issueNumber}`;
     for (let i = activities.length - 1; i >= 0; i--) {
       if (activities[i].label.startsWith(prefix) && activities[i].status === "active") {
@@ -729,16 +782,24 @@
     chatInput.focus();
     addChatSystemMessage(`Session started — ${session.role} agent (${session.model || "default"})`);
 
-    // Auto-send idea context if this is a refinement session
-    if (pendingIdeaContext && session.role === "refiner") {
+    // Auto-send idea/blocked-issue context if pending
+    if (pendingIdeaContext) {
       const ctx = pendingIdeaContext;
       pendingIdeaContext = null;
-      const msg = `Refine issue #${ctx.number} ("${ctx.title}"). Start by reading the full issue with \`gh issue view ${ctx.number}\`, then ask me clarifying questions before drafting the refined version.`;
-      chatMessages[session.id].push({ role: "user", content: msg });
+      let contextMessage;
+      if (ctx.isBlocked) {
+        contextMessage = `I need help with blocked issue #${ctx.number}: "${ctx.title}"\n\n` +
+          `Issue description:\n${ctx.body}\n\n` +
+          `This issue failed quality gate checks and is currently blocked. ` +
+          `Please help me understand what went wrong and suggest how to fix it.`;
+      } else {
+        contextMessage = `Refine issue #${ctx.number} ("${ctx.title}"). Start by reading the full issue with \`gh issue view ${ctx.number}\`, then ask me clarifying questions before drafting the refined version.`;
+      }
+      chatMessages[session.id].push({ role: "user", content: contextMessage });
       btnSend.disabled = true;
       chatInput.disabled = true;
       renderChatMessages();
-      send({ type: "chat:send", sessionId: session.id, message: msg });
+      send({ type: "chat:send", sessionId: session.id, message: contextMessage });
     }
   }
 
@@ -1077,6 +1138,24 @@
     addLog("info", `Starting refinement chat for #${idea.number}…`);
   }
 
+  function chatAboutIssue(issue) {
+    pendingIdeaContext = {
+      number: issue.number,
+      title: issue.title,
+      body: issue.body || "",
+      isBlocked: true,
+    };
+    // Open chat panel if not visible
+    if (chatPanel.style.display === "none") {
+      chatPanel.style.display = "flex";
+      document.querySelector("main").classList.add("chat-open");
+      btnChat.textContent = "💬 Close";
+    }
+    chatRole.value = "reviewer";
+    send({ type: "chat:create", role: "reviewer" });
+    addLog("info", `Opening agent chat for blocked issue #${issue.number}…`);
+  }
+
   $("btn-refresh-backlog")?.addEventListener("click", loadBacklog);
   $("btn-refresh-ideas")?.addEventListener("click", loadIdeas);
   $("btn-refresh-blocked")?.addEventListener("click", loadBlocked);
@@ -1127,6 +1206,12 @@
           if (remaining === 0) empty.style.display = "";
         };
         li.appendChild(unblockBtn);
+
+        const askBtn = document.createElement("button");
+        askBtn.className = "btn btn-small btn-primary";
+        askBtn.textContent = "🤖 Ask Agent";
+        askBtn.onclick = () => chatAboutIssue(item);
+        li.appendChild(askBtn);
 
         list.appendChild(li);
       }

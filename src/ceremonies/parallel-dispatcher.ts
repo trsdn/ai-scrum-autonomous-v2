@@ -93,7 +93,7 @@ export async function runParallelExecution(
                     detail: `Failed checks: ${failedChecks}. Main branch may be broken.`,
                     context: { issueNumber: result.issueNumber, branch: result.branch },
                     timestamp: new Date(),
-                  }, { ntfyEnabled: false }, eventBus);
+                  }, { ntfyEnabled: !!config.ntfy?.enabled, ntfyTopic: config.ntfy?.topic }, eventBus);
                 }
               } catch (verifyErr: unknown) {
                 log.warn({ err: verifyErr }, "post-merge verification could not run");
@@ -132,8 +132,24 @@ export async function runParallelExecution(
     if (failures.length === group.issues.length && group.issues.length > 0) {
       log.warn(
         { group: group.group, failureCount: failures.length },
-        "all issues in group failed — pausing execution",
+        "all issues in group failed — escalating to stakeholder",
       );
+
+      // Escalate with ntfy notification
+      const failedIssueNumbers = failures.map((f) => `#${f.issueNumber}`).join(", ");
+      await escalateToStakeholder({
+        level: "must",
+        reason: `All issues in execution group ${group.group} failed`,
+        detail: `Failed issues: ${failedIssueNumbers}. Sprint execution paused until stakeholder intervenes. Unblock issues and resume to retry.`,
+        context: { group: group.group, failures: failures.length },
+        timestamp: new Date(),
+      }, { ntfyEnabled: !!config.ntfy?.enabled, ntfyTopic: config.ntfy?.topic }, eventBus);
+
+      // Emit event so runner can handle pause
+      eventBus?.emitTyped("sprint:error", {
+        error: `All ${failures.length} issues in group ${group.group} failed. Execution paused — waiting for stakeholder.`,
+      });
+
       break;
     }
   }

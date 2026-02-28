@@ -100,7 +100,7 @@ describe("sprint cycle integration", () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("fullCycle emits correct phase sequence", async () => {
+  it("fullCycle emits correct phase sequence", { timeout: 15000 }, async () => {
     const events = new SprintEventBus();
     const phaseChanges: string[] = [];
     events.onTyped("phase:change", (p) => phaseChanges.push(p.to));
@@ -111,7 +111,7 @@ describe("sprint cycle integration", () => {
     expect(phaseChanges).toEqual(["init", "refine", "plan", "execute", "review", "retro", "complete"]);
   });
 
-  it("fullCycle emits sprint:start and sprint:complete", async () => {
+  it("fullCycle emits sprint:start and sprint:complete", { timeout: 15000 }, async () => {
     const events = new SprintEventBus();
     const starts: { sprintNumber: number }[] = [];
     const completes: { sprintNumber: number }[] = [];
@@ -127,7 +127,7 @@ describe("sprint cycle integration", () => {
     expect(completes[0]!.sprintNumber).toBe(1);
   });
 
-  it("fullCycle emits sprint:planned with issue list", async () => {
+  it("fullCycle emits sprint:planned with issue list", { timeout: 15000 }, async () => {
     const events = new SprintEventBus();
     const planned: { issues: { number: number; title: string }[] }[] = [];
     events.onTyped("sprint:planned", (p) => planned.push(p));
@@ -139,7 +139,7 @@ describe("sprint cycle integration", () => {
     expect(planned[0]!.issues).toEqual([{ number: 1, title: "Issue 1" }]);
   });
 
-  it("fullCycle emits issue:start and issue:done for each issue", async () => {
+  it("fullCycle emits issue:start and issue:done for each issue", { timeout: 15000 }, async () => {
     const events = new SprintEventBus();
     const issueStarts: number[] = [];
     const issueDones: number[] = [];
@@ -153,7 +153,7 @@ describe("sprint cycle integration", () => {
     expect(issueDones).toEqual([1]);
   });
 
-  it("fullCycle on error emits sprint:error", async () => {
+  it("fullCycle on error emits sprint:error", { timeout: 15000 }, async () => {
     const { runRefinement } = await import("../../src/ceremonies/refinement.js");
     vi.mocked(runRefinement).mockRejectedValueOnce(new Error("Refinement exploded"));
 

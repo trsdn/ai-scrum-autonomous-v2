@@ -24,6 +24,7 @@ import {
   releaseLock,
 } from "./state-manager.js";
 import { SprintEventBus } from "./events.js";
+import { attachSprintNotifications } from "./notifications/sprint-notifications.js";
 import type {
   SprintConfig,
   SprintPlan,
@@ -67,6 +68,7 @@ export class SprintRunner {
   private client: AcpClient;
   private config: SprintConfig;
   private paused = false;
+  private hitlMode = false;
   private phaseBeforePause: SprintPhase | null = null;
   private readonly log;
   readonly events: SprintEventBus;
@@ -91,6 +93,7 @@ export class SprintRunner {
       startedAt: new Date(),
       issuesCreatedCount: 0,
     };
+    attachSprintNotifications(this.events, this.config.ntfy);
     this.log = defaultLogger.child({
       component: "sprint-runner",
       sprint: config.sprintNumber,
@@ -140,6 +143,11 @@ export class SprintRunner {
 
         // If we crashed during or after execute but before review
         if (!result || previous.phase === "execute") {
+          if (this.hitlMode) {
+            this.log.info("HITL mode — pausing before execution for stakeholder review");
+            this.events.emitTyped("log", { level: "info", message: "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue" });
+            this.pause();
+          }
           await this.checkPaused();
           const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
           this.transition("execute", workerModel, "Worker Agent");
@@ -198,6 +206,11 @@ export class SprintRunner {
       this.warnMissingAcceptanceCriteria(plan);
 
       // 4. execute
+      if (this.hitlMode) {
+        this.log.info("HITL mode — pausing before execution for stakeholder review");
+        this.events.emitTyped("log", { level: "info", message: "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue" });
+        this.pause();
+      }
       await this.checkPaused();
       const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
       this.transition("execute", workerModel, "Worker Agent");
@@ -480,6 +493,12 @@ export class SprintRunner {
   /** Get current sprint state */
   getState(): SprintState {
     return { ...this.state };
+  }
+
+  /** Enable or disable HITL (Human-in-the-Loop) mode */
+  setHitlMode(enabled: boolean): void {
+    this.hitlMode = enabled;
+    this.log.info({ hitlMode: enabled }, "HITL mode changed");
   }
 
   // --- Private helpers ---

@@ -86,4 +86,10 @@ export interface SprintConfig extends GitConfig, SessionConfig, ExecutionLimits 
   projectPath: string;
   /** Quality gate settings from YAML config. Falls back to hardcoded defaults when absent. */
   qualityGate?: QualityGateSettings;
+  /** ntfy push notification settings. */
+  ntfy?: {
+    enabled: boolean;
+    topic: string;
+    serverUrl?: string;
+  };
 }

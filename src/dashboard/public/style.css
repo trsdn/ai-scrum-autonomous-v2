@@ -968,3 +968,188 @@ main.chat-open {
   transform: translateX(20px);
   transition: opacity 0.3s, transform 0.3s;
 }
+
+/* Issue execution step indicator */
+.issue-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  padding-left: 28px;
+}
+.issue-step {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-hover);
+  color: var(--text-dim);
+}
+.step-current {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+.step-done {
+  background: var(--green);
+  color: #fff;
+  opacity: 0.7;
+}
+.step-pending {
+  opacity: 0.4;
+}
+.step-sep {
+  color: var(--text-dim);
+  font-size: 9px;
+  opacity: 0.5;
+}
+.activity-time {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-right: 8px;
+  font-family: var(--font-mono);
+}
+
+/* Disconnect banner */
+.disconnect-banner {
+  background: var(--red);
+  color: #fff;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 200;
+  animation: pulse-bg 2s infinite;
+}
+@keyframes pulse-bg {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ============================================
+   Responsive Breakpoints
+   ============================================ */
+
+/* Tablet (< 1024px) */
+@media (max-width: 1024px) {
+  /* Stack main content vertically */
+  .tab-visible {
+    grid-template-columns: 1fr !important;
+    gap: 0;
+  }
+
+  /* Session panel goes below main content */
+  .session-panel {
+    position: relative;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Chat panel overlays */
+  .chat-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
+    z-index: 100;
+  }
+
+  /* Header wraps */
+  header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-right {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Make main scrollable */
+  main {
+    overflow-y: auto;
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Phone (< 640px) */
+@media (max-width: 640px) {
+  header {
+    padding: 8px 12px;
+  }
+
+  .header-left h1 {
+    font-size: 14px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Phase stepper scrolls horizontally */
+  .phase-stepper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .step {
+    font-size: 11px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  /* Tab navigation scrolls */
+  .tab-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  .tab-btn {
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  /* Panels take full width */
+  .panel {
+    border-radius: 0;
+  }
+
+  /* Session panel below with collapsible behavior */
+  .session-panel {
+    max-height: 200px;
+  }
+
+  /* Chat takes full screen */
+  .chat-panel {
+    max-width: 100%;
+  }
+
+  /* Issue steps wrap */
+  .issue-steps {
+    flex-wrap: wrap;
+    padding-left: 0;
+  }
+
+  /* Buttons smaller */
+  .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .btn-nav {
+    padding: 2px 6px;
+  }
+
+  /* Backlog items stack */
+  .backlog-item {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}

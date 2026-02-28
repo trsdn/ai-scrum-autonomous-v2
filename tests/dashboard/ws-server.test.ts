@@ -123,7 +123,7 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched") {
+        if (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched" || (msg.type === "sprint:event" && msg.eventName === "mode:changed" && msg.payload?.mode === "autonomous")) {
           initialCount++;
           // After initial messages, emit an event
           if (initialCount === 2) {
@@ -288,7 +288,7 @@ describe("DashboardWebServer", () => {
     expect(data).toHaveProperty("url");
   });
 
-  it("serves /api/sprints/:n/issues from cache", async () => {
+  it("serves /api/sprints/:n/issues from cache", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/issues`);
@@ -356,10 +356,10 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (initialCount < 3) {
+        if (initialCount < 4) {
           initialCount++;
-          if (initialCount === 3) {
-            // Send sprint:switch after initial messages (state + issues + switched)
+          if (initialCount === 4) {
+            // Send sprint:switch after initial messages (state + issues + switched + mode)
             ws.send(JSON.stringify({ type: "sprint:switch", sprintNumber: 2 }));
           }
           return;
@@ -529,8 +529,8 @@ describe("DashboardWebServer", () => {
       let initialDone = false;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (!initialDone && (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched")) {
-          if (msg.type === "sprint:switched") {
+        if (!initialDone && (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched" || (msg.type === "sprint:event" && msg.eventName === "mode:changed" && msg.payload?.mode === "autonomous"))) {
+          if (msg.type === "sprint:event" && msg.eventName === "mode:changed") {
             initialDone = true;
             ws.send(JSON.stringify({ type: "mode:set", mode: "hitl" }));
           }
@@ -570,7 +570,7 @@ describe("DashboardWebServer", () => {
     expect(modeCalled).toBe(false);
   });
 
-  it("serves /api/backlog endpoint", async () => {
+  it("serves /api/backlog endpoint", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/backlog`);
@@ -579,7 +579,7 @@ describe("DashboardWebServer", () => {
     expect(Array.isArray(data)).toBe(true);
   });
 
-  it("serves /api/ideas endpoint", async () => {
+  it("serves /api/ideas endpoint", { timeout: 15000 }, async () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/ideas`);

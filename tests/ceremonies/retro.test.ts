@@ -51,7 +51,7 @@ vi.mock("node:fs/promises", () => ({
       }
       if (filePath.includes("retro.md")) {
         return Promise.resolve(
-          "Retro for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}}",
+          "Retro for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}} diagnostics {{FAILURE_DIAGNOSTICS}}",
         );
       }
       // Previous retro file — reject by default (tests override as needed)
@@ -103,8 +103,25 @@ function makeSprintResult(overrides: Partial<SprintResult> = {}): SprintResult {
         points: 3,
         branch: "sprint/3/issue-10",
         qualityGatePassed: true,
+        qualityDetails: { passed: true, checks: [] },
         filesChanged: ["src/api.ts"],
         retryCount: 0,
+      },
+      {
+        issueNumber: 11,
+        status: "failed",
+        points: 2,
+        branch: "sprint/3/issue-11",
+        qualityGatePassed: false,
+        qualityDetails: {
+          passed: false,
+          checks: [
+            { name: "tests-pass", passed: false, detail: "3 tests failed", category: "test" },
+            { name: "lint-clean", passed: true, detail: "Clean", category: "lint" },
+          ],
+        },
+        filesChanged: [],
+        retryCount: 2,
       },
     ],
     parallelizationRatio: 1.0,
@@ -303,6 +320,21 @@ describe("runSprintRetro", () => {
     expect(eventBus.emitTyped).toHaveBeenCalledWith("session:end", {
       sessionId: "session-ret-1",
     });
+  });
+
+  it("includes failure diagnostics in retro prompt", async () => {
+    const mockClient = makeMockClient();
+    await runSprintRetro(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockClient as any,
+      makeConfig(),
+      makeSprintResult(),
+      makeReviewResult(),
+    );
+
+    const promptArg = mockClient.sendPrompt.mock.calls[0][1];
+    expect(promptArg).toContain("tests-pass");
+    expect(promptArg).toContain("3 tests failed");
   });
 
   it("auto-applies skill improvements via ACP session", async () => {

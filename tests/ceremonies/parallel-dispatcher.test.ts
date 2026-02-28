@@ -24,6 +24,10 @@ vi.mock("../../src/github/labels.js", () => ({
   setLabel: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("../../src/enforcement/escalation.js", () => ({
+  escalateToStakeholder: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("../../src/logger.js", () => {
   const noop = () => {};
   const child = () => ({
@@ -43,6 +47,7 @@ import { buildExecutionGroups } from "../../src/ceremonies/dep-graph.js";
 import { executeIssue } from "../../src/ceremonies/execution.js";
 import { mergeIssuePR } from "../../src/git/merge.js";
 import { setLabel } from "../../src/github/labels.js";
+import { escalateToStakeholder } from "../../src/enforcement/escalation.js";
 
 // --- Helpers ---
 
@@ -268,6 +273,45 @@ describe("runParallelExecution", () => {
     // Group 1 should never execute because group 0 had all failures
     expect(result.results).toHaveLength(2);
     expect(executeIssue).toHaveBeenCalledTimes(2);
+  });
+
+  it("escalates to stakeholder when all issues in group fail", async () => {
+    const { SprintEventBus } = await import("../../src/events.js");
+    const eventBus = new SprintEventBus();
+    const emitSpy = vi.spyOn(eventBus, "emitTyped");
+
+    const issues = [makeIssue(1), makeIssue(2), makeIssue(3, [1, 2])];
+    vi.mocked(buildExecutionGroups).mockReturnValue([
+      { group: 0, issues: [1, 2] },
+      { group: 1, issues: [3] },
+    ]);
+    vi.mocked(executeIssue)
+      .mockResolvedValueOnce(makeResult(1, "failed"))
+      .mockResolvedValueOnce(makeResult(2, "failed"));
+
+    await runParallelExecution(
+      mockClient,
+      makeConfig({ autoMerge: false }),
+      makePlan(issues),
+      eventBus,
+    );
+
+    expect(escalateToStakeholder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        level: "must",
+        reason: expect.stringContaining("All issues"),
+        detail: expect.stringContaining("#1"),
+      }),
+      expect.any(Object),
+      eventBus,
+    );
+
+    expect(emitSpy).toHaveBeenCalledWith(
+      "sprint:error",
+      expect.objectContaining({
+        error: expect.stringContaining("group 0 failed"),
+      }),
+    );
   });
 
   it("computes avgWorktreeLifetime from durations", async () => {
