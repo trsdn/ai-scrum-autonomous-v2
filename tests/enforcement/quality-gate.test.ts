@@ -43,10 +43,12 @@ function makeConfig(overrides: Partial<QualityGateConfig> = {}): QualityGateConf
     requireTests: true,
     requireLint: true,
     requireTypes: true,
+    requireBuild: false,
     maxDiffLines: 500,
     testCommand: ["npm", "test"],
     lintCommand: ["npm", "run", "lint"],
     typecheckCommand: ["npm", "run", "typecheck"],
+    buildCommand: ["npm", "run", "build"],
     ...overrides,
   };
 }
@@ -154,7 +156,7 @@ describe("runQualityGate", () => {
     mockDiffStat.mockResolvedValue({ linesChanged: 10, filesChanged: 1, files: ["a.ts"] });
 
     const result = await runQualityGate(
-      makeConfig({ requireTests: false, requireLint: false, requireTypes: false }),
+      makeConfig({ requireTests: false, requireLint: false, requireTypes: false, requireBuild: false }),
       "/tmp/wt",
       "feat/1",
       "main",
@@ -165,6 +167,42 @@ describe("runQualityGate", () => {
     expect(result.checks).toHaveLength(1);
     expect(result.checks[0]!.name).toBe("diff-size");
     expect(result.checks[0]!.category).toBe("diff");
+  });
+
+  it("should run and pass build check when requireBuild is true", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const result = await runQualityGate(
+      makeConfig({ requireBuild: true }),
+      "/tmp/wt",
+      "feat/1",
+      "main",
+    );
+
+    expect(result.passed).toBe(true);
+    const buildCheck = result.checks.find((c) => c.name === "build-pass");
+    expect(buildCheck).toBeDefined();
+    expect(buildCheck?.passed).toBe(true);
+    expect(buildCheck?.category).toBe("build");
+    // 5 standard checks + 1 build check
+    expect(result.checks).toHaveLength(6);
+  });
+
+  it("should fail when build fails", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecFailure();
+
+    const result = await runQualityGate(
+      makeConfig({ requireBuild: true }),
+      "/tmp/wt",
+      "feat/1",
+      "main",
+    );
+
+    expect(result.passed).toBe(false);
+    const buildCheck = result.checks.find((c) => c.name === "build-pass");
+    expect(buildCheck?.passed).toBe(false);
   });
 
   it("should run all checks even if some fail", async () => {

@@ -13,10 +13,12 @@ export const DEFAULT_QUALITY_GATE_CONFIG = {
   requireTests: true,
   requireLint: true,
   requireTypes: true,
+  requireBuild: true,
   maxDiffLines: 300,
   testCommand: ["npm", "run", "test"],
   lintCommand: ["npm", "run", "lint"],
   typecheckCommand: ["npm", "run", "typecheck"],
+  buildCommand: ["npm", "run", "build"],
 };
 
 /** Build branch name from config pattern. */

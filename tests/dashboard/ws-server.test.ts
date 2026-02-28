@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { WebSocket } from "ws";
 import { DashboardWebServer, type DashboardServerOptions } from "../../src/dashboard/ws-server.js";
-import { SprintEventBus } from "../../src/tui/events.js";
+import { SprintEventBus } from "../../src/events.js";
 import type { SprintState } from "../../src/runner.js";
 
 /** Poll until `check()` returns true, rejecting after `timeoutMs`. */
