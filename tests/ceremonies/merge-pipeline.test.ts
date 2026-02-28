@@ -75,13 +75,6 @@ const passingQuality: QualityResult = {
   ],
 };
 
-const failingQuality: QualityResult = {
-  passed: false,
-  checks: [
-    { name: "tests-pass", passed: false, detail: "2 tests failed", category: "test" },
-  ],
-};
-
 function makeResult(overrides: Partial<IssueResult> = {}): IssueResult {
   return {
     issueNumber: 42,
