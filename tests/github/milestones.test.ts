@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getMilestone, getNextOpenMilestone, parseSprintFromTitle } from "../../src/github/milestones.js";
+import { getMilestone, getNextOpenMilestone, parseSprintFromTitle, createMilestone, setMilestone, closeMilestone, listSprintMilestones } from "../../src/github/milestones.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -154,5 +154,156 @@ describe("getNextOpenMilestone", () => {
 
     const result = await getNextOpenMilestone();
     expect(result!.sprintNumber).toBe(7);
+  });
+});
+
+describe("createMilestone", () => {
+  it("creates a milestone and returns the parsed result", async () => {
+    const created = { title: "Sprint 5", number: 5, description: "Test", state: "open" };
+    mockExecFileSuccess(JSON.stringify(created));
+
+    const result = await createMilestone("Sprint 5", "Test");
+    expect(result.title).toBe("Sprint 5");
+    expect(result.number).toBe(5);
+  });
+
+  it("creates a milestone without description", async () => {
+    const created = { title: "Sprint 6", number: 6, description: "", state: "open" };
+    mockExecFileSuccess(JSON.stringify(created));
+
+    const result = await createMilestone("Sprint 6");
+    expect(result.title).toBe("Sprint 6");
+  });
+});
+
+describe("setMilestone", () => {
+  it("calls gh issue edit with milestone title", async () => {
+    mockExecFileSuccess("");
+
+    await setMilestone(42, "Sprint 3");
+
+    expect(mockExecFile).toHaveBeenCalled();
+    const callArgs = mockExecFile.mock.calls[0];
+    expect(callArgs[0]).toBe("gh");
+    expect(callArgs[1]).toContain("--milestone");
+    expect(callArgs[1]).toContain("Sprint 3");
+  });
+});
+
+describe("closeMilestone", () => {
+  it("closes a milestone by title", async () => {
+    // First call: getMilestone lookup, second call: PATCH
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        callCount++;
+        const data = callCount === 1
+          ? JSON.stringify([{ title: "Sprint 2", number: 2, description: "", state: "open" }])
+          : "";
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: data, stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    await closeMilestone("Sprint 2");
+    expect(callCount).toBe(2);
+  });
+
+  it("throws when milestone not found", async () => {
+    mockExecFileSuccess(JSON.stringify([]));
+
+    await expect(closeMilestone("Sprint 99")).rejects.toThrow("Milestone not found");
+  });
+});
+
+describe("listSprintMilestones", () => {
+  it("returns sorted sprint milestones from both open and closed states", async () => {
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        callCount++;
+        const data = callCount === 1
+          ? JSON.stringify([{ title: "Sprint 3", number: 3, description: "", state: "open" }])
+          : JSON.stringify([{ title: "Sprint 1", number: 1, description: "", state: "closed" }]);
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: data, stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    const result = await listSprintMilestones();
+    expect(result).toHaveLength(2);
+    expect(result[0].sprintNumber).toBe(1);
+    expect(result[1].sprintNumber).toBe(3);
+  });
+
+  it("handles API failure for one state gracefully", async () => {
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        callCount++;
+        if (callCount === 1) {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            null,
+            { stdout: JSON.stringify([{ title: "Sprint 2", number: 2, description: "", state: "open" }]), stderr: "" },
+          );
+        } else {
+          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+            new Error("API error"),
+            { stdout: "", stderr: "API error" },
+          );
+        }
+      }) as typeof cp.execFile,
+    );
+
+    const result = await listSprintMilestones();
+    expect(result).toHaveLength(1);
+    expect(result[0].sprintNumber).toBe(2);
+  });
+
+  it("filters non-sprint milestones", async () => {
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        callCount++;
+        const data = callCount === 1
+          ? JSON.stringify([
+              { title: "Sprint 1", number: 1, description: "", state: "open" },
+              { title: "Backlog", number: 2, description: "", state: "open" },
+            ])
+          : JSON.stringify([]);
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: data, stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    const result = await listSprintMilestones();
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe("Sprint 1");
+  });
+
+  it("uses custom prefix", async () => {
+    let callCount = 0;
+    mockExecFile.mockImplementation(
+      ((_cmd: unknown, _args: unknown, callback: unknown) => {
+        callCount++;
+        const data = callCount === 1
+          ? JSON.stringify([{ title: "Iteration 5", number: 5, description: "", state: "open" }])
+          : JSON.stringify([]);
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: data, stderr: "" },
+        );
+      }) as typeof cp.execFile,
+    );
+
+    const result = await listSprintMilestones("Iteration");
+    expect(result).toHaveLength(1);
+    expect(result[0].sprintNumber).toBe(5);
   });
 });
