@@ -51,13 +51,11 @@
   const chatMessagesEl = $("chat-messages");
   const chatInput = $("chat-input");
   const btnSend = $("btn-send");
-  const btnSessions = $("btn-sessions");
   const sessionPanel = $("session-panel");
   const sessionListEl = $("session-list");
   const sessionViewer = $("session-viewer");
   const sessionOutput = $("session-output");
   const sessionViewerTitle = $("session-viewer-title");
-  const btnCloseSessions = $("btn-close-sessions");
   const btnBackSessions = $("btn-back-sessions");
   const btnStopSession = $("btn-stop-session");
   const sessionMessageInput = $("session-message-input");
@@ -187,8 +185,8 @@
       case "session:list":
         acpSessions = msg.payload || [];
         renderSessionList();
-        // Auto-open newest active session if panel is visible and no session is being viewed
-        if (sessionPanel.style.display !== "none" && !viewingSessionId) {
+        // Auto-open newest active session if no session is being viewed
+        if (!viewingSessionId) {
           const newest = acpSessions.find((s) => !s.endedAt);
           if (newest) {
             openSessionViewer(newest.sessionId, newest.role, newest.issueNumber);
@@ -1113,20 +1111,6 @@
 
   // --- Session viewer ---
 
-  function toggleSessionPanel() {
-    const isOpen = sessionPanel.style.display !== "none";
-    sessionPanel.style.display = isOpen ? "none" : "flex";
-    // Close chat panel if opening sessions
-    if (!isOpen) {
-      chatPanel.style.display = "none";
-      document.querySelector("main").classList.remove("chat-open");
-      document.querySelector("main").classList.toggle("session-open", true);
-    } else {
-      document.querySelector("main").classList.remove("session-open");
-    }
-    renderSessionList();
-  }
-
   function renderSessionList() {
     sessionListEl.innerHTML = "";
     if (acpSessions.length === 0) {
@@ -1134,32 +1118,66 @@
       return;
     }
 
-    // Sort: active first, then by start time
-    const sorted = [...acpSessions].sort((a, b) => {
-      if (!a.endedAt && b.endedAt) return -1;
-      if (a.endedAt && !b.endedAt) return 1;
-      return b.startedAt - a.startedAt;
+    // Group sessions by issue number
+    const byIssue = new Map(); // issueNumber -> sessions[]
+    const noIssue = [];
+    for (const s of acpSessions) {
+      if (s.issueNumber) {
+        if (!byIssue.has(s.issueNumber)) byIssue.set(s.issueNumber, []);
+        byIssue.get(s.issueNumber).push(s);
+      } else {
+        noIssue.push(s);
+      }
+    }
+
+    // Sort groups: active issues first
+    const sortedGroups = [...byIssue.entries()].sort((a, b) => {
+      const aActive = a[1].some((s) => !s.endedAt);
+      const bActive = b[1].some((s) => !s.endedAt);
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      return b[0] - a[0];
     });
 
-    for (const s of sorted) {
-      const li = document.createElement("li");
-      li.className = `session-item ${s.endedAt ? "session-ended" : "session-active"}`;
-      const elapsed = formatElapsed(s.endedAt ? s.endedAt - s.startedAt : Date.now() - s.startedAt);
-      const statusIcon = s.endedAt ? "✅" : "⚡";
-      const issueLabel = s.issueNumber ? ` — #${s.issueNumber}` : "";
-      li.innerHTML = `
-        <span class="session-status">${statusIcon}</span>
-        <div class="session-info">
-          <span class="session-role">${escapeHtml(s.role)}${issueLabel}</span>
-          <span class="session-meta">${s.model || "default"} · ${elapsed}</span>
-        </div>
-        <button class="btn btn-small session-view-btn" data-sid="${escapeHtml(s.sessionId)}">View</button>
-      `;
-      li.querySelector(".session-view-btn").addEventListener("click", () => {
-        openSessionViewer(s.sessionId, s.role, s.issueNumber);
-      });
-      sessionListEl.appendChild(li);
+    // Render ungrouped sessions first (ceremonies, etc.)
+    for (const s of noIssue.sort((a, b) => b.startedAt - a.startedAt)) {
+      sessionListEl.appendChild(createSessionItem(s));
     }
+
+    // Render grouped sessions with issue header
+    for (const [issueNum, sessions] of sortedGroups) {
+      const header = document.createElement("li");
+      header.className = "session-group-header";
+      const hasActive = sessions.some((s) => !s.endedAt);
+      header.innerHTML = `<span class="session-group-icon">${hasActive ? "⚡" : "✅"}</span> Issue #${issueNum}`;
+      sessionListEl.appendChild(header);
+
+      const sorted = sessions.sort((a, b) => a.startedAt - b.startedAt);
+      for (const s of sorted) {
+        const li = createSessionItem(s, true);
+        sessionListEl.appendChild(li);
+      }
+    }
+  }
+
+  function createSessionItem(s, indented = false) {
+    const li = document.createElement("li");
+    li.className = `session-item ${s.endedAt ? "session-ended" : "session-active"}${indented ? " session-indented" : ""}`;
+    const elapsed = formatElapsed(s.endedAt ? s.endedAt - s.startedAt : Date.now() - s.startedAt);
+    const statusIcon = s.endedAt ? "✅" : "⚡";
+    const issueLabel = !indented && s.issueNumber ? ` — #${s.issueNumber}` : "";
+    li.innerHTML = `
+      <span class="session-status">${statusIcon}</span>
+      <div class="session-info">
+        <span class="session-role">${escapeHtml(s.role)}${issueLabel}</span>
+        <span class="session-meta">${s.model || "default"} · ${elapsed}</span>
+      </div>
+      <button class="btn btn-small session-view-btn" data-sid="${escapeHtml(s.sessionId)}">View</button>
+    `;
+    li.querySelector(".session-view-btn").addEventListener("click", () => {
+      openSessionViewer(s.sessionId, s.role, s.issueNumber);
+    });
+    return li;
   }
 
   function openSessionViewer(sessionId, role, issueNumber) {
@@ -1185,28 +1203,82 @@
 
   /** Minimal markdown → HTML renderer for ACP session output. */
   function renderMarkdown(text) {
-    return escapeHtml(text)
+    // Split into blocks for table detection
+    const lines = text.split('\n');
+    const rendered = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      // Detect markdown tables (lines with |)
+      if (lines[i].includes('|') && i + 1 < lines.length && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const tableLines = [];
+        while (i < lines.length && lines[i].includes('|')) {
+          tableLines.push(lines[i]);
+          i++;
+        }
+        rendered.push(renderTable(tableLines));
+        continue;
+      }
+      rendered.push(lines[i]);
+      i++;
+    }
+
+    return escapeHtml(rendered.join('\n'))
       // Code blocks: ```lang\n...\n```
       .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="md-code-block"><code>$2</code></pre>')
       // Inline code: `code`
       .replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
       // Bold: **text**
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic: *text* (but not **bold**)
+      .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>')
       // Headers: ### text
       .replace(/^### (.+)$/gm, '<div class="md-h3">$1</div>')
       .replace(/^## (.+)$/gm, '<div class="md-h2">$1</div>')
       .replace(/^# (.+)$/gm, '<div class="md-h1">$1</div>')
+      // Horizontal rule
+      .replace(/^---+$/gm, '<hr class="md-hr">')
       // Bullet lists: - item
       .replace(/^- (.+)$/gm, '<div class="md-li">• $1</div>')
+      // Numbered lists: 1. item
+      .replace(/^\d+\. (.+)$/gm, '<div class="md-li">$1</div>')
+      // Checkboxes
+      .replace(/^- \[x\] (.+)$/gm, '<div class="md-li">☑ $1</div>')
+      .replace(/^- \[ \] (.+)$/gm, '<div class="md-li">☐ $1</div>')
       // Preserve line breaks
       .replace(/\n/g, '<br>');
   }
 
+  function renderTable(lines) {
+    if (lines.length < 2) return lines.join('\n');
+    const parseRow = (line) => line.split('|').map(c => c.trim()).filter(c => c.length > 0);
+    const headers = parseRow(lines[0]);
+    // Skip separator line (index 1)
+    const rows = lines.slice(2).map(parseRow);
+    let html = '<table class="md-table"><thead><tr>';
+    for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
+    html += '</tr></thead><tbody>';
+    for (const row of rows) {
+      html += '<tr>';
+      for (const cell of row) html += `<td>${escapeHtml(cell)}</td>`;
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+  }
+
   function handleSessionOutput(payload) {
     if (payload.sessionId !== viewingSessionId) return;
-    // Append and re-render full output as markdown
-    sessionOutput._rawText = (sessionOutput._rawText || "") + payload.text;
-    sessionOutput.innerHTML = renderMarkdown(sessionOutput._rawText);
+    if (payload.isHistory) {
+      // Replay buffered history with visual separator
+      sessionOutput._rawText = payload.text;
+      sessionOutput.innerHTML = renderMarkdown(payload.text)
+        + '<hr class="md-hr"><div class="session-history-marker">▲ History — ▼ Live</div>';
+    } else {
+      // Append live output
+      sessionOutput._rawText = (sessionOutput._rawText || "") + payload.text;
+      sessionOutput.innerHTML = renderMarkdown(sessionOutput._rawText);
+    }
     // Auto-scroll to bottom
     sessionOutput.scrollTop = sessionOutput.scrollHeight;
   }
@@ -1220,8 +1292,6 @@
   }
 
   // Session viewer event listeners
-  btnSessions.addEventListener("click", toggleSessionPanel);
-  btnCloseSessions.addEventListener("click", toggleSessionPanel);
   btnBackSessions.addEventListener("click", closeSessionViewer);
 
   // Interactive session controls
@@ -1269,9 +1339,9 @@
     }
   }
 
-  // Refresh session list every 2 seconds for elapsed times
+  // Refresh session list every 5 seconds for elapsed times
   setInterval(() => {
-    if (sessionPanel.style.display !== "none" && !viewingSessionId) {
+    if (!viewingSessionId) {
       renderSessionList();
     }
   }, 5000);

@@ -144,11 +144,11 @@ header {
 
 .btn-primary:hover { background: #2ea043; }
 
-/* Main layout */
+/* Main layout — 3 columns: issues | activity | sessions */
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 280px 1fr 340px;
   overflow: hidden;
 }
 
@@ -227,9 +227,10 @@ main {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 6px 0;
+  padding: 8px 8px;
   font-size: 13px;
   border-bottom: 1px solid var(--border);
+  line-height: 1.5;
 }
 
 #activity-list li:last-child { border-bottom: none; }
@@ -251,7 +252,8 @@ main {
 .activity-detail {
   color: var(--text-dim);
   font-size: 12px;
-  margin-top: 2px;
+  margin-top: 4px;
+  word-break: break-word;
 }
 
 .activity-elapsed {
@@ -449,7 +451,7 @@ footer {
 
 /* Adjust main grid when chat is open */
 main.chat-open {
-  grid-template-columns: 280px 1fr 380px;
+  grid-template-columns: 240px 1fr 300px 380px;
 }
 
 /* GitHub links */
@@ -468,10 +470,13 @@ main.chat-open {
   color: var(--blue);
 }
 
-/* Session viewer panel */
+/* Session viewer panel (always visible) */
 .session-panel {
   flex-direction: column;
   overflow: hidden;
+  display: flex;
+  border-left: 1px solid var(--border);
+  border-right: none;
 }
 
 .session-header {
@@ -550,6 +555,27 @@ main.chat-open {
   font-style: italic;
 }
 
+.session-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  list-style: none;
+}
+
+.session-group-icon { font-size: 12px; }
+
+.session-indented {
+  padding-left: 24px;
+}
+
 /* Session output viewer */
 .session-viewer {
   flex-direction: column;
@@ -620,10 +646,12 @@ main.chat-open {
   background: #b71c1c;
 }
 
-/* Grid adjustment when session panel is open */
-main.session-open {
-  grid-template-columns: 280px 1fr 380px;
+/* Grid adjustment when chat is open — 4 columns */
+main.chat-open {
+  grid-template-columns: 240px 1fr 300px 380px;
 }
+
+/* Grid adjustment — session-open no longer needed (always visible) */
 
 /* --- Phase Stepper --- */
 .phase-stepper {
@@ -689,6 +717,27 @@ main.session-open {
 .md-h2 { font-size: 14px; font-weight: 600; margin: 6px 0 3px; color: var(--text); }
 .md-h3 { font-size: 13px; font-weight: 600; margin: 4px 0 2px; color: var(--text-dim); }
 .md-li { padding-left: 12px; }
+.md-hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 8px 0;
+}
+.md-table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 12px;
+  width: 100%;
+}
+.md-table th, .md-table td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  text-align: left;
+}
+.md-table th {
+  background: var(--bg-hover);
+  font-weight: 600;
+}
+.md-table tr:hover { background: var(--bg-hover); }
 
 /* Session control status messages */
 .session-status-msg {
@@ -703,6 +752,14 @@ main.session-open {
 .session-status-warn { color: #ff9800; background: rgba(255, 152, 0, 0.1); }
 .session-status-err { color: #d32f2f; background: rgba(211, 47, 47, 0.1); }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.session-history-marker {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 4px 0;
+  font-style: italic;
+}
 
 /* Mode toggle */
 .mode-toggle {
