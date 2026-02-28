@@ -306,6 +306,28 @@ describe("runQualityGate", () => {
     expect(scopeDrift).toBeUndefined();
   });
 
+  it("should exclude test files from scope-drift check", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+    mockDiffStat.mockResolvedValue({
+      linesChanged: 50,
+      filesChanged: 4,
+      files: ["src/app.ts", "tests/app.test.ts", "src/utils.spec.ts", "tests/integration/e2e.test.tsx"],
+    });
+
+    const result = await runQualityGate(
+      makeConfig({ expectedFiles: ["src/app.ts"] }),
+      "/tmp/wt",
+      "feat/1",
+      "main",
+    );
+
+    const scopeDrift = result.checks.find((c) => c.name === "scope-drift");
+    expect(scopeDrift).toBeDefined();
+    expect(scopeDrift?.passed).toBe(true);
+    expect(scopeDrift?.detail).toContain("within expected scope");
+  });
+
   it("should handle legacy string commands with a fallback", async () => {
     mockGlob.mockResolvedValue(["foo.test.ts"] as never);
     mockExecSuccess();

@@ -31,8 +31,19 @@ echo ""
 cd "$PROJECT_DIR"
 START_TIME=$(date +%s)
 
-# Run with timeout (45 minutes max)
-timeout 2700 node "$RUNNER_DIR/dist/index.js" full-cycle --sprint "$SPRINT" 2>&1 | tee "$PROJECT_DIR/e2e-run.log"
+# Run with timeout (45 minutes max) — use gtimeout on macOS, timeout on Linux
+TIMEOUT_CMD="timeout"
+if command -v gtimeout &>/dev/null; then
+  TIMEOUT_CMD="gtimeout"
+elif ! command -v timeout &>/dev/null; then
+  TIMEOUT_CMD=""
+fi
+
+if [[ -n "$TIMEOUT_CMD" ]]; then
+  $TIMEOUT_CMD 2700 node "$RUNNER_DIR/dist/index.js" full-cycle --sprint "$SPRINT" 2>&1 | tee "$PROJECT_DIR/e2e-run.log"
+else
+  node "$RUNNER_DIR/dist/index.js" full-cycle --sprint "$SPRINT" 2>&1 | tee "$PROJECT_DIR/e2e-run.log"
+fi
 EXIT_CODE=${PIPESTATUS[0]}
 
 END_TIME=$(date +%s)

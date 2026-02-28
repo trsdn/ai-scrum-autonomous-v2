@@ -112,12 +112,36 @@ export async function runSprintRetro(
       await client.setModel(sessionId, sessionConfig.model);
     }
     const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
-    const retro = extractJson<RetroResult>(response.response);
+    const rawRetro = extractJson<Record<string, unknown>>(response.response);
 
-    // Ensure arrays exist (model may omit them)
-    retro.wentWell = retro.wentWell ?? [];
-    retro.wentBadly = retro.wentBadly ?? [];
-    retro.improvements = retro.improvements ?? [];
+    // Normalize field names: ACP may return snake_case or the prompt's format
+    const retro: RetroResult = {
+      wentWell: (rawRetro.wentWell ?? rawRetro.went_well ?? []) as string[],
+      wentBadly: (rawRetro.wentBadly ?? rawRetro.went_poorly ?? []) as string[],
+      improvements: [],
+      previousImprovementsChecked: (rawRetro.previousImprovementsChecked ?? rawRetro.previous_improvements_applied !== undefined) as boolean,
+    };
+
+    // Normalize improvements: prompt format uses problem/action/category,
+    // code expects title/description/target/autoApplicable
+    const rawImprovements = (rawRetro.improvements ?? []) as Record<string, unknown>[];
+    for (const raw of rawImprovements) {
+      const title = (raw.title as string) || (raw.action as string) || (raw.problem as string) || "";
+      const description = (raw.description as string) ||
+        [raw.problem, raw.root_cause, raw.action, raw.expected_outcome]
+          .filter(Boolean)
+          .join(" — ") ||
+        "";
+      const categoryMap: Record<string, RetroImprovement["target"]> = {
+        config: "config", agent: "agent", skill: "skill", process: "process",
+      };
+      const target = (raw.target as RetroImprovement["target"]) ||
+        categoryMap[(raw.category as string)?.toLowerCase()] ||
+        "process";
+      const autoApplicable = raw.autoApplicable !== undefined ? Boolean(raw.autoApplicable) : true;
+
+      retro.improvements.push({ title, description, autoApplicable, target });
+    }
 
     log.info(
       {
