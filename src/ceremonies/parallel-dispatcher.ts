@@ -1,6 +1,7 @@
 import pLimit from "p-limit";
 import path from "node:path";
 import os from "node:os";
+import fs from "node:fs/promises";
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
 import type { AcpClient } from "../acp/client.js";
@@ -53,6 +54,17 @@ async function runPreMergeVerification(
     // 3. Merge base into it
     await execFile("git", ["fetch", "origin", config.baseBranch], { cwd: tmpDir });
     await execFile("git", ["merge", `origin/${config.baseBranch}`, "--no-edit"], { cwd: tmpDir });
+
+    // 3.5. Install dependencies if package.json exists (worktree has no node_modules)
+    try {
+      await fs.access(path.join(tmpDir, "package.json"));
+      const lockFile = await fs.access(path.join(tmpDir, "package-lock.json")).then(() => true).catch(() => false);
+      const installCmd = lockFile ? "ci" : "install";
+      await execFile("npm", [installCmd, "--ignore-scripts"], { cwd: tmpDir, timeout: 120_000 });
+    } catch {
+      // No package.json or install failed — proceed anyway, tests may still work
+      log.debug("npm install skipped in pre-merge worktree");
+    }
 
     // 4. Run tests + type check
     const gateConfig = buildQualityGateConfig(config);
