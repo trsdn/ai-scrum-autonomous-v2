@@ -6,6 +6,7 @@ import type { Command } from "commander";
 import { prefixToSlug } from "../config.js";
 import { runSprintPlanning } from "../ceremonies/planning.js";
 import { executeIssue } from "../ceremonies/execution.js";
+import { runParallelExecution } from "../ceremonies/parallel-dispatcher.js";
 import { runRefinement } from "../ceremonies/refinement.js";
 import { runSprintReview } from "../ceremonies/review.js";
 import { runSprintRetro } from "../ceremonies/retro.js";
@@ -223,23 +224,13 @@ function registerFullCycle(program: Command): void {
           const plan = await runSprintPlanning(client, sprintConfig, refined);
           console.log(`  Planned ${plan.sprint_issues.length} issues (${plan.estimated_points} points)`);
 
-          // Step 3: Execute all issues
+          // Step 3: Execute all issues (with parallel dispatch, merge, pre-merge verification)
           console.log("\n🔄 Phase 3/5: Execution...");
-          const results = [];
-          for (const issue of plan.sprint_issues) {
-            console.log(`  Executing #${issue.number} — ${issue.title}...`);
-            const result = await executeIssue(client, sprintConfig, issue);
-            results.push(result);
-            console.log(`    ${result.status === "completed" ? "✅" : "❌"} ${result.status}`);
+          const sprintResult = await runParallelExecution(client, sprintConfig, plan);
+          const results = sprintResult.results;
+          for (const r of results) {
+            console.log(`  ${r.status === "completed" ? "✅" : "❌"} #${r.issueNumber} — ${r.status}`);
           }
-
-          const sprintResult = {
-            results,
-            sprint: opts.sprint,
-            parallelizationRatio: 1,
-            avgWorktreeLifetime: results.reduce((s, r) => s + r.duration_ms, 0) / (results.length || 1),
-            mergeConflicts: 0,
-          };
 
           // Step 4: Review
           console.log("\n🔄 Phase 4/5: Review...");

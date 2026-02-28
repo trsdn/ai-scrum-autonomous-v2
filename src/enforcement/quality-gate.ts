@@ -143,8 +143,12 @@ export async function runQualityGate(
     // 7. Check scope drift (if expectedFiles provided)
     if (config.expectedFiles && config.expectedFiles.length > 0) {
       const changedFiles = stat.files;
+      // Test files and config files are always allowed — they support the change
+      const alwaysAllowed = /\.(test|spec)\.(ts|js|tsx|jsx)$|^tests?\//;
       const unplannedFiles = changedFiles.filter(
-        (f) => !config.expectedFiles!.some((ef) => f.includes(ef)),
+        (f) =>
+          !alwaysAllowed.test(f) &&
+          !config.expectedFiles!.some((ef) => f.includes(ef)),
       );
       checks.push({
         name: "scope-drift",
