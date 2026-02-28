@@ -328,3 +328,37 @@ describe("runQualityGate", () => {
     );
   });
 });
+
+describe("verifyMainBranch", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes when tests and types succeed", async () => {
+    mockExecSuccess();
+
+    const { verifyMainBranch } = await import("../../src/enforcement/quality-gate.js");
+    const result = await verifyMainBranch("/tmp/project", {
+      testCommand: ["npm", "test"],
+      typecheckCommand: ["npx", "tsc", "--noEmit"],
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.checks).toHaveLength(2);
+    expect(result.checks.find((c) => c.name === "post-merge-tests")?.passed).toBe(true);
+    expect(result.checks.find((c) => c.name === "post-merge-types")?.passed).toBe(true);
+  });
+
+  it("fails when tests fail on main", async () => {
+    mockExecFailure();
+
+    const { verifyMainBranch } = await import("../../src/enforcement/quality-gate.js");
+    const result = await verifyMainBranch("/tmp/project", {
+      testCommand: ["npm", "test"],
+      typecheckCommand: ["npx", "tsc", "--noEmit"],
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.checks.find((c) => c.name === "post-merge-tests")?.passed).toBe(false);
+  });
+});

@@ -9,6 +9,9 @@ import type {
 import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
 import { mergeIssuePR } from "../git/merge.js";
+import { verifyMainBranch } from "../enforcement/quality-gate.js";
+import { buildQualityGateConfig } from "./quality-retry.js";
+import { escalateToStakeholder } from "../enforcement/escalation.js";
 import { setLabel } from "../github/labels.js";
 import { addComment } from "../github/issues.js";
 import { logger } from "../logger.js";
@@ -76,6 +79,25 @@ export async function runParallelExecution(
               await addComment(result.issueNumber, `**Block reason:** PR merge failed — ${mergeResult.reason ?? "unknown"}`).catch((err) => log.warn({ err: String(err), issue: result.issueNumber }, "failed to post block reason comment"));
             } else {
               log.info({ issue: result.issueNumber, branch: result.branch, pr: mergeResult.prNumber }, "PR merged");
+
+              // Post-merge verification: run tests + types on main to catch combinatorial breakage
+              try {
+                const gateConfig = buildQualityGateConfig(config);
+                const verifyResult = await verifyMainBranch(config.projectPath, gateConfig);
+                if (!verifyResult.passed) {
+                  const failedChecks = verifyResult.checks.filter((c) => !c.passed).map((c) => c.name).join(", ");
+                  log.error({ issue: result.issueNumber, failedChecks }, "post-merge verification FAILED on main");
+                  await escalateToStakeholder({
+                    level: "must",
+                    reason: `Post-merge verification failed after merging #${result.issueNumber}`,
+                    detail: `Failed checks: ${failedChecks}. Main branch may be broken.`,
+                    context: { issueNumber: result.issueNumber, branch: result.branch },
+                    timestamp: new Date(),
+                  }, { ntfyEnabled: false }, eventBus);
+                }
+              } catch (verifyErr: unknown) {
+                log.warn({ err: verifyErr }, "post-merge verification could not run");
+              }
             }
           } catch (err: unknown) {
             mergeConflicts++;

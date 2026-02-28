@@ -166,3 +166,45 @@ export async function runQualityGate(
 
   return { passed, checks };
 }
+
+/**
+ * Lightweight post-merge verification: pull latest main and run tests + types.
+ * Used after squash-merge to catch combinatorial breakage on main.
+ */
+export async function verifyMainBranch(
+  projectPath: string,
+  config: Pick<QualityGateConfig, "testCommand" | "typecheckCommand">,
+): Promise<QualityResult> {
+  const log = logger.child({ module: "post-merge-verify" });
+  const checks: QualityCheck[] = [];
+
+  // Pull latest main
+  try {
+    await execFile("git", ["pull", "--rebase"], { cwd: projectPath });
+  } catch {
+    log.debug("git pull failed — proceeding with local state");
+  }
+
+  // Run tests
+  const testResult = await runCommand(config.testCommand, projectPath);
+  checks.push({
+    name: "post-merge-tests",
+    passed: testResult.ok,
+    detail: testResult.ok ? "Tests pass on main" : testResult.output,
+    category: "test",
+  });
+
+  // Run type check
+  const typeResult = await runCommand(config.typecheckCommand, projectPath);
+  checks.push({
+    name: "post-merge-types",
+    passed: typeResult.ok,
+    detail: typeResult.ok ? "Types clean on main" : typeResult.output,
+    category: "type",
+  });
+
+  const passed = checks.every((c) => c.passed);
+  log.info({ passed }, "post-merge verification %s", passed ? "passed" : "FAILED");
+
+  return { passed, checks };
+}
