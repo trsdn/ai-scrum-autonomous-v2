@@ -449,4 +449,162 @@ describe("DashboardWebServer", () => {
     const { rmSync } = await import("node:fs");
     rmSync(tmpDir, { recursive: true, force: true });
   });
+
+  // ── Ceremony controls ──────────────────────────────────────────────
+
+  it("handles sprint:pause message and calls onPause", async () => {
+    let paused = false;
+    options = makeOptions({ onPause: () => { paused = true; } });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    await new Promise<void>((resolve, reject) => {
+      ws.on("open", () => {
+        ws.send(JSON.stringify({ type: "sprint:pause" }));
+      });
+      ws.on("error", reject);
+      waitForCondition(() => paused)
+        .then(() => { ws.close(); resolve(); })
+        .catch(() => { ws.close(); reject(new Error("timeout waiting for onPause")); });
+    });
+
+    expect(paused).toBe(true);
+  });
+
+  it("handles sprint:resume message and calls onResume", async () => {
+    let resumed = false;
+    options = makeOptions({ onResume: () => { resumed = true; } });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    await new Promise<void>((resolve, reject) => {
+      ws.on("open", () => {
+        ws.send(JSON.stringify({ type: "sprint:resume" }));
+      });
+      ws.on("error", reject);
+      waitForCondition(() => resumed)
+        .then(() => { ws.close(); resolve(); })
+        .catch(() => { ws.close(); reject(new Error("timeout waiting for onResume")); });
+    });
+
+    expect(resumed).toBe(true);
+  });
+
+  it("handles sprint:stop message and calls onStop", async () => {
+    let stopped = false;
+    options = makeOptions({ onStop: () => { stopped = true; } });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    await new Promise<void>((resolve, reject) => {
+      ws.on("open", () => {
+        ws.send(JSON.stringify({ type: "sprint:stop" }));
+      });
+      ws.on("error", reject);
+      waitForCondition(() => stopped)
+        .then(() => { ws.close(); resolve(); })
+        .catch(() => { ws.close(); reject(new Error("timeout waiting for onStop")); });
+    });
+
+    expect(stopped).toBe(true);
+  });
+
+  it("handles mode:set message, calls onModeChange, and broadcasts event", async () => {
+    let modeReceived: string | null = null;
+    options = makeOptions({ onModeChange: (mode) => { modeReceived = mode; } });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const events: unknown[] = [];
+
+    await new Promise<void>((resolve, reject) => {
+      let initialDone = false;
+      ws.on("message", (data) => {
+        const msg = JSON.parse(data.toString());
+        if (!initialDone && (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched")) {
+          if (msg.type === "sprint:switched") {
+            initialDone = true;
+            ws.send(JSON.stringify({ type: "mode:set", mode: "hitl" }));
+          }
+          return;
+        }
+        events.push(msg);
+        ws.close();
+        resolve();
+      });
+      ws.on("error", reject);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+    });
+
+    expect(modeReceived).toBe("hitl");
+    expect(events[0]).toMatchObject({
+      type: "sprint:event",
+      eventName: "mode:changed",
+      payload: { mode: "hitl" },
+    });
+  });
+
+  it("ignores mode:set with invalid mode value", async () => {
+    let modeCalled = false;
+    options = makeOptions({ onModeChange: () => { modeCalled = true; } });
+    server = new DashboardWebServer(options);
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    await new Promise<void>((resolve) => {
+      ws.on("open", () => {
+        ws.send(JSON.stringify({ type: "mode:set", mode: "invalid" }));
+        setTimeout(() => { ws.close(); resolve(); }, 300);
+      });
+    });
+
+    expect(modeCalled).toBe(false);
+  });
+
+  it("serves /api/backlog endpoint", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/backlog`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+  });
+
+  it("serves /api/ideas endpoint", async () => {
+    await server.start();
+    const port = getPort(server);
+    const res = await fetch(`http://127.0.0.1:${port}/api/ideas`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+  });
+
+  it("handles pause/resume/stop gracefully when callbacks not provided", async () => {
+    // Default options have no onPause/onResume/onStop
+    await server.start();
+    const port = getPort(server);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    await new Promise<void>((resolve) => {
+      ws.on("open", () => {
+        // Should not crash when callbacks are undefined
+        ws.send(JSON.stringify({ type: "sprint:pause" }));
+        ws.send(JSON.stringify({ type: "sprint:resume" }));
+        ws.send(JSON.stringify({ type: "sprint:stop" }));
+        setTimeout(() => { ws.close(); resolve(); }, 300);
+      });
+    });
+
+    // If we get here without error, the test passes
+    expect(true).toBe(true);
+  });
 });
