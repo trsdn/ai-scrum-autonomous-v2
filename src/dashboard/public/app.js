@@ -359,9 +359,10 @@
         if (idx < currentIdx || currentIdx === -1) step.classList.add("step-done");
         else step.classList.add("step-failed");
       } else if (isPaused) {
-        // Show completed phases as done, nothing as active
-        if (idx < currentIdx || currentIdx === -1) step.classList.add("step-done");
-        else step.classList.add("step-paused");
+        // Use phaseBeforePause to show progress up to where we paused
+        const pausedAt = PHASE_ORDER.indexOf(state.phaseBeforePause);
+        if (pausedAt >= 0 && idx < pausedAt) step.classList.add("step-done");
+        else if (pausedAt >= 0 && idx === pausedAt) step.classList.add("step-paused");
       } else if (currentPhase === "init") {
         // Nothing highlighted yet
       } else if (idx < currentIdx) {
