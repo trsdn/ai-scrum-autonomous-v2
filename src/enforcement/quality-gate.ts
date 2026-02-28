@@ -66,19 +66,30 @@ export async function runQualityGate(
 
   // 1. Check tests exist
   if (config.requireTests) {
-    const testFiles = await glob("**/*.test.{ts,js,tsx,jsx}", {
-      cwd: worktreePath,
-      ignore: ["node_modules/**"],
-    });
-    checks.push({
-      name: "tests-exist",
-      passed: testFiles.length > 0,
-      detail:
-        testFiles.length > 0
-          ? `Found ${testFiles.length} test file(s)`
-          : "No test files found",
-      category: "test",
-    });
+    try {
+      const testFiles = await glob("**/*.test.{ts,js,tsx,jsx}", {
+        cwd: worktreePath,
+        ignore: ["node_modules/**"],
+      });
+      checks.push({
+        name: "tests-exist",
+        passed: testFiles.length > 0,
+        detail:
+          testFiles.length > 0
+            ? `Found ${testFiles.length} test file(s)`
+            : "No test files found",
+        category: "test",
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.warn({ error: msg }, "glob() failed in tests-exist check");
+      checks.push({
+        name: "tests-exist",
+        passed: false,
+        detail: `glob error: ${msg}`,
+        category: "test",
+      });
+    }
   }
 
   // 2. Check tests pass
@@ -126,35 +137,46 @@ export async function runQualityGate(
   }
 
   // 6. Compute diff stat (reused by scope-drift and diff-size checks)
-  const stat = await diffStat(branch, baseBranch);
+  try {
+    const stat = await diffStat(branch, baseBranch);
 
-  // 7. Check scope drift (if expectedFiles provided)
-  if (config.expectedFiles && config.expectedFiles.length > 0) {
-    const changedFiles = stat.files;
-    const unplannedFiles = changedFiles.filter(
-      (f) => !config.expectedFiles!.some((ef) => f.includes(ef)),
-    );
+    // 7. Check scope drift (if expectedFiles provided)
+    if (config.expectedFiles && config.expectedFiles.length > 0) {
+      const changedFiles = stat.files;
+      const unplannedFiles = changedFiles.filter(
+        (f) => !config.expectedFiles!.some((ef) => f.includes(ef)),
+      );
+      checks.push({
+        name: "scope-drift",
+        passed: unplannedFiles.length === 0,
+        detail:
+          unplannedFiles.length === 0
+            ? `All ${changedFiles.length} changed files within expected scope`
+            : `${unplannedFiles.length} out-of-scope files: ${unplannedFiles.slice(0, 5).join(", ")}${unplannedFiles.length > 5 ? "..." : ""}`,
+        category: "diff",
+      });
+    }
+
+    // 8. Check diff size
+    const diffPassed = stat.linesChanged <= config.maxDiffLines;
     checks.push({
-      name: "scope-drift",
-      passed: unplannedFiles.length === 0,
-      detail:
-        unplannedFiles.length === 0
-          ? `All ${changedFiles.length} changed files within expected scope`
-          : `${unplannedFiles.length} out-of-scope files: ${unplannedFiles.slice(0, 5).join(", ")}${unplannedFiles.length > 5 ? "..." : ""}`,
+      name: "diff-size",
+      passed: diffPassed,
+      detail: diffPassed
+        ? `${stat.linesChanged} lines changed (max ${config.maxDiffLines})`
+        : `${stat.linesChanged} lines changed exceeds max ${config.maxDiffLines}`,
+      category: "diff",
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn({ error: msg }, "diffStat() failed — skipping scope-drift and diff-size checks");
+    checks.push({
+      name: "diff-stat",
+      passed: false,
+      detail: `diffStat error: ${msg}`,
       category: "diff",
     });
   }
-
-  // 8. Check diff size
-  const diffPassed = stat.linesChanged <= config.maxDiffLines;
-  checks.push({
-    name: "diff-size",
-    passed: diffPassed,
-    detail: diffPassed
-      ? `${stat.linesChanged} lines changed (max ${config.maxDiffLines})`
-      : `${stat.linesChanged} lines changed exceeds max ${config.maxDiffLines}`,
-    category: "diff",
-  });
 
   const passed = checks.every((c) => c.passed);
 

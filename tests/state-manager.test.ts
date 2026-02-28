@@ -46,7 +46,7 @@ function makeState(overrides: Partial<SprintState> = {}): SprintState {
   return {
     version: STATE_VERSION,
     sprintNumber: 3,
-    phase: "planning",
+    phase: "plan",
     startedAt: new Date("2025-01-01T00:00:00Z"),
     ...overrides,
   };
@@ -71,10 +71,11 @@ describe("saveState / loadState", () => {
     expect(fs.existsSync(filePath)).toBe(true);
 
     const loaded = loadState(filePath);
-    expect(loaded.sprintNumber).toBe(state.sprintNumber);
-    expect(loaded.phase).toBe(state.phase);
-    expect(loaded.version).toBe(STATE_VERSION);
-    expect(loaded.startedAt).toEqual(state.startedAt);
+    expect(loaded).not.toBeNull();
+    expect(loaded!.sprintNumber).toBe(state.sprintNumber);
+    expect(loaded!.phase).toBe(state.phase);
+    expect(loaded!.version).toBe(STATE_VERSION);
+    expect(loaded!.startedAt).toEqual(state.startedAt);
   });
 
   it("saveState atomic write leaves no .tmp file", () => {
@@ -90,7 +91,7 @@ describe("saveState / loadState", () => {
     const badData = JSON.stringify({
       version: "999",
       sprintNumber: 1,
-      phase: "planning",
+      phase: "plan",
       startedAt: new Date().toISOString(),
     });
     fs.writeFileSync(filePath, badData, "utf-8");
