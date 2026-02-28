@@ -81,6 +81,8 @@ export function validateDependencies(issues: SprintIssue[]): ValidationResult {
  * Build execution groups via topological sort.
  * Issues with no dependencies come first; parallel-safe issues
  * at the same dependency level are grouped together.
+ * Issues within the same level that share expectedFiles are
+ * split into sequential sub-groups to avoid merge conflicts.
  * Throws on circular dependencies.
  */
 export function buildExecutionGroups(issues: SprintIssue[]): ExecutionGroup[] {
@@ -123,16 +125,89 @@ export function buildExecutionGroups(issues: SprintIssue[]): ExecutionGroup[] {
   }
 
   // Group by depth level
-  const groups = new Map<number, number[]>();
+  const levelGroups = new Map<number, number[]>();
   for (const issue of issues) {
     const d = depth.get(issue.number)!;
-    if (!groups.has(d)) groups.set(d, []);
-    groups.get(d)!.push(issue.number);
+    if (!levelGroups.has(d)) levelGroups.set(d, []);
+    levelGroups.get(d)!.push(issue.number);
   }
 
-  const sortedLevels = Array.from(groups.keys()).sort((a, b) => a - b);
-  return sortedLevels.map((level, idx) => ({
-    group: idx,
-    issues: groups.get(level)!.sort((a, b) => a - b),
-  }));
+  const issueMap = new Map(issues.map((i) => [i.number, i]));
+  const sortedLevels = Array.from(levelGroups.keys()).sort((a, b) => a - b);
+
+  // Split each level by file overlap — overlapping issues become sequential sub-groups
+  const result: ExecutionGroup[] = [];
+  let groupIdx = 0;
+  for (const level of sortedLevels) {
+    const levelIssues = levelGroups.get(level)!.sort((a, b) => a - b);
+    const subGroups = splitByFileOverlap(levelIssues, issueMap);
+    for (const sg of subGroups) {
+      result.push({ group: groupIdx++, issues: sg });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Split a set of issue numbers into sub-groups where issues within each
+ * sub-group have no overlapping expectedFiles. Uses greedy graph coloring:
+ * issues that share files cannot be in the same group.
+ */
+export function splitByFileOverlap(
+  issueNumbers: number[],
+  issueMap: Map<number, SprintIssue>,
+): number[][] {
+  if (issueNumbers.length <= 1) return [issueNumbers];
+
+  // Build file → issues index
+  const fileToIssues = new Map<string, number[]>();
+  for (const num of issueNumbers) {
+    const issue = issueMap.get(num);
+    if (!issue) continue;
+    for (const file of issue.expectedFiles) {
+      if (!fileToIssues.has(file)) fileToIssues.set(file, []);
+      fileToIssues.get(file)!.push(num);
+    }
+  }
+
+  // Build conflict adjacency (issues that share at least one file)
+  const conflicts = new Map<number, Set<number>>();
+  for (const num of issueNumbers) {
+    conflicts.set(num, new Set());
+  }
+  for (const [, issueNums] of fileToIssues) {
+    if (issueNums.length < 2) continue;
+    for (let i = 0; i < issueNums.length; i++) {
+      for (let j = i + 1; j < issueNums.length; j++) {
+        conflicts.get(issueNums[i])!.add(issueNums[j]);
+        conflicts.get(issueNums[j])!.add(issueNums[i]);
+      }
+    }
+  }
+
+  // Check if any conflicts exist at all
+  const hasConflicts = Array.from(conflicts.values()).some((s) => s.size > 0);
+  if (!hasConflicts) return [issueNumbers];
+
+  // Greedy coloring — assign each issue to the earliest compatible sub-group
+  const subGroups: number[][] = [];
+  const assignment = new Map<number, number>();
+
+  for (const num of issueNumbers) {
+    const neighborColors = new Set(
+      Array.from(conflicts.get(num) ?? [])
+        .filter((n) => assignment.has(n))
+        .map((n) => assignment.get(n)!),
+    );
+
+    let color = 0;
+    while (neighborColors.has(color)) color++;
+
+    if (color >= subGroups.length) subGroups.push([]);
+    subGroups[color].push(num);
+    assignment.set(num, color);
+  }
+
+  return subGroups;
 }
