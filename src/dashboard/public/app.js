@@ -25,6 +25,7 @@
   let activeChatId = null;
   let chatMessages = {}; // chatId -> [{ role, content }]
   let chatStreaming = {}; // chatId -> current streaming text
+  let pendingIdeaContext = null; // { number, title, body } — auto-sent after refiner session created
 
   // --- DOM refs ---
   const $ = (id) => document.getElementById(id);
@@ -717,6 +718,18 @@
     btnSend.disabled = false;
     chatInput.focus();
     addChatSystemMessage(`Session started — ${session.role} agent (${session.model || "default"})`);
+
+    // Auto-send idea context if this is a refinement session
+    if (pendingIdeaContext && session.role === "refiner") {
+      const ctx = pendingIdeaContext;
+      pendingIdeaContext = null;
+      const msg = `Please help me refine this idea into an actionable issue:\n\n**Issue #${ctx.number}: ${ctx.title}**\n\n${ctx.body || "(no description yet)"}`;
+      chatMessages[session.id].push({ role: "user", content: msg });
+      btnSend.disabled = true;
+      chatInput.disabled = true;
+      renderChatMessages();
+      send({ type: "chat:send", sessionId: session.id, message: msg });
+    }
   }
 
   function handleChatChunk(payload) {
@@ -950,11 +963,29 @@
           <span class="backlog-title">${escapeHtml(item.title)}</span>
           ${item.body ? `<span class="idea-body">${escapeHtml(item.body)}</span>` : ""}
         `;
+        const refineBtn = document.createElement("button");
+        refineBtn.className = "btn btn-small btn-refine";
+        refineBtn.textContent = "💬 Refine";
+        refineBtn.onclick = () => refineIdea(item);
+        li.appendChild(refineBtn);
         list.appendChild(li);
       }
     } catch {
       addLog("error", "Failed to load ideas");
     }
+  }
+
+  function refineIdea(idea) {
+    pendingIdeaContext = idea;
+    // Open chat panel if not visible
+    if (chatPanel.style.display === "none") {
+      chatPanel.style.display = "flex";
+      document.querySelector("main").classList.add("chat-open");
+      btnChat.textContent = "💬 Close";
+    }
+    // Create refiner session
+    send({ type: "chat:create", role: "refiner" });
+    addLog("info", `Starting refinement chat for #${idea.number}…`);
   }
 
   $("btn-refresh-backlog")?.addEventListener("click", loadBacklog);

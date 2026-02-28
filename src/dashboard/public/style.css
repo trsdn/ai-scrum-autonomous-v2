@@ -845,3 +845,20 @@ main.session-open {
   font-family: var(--font-mono);
   font-size: 12px;
 }
+
+/* Refine button on idea items */
+.btn-refine {
+  flex-shrink: 0;
+  margin-left: auto;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.idea-item:hover .btn-refine { opacity: 1; }
+.btn-refine:hover { filter: brightness(1.15); }

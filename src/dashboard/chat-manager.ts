@@ -13,7 +13,7 @@ import { logger } from "../logger.js";
 
 const log = logger.child({ component: "chat-manager" });
 
-export type ChatRole = "researcher" | "planner" | "reviewer" | "general";
+export type ChatRole = "researcher" | "planner" | "reviewer" | "refiner" | "general";
 
 export interface ChatSession {
   id: string;
@@ -49,6 +49,16 @@ Flag blocking issues clearly and explain why they matter.`,
   general: `You are a General Assistant for the AI Scrum Sprint Runner project.
 You can help with any task: coding, debugging, documentation, architecture, or answering questions.
 You have access to the full codebase and development tools.`,
+
+  refiner: `You are a Refinement Agent for the AI Scrum Sprint Runner project.
+Your role is to help transform raw ideas into well-defined, actionable GitHub issues.
+Guide the user through refinement by asking clarifying questions about:
+- The problem being solved and its value
+- Scope boundaries (what's in, what's out)
+- Testable acceptance criteria
+- Dependencies and risks
+At the end, produce a refined issue description with a clear title, summary, acceptance criteria list, and suggested labels.
+Keep the conversation focused and productive.`,
 };
 
 export interface ChatManagerOptions {
