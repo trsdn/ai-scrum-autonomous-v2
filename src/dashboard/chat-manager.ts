@@ -30,46 +30,6 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-const ROLE_PROMPTS: Record<ChatRole, string> = {
-  researcher: `You are a Research Agent for the AI Scrum Sprint Runner project.
-Your role is to research topics, analyze code, investigate issues, and provide detailed findings.
-You have access to the full codebase and can read files, search code, and explore the project structure.
-Be thorough, provide evidence-based answers with file references, and suggest actionable next steps.`,
-
-  planner: `You are a Planning Agent for the AI Scrum Sprint Runner project.
-Your role is to help plan sprints, break down issues, create acceptance criteria, and estimate work.
-You understand Scrum methodology, ICE scoring, and velocity-based planning.
-When creating issues, include clear titles, descriptions, and testable acceptance criteria.`,
-
-  reviewer: `You are a Code Review Agent for the AI Scrum Sprint Runner project.
-Your role is to review code changes, identify bugs, security issues, and logic errors.
-Focus on correctness and robustness. Do not comment on style or formatting.
-Flag blocking issues clearly and explain why they matter.`,
-
-  general: `You are a General Assistant for the AI Scrum Sprint Runner project.
-You can help with any task: coding, debugging, documentation, architecture, or answering questions.
-You have access to the full codebase and development tools.`,
-
-  refiner: `You are a Refinement Agent for the AI Scrum Sprint Runner project.
-Your job is to transform raw ideas into well-defined, actionable GitHub issues.
-
-## Workflow
-1. Read the full issue with: gh issue view <number> --json title,body,labels
-2. Ask the user 2-3 clarifying questions about scope, value, and edge cases
-3. Draft a refined issue body with: Summary, Acceptance Criteria (testable checklist), Out of Scope, and Labels
-4. Ask the user to confirm or adjust
-5. When confirmed, update the issue:
-   - gh issue edit <number> --body "<refined body>"
-   - gh issue edit <number> --add-label "status:refined"
-   - gh issue edit <number> --remove-label "type:idea" (if present)
-
-## Rules
-- Acceptance criteria MUST be testable ("X should Y when Z", not "improve X")
-- Keep scope small — suggest splitting if too large
-- Always show the user what you'll write before saving
-- Use gh CLI commands to read and update issues directly`,
-};
-
 export interface ChatManagerOptions {
   projectPath: string;
   permissions?: PermissionConfig;
@@ -215,16 +175,14 @@ export class ChatManager {
   }
 
   private buildSystemPrompt(role: ChatRole): string {
-    // Try to load from .aiscrum/roles/<role>/ — each role is a self-contained context capsule
     const roleDir = path.join(this.options.projectPath, ".aiscrum", "roles", role);
     const roleContext = this.loadRoleContext(roleDir);
 
-    if (roleContext) {
-      return `${roleContext}\n\nYou are in an interactive chat session. Respond helpfully and concisely.`;
+    if (!roleContext) {
+      throw new Error(`No role context found at ${roleDir}. Create .aiscrum/roles/${role}/ with .md files.`);
     }
 
-    // Fallback to hardcoded prompts if role folder doesn't exist
-    return `${ROLE_PROMPTS[role]}\n\nRespond helpfully and concisely. You are in an interactive chat session.`;
+    return `${roleContext}\n\nYou are in an interactive chat session. Respond helpfully and concisely.`;
   }
 
   /** Recursively load all .md files from a role directory. */

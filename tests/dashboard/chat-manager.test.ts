@@ -34,9 +34,11 @@ vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs")>();
   return {
     ...actual,
-    existsSync: vi.fn().mockReturnValue(false),
-    readFileSync: vi.fn().mockReturnValue(""),
-    readdirSync: vi.fn().mockReturnValue([]),
+    existsSync: vi.fn().mockReturnValue(true),
+    readFileSync: vi.fn().mockReturnValue("# Agent Instructions\nDefault role context for testing"),
+    readdirSync: vi.fn().mockReturnValue([
+      { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true },
+    ]),
   };
 });
 
@@ -49,6 +51,12 @@ describe("ChatManager", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: role folder exists with a copilot-instructions.md
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readdirSync).mockReturnValue([
+      { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true } as unknown as fs.Dirent,
+    ]);
+    vi.mocked(fs.readFileSync).mockReturnValue("# Agent Instructions\nDefault role context for testing");
     manager = new ChatManager({ projectPath: "/tmp/test-project" });
   });
 
@@ -84,7 +92,13 @@ describe("ChatManager", () => {
       );
     });
 
-    it("sends a role-specific system prompt", async () => {
+    it("sends a role-specific system prompt from .aiscrum/roles/", async () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readdirSync).mockReturnValue([
+        { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true } as unknown as fs.Dirent,
+      ]);
+      vi.mocked(fs.readFileSync).mockReturnValue("# Reviewer Agent\nCode Review Agent instructions");
+
       await manager.createSession("reviewer");
 
       const sendPromptCall = vi.mocked(AcpClient.prototype.sendPrompt).mock.calls[0];
@@ -93,7 +107,7 @@ describe("ChatManager", () => {
       expect(sendPromptCall[1]).toContain("Respond helpfully and concisely");
     });
 
-    it("loads role context from .aiscrum/roles/ when directory exists", async () => {
+    it("loads all .md files from role directory", async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readdirSync).mockReturnValue([
         { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true } as unknown as fs.Dirent,
@@ -107,14 +121,10 @@ describe("ChatManager", () => {
       expect(prompt).toContain("Custom refiner context");
     });
 
-    it("falls back to hardcoded prompts when role folder does not exist", async () => {
+    it("throws when role folder does not exist", async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
-      const session = await manager.createSession("planner");
-      expect(session.role).toBe("planner");
-
-      const prompt = vi.mocked(AcpClient.prototype.sendPrompt).mock.calls[0][1] as string;
-      expect(prompt).toContain("Planning Agent");
+      await expect(manager.createSession("planner")).rejects.toThrow("No role context found");
     });
 
     it("reuses the ACP client on second createSession call", async () => {
