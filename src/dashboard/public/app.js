@@ -87,6 +87,7 @@
     };
 
     ws.onerror = () => {
+      addLog("error", "WebSocket connection error");
       ws.close();
     };
 
@@ -132,6 +133,14 @@
         }
         renderIssues();
         renderHeader();
+        break;
+
+      case "sprint:switched":
+        if (msg.payload) {
+          activeSprintNumber = msg.payload.activeSprintNumber || activeSprintNumber;
+          isViewingActive = viewingSprintNumber === activeSprintNumber;
+          renderHeader();
+        }
         break;
 
       case "sprint:event":
@@ -306,7 +315,7 @@
       elapsedTimer = null;
       elapsedTimerStartedAt = currentStartedAt;
 
-      if (state.startedAt && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
+      if (state.startedAt && state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init" && state.phase !== "paused") {
         updateElapsed();
         elapsedTimer = setInterval(updateElapsed, 1000);
       } else if (state.finalElapsed) {
@@ -340,14 +349,21 @@
     const steps = stepper.querySelectorAll(".step");
     const currentIdx = PHASE_ORDER.indexOf(currentPhase);
     const isFailed = currentPhase === "failed";
+    const isPaused = currentPhase === "paused";
 
     steps.forEach((step) => {
       const phase = step.dataset.phase;
       const idx = PHASE_ORDER.indexOf(phase);
-      step.classList.remove("step-done", "step-active", "step-failed");
+      step.classList.remove("step-done", "step-active", "step-failed", "step-paused");
       if (isFailed) {
         if (idx < currentIdx || currentIdx === -1) step.classList.add("step-done");
         else step.classList.add("step-failed");
+      } else if (isPaused) {
+        // Show completed phases as done, nothing as active
+        if (idx < currentIdx || currentIdx === -1) step.classList.add("step-done");
+        else step.classList.add("step-paused");
+      } else if (currentPhase === "init") {
+        // Nothing highlighted yet
       } else if (idx < currentIdx) {
         step.classList.add("step-done");
       } else if (idx === currentIdx) {
@@ -367,7 +383,9 @@
 
   function renderIssues() {
     issueList.innerHTML = "";
+    if (!issues || !Array.isArray(issues)) return;
     for (const issue of issues) {
+      if (!issue) continue;
       const li = document.createElement("li");
       li.className = `issue-${issue.status}`;
       const issueLink = repoUrl
@@ -952,7 +970,10 @@
     const msg = sessionMessageInput.value.trim();
     if (!msg || !viewingSessionId) return;
     send({ type: "session:send-message", sessionId: viewingSessionId, message: msg });
+    // Show queued status but keep input until confirmed via session output
     sessionMessageInput.value = "";
+    sessionMessageInput.placeholder = "Message queued — waiting for agent…";
+    setTimeout(() => { sessionMessageInput.placeholder = "Send message to agent…"; }, 3000);
   }
 
   btnSendSession.addEventListener("click", sendSessionMessage);

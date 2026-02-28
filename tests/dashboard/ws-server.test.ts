@@ -123,7 +123,7 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (msg.type === "sprint:state" || msg.type === "sprint:issues") {
+        if (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched") {
           initialCount++;
           // After initial messages, emit an event
           if (initialCount === 2) {
@@ -356,17 +356,17 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (initialCount < 2) {
+        if (initialCount < 3) {
           initialCount++;
-          if (initialCount === 2) {
-            // Send sprint:switch after initial messages
+          if (initialCount === 3) {
+            // Send sprint:switch after initial messages (state + issues + switched)
             ws.send(JSON.stringify({ type: "sprint:switch", sprintNumber: 2 }));
           }
           return;
         }
         allMessages.push(msg);
-        // Expect: sprint:state + sprint:issues = 2 messages
-        if (allMessages.length >= 2) {
+        // Expect: sprint:state + sprint:issues + sprint:switched = 3 messages
+        if (allMessages.length >= 3) {
           ws.close();
           resolve();
         }
@@ -375,9 +375,10 @@ describe("DashboardWebServer", () => {
       setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
     });
 
-    // Should receive fresh state and issues
+    // Should receive fresh state, issues, and switch confirmation
     expect(allMessages[0].type).toBe("sprint:state");
     expect(allMessages[1].type).toBe("sprint:issues");
+    expect(allMessages[2].type).toBe("sprint:switched");
   });
 
   it("broadcasts updated issues on sprint:planned event", async () => {
@@ -397,9 +398,9 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (initialCount < 2) {
+        if (initialCount < 3) {
           initialCount++;
-          if (initialCount === 2) {
+          if (initialCount === 3) {
             // Emit sprint:planned after initial messages received
             options.eventBus.emitTyped("sprint:planned", {
               issues: [{ number: 10, title: "Test Issue" }],

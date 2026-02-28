@@ -30,7 +30,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -62,7 +62,7 @@ export interface DashboardServerOptions {
   getState: () => SprintState;
   getIssues: () => IssueEntry[];
   onStart?: () => void;
-  onSwitchSprint?: (sprintNumber: number) => void;
+  onSwitchSprint?: (sprintNumber: number) => void | Promise<void>;
   /** Project root for loading sprint state files. */
   projectPath?: string;
   /** Currently active sprint number (the one being executed). */
@@ -126,6 +126,11 @@ export class DashboardWebServer {
       this.sendTo(ws, {
         type: "sprint:issues",
         payload: this.options.getIssues(),
+      });
+      // Send active sprint info so client knows which sprint is running
+      this.sendTo(ws, {
+        type: "sprint:switched",
+        payload: { sprintNumber: this.options.activeSprintNumber, activeSprintNumber: this.options.activeSprintNumber },
       });
       // Send active session list
       if (this.sessions.size > 0) {
@@ -365,16 +370,28 @@ export class DashboardWebServer {
       case "sprint:switch":
         if (msg.sprintNumber) {
           log.info({ sprintNumber: msg.sprintNumber }, "Dashboard client switched sprint");
-          this.options.onSwitchSprint?.(msg.sprintNumber);
-          // Re-send current state and issues to the requesting client
-          this.sendTo(ws, {
-            type: "sprint:state",
-            payload: this.options.getState(),
-          });
-          this.sendTo(ws, {
-            type: "sprint:issues",
-            payload: this.options.getIssues(),
-          });
+          const sprintNum = msg.sprintNumber;
+          // Await async callback before re-sending state
+          Promise.resolve(this.options.onSwitchSprint?.(sprintNum))
+            .then(() => {
+              // Load state for the requested sprint
+              const state = this.loadSprintState(sprintNum);
+              this.sendTo(ws, {
+                type: "sprint:state",
+                payload: state ?? this.options.getState(),
+              });
+              this.sendTo(ws, {
+                type: "sprint:issues",
+                payload: this.options.getIssues(),
+              });
+              this.sendTo(ws, {
+                type: "sprint:switched",
+                payload: { sprintNumber: sprintNum, activeSprintNumber: this.options.activeSprintNumber },
+              });
+            })
+            .catch((err: unknown) => {
+              log.warn({ err }, "Sprint switch failed");
+            });
         }
         break;
       case "chat:create":

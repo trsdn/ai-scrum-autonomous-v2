@@ -380,6 +380,24 @@ function registerWeb(program: Command): void {
 
         const onStart = opts.once ? startOnce : startLoop;
 
+        // Sprint switching: reload issues for the new sprint
+        const switchToSprint = async (sprintNumber: number) => {
+          logger.info({ sprintNumber }, "switching dashboard to sprint");
+          try {
+            const milestoneIssues = await listIssues({
+              milestone: `${config.sprint.prefix} ${sprintNumber}`,
+              state: "open",
+            });
+            currentIssues = milestoneIssues.map((i) => ({
+              number: i.number,
+              title: i.title,
+              status: "planned" as const,
+            }));
+          } catch {
+            currentIssues = [];
+          }
+        };
+
         // Launch WebSocket server
         const { DashboardWebServer } = await import("../dashboard/ws-server.js");
         const dashboardServer = new DashboardWebServer({
@@ -389,6 +407,7 @@ function registerWeb(program: Command): void {
           getState: () => runner.getState(),
           getIssues: () => currentIssues,
           onStart,
+          onSwitchSprint: switchToSprint,
           projectPath: process.cwd(),
           activeSprintNumber: initialSprint,
           sprintPrefix: config.sprint.prefix,
