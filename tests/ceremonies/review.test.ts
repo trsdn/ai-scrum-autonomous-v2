@@ -44,8 +44,12 @@ vi.mock("node:fs/promises", () => ({
   default: {
     readFile: vi
       .fn()
-      .mockResolvedValue("Review for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}}"),
+      .mockResolvedValue("Review for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}} flagged:{{FLAGGED_PRS}}"),
   },
+}));
+
+vi.mock("../../src/git/merge.js", () => ({
+  getPRStatus: vi.fn(),
 }));
 
 const { resolveSessionConfig } = await import("../../src/acp/session-config.js");
@@ -210,5 +214,50 @@ describe("runSprintReview", () => {
     expect(eventBus.emitTyped).toHaveBeenCalledWith("session:end", {
       sessionId: "session-rev-1",
     });
+  });
+
+  it("flags closed-without-merge PRs in review prompt", async () => {
+    const mockClient = makeMockClient();
+    const { getPRStatus } = await import("../../src/git/merge.js");
+    
+    vi.mocked(getPRStatus).mockResolvedValueOnce({ prNumber: 123, state: "CLOSED" });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runSprintReview(mockClient as any, makeConfig(), makeSprintResult());
+
+    expect(getPRStatus).toHaveBeenCalledWith("sprint/3/issue-10");
+    // Flagged PRs are included in the prompt sent to ACP
+    const sentPrompt = mockClient.sendPrompt.mock.calls[0]?.[1] as string;
+    expect(sentPrompt).toContain("closed without merge");
+  });
+
+  it("passes review when all PRs are merged", async () => {
+    const mockClient = makeMockClient();
+    const { getPRStatus } = await import("../../src/git/merge.js");
+    
+    vi.mocked(getPRStatus).mockResolvedValueOnce({ prNumber: 456, state: "MERGED" });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runSprintReview(mockClient as any, makeConfig(), makeSprintResult());
+
+    expect(getPRStatus).toHaveBeenCalledWith("sprint/3/issue-10");
+    // No flagged PRs means "none" in the prompt
+    const sentPrompt = mockClient.sendPrompt.mock.calls[0]?.[1] as string;
+    expect(sentPrompt).not.toContain("closed without merge");
+  });
+
+  it("handles missing PRs gracefully", async () => {
+    const mockClient = makeMockClient();
+    const { getPRStatus } = await import("../../src/git/merge.js");
+    
+    vi.mocked(getPRStatus).mockResolvedValueOnce(undefined);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await runSprintReview(mockClient as any, makeConfig(), makeSprintResult());
+
+    expect(getPRStatus).toHaveBeenCalledWith("sprint/3/issue-10");
+    // Missing PR is flagged in the prompt
+    const sentPrompt = mockClient.sendPrompt.mock.calls[0]?.[1] as string;
+    expect(sentPrompt).toContain("no PR found");
   });
 });
