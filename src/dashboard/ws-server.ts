@@ -11,7 +11,7 @@ import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { WebSocketServer, type WebSocket } from "ws";
-import type { SprintEventBus, SprintEngineEvents } from "../tui/events.js";
+import type { SprintEventBus, SprintEngineEvents } from "../events.js";
 import type { SprintState } from "../runner.js";
 import { logger } from "../logger.js";
 import { ChatManager, type ChatRole } from "./chat-manager.js";
@@ -140,6 +140,17 @@ export class DashboardWebServer {
         this.sendTo(ws, { type: "session:list", payload: sessions });
       }
 
+      // Replay buffered events so new clients see activity history
+      if (this.eventBuffer.length > 0) {
+        for (const buffered of this.eventBuffer) {
+          this.sendTo(ws, {
+            type: "sprint:event",
+            eventName: buffered.eventName,
+            payload: buffered.payload,
+          });
+        }
+      }
+
       ws.on("message", (data) => {
         try {
           const msg = JSON.parse(data.toString()) as ClientMessage;
@@ -214,6 +225,10 @@ export class DashboardWebServer {
       await this.chatManager.shutdown();
       this.chatManager = null;
     }
+    // Remove all event bus listeners to prevent accumulation on restart
+    const bus = this.options.eventBus;
+    bus.removeAllListeners();
+
     if (this.wss) {
       for (const ws of this.wss.clients) {
         ws.close();
@@ -231,14 +246,14 @@ export class DashboardWebServer {
     if (!this.wss) return;
     const data = JSON.stringify(msg);
     for (const ws of this.wss.clients) {
-      if (ws.readyState === 1) {
+      if (ws.readyState === 1 && ws.bufferedAmount < 1_048_576) {
         ws.send(data);
       }
     }
   }
 
   private sendTo(ws: WebSocket, msg: ServerMessage): void {
-    if (ws.readyState === 1) {
+    if (ws.readyState === 1 && ws.bufferedAmount < 1_048_576) {
       ws.send(JSON.stringify(msg));
     }
   }

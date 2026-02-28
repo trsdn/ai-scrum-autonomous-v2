@@ -3,7 +3,7 @@ import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintPlan, RefinedIssue } from "../types.js";
 import { SprintPlanSchema } from "../types.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 import { listIssues } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
 import { setMilestone, getMilestone, createMilestone } from "../github/milestones.js";

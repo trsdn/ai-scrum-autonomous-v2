@@ -13,7 +13,7 @@ import { setLabel } from "../github/labels.js";
 import { addComment } from "../github/issues.js";
 import { logger } from "../logger.js";
 
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 
 /**
  * Execute sprint issues in parallel, respecting dependency groups.

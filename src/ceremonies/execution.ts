@@ -25,7 +25,7 @@ import { getChangedFiles } from "../git/diff-analysis.js";
 import { getPRStats } from "../git/merge.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 import { handleQualityFailure, buildBranch, DEFAULT_QUALITY_GATE_CONFIG } from "./quality-retry.js";
 
 // Re-export for backward compatibility

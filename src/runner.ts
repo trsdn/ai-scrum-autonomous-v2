@@ -22,7 +22,7 @@ import {
   acquireLock,
   releaseLock,
 } from "./state-manager.js";
-import { SprintEventBus } from "./tui/events.js";
+import { SprintEventBus } from "./events.js";
 import type {
   SprintConfig,
   SprintPlan,
@@ -132,6 +132,9 @@ export class SprintRunner {
         // Filter out already-completed issues before execution
         await this.filterCompletedIssues(plan);
 
+        // Warn about issues missing acceptance criteria
+        this.warnMissingAcceptanceCriteria(plan);
+
         // If we crashed during or after execute but before review
         if (!result || previous.phase === "execute") {
           await this.checkPaused();
@@ -187,6 +190,9 @@ export class SprintRunner {
 
       // Filter out already-completed issues before execution
       await this.filterCompletedIssues(plan);
+
+      // Warn about issues missing acceptance criteria
+      this.warnMissingAcceptanceCriteria(plan);
 
       // 4. execute
       await this.checkPaused();
@@ -489,6 +495,22 @@ export class SprintRunner {
         "Filtered completed issues from sprint plan",
       );
       plan.sprint_issues = activeIssues;
+    }
+  }
+
+  /** Warn about issues that have empty acceptance criteria. */
+  private warnMissingAcceptanceCriteria(plan: SprintPlan): void {
+    for (const issue of plan.sprint_issues) {
+      if (!issue.acceptanceCriteria?.trim()) {
+        this.log.warn(
+          { issue: issue.number, title: issue.title },
+          "Issue has no acceptance criteria — worker may produce low-quality output",
+        );
+        this.events.emitTyped("log", {
+          level: "warn",
+          message: `⚠️ Issue #${issue.number} has no acceptance criteria`,
+        });
+      }
     }
   }
 

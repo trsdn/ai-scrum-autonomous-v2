@@ -7,7 +7,7 @@ import type {
   ReviewResult,
   RetroResult,
 } from "../types.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { createIssue } from "../github/issues.js";

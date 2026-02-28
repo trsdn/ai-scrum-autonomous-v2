@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintResult, ReviewResult } from "../types.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics, topFailedGates } from "../metrics.js";
 import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
@@ -36,6 +36,17 @@ export async function runSprintReview(
     status: r.status,
     points: r.points,
     branch: r.branch,
+    duration_ms: r.duration_ms,
+    filesChanged: r.filesChanged,
+    retryCount: r.retryCount,
+    qualityGatePassed: r.qualityGatePassed,
+    qualityChecks: r.qualityDetails?.checks?.map((c) => ({
+      name: c.name,
+      passed: c.passed,
+      category: c.category,
+    })) ?? [],
+    codeReviewApproved: r.codeReview?.approved,
+    codeReviewIssues: r.codeReview?.issues?.length ?? 0,
   }));
 
   // Read prompt template

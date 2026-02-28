@@ -113,6 +113,13 @@ export async function mergeBranch(
 ): Promise<MergeResult> {
   const log = logger.child({ module: "merge" });
 
+  // Fetch latest from remote before merging to avoid losing remote changes
+  try {
+    await execFile("git", ["fetch", "origin", target]);
+  } catch {
+    log.debug({ target }, "git fetch failed — proceeding with local state");
+  }
+
   // Checkout target branch
   await execFile("git", ["checkout", target]);
 
