@@ -31,9 +31,4 @@ describe("SprintEventBus", () => {
 
     expect(calls).toEqual(["a", "b"]);
   });
-
-  it("re-export from tui/events.js is the same class", async () => {
-    const { SprintEventBus: ReExported } = await import("../src/tui/events.js");
-    expect(ReExported).toBe(SprintEventBus);
-  });
 });

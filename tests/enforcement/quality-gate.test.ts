@@ -259,6 +259,53 @@ describe("runQualityGate", () => {
     );
   });
 
+  it("should pass scope-drift when expectedFiles match changed files", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const result = await runQualityGate(
+      makeConfig({ expectedFiles: ["a.ts", "b.ts", "c.ts"] }),
+      "/tmp/wt",
+      "feat/1",
+      "main",
+    );
+
+    expect(result.passed).toBe(true);
+    const scopeDrift = result.checks.find((c) => c.name === "scope-drift");
+    expect(scopeDrift).toBeDefined();
+    expect(scopeDrift?.passed).toBe(true);
+    expect(scopeDrift?.detail).toContain("within expected scope");
+  });
+
+  it("should fail scope-drift when unplanned files exist", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const result = await runQualityGate(
+      makeConfig({ expectedFiles: ["a.ts"] }),
+      "/tmp/wt",
+      "feat/1",
+      "main",
+    );
+
+    expect(result.passed).toBe(false);
+    const scopeDrift = result.checks.find((c) => c.name === "scope-drift");
+    expect(scopeDrift).toBeDefined();
+    expect(scopeDrift?.passed).toBe(false);
+    expect(scopeDrift?.detail).toContain("out-of-scope");
+  });
+
+  it("should not add scope-drift check when expectedFiles is not set", async () => {
+    mockGlob.mockResolvedValue(["foo.test.ts"] as never);
+    mockExecSuccess();
+
+    const result = await runQualityGate(makeConfig(), "/tmp/wt", "feat/1", "main");
+
+    expect(result.passed).toBe(true);
+    const scopeDrift = result.checks.find((c) => c.name === "scope-drift");
+    expect(scopeDrift).toBeUndefined();
+  });
+
   it("should handle legacy string commands with a fallback", async () => {
     mockGlob.mockResolvedValue(["foo.test.ts"] as never);
     mockExecSuccess();
