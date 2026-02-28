@@ -383,6 +383,20 @@ export class AcpClient {
   }
 
   /**
+   * Get the last N lines of output from a session.
+   * Must be called before endSession() which clears the chunks.
+   */
+  getSessionOutput(sessionId: string, lastNLines = 50): string[] {
+    const chunks = this.sessionChunks.get(sessionId);
+    if (!chunks || chunks.length === 0) {
+      return [];
+    }
+    const fullText = chunks.join("");
+    const lines = fullText.split("\n").filter((line) => line.trim() !== "");
+    return lines.slice(-lastNLines);
+  }
+
+  /**
    * End an ACP session cleanly.
    */
   async endSession(sessionId: string): Promise<void> {

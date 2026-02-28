@@ -18,6 +18,7 @@ import {
   formatHuddleComment,
   formatSprintLogEntry,
 } from "../documentation/huddle.js";
+import type { ZeroChangeDiagnostic, HuddleEntryWithDiag } from "../documentation/huddle.js";
 import { appendToSprintLog } from "../documentation/sprint-log.js";
 import { addComment } from "../github/issues.js";
 import { setLabel } from "../github/labels.js";
@@ -274,6 +275,8 @@ interface CleanupInput {
   filesChanged: string[];
   errorMessage?: string;
   startTime: number;
+  acpOutputLines: string[];
+  timedOut: boolean;
 }
 
 /** Remove worktree, post huddle, set final labels. */
@@ -306,8 +309,24 @@ async function cleanupPhase(ctx: ExecutionContext, input: CleanupInput): Promise
     // Non-critical — proceed with local diff data
   }
 
+  // Build zero-change diagnostic if applicable
+  let zeroChangeDiagnostic: ZeroChangeDiagnostic | undefined;
+  if (input.filesChanged.length === 0 && input.qualityResult.passed === false) {
+    // Classify the outcome
+    const hasError = input.errorMessage || input.timedOut || 
+      input.acpOutputLines.some((line) => 
+        /Error:|FAIL|Exception|TypeError|ReferenceError/.test(line)
+      );
+    
+    zeroChangeDiagnostic = {
+      lastOutputLines: input.acpOutputLines,
+      timedOut: input.timedOut,
+      workerOutcome: hasError ? "worker-error" : "task-not-applicable",
+    };
+  }
+
   // Huddle — format comment, post to issue, append to sprint log
-  const huddleEntry: HuddleEntry = {
+  const huddleEntry: HuddleEntryWithDiag = {
     issueNumber: issue.number,
     issueTitle: issue.title,
     status: input.status,
@@ -320,6 +339,7 @@ async function cleanupPhase(ctx: ExecutionContext, input: CleanupInput): Promise
     errorMessage: input.errorMessage,
     prStats,
     retryCount: input.retryCount,
+    zeroChangeDiagnostic,
   };
 
   const comment = formatHuddleComment(huddleEntry);
@@ -407,6 +427,8 @@ export async function executeIssue(
   let filesChanged: string[] = [];
   let status: "completed" | "failed" = "failed";
   let errorMessage: string | undefined;
+  let acpOutputLines: string[] = [];
+  let timedOut = false;
 
   try {
     // Step 3: Create ACP session
@@ -426,7 +448,16 @@ export async function executeIssue(
       // Step 4-5: Plan → Implement
       const implementationPlan = await planPhase(ctx, sessionId);
       await implementPhase(ctx, sessionId, implementationPlan);
+    } catch (err: unknown) {
+      // Detect timeout errors
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.toLowerCase().includes("timed out")) {
+        timedOut = true;
+      }
+      throw err;
     } finally {
+      // Capture output before endSession clears it
+      acpOutputLines = client.getSessionOutput(sessionId, 50);
       eventBus?.emitTyped("session:end", { sessionId });
       await client.endSession(sessionId);
     }
@@ -460,7 +491,7 @@ export async function executeIssue(
     status = "failed";
   } finally {
     // Step 9-11: Cleanup (worktree, huddle, labels)
-    await cleanupPhase(ctx, { status, qualityResult, codeReview, retryCount, filesChanged, errorMessage, startTime });
+    await cleanupPhase(ctx, { status, qualityResult, codeReview, retryCount, filesChanged, errorMessage, startTime, acpOutputLines, timedOut });
   }
 
   const duration_ms = Date.now() - startTime;

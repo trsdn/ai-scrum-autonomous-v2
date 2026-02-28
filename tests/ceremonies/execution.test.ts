@@ -145,6 +145,7 @@ function makeMockClient() {
     connect: vi.fn(),
     disconnect: vi.fn(),
     connected: true,
+    getSessionOutput: vi.fn().mockReturnValue([]),
   };
 }
 
@@ -302,6 +303,96 @@ describe("executeIssue", () => {
     expect(formatHuddleComment).toHaveBeenCalledWith(
       expect.objectContaining({
         cleanupWarning: undefined,
+      }),
+    );
+  });
+
+  it("captures zero-change diagnostic with task-not-applicable outcome when no error", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue([]);
+
+    mockClient.getSessionOutput.mockReturnValue([
+      "Processing issue...",
+      "No changes needed for this task",
+      "Task completed successfully",
+    ]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    expect(result.status).toBe("failed");
+    expect(formatHuddleComment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "failed",
+        filesChanged: [],
+        zeroChangeDiagnostic: expect.objectContaining({
+          workerOutcome: "task-not-applicable",
+          timedOut: false,
+          lastOutputLines: expect.arrayContaining([
+            "Processing issue...",
+            "No changes needed for this task",
+            "Task completed successfully",
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it("captures zero-change diagnostic with worker-error outcome on timeout", async () => {
+    const mockClient = makeMockClient();
+    mockClient.sendPrompt.mockRejectedValue(new Error("Prompt timed out after 600000ms"));
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue([]);
+
+    mockClient.getSessionOutput.mockReturnValue([
+      "Starting implementation...",
+      "Processing files...",
+    ]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    expect(result.status).toBe("failed");
+    expect(formatHuddleComment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "failed",
+        filesChanged: [],
+        errorMessage: "Prompt timed out after 600000ms",
+      }),
+    );
+  });
+
+  it("captures zero-change diagnostic with worker-error outcome when output contains errors", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue([]);
+
+    mockClient.getSessionOutput.mockReturnValue([
+      "Starting implementation...",
+      "Error: Cannot find module 'src/foo.ts'",
+      "  at Module._resolveFilename",
+      "FAIL: test suite failed",
+    ]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    expect(result.status).toBe("failed");
+    expect(formatHuddleComment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "failed",
+        filesChanged: [],
+        zeroChangeDiagnostic: expect.objectContaining({
+          workerOutcome: "worker-error",
+          timedOut: false,
+          lastOutputLines: expect.arrayContaining([
+            expect.stringContaining("Error:"),
+          ]),
+        }),
       }),
     );
   });
