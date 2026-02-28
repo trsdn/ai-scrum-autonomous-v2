@@ -6,10 +6,11 @@ import type {
   QualityResult,
 } from "../types.js";
 import { runQualityGate } from "../enforcement/quality-gate.js";
+import type { QualityGateConfig } from "../enforcement/quality-gate.js";
 import { logger } from "../logger.js";
 import type { SprintEventBus } from "../events.js";
 
-export const DEFAULT_QUALITY_GATE_CONFIG = {
+export const DEFAULT_QUALITY_GATE_CONFIG: QualityGateConfig = {
   requireTests: true,
   requireLint: true,
   requireTypes: true,
@@ -20,6 +21,11 @@ export const DEFAULT_QUALITY_GATE_CONFIG = {
   typecheckCommand: ["npm", "run", "typecheck"],
   buildCommand: ["npm", "run", "build"],
 };
+
+/** Build a QualityGateConfig from SprintConfig, falling back to hardcoded defaults. */
+export function buildQualityGateConfig(config: SprintConfig): QualityGateConfig {
+  return config.qualityGate ?? DEFAULT_QUALITY_GATE_CONFIG;
+}
 
 /** Build branch name from config pattern. */
 export function buildBranch(config: SprintConfig, issueNumber: number): string {
@@ -84,8 +90,10 @@ export async function handleQualityFailure(
   }
 
   const branch = buildBranch(config, issue.number);
+  const gateConfig = buildQualityGateConfig(config);
+  gateConfig.expectedFiles = issue.expectedFiles;
   const newResult = await runQualityGate(
-    DEFAULT_QUALITY_GATE_CONFIG,
+    gateConfig,
     worktreePath,
     branch,
     config.baseBranch,

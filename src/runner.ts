@@ -377,7 +377,9 @@ export class SprintRunner {
           timestamp: new Date(),
         },
         { ntfyEnabled: false },
+        this.events,
       );
+      this.pause();
     }
 
     this.persistState();

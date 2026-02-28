@@ -17,6 +17,7 @@ export interface QualityGateConfig {
   lintCommand: string | string[];
   typecheckCommand: string | string[];
   buildCommand: string | string[];
+  expectedFiles?: string[];
 }
 
 /** Normalize a command to an array, logging a warning for legacy string usage. */
@@ -124,8 +125,27 @@ export async function runQualityGate(
     });
   }
 
-  // 6. Check diff size
+  // 6. Compute diff stat (reused by scope-drift and diff-size checks)
   const stat = await diffStat(branch, baseBranch);
+
+  // 7. Check scope drift (if expectedFiles provided)
+  if (config.expectedFiles && config.expectedFiles.length > 0) {
+    const changedFiles = stat.files;
+    const unplannedFiles = changedFiles.filter(
+      (f) => !config.expectedFiles!.some((ef) => f.includes(ef)),
+    );
+    checks.push({
+      name: "scope-drift",
+      passed: unplannedFiles.length === 0,
+      detail:
+        unplannedFiles.length === 0
+          ? `All ${changedFiles.length} changed files within expected scope`
+          : `${unplannedFiles.length} out-of-scope files: ${unplannedFiles.slice(0, 5).join(", ")}${unplannedFiles.length > 5 ? "..." : ""}`,
+      category: "diff",
+    });
+  }
+
+  // 8. Check diff size
   const diffPassed = stat.linesChanged <= config.maxDiffLines;
   checks.push({
     name: "diff-size",

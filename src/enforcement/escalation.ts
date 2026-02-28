@@ -4,6 +4,7 @@ import { createIssue } from "../github/issues.js";
 import { ensureLabelExists } from "../github/labels.js";
 import { logger } from "../logger.js";
 import type { EscalationEvent } from "../types.js";
+import type { SprintEventBus } from "../events.js";
 
 const execFile = promisify(execFileCb);
 
@@ -26,6 +27,7 @@ export interface EscalationConfig {
 export async function escalateToStakeholder(
   event: EscalationEvent,
   config: EscalationConfig,
+  eventBus?: SprintEventBus,
 ): Promise<void> {
   const log = logger.child({ module: "escalation" });
 
@@ -70,6 +72,12 @@ export async function escalateToStakeholder(
       labels,
     });
     log.info("escalation issue created");
+
+    // MUST-level escalation: signal sprint pause
+    if (event.level === "must" && eventBus) {
+      log.warn("MUST escalation — signaling sprint pause");
+      eventBus.emitTyped("sprint:paused", {});
+    }
   } catch (err: unknown) {
     // Fall back to creating without labels if label doesn't exist
     log.warn({ err }, "escalation issue creation failed — retrying without labels");

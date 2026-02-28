@@ -573,6 +573,7 @@ describe("SprintRunner", () => {
       expect(escalateToStakeholder).toHaveBeenCalledWith(
         expect.objectContaining({ level: "must", reason: "Excessive drift detected" }),
         expect.any(Object),
+        expect.anything(),
       );
     });
   });
