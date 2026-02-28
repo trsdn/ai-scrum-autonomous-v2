@@ -127,6 +127,40 @@ describe("ChatManager", () => {
       await expect(manager.createSession("planner")).rejects.toThrow("No role context found");
     });
 
+    it("excludes log/ directory from role context loading", async () => {
+      const callTracker: string[] = [];
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readdirSync).mockImplementation((dir) => {
+        const d = String(dir);
+        if (d.endsWith("refiner")) {
+          return [
+            { name: "copilot-instructions.md", isDirectory: () => false, isFile: () => true },
+            { name: "log", isDirectory: () => true, isFile: () => false },
+            { name: "skills", isDirectory: () => true, isFile: () => false },
+          ] as unknown as fs.Dirent[];
+        }
+        if (d.endsWith("skills")) {
+          return [
+            { name: "SKILL.md", isDirectory: () => false, isFile: () => true },
+          ] as unknown as fs.Dirent[];
+        }
+        // log/ should never be walked
+        if (d.includes("log")) {
+          callTracker.push(d);
+          return [] as unknown as fs.Dirent[];
+        }
+        return [] as unknown as fs.Dirent[];
+      });
+      vi.mocked(fs.readFileSync).mockReturnValue("# Instructions");
+
+      await manager.createSession("refiner");
+
+      // The log/ directory should NOT have been walked
+      expect(callTracker.filter((p) => p.includes("log"))).toHaveLength(0);
+      // skills/ should have been walked (readdirSync called for root + skills)
+      expect(fs.readFileSync).toHaveBeenCalled();
+    });
+
     it("reuses the ACP client on second createSession call", async () => {
       await manager.createSession("general");
       await manager.createSession("reviewer");
