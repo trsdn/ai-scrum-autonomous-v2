@@ -113,10 +113,15 @@ export class DashboardWebServer {
   private readonly publicDir: string;
   private eventBuffer: BufferedEvent[] = [];
   private knownMilestones: { sprintNumber: number; title: string; state: string }[] = [];
+  private executionMode: "autonomous" | "hitl" = "autonomous";
 
   constructor(options: DashboardServerOptions) {
     this.options = options;
     this.publicDir = path.join(path.dirname(new URL(import.meta.url).pathname), "public");
+  }
+
+  getExecutionMode(): "autonomous" | "hitl" {
+    return this.executionMode;
   }
 
   async start(): Promise<void> {
@@ -141,6 +146,12 @@ export class DashboardWebServer {
       this.sendTo(ws, {
         type: "sprint:switched",
         payload: { sprintNumber: this.options.activeSprintNumber, activeSprintNumber: this.options.activeSprintNumber },
+      });
+      // Send current execution mode so client dropdown syncs
+      this.sendTo(ws, {
+        type: "sprint:event",
+        eventName: "mode:changed",
+        payload: { mode: this.executionMode },
       });
       // Send active session list
       if (this.sessions.size > 0) {
@@ -418,6 +429,7 @@ export class DashboardWebServer {
         break;
       case "mode:set":
         if (msg.mode === "autonomous" || msg.mode === "hitl") {
+          this.executionMode = msg.mode;
           log.info({ mode: msg.mode }, "Dashboard client changed execution mode");
           this.options.onModeChange?.(msg.mode);
           this.broadcast({ type: "sprint:event", eventName: "mode:changed", payload: { mode: msg.mode } });

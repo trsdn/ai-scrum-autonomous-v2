@@ -123,7 +123,7 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched") {
+        if (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched" || (msg.type === "sprint:event" && msg.eventName === "mode:changed" && msg.payload?.mode === "autonomous")) {
           initialCount++;
           // After initial messages, emit an event
           if (initialCount === 2) {
@@ -356,10 +356,10 @@ describe("DashboardWebServer", () => {
       let initialCount = 0;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (initialCount < 3) {
+        if (initialCount < 4) {
           initialCount++;
-          if (initialCount === 3) {
-            // Send sprint:switch after initial messages (state + issues + switched)
+          if (initialCount === 4) {
+            // Send sprint:switch after initial messages (state + issues + switched + mode)
             ws.send(JSON.stringify({ type: "sprint:switch", sprintNumber: 2 }));
           }
           return;
@@ -529,8 +529,8 @@ describe("DashboardWebServer", () => {
       let initialDone = false;
       ws.on("message", (data) => {
         const msg = JSON.parse(data.toString());
-        if (!initialDone && (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched")) {
-          if (msg.type === "sprint:switched") {
+        if (!initialDone && (msg.type === "sprint:state" || msg.type === "sprint:issues" || msg.type === "sprint:switched" || (msg.type === "sprint:event" && msg.eventName === "mode:changed" && msg.payload?.mode === "autonomous"))) {
+          if (msg.type === "sprint:event" && msg.eventName === "mode:changed") {
             initialDone = true;
             ws.send(JSON.stringify({ type: "mode:set", mode: "hitl" }));
           }

@@ -293,6 +293,13 @@
       case "log":
         addLog(payload.level, payload.message);
         break;
+
+      case "mode:changed":
+        if (payload.mode === "autonomous" || payload.mode === "hitl") {
+          executionMode = payload.mode;
+          modeToggle.value = payload.mode;
+        }
+        break;
     }
   }
 
@@ -412,6 +419,8 @@
     elapsedEl.textContent = `${min}m ${String(sec).padStart(2, "0")}s`;
   }
 
+  const EXECUTION_STEPS = ["plan", "tdd", "implement", "quality gate", "code review"];
+
   function renderIssues() {
     issueList.innerHTML = "";
     if (!issues || !Array.isArray(issues)) return;
@@ -422,11 +431,23 @@
       const issueLink = repoUrl
         ? `<a href="${repoUrl}/issues/${issue.number}" target="_blank" rel="noopener" class="gh-link">#${issue.number}</a>`
         : `#${issue.number}`;
+
+      let stepsHtml = "";
+      if (issue.status === "in-progress" && issue.currentStep) {
+        stepsHtml = '<div class="issue-steps">' + EXECUTION_STEPS.map((step) => {
+          const isCurrent = issue.currentStep === step;
+          const isPast = EXECUTION_STEPS.indexOf(step) < EXECUTION_STEPS.indexOf(issue.currentStep);
+          const cls = isCurrent ? "step-current" : isPast ? "step-done" : "step-pending";
+          return `<span class="issue-step ${cls}">${escapeHtml(step)}</span>`;
+        }).join('<span class="step-sep">→</span>') + '</div>';
+      }
+
       li.innerHTML = `
         <span class="issue-icon">${statusIcon(issue.status)}</span>
         <span class="issue-number">${issueLink}</span>
         <span class="issue-title">${escapeHtml(issue.title)}</span>
         ${issue.failReason ? `<span class="issue-fail-reason">${escapeHtml(issue.failReason)}</span>` : ""}
+        ${stepsHtml}
       `;
       issueList.appendChild(li);
     }
@@ -440,6 +461,7 @@
       li.innerHTML = `
         <span class="activity-icon">${activityIcon(a.status)}</span>
         <div class="activity-content">
+          <span class="activity-time">${a.time || ""}</span>
           <div class="activity-label">${escapeHtml(a.label)}</div>
           ${a.detail ? `<div class="activity-detail">${escapeHtml(a.detail)}</div>` : ""}
         </div>
@@ -454,7 +476,8 @@
   // --- Activity helpers ---
 
   function addActivity(type, label, detail, status) {
-    activities.push({ type, label, detail, status, startedAt: status === "active" ? Date.now() : null });
+    const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    activities.push({ type, label, detail, status, startedAt: status === "active" ? Date.now() : null, time });
     renderActivities();
   }
 
@@ -469,6 +492,13 @@
   }
 
   function updateActivityDetail(issueNumber, step) {
+    // Update issue step indicator
+    const issue = issues.find((i) => i.number === issueNumber);
+    if (issue) {
+      issue.currentStep = step;
+      renderIssues();
+    }
+    // Update activity feed
     const prefix = `#${issueNumber}`;
     for (let i = activities.length - 1; i >= 0; i--) {
       if (activities[i].label.startsWith(prefix) && activities[i].status === "active") {

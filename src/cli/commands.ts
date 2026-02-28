@@ -424,17 +424,7 @@ function registerWeb(program: Command): void {
           },
           onSwitchSprint: switchToSprint,
           onModeChange: (mode) => {
-            if (mode === "hitl") {
-              eventBus.onTyped("phase:change", () => {
-                try {
-                  const state = runner.getState();
-                  if (state.phase !== "complete" && state.phase !== "failed" && state.phase !== "init") {
-                    runner.pause();
-                    eventBus.emitTyped("log", { level: "info", message: `HITL: Paused at ${state.phase} — review and click Resume to continue` });
-                  }
-                } catch (err) { logger.warn({ err }, "HITL auto-pause failed"); }
-              });
-            }
+            runner.setHitlMode(mode === "hitl");
             logger.info({ mode }, "execution mode changed");
           },
           projectPath: process.cwd(),
