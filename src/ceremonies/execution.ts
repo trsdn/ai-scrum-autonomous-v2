@@ -1,5 +1,7 @@
+import { execFile as execFileCb } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import type { AcpClient } from "../acp/client.js";
 import { ACP_MODES } from "../acp/client.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
@@ -246,6 +248,91 @@ async function implementPhase(ctx: ExecutionContext, implementationPlan: string)
 }
 
 // ---------------------------------------------------------------------------
+// Sub-phase: Acceptance criteria review
+// ---------------------------------------------------------------------------
+
+const execFile = promisify(execFileCb);
+
+interface AcceptanceCriteriaResult {
+  approved: boolean;
+  feedback?: string;
+  criteria?: Array<{
+    criterion: string;
+    passed: boolean;
+    evidence?: string;
+    concern?: string;
+  }>;
+  summary?: string;
+}
+
+/** Run acceptance criteria review via a fresh ACP reviewer session. */
+async function acceptanceCriteriaReview(ctx: ExecutionContext, qualityResult: QualityResult): Promise<AcceptanceCriteriaResult> {
+  const { client, config, issue, eventBus, log, worktreePath, branch } = ctx;
+
+  const reviewerConfig = await resolveSessionConfig(config, "reviewer");
+
+  // Get diff
+  let diff: string;
+  try {
+    const { stdout } = await execFile("git", ["diff", `${config.baseBranch}...${branch}`], { cwd: worktreePath });
+    diff = stdout;
+  } catch {
+    diff = "(diff unavailable)";
+  }
+
+  // Load prompt template
+  const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "quality-reviewer", "prompts", "acceptance-review.md");
+  const template = await fs.readFile(templatePath, "utf-8");
+
+  const promptVars: Record<string, string> = {
+    ISSUE_NUMBER: String(issue.number),
+    ISSUE_TITLE: issue.title,
+    ACCEPTANCE_CRITERIA: issue.acceptanceCriteria,
+    DIFF: diff,
+    TEST_OUTPUT: "Tests passed",
+    QG_RESULT: JSON.stringify(qualityResult.checks),
+  };
+
+  const prompt = substitutePrompt(template, promptVars);
+
+  const { sessionId } = await client.createSession({
+    cwd: worktreePath,
+    mcpServers: reviewerConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", {
+    sessionId,
+    role: "quality-reviewer",
+    issueNumber: issue.number,
+    model: reviewerConfig.model,
+  });
+
+  try {
+    if (reviewerConfig.model) {
+      await client.setModel(sessionId, reviewerConfig.model);
+    }
+
+    const result = await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    const acResult = extractJson<AcceptanceCriteriaResult>(result.response);
+
+    // Post results as issue comment
+    const status = acResult.approved ? "✅ Passed" : "❌ Failed";
+    const criteriaLines = (acResult.criteria ?? []).map(
+      (c) => `- ${c.passed ? "✅" : "❌"} ${c.criterion}${c.passed ? (c.evidence ? `: ${c.evidence}` : "") : (c.concern ? `: ${c.concern}` : "")}`,
+    ).join("\n");
+    const comment = `### 📋 Acceptance Criteria Review — ${status}\n\n${criteriaLines}${acResult.summary ? `\n\n${acResult.summary}` : ""}`;
+    await addComment(issue.number, comment).catch((err) =>
+      log.warn({ err: String(err) }, "failed to post AC review comment"),
+    );
+
+    log.info({ approved: acResult.approved }, "acceptance criteria review completed");
+    return acResult;
+  } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
+    await client.endSession(sessionId);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Sub-phase: Quality gate + code review
 // ---------------------------------------------------------------------------
 
@@ -297,6 +384,28 @@ async function qualityAndReviewPhase(ctx: ExecutionContext, devSessionId: string
     } catch (err: unknown) {
       log.warn({ err }, "code review failed — proceeding without review");
       codeReview = undefined;
+    }
+  }
+
+  // Acceptance criteria review — after code review passes
+  if (qualityResult.passed) {
+    try {
+      progress("acceptance review");
+      const acReview = await acceptanceCriteriaReview(ctx, qualityResult);
+      if (!acReview.approved) {
+        const feedback = acReview.feedback ?? "Acceptance criteria not met";
+        await client.sendPrompt(devSessionId,
+          `## Acceptance Criteria Review Failed\n\n${feedback}\n\nPlease fix the issues and ensure all acceptance criteria are met.`,
+          config.sessionTimeoutMs,
+        );
+        // Re-run quality gate after fix
+        qualityResult = await runQualityGate(gateConfig, worktreePath, branch, config.baseBranch);
+        if (!qualityResult.passed) {
+          retryCount++;
+        }
+      }
+    } catch (err) {
+      log.warn({ err }, "acceptance criteria review failed — proceeding without");
     }
   }
 

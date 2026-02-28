@@ -102,14 +102,17 @@ Per Constitution §4, every retro MUST evaluate:
 - **Process friction**: Where did the autonomous process slow down or fail?
 - **Tooling gaps**: What manual steps could be automated?
 
-### 8. Create Improvement Issues
+### 8. Improvement Targets
 
-For each approved improvement, create a GitHub issue:
+Each improvement will be **auto-applied** by the system after the retro completes. Ensure each improvement clearly specifies its target so the system knows which files to edit:
 
-- Title: `chore(process): <improvement description>`
-- Label: `type:chore`, `scope:process`
-- Body: Problem, root cause, action, expected outcome
-- These go to backlog for next sprint planning
+| Target | What gets edited |
+|--------|-----------------|
+| `skill` / `agent` | Files under `.aiscrum/roles/` |
+| `config` | `sprint-runner.config.yaml` in the project root |
+| `process` | Ceremony/enforcement code under `src/ceremonies/`, `src/enforcement/`, or prompts under `.aiscrum/roles/*/prompts/` |
+
+Improvements with `autoApplicable: false` will be logged but skipped — they will NOT create GitHub issues.
 
 ### 9. Quality Checks
 
@@ -118,14 +121,13 @@ Before finalizing:
 - [ ] All improvements are backed by data from this sprint
 - [ ] Previous retro improvements have been checked
 - [ ] Each improvement has a clear, measurable expected outcome
-- [ ] No improvements require stakeholder decisions (escalate those separately)
-- [ ] Improvement issues are created in the backlog
+- [ ] Each improvement has a clear target (`skill`, `agent`, `config`, or `process`)
+- [ ] Improvements are ready for auto-application with clear, actionable descriptions
 
 ## Constraints
 
-- **Do NOT implement improvements** — retro creates issues; implementation happens in the next sprint
+- **Do NOT create GitHub issues for improvements** — all improvements are auto-applied by the system
 - **Do NOT modify ADRs or the constitution** — those require stakeholder confirmation
-- **Do NOT modify sprint-runner.config.yaml directly** — create an issue for config changes
 - **Data-driven only** — every insight must reference specific sprint metrics or incidents. No "we should probably..." without evidence
 - **Stakeholder Authority (Constitution §0)**: Process changes that affect what gets built require stakeholder approval
 

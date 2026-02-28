@@ -56,6 +56,35 @@ vi.mock("../../src/logger.js", () => {
   return { logger: childLogger };
 });
 
+vi.mock("node:child_process", () => {
+  const cb = vi.fn((_cmd: string, _args: string[], _opts: unknown, callback: (err: null, result: { stdout: string; stderr: string }) => void) => {
+    callback(null, { stdout: "diff --git a/src/foo.ts b/src/foo.ts\n+added line", stderr: "" });
+  });
+  return { execFile: cb };
+});
+
+vi.mock("node:util", async (importOriginal) => {
+  const original = await importOriginal<typeof import("node:util")>();
+  return {
+    ...original,
+    promisify: (fn: unknown) => {
+      if (typeof fn === "function" && (fn as { __esModule?: boolean }).__esModule !== true) {
+        return (...args: unknown[]) => {
+          return new Promise((resolve, reject) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+            (fn as Function)(...args, (err: unknown, ...result: unknown[]) => {
+              if (err) reject(err);
+              else if (result.length === 1) resolve(result[0]);
+              else resolve(result);
+            });
+          });
+        };
+      }
+      return original.promisify(fn as never);
+    },
+  };
+});
+
 vi.mock("node:fs/promises", () => ({
   default: {
     readFile: vi
@@ -66,6 +95,9 @@ vi.mock("node:fs/promises", () => ({
         }
         if (filePath.includes("tdd")) {
           return Promise.resolve("TDD tests for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}\nPlan: {{IMPLEMENTATION_PLAN}}");
+        }
+        if (filePath.includes("acceptance-review")) {
+          return Promise.resolve("Review AC for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}\nCriteria: {{ACCEPTANCE_CRITERIA}}\nDiff: {{DIFF}}");
         }
         return Promise.resolve("Worker prompt for issue #{{ISSUE_NUMBER}}");
       }),
@@ -199,8 +231,8 @@ describe("executeIssue", () => {
       mcpServers: [],
     });
 
-    // Prompt sent
-    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    // Prompt sent (planner + developer + AC review attempt)
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
 
     // Session ended
     expect(mockClient.endSession).toHaveBeenCalledWith("session-abc");
@@ -258,11 +290,11 @@ describe("executeIssue", () => {
 
     expect(result.status).toBe("completed");
 
-    // Only 2 sessions created: planner + developer (no new session for retry)
-    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    // 3 sessions created: planner + developer + AC reviewer (no new session for QG retry)
+    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
 
-    // 3 sendPrompt calls: planner + developer + QG retry feedback
-    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
+    // 4 sendPrompt calls: planner + developer + QG retry feedback + AC review attempt
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(4);
 
     // The retry prompt goes to the developer session (same sessionId)
     const retryCall = mockClient.sendPrompt.mock.calls[2];
@@ -439,11 +471,11 @@ describe("executeIssue", () => {
 
     expect(result.status).toBe("completed");
 
-    // 3 sessions: planner + test-engineer + developer
-    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
+    // 4 sessions: planner + test-engineer + developer + AC reviewer
+    expect(mockClient.createSession).toHaveBeenCalledTimes(4);
 
-    // 3 sendPrompt calls: planner + test-engineer + developer
-    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
+    // 4 sendPrompt calls: planner + test-engineer + developer + AC review attempt
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(4);
 
     // Verify the TDD prompt was sent (2nd sendPrompt call)
     const tddPromptCall = mockClient.sendPrompt.mock.calls[1];
@@ -463,11 +495,97 @@ describe("executeIssue", () => {
 
     expect(result.status).toBe("completed");
 
-    // Only 2 sessions: planner + developer (no test-engineer)
-    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+    // 3 sessions: planner + developer + AC reviewer (no test-engineer)
+    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
 
-    // Only 2 sendPrompt calls: planner + developer
-    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
+    // 3 sendPrompt calls: planner + developer + AC review attempt
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
+  });
+
+  it("runs acceptance criteria review after code review passes", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue(["src/foo.ts"]);
+
+    // AC review returns approved (4th sendPrompt: planner + developer + code-review + AC-review)
+    mockClient.sendPrompt.mockImplementation((_sid: string, prompt: string) => {
+      if (typeof prompt === "string" && prompt.includes("Review AC for issue")) {
+        return Promise.resolve({
+          response: JSON.stringify({
+            approved: true,
+            criteria: [{ criterion: "returns results", passed: true, evidence: "implemented" }],
+            summary: "All criteria met",
+          }),
+          stopReason: "end_turn",
+        });
+      }
+      return Promise.resolve({ response: "Done implementing issue", stopReason: "end_turn" });
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    expect(result.status).toBe("completed");
+    // 3 sessions: planner + developer + AC-reviewer (code review fails internally)
+    expect(mockClient.createSession).toHaveBeenCalledTimes(3);
+    // AC review result posted as comment
+    expect(addComment).toHaveBeenCalledWith(
+      42,
+      expect.stringContaining("Acceptance Criteria Review"),
+    );
+  });
+
+  it("sends feedback to developer when AC review fails", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue(["src/foo.ts"]);
+
+    mockClient.sendPrompt.mockImplementation((_sid: string, prompt: string) => {
+      if (typeof prompt === "string" && prompt.includes("Review AC for issue")) {
+        return Promise.resolve({
+          response: JSON.stringify({
+            approved: false,
+            feedback: "Missing search endpoint implementation",
+            criteria: [{ criterion: "returns results", passed: false, concern: "no endpoint found" }],
+          }),
+          stopReason: "end_turn",
+        });
+      }
+      return Promise.resolve({ response: "Done implementing issue", stopReason: "end_turn" });
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    // Developer session should receive AC failure feedback
+    const feedbackCalls = mockClient.sendPrompt.mock.calls.filter(
+      (call: unknown[]) => typeof call[1] === "string" && call[1].includes("Acceptance Criteria Review Failed"),
+    );
+    expect(feedbackCalls.length).toBe(1);
+    expect(feedbackCalls[0][1]).toContain("Missing search endpoint implementation");
+  });
+
+  it("AC review failure is non-blocking when it throws", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+    const { getChangedFiles } = await import("../../src/git/diff-analysis.js");
+    vi.mocked(getChangedFiles).mockResolvedValue(["src/foo.ts"]);
+
+    mockClient.sendPrompt.mockImplementation((_sid: string, prompt: string) => {
+      if (typeof prompt === "string" && prompt.includes("Review AC for issue")) {
+        return Promise.reject(new Error("ACP session timeout"));
+      }
+      return Promise.resolve({ response: "Done implementing issue", stopReason: "end_turn" });
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, makeConfig(), makeIssue());
+
+    // Should still complete despite AC review failure
+    expect(result.status).toBe("completed");
+    expect(result.qualityGatePassed).toBe(true);
   });
 });
 

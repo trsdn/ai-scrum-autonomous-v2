@@ -273,7 +273,7 @@ describe("runSprintRetro", () => {
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
 
-  it("creates issues for non-auto-applicable improvements", async () => {
+  it("skips non-auto-applicable improvements with warning", async () => {
     const client = makeMockClient();
     vi.mocked(client.sendPrompt).mockResolvedValueOnce({
       response: JSON.stringify({
@@ -294,13 +294,8 @@ describe("runSprintRetro", () => {
 
     await runSprintRetro(client, config, sprintResult, reviewResult);
 
-    expect(createIssue).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "chore(process): Fix CI",
-        body: "Speed up",
-        labels: ["type:chore", "scope:process"],
-      }),
-    );
+    // Non-auto-applicable improvements are skipped — no issues created, no ACP session
+    expect(createIssue).not.toHaveBeenCalled();
   });
 
   it("ends ACP session even on error", async () => {
@@ -322,10 +317,10 @@ describe("runSprintRetro", () => {
         wentWell: [],
         wentBadly: [],
         improvements: [
-          { title: undefined, description: "desc", autoApplicable: false, target: "process" },
-          { title: "", description: "desc2", autoApplicable: false, target: "process" },
-          { title: "Valid Fix", description: undefined, autoApplicable: false, target: "process" },
-          { title: "Real Fix", description: "Real desc", autoApplicable: false, target: "process" },
+          { title: undefined, description: "desc", autoApplicable: true, target: "process" },
+          { title: "", description: "desc2", autoApplicable: true, target: "process" },
+          { title: "Valid Fix", description: undefined, autoApplicable: true, target: "process" },
+          { title: "Real Fix", description: "Real desc", autoApplicable: true, target: "process" },
         ],
         previousImprovementsChecked: true,
       }),
@@ -334,10 +329,10 @@ describe("runSprintRetro", () => {
 
     await runSprintRetro(client, config, sprintResult, reviewResult);
 
-    // Only the valid improvement should create an issue
-    expect(createIssue).toHaveBeenCalledTimes(1);
-    expect(createIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "chore(process): Real Fix" }),
-    );
+    // Invalid improvements skipped, valid one auto-applied (no issues created)
+    expect(createIssue).not.toHaveBeenCalled();
+    // The valid "Real Fix" should trigger an ACP session for auto-apply
+    // (createSession is called once for retro + once for auto-apply)
+    expect(client.createSession).toHaveBeenCalledTimes(2);
   });
 });
