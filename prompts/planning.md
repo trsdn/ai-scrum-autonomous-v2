@@ -77,6 +77,8 @@ Before finalizing the plan:
 - [ ] Total effort does not exceed velocity capacity
 - [ ] Stakeholder-priority issues are included (never deprioritize without escalation)
 - [ ] All selected issues have acceptance criteria
+- [ ] Each issue has `expectedFiles` listing the files expected to change (used for scope-drift detection)
+- [ ] Each issue has `acceptanceCriteria` summarizing what must be true when done
 - [ ] Dependency order is consistent (no circular dependencies)
 - [ ] Sprint size ≤ {{MAX_ISSUES}} issues
 - [ ] If >{{MAX_ISSUES}} eligible issues, defer lowest-ICE issues to backlog
@@ -111,7 +113,10 @@ Reply with a JSON summary:
       "effort": 2,
       "ice_score": 320,
       "priority": "high",
-      "depends_on": []
+      "depends_on": [],
+      "acceptanceCriteria": "Search by name returns matching users. Empty query returns 400.",
+      "expectedFiles": ["src/api/search.ts", "tests/api/search.test.ts"],
+      "points": 3
     },
     {
       "number": 12,
@@ -119,7 +124,10 @@ Reply with a JSON summary:
       "effort": 1,
       "ice_score": 450,
       "priority": "critical",
-      "depends_on": []
+      "depends_on": [],
+      "acceptanceCriteria": "Token expires at exact TTL, not TTL+1. Regression test added.",
+      "expectedFiles": ["src/auth/token.ts", "tests/auth/token.test.ts"],
+      "points": 1
     }
   ],
   "execution_groups": [

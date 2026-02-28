@@ -12,8 +12,9 @@ The AI agent acts as **PO + Scrum Master**. The human is the **Stakeholder** wit
 
 - **Full Sprint Lifecycle** — Refine → Plan → Execute → Review → Retro, all automated
 - **Parallel Issue Execution** — Multiple issues worked on simultaneously via git worktrees
-- **Quality Gates** — Tests, lint, type check, diff size, challenger review — all enforced externally
+- **Quality Gates** — 7 checks enforced externally: tests-exist, tests-pass, lint-clean, types-clean, build-pass, scope-drift, diff-size
 - **Web Dashboard** — Real-time sprint monitoring, issue tracking, ACP session viewer
+- **Interactive Session Control** — Send messages to running ACP sessions, stop with confirmation
 - **Agent Chat** — Open ad-hoc ACP sessions with pre-configured roles (researcher, planner, reviewer)
 - **Sprint Navigation** — Browse historical sprints with instant loading via issue cache
 - **Drift Control** — Detects and escalates scope drift automatically
@@ -67,7 +68,6 @@ Test mode uses `sprint-runner.test.yaml` with `prefix: "Test Sprint"` — separa
 | Command | Description |
 |---------|-------------|
 | `web` | Launch web dashboard (recommended) |
-| `dashboard` | Launch TUI dashboard |
 | `full-cycle` | Run complete sprint: refine → plan → execute → review → retro |
 | `plan` | Run sprint planning only |
 | `execute-issue --issue N --sprint N` | Execute a single issue |
@@ -274,7 +274,6 @@ src/
 │   ├── chat-manager.ts      # ACP chat session management
 │   ├── issue-cache.ts       # In-memory sprint issue cache
 │   └── public/              # HTML, CSS, JS (vanilla, no build step)
-└── tui/                     # Terminal UI (Ink/React)
 
 scripts/
 ├── test-setup.sh            # Create test issues and milestones
