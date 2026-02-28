@@ -150,7 +150,7 @@ async function implementPhase(ctx: ExecutionContext, sessionId: string, implemen
 }
 
 // ---------------------------------------------------------------------------
-// Sub-phase: Quality gate + code review + challenger
+// Sub-phase: Quality gate + code review
 // ---------------------------------------------------------------------------
 
 interface ReviewOutcome {
@@ -159,7 +159,7 @@ interface ReviewOutcome {
   retryCount: number;
 }
 
-/** Run quality gate, code review, and challenger review. */
+/** Run quality gate and code review. */
 async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutcome> {
   const { client, config, issue, log, worktreePath, branch, progress } = ctx;
 
@@ -190,11 +190,6 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
       log.warn({ err }, "code review failed — proceeding without review");
       codeReview = undefined;
     }
-  }
-
-  // Challenger review (advisory — doesn't block)
-  if (qualityResult.passed && config.enableChallenger) {
-    await runChallengerPhase(ctx);
   }
 
   return { qualityResult, codeReview, retryCount };
@@ -239,28 +234,6 @@ async function attemptCodeReviewFix(
   }
 
   return { qualityResult: newQuality, codeReview: newReview };
-}
-
-/** Run challenger review (advisory — posts comments but doesn't block). */
-async function runChallengerPhase(ctx: ExecutionContext): Promise<void> {
-  const { client, config, issue, log, branch, progress } = ctx;
-
-  try {
-    progress("challenger review");
-    const { runChallengerReview } = await import("../enforcement/challenger.js");
-    const challengerResult = await runChallengerReview(client, config, branch, issue.number);
-    log.info({ approved: challengerResult.approved }, "challenger review completed");
-
-    if (!challengerResult.approved) {
-      log.warn({ feedback: challengerResult.feedback.slice(0, 200) }, "challenger rejected — marking as concern");
-      await addComment(
-        issue.number,
-        `### 🔍 Challenger Review\n\n**Result:** ⚠️ Concerns raised\n\n${challengerResult.feedback}`,
-      ).catch((err) => log.warn({ err: String(err) }, "failed to post challenger comment"));
-    }
-  } catch (err: unknown) {
-    log.warn({ err }, "challenger review failed — proceeding without");
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -462,7 +435,7 @@ export async function executeIssue(
       await client.endSession(sessionId);
     }
 
-    // Step 6-8: Quality gate, code review, challenger
+    // Step 6-7: Quality gate + code review
     const reviewOutcome = await qualityAndReviewPhase(ctx);
     qualityResult = reviewOutcome.qualityResult;
     codeReview = reviewOutcome.codeReview;

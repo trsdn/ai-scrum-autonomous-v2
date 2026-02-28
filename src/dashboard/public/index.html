@@ -30,19 +30,11 @@
       <button id="btn-pause" class="btn btn-warn" title="Pause sprint" style="display:none">⏸ Pause</button>
       <button id="btn-resume" class="btn btn-primary" title="Resume sprint" style="display:none">▶ Resume</button>
       <button id="btn-stop" class="btn btn-danger" title="Stop sprint" style="display:none">⏹ Stop</button>
-      <button id="btn-sessions" class="btn" title="View ACP Sessions">🔍 Sessions</button>
       <button id="btn-chat" class="btn" title="Open Agent Chat">💬 Chat</button>
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
-  <nav id="tab-nav" class="tab-nav">
-    <button class="tab-btn tab-active" data-tab="sprint">🏃 Sprint</button>
-    <button class="tab-btn" data-tab="backlog">📋 Backlog</button>
-    <button class="tab-btn" data-tab="ideas">💡 Ideas</button>
-  </nav>
-
-  <!-- Phase Stepper -->
+  <!-- Phase Stepper (sprint progress) -->
   <nav id="phase-stepper" class="phase-stepper">
     <span class="step" data-phase="refine">Refine</span>
     <span class="step-arrow">→</span>
@@ -57,6 +49,13 @@
     <span class="step" data-phase="complete">Done</span>
   </nav>
 
+  <!-- Navigation Tabs -->
+  <nav id="tab-nav" class="tab-nav">
+    <button class="tab-btn tab-active" data-tab="sprint">🏃 Sprint</button>
+    <button class="tab-btn" data-tab="backlog">📋 Backlog</button>
+    <button class="tab-btn" data-tab="ideas">💡 Ideas</button>
+  </nav>
+
   <!-- Main content -->
   <main>
     <!-- Sprint Tab (default) -->
@@ -67,7 +66,7 @@
         <ul id="issue-list"></ul>
       </section>
 
-      <!-- Right panel: Activity + Log -->
+      <!-- Center panel: Activity + Log -->
       <section id="activity-panel" class="panel">
         <h2>Activity</h2>
         <ul id="activity-list"></ul>
@@ -105,6 +104,26 @@
       </section>
     </div>
 
+    <!-- Session panel (always visible on right side) -->
+    <section id="session-panel" class="panel session-panel">
+      <div class="session-header">
+        <h2>ACP Sessions</h2>
+      </div>
+      <ul id="session-list" class="session-list"></ul>
+      <div id="session-viewer" class="session-viewer" style="display:none">
+        <div class="session-viewer-header">
+          <button id="btn-back-sessions" class="btn btn-small">← Back</button>
+          <span id="session-viewer-title"></span>
+          <button id="btn-stop-session" class="btn btn-small btn-danger" title="Stop session">⏹ Stop</button>
+        </div>
+        <pre id="session-output" class="session-output"></pre>
+        <div id="session-input-bar" class="session-input-bar">
+          <input id="session-message-input" type="text" placeholder="Send message to session…" autocomplete="off" />
+          <button id="btn-send-session" class="btn btn-small">Send</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Chat panel (slide-out) -->
     <section id="chat-panel" class="panel chat-panel" style="display:none">
       <div class="chat-header">
@@ -126,27 +145,6 @@
       <div class="chat-input-row">
         <textarea id="chat-input" placeholder="Type a message…" rows="2"></textarea>
         <button id="btn-send" class="btn btn-primary btn-small" disabled>Send</button>
-      </div>
-    </section>
-
-    <!-- Session viewer panel (slide-out) -->
-    <section id="session-panel" class="panel session-panel" style="display:none">
-      <div class="session-header">
-        <h2>ACP Sessions</h2>
-        <button id="btn-close-sessions" class="btn btn-small" title="Close panel">✕</button>
-      </div>
-      <ul id="session-list" class="session-list"></ul>
-      <div id="session-viewer" class="session-viewer" style="display:none">
-        <div class="session-viewer-header">
-          <button id="btn-back-sessions" class="btn btn-small">← Back</button>
-          <span id="session-viewer-title"></span>
-          <button id="btn-stop-session" class="btn btn-small btn-danger" title="Stop session">⏹ Stop</button>
-        </div>
-        <pre id="session-output" class="session-output"></pre>
-        <div id="session-input-bar" class="session-input-bar">
-          <input id="session-message-input" type="text" placeholder="Send message to session…" autocomplete="off" />
-          <button id="btn-send-session" class="btn btn-small">Send</button>
-        </div>
       </div>
     </section>
   </main>
