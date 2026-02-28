@@ -198,9 +198,10 @@ describe("saveState / loadState", () => {
     saveState(state, filePath);
 
     const loaded = loadState(filePath);
-    expect(loaded.sprintNumber).toBe(1);
-    expect(loaded.phase).toBe("plan");
-    expect(loaded.startedAt).toEqual(new Date("2025-01-01T00:00:00Z"));
+    expect(loaded).not.toBeNull();
+    expect(loaded!.sprintNumber).toBe(1);
+    expect(loaded!.phase).toBe("plan");
+    expect(loaded!.startedAt).toEqual(new Date("2025-01-01T00:00:00Z"));
   });
 
   it("creates parent directories if needed", () => {
@@ -231,8 +232,9 @@ describe("saveState / loadState", () => {
 
     // Content is valid JSON with version
     const loaded = loadState(filePath);
-    expect(loaded.phase).toBe("plan");
-    expect(loaded.sprintNumber).toBe(1);
+    expect(loaded).not.toBeNull();
+    expect(loaded!.phase).toBe("plan");
+    expect(loaded!.sprintNumber).toBe(1);
   });
 
   it("preserves optional fields", () => {
@@ -246,8 +248,41 @@ describe("saveState / loadState", () => {
     saveState(state, filePath);
 
     const loaded = loadState(filePath);
-    expect(loaded.error).toBe("Something went wrong");
-    expect(loaded.phase).toBe("failed");
+    expect(loaded!.error).toBe("Something went wrong");
+    expect(loaded!.phase).toBe("failed");
+  });
+
+  it("returns null for corrupt JSON", () => {
+    const filePath = path.join(tmpDir, "corrupt.json");
+    fs.writeFileSync(filePath, "not json", "utf-8");
+
+    const loaded = loadState(filePath);
+    expect(loaded).toBeNull();
+  });
+
+  it("returns null for missing required fields", () => {
+    const filePath = path.join(tmpDir, "empty.json");
+    fs.writeFileSync(filePath, "{}", "utf-8");
+
+    const loaded = loadState(filePath);
+    expect(loaded).toBeNull();
+  });
+
+  it("returns null for invalid date format", () => {
+    const filePath = path.join(tmpDir, "baddate.json");
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify({
+        sprintNumber: 1,
+        phase: "init",
+        startedAt: "not-a-date",
+        version: "1",
+      }),
+      "utf-8",
+    );
+
+    const loaded = loadState(filePath);
+    expect(loaded).toBeNull();
   });
 });
 
@@ -409,7 +444,8 @@ describe("SprintRunner", () => {
 
       const stateFile = path.join(tmpDir, "docs", "sprints", "sprint-1-state.json");
       const persisted = loadState(stateFile);
-      expect(persisted.phase).toBe("complete");
+      expect(persisted).not.toBeNull();
+      expect(persisted!.phase).toBe("complete");
     });
   });
 
@@ -506,8 +542,9 @@ describe("SprintRunner", () => {
       const stateFile = path.join(tmpDir, "docs", "sprints", "sprint-1-state.json");
       expect(fs.existsSync(stateFile)).toBe(true);
       const persisted = loadState(stateFile);
-      expect(persisted.phase).toBe("failed");
-      expect(persisted.error).toBe("boom");
+      expect(persisted).not.toBeNull();
+      expect(persisted!.phase).toBe("failed");
+      expect(persisted!.error).toBe("boom");
     });
 
     it("handles disconnect failure gracefully", async () => {

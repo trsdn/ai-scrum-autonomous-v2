@@ -85,21 +85,30 @@ const QualityGatesSchema = z.object({
   require_challenger: z.boolean().default(true),
 });
 
-const EscalationSchema = z.object({
-  notifications: z
-    .object({
-      ntfy: z.boolean().default(true),
-      ntfy_topic: z.string().default(""),
-    })
-    .default({}),
-});
+const EscalationSchema = z
+  .object({
+    notifications: z
+      .object({
+        ntfy: z.boolean().default(false),
+        ntfy_topic: z.string().default(""),
+      })
+      .default({}),
+  })
+  .refine(
+    (cfg) => !cfg.notifications.ntfy || cfg.notifications.ntfy_topic.length > 0,
+    { message: "ntfy_topic must be non-empty when ntfy notifications are enabled" },
+  );
 
 const GitSchema = z.object({
   worktree_base: z.string().min(1).default("../sprint-worktrees"),
   branch_pattern: z
     .string()
     .min(1)
-    .default("{prefix}/{sprint}/issue-{issue}"),
+    .default("{prefix}/{sprint}/issue-{issue}")
+    .refine(
+      (p) => p.includes("{issue}"),
+      { message: "branch_pattern must contain {issue} placeholder" },
+    ),
   auto_merge: z.boolean().default(true),
   squash_merge: z.boolean().default(true),
   delete_branch_after_merge: z.boolean().default(true),

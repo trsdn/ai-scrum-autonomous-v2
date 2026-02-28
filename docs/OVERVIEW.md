@@ -21,15 +21,13 @@ The system is organized into focused modules under `src/`:
 
 | Module | Responsibility |
 |--------|----------------|
-| `acp/` | ACP client, session pool, permission management |
+| `acp/` | ACP client, permission management |
 | `ceremonies/` | Sprint ceremonies — refinement, planning, execution, review, retro |
 | `enforcement/` | Quality gates, drift control, escalation, challenger review |
 | `git/` | Worktree management, merge operations, diff analysis |
 | `github/` | Issues, labels, milestones via `gh` CLI |
 | `documentation/` | Sprint logs, huddle notes, velocity tracking |
 | `dashboard/` | Web dashboard (HTTP server + WebSocket) |
-| `tui/` | Terminal UI dashboard and event bus |
-| `improvement/` | Continuous improvement and process adaptation |
 
 ### Core Flow
 
@@ -117,8 +115,6 @@ src/                   TypeScript source code
 ├── github/            GitHub API via gh CLI
 ├── documentation/     Sprint logs and velocity tracking
 ├── dashboard/         Web dashboard (HTTP + WebSocket)
-├── tui/               Terminal UI and event bus
-├── improvement/       Process improvement logic
 ├── config.ts          YAML config loader with Zod validation
 ├── runner.ts          Main sprint runner orchestrator
 ├── logger.ts          Structured logging (pino)
@@ -143,7 +139,7 @@ scripts/               Utility and notification scripts
 | Logging | pino |
 | Testing | Vitest |
 | E2E Testing | Playwright |
-| Dashboard | Ink (TUI), WebSocket (web) |
+| Dashboard | WebSocket (web) |
 | Linting | ESLint + Prettier |
 ## Further Reading
 
