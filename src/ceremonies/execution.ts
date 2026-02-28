@@ -366,6 +366,9 @@ function buildPromptVars(ctx: ExecutionContext): Record<string, string> {
     BASE_BRANCH: config.baseBranch,
     WORKTREE_PATH: worktreePath,
     MAX_DIFF_LINES: String(buildQualityGateConfig(config).maxDiffLines),
+    FILES_IN_SCOPE: issue.expectedFiles.length > 0
+      ? issue.expectedFiles.map(f => `- \`${f}\``).join("\n")
+      : "_No file restrictions — use your best judgment._",
   };
 }
 
