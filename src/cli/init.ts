@@ -64,7 +64,7 @@ export function initProject(options: InitOptions): InitResult {
     );
   }
 
-  // Copy role templates
+  // Copy role templates (includes prompts/ subdirectories)
   copyDirRecursive(templateRolesDir, targetRolesDir, force, result);
 
   // Generate config if it doesn't exist

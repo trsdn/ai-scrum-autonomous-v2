@@ -18,8 +18,15 @@
  *   sprint-runner drift-report --sprint <N>
  */
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { Command } from "commander";
 import { registerCommands } from "./cli/commands.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "..", "package.json"), "utf-8"));
 
 // Graceful shutdown on SIGINT (Ctrl+C)
 process.on("SIGINT", () => {
@@ -32,7 +39,7 @@ const program = new Command();
 program
   .name("sprint-runner")
   .description("ACP-powered autonomous sprint engine for GitHub Copilot CLI")
-  .version("0.1.0")
+  .version(pkg.version)
   .option("--config <path>", "Path to config file");
 
 registerCommands(program);

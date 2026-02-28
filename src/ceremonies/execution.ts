@@ -66,7 +66,7 @@ async function planPhase(ctx: ExecutionContext, sessionId: string): Promise<stri
     log.info("switched to Plan mode");
     progress("planning implementation");
 
-    const planTemplatePath = path.join(config.projectPath, "prompts", "item-planner.md");
+    const planTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "planner", "prompts", "item-planner.md");
     const planTemplate = await fs.readFile(planTemplatePath, "utf-8");
     let planPrompt = substitutePrompt(planTemplate, promptVars);
 
@@ -116,7 +116,7 @@ async function implementPhase(ctx: ExecutionContext, sessionId: string, implemen
   log.info("switched to Agent mode");
   progress("implementing");
 
-  const workerTemplatePath = path.join(config.projectPath, "prompts", "worker.md");
+  const workerTemplatePath = path.join(config.projectPath, ".aiscrum", "roles", "general", "prompts", "worker.md");
   const workerTemplate = await fs.readFile(workerTemplatePath, "utf-8");
   let workerPrompt = substitutePrompt(workerTemplate, promptVars);
 

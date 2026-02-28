@@ -41,7 +41,7 @@ export async function runRefinement(
   const velocityStr = JSON.stringify(velocity);
 
   // Read prompt template
-  const templatePath = path.join(config.projectPath, "prompts", "refinement.md");
+  const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "refiner", "prompts", "refinement.md");
   const template = await fs.readFile(templatePath, "utf-8");
 
   const prompt = substitutePrompt(template, {

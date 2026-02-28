@@ -106,7 +106,7 @@ export async function runSprintReview(
   }));
 
   // Read prompt template
-  const templatePath = path.join(config.projectPath, "prompts", "review.md");
+  const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "reviewer", "prompts", "review.md");
   const template = await fs.readFile(templatePath, "utf-8");
 
   const prompt = substitutePrompt(template, {

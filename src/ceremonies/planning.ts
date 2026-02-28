@@ -38,7 +38,7 @@ export async function runSprintPlanning(
   log.info({ count: backlog.length, labels: config.backlogLabels }, "Loaded backlog issues");
 
   // Read prompt template
-  const templatePath = path.join(config.projectPath, "prompts", "planning.md");
+  const templatePath = path.join(config.projectPath, ".aiscrum", "roles", "planner", "prompts", "planning.md");
   const template = await fs.readFile(templatePath, "utf-8");
 
   const prompt = substitutePrompt(template, {

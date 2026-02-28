@@ -8,7 +8,7 @@
     "sprint-runner": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc && cp -r src/dashboard/public dist/dashboard/public",
+    "build": "tsc && rm -rf dist/dashboard/public && cp -r src/dashboard/public dist/dashboard/public",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest run",
