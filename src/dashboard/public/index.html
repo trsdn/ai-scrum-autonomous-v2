@@ -93,8 +93,13 @@
         <div class="session-viewer-header">
           <button id="btn-back-sessions" class="btn btn-small">← Back</button>
           <span id="session-viewer-title"></span>
+          <button id="btn-stop-session" class="btn btn-small btn-danger" title="Stop session">⏹ Stop</button>
         </div>
         <pre id="session-output" class="session-output"></pre>
+        <div id="session-input-bar" class="session-input-bar">
+          <input id="session-message-input" type="text" placeholder="Send message to session…" autocomplete="off" />
+          <button id="btn-send-session" class="btn btn-small">Send</button>
+        </div>
       </div>
     </section>
   </main>

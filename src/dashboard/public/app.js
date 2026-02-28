@@ -58,6 +58,9 @@
   const sessionViewerTitle = $("session-viewer-title");
   const btnCloseSessions = $("btn-close-sessions");
   const btnBackSessions = $("btn-back-sessions");
+  const btnStopSession = $("btn-stop-session");
+  const sessionMessageInput = $("session-message-input");
+  const btnSendSession = $("btn-send-session");
 
   // Session viewer state
   let acpSessions = [];
@@ -168,6 +171,10 @@
 
       case "session:output":
         handleSessionOutput(msg.payload);
+        break;
+
+      case "session:status":
+        handleSessionStatus(msg.payload);
         break;
     }
   }
@@ -939,6 +946,48 @@
   btnSessions.addEventListener("click", toggleSessionPanel);
   btnCloseSessions.addEventListener("click", toggleSessionPanel);
   btnBackSessions.addEventListener("click", closeSessionViewer);
+
+  // Interactive session controls
+  function sendSessionMessage() {
+    const msg = sessionMessageInput.value.trim();
+    if (!msg || !viewingSessionId) return;
+    send({ type: "session:send-message", sessionId: viewingSessionId, message: msg });
+    sessionMessageInput.value = "";
+  }
+
+  btnSendSession.addEventListener("click", sendSessionMessage);
+  sessionMessageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendSessionMessage();
+  });
+
+  btnStopSession.addEventListener("click", () => {
+    if (!viewingSessionId) return;
+    if (!confirm("Stop this ACP session? The agent will finish its current action.")) return;
+    send({ type: "session:stop", sessionId: viewingSessionId });
+  });
+
+  function handleSessionStatus(payload) {
+    if (!payload || payload.sessionId !== viewingSessionId) return;
+    if (payload.action === "message-queued") {
+      // Show visual feedback that message was queued
+      const status = document.createElement("div");
+      status.className = "session-status-msg";
+      status.textContent = `📨 Message queued: "${payload.message}"`;
+      sessionOutput.parentNode.insertBefore(status, sessionOutput.nextSibling);
+      setTimeout(() => status.remove(), 3000);
+    } else if (payload.action === "stop-requested") {
+      const status = document.createElement("div");
+      status.className = "session-status-msg session-status-warn";
+      status.textContent = "⏹ Stop signal sent — session will end after current action";
+      sessionOutput.parentNode.insertBefore(status, sessionOutput.nextSibling);
+    } else if (payload.action === "error") {
+      const status = document.createElement("div");
+      status.className = "session-status-msg session-status-err";
+      status.textContent = `❌ ${payload.error}`;
+      sessionOutput.parentNode.insertBefore(status, sessionOutput.nextSibling);
+      setTimeout(() => status.remove(), 5000);
+    }
+  }
 
   // Refresh session list every 2 seconds for elapsed times
   setInterval(() => {
