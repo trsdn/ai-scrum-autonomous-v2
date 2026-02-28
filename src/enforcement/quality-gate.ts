@@ -74,6 +74,7 @@ export async function runQualityGate(
         testFiles.length > 0
           ? `Found ${testFiles.length} test file(s)`
           : "No test files found",
+      category: "test",
     });
   }
 
@@ -84,6 +85,7 @@ export async function runQualityGate(
       name: "tests-pass",
       passed: result.ok,
       detail: result.ok ? "Tests passed" : result.output,
+      category: "test",
     });
   }
 
@@ -94,6 +96,7 @@ export async function runQualityGate(
       name: "lint-clean",
       passed: result.ok,
       detail: result.ok ? "Lint clean" : result.output,
+      category: "lint",
     });
   }
 
@@ -104,6 +107,7 @@ export async function runQualityGate(
       name: "types-clean",
       passed: result.ok,
       detail: result.ok ? "Types clean" : result.output,
+      category: "type",
     });
   }
 
@@ -116,6 +120,7 @@ export async function runQualityGate(
     detail: diffPassed
       ? `${stat.linesChanged} lines changed (max ${config.maxDiffLines})`
       : `${stat.linesChanged} lines changed exceeds max ${config.maxDiffLines}`,
+    category: "diff",
   });
 
   const passed = checks.every((c) => c.passed);

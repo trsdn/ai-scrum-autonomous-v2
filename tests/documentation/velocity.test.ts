@@ -125,6 +125,18 @@ describe("velocity", () => {
     expect(entries[0]?.sprint).toBe(2);
   });
 
+  it("appendVelocity does not create duplicates for same sprint", () => {
+    const filePath = path.join(tmpDir, "velocity.md");
+    appendVelocity(entry, filePath);
+    const updated = { ...entry, done: 5, notes: "Updated" };
+    appendVelocity(updated, filePath);
+
+    const entries = readVelocity(filePath);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.done).toBe(5);
+    expect(entries[0]?.notes).toBe("Updated");
+  });
+
   it("readVelocity handles empty file", () => {
     const filePath = path.join(tmpDir, "velocity.md");
     fs.writeFileSync(filePath, "", "utf-8");

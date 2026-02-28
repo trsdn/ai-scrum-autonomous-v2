@@ -27,6 +27,7 @@ export interface ConfigSuggestion {
  * @param metricsHistory - Array of past sprint metrics, oldest first.
  * @returns Config suggestions sorted by confidence (highest first).
  */
+/** @experimental Not yet implemented — Phase 4 stub. */
 export async function analyzeAndSuggest(
   metricsHistory: SprintMetrics[],
 ): Promise<ConfigSuggestion[]> {

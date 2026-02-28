@@ -99,6 +99,13 @@ describe("runQualityGate", () => {
     expect(result.passed).toBe(true);
     expect(result.checks).toHaveLength(5);
     expect(result.checks.every((c) => c.passed)).toBe(true);
+
+    // Verify categories
+    expect(result.checks.find((c) => c.name === "tests-exist")?.category).toBe("test");
+    expect(result.checks.find((c) => c.name === "tests-pass")?.category).toBe("test");
+    expect(result.checks.find((c) => c.name === "lint-clean")?.category).toBe("lint");
+    expect(result.checks.find((c) => c.name === "types-clean")?.category).toBe("type");
+    expect(result.checks.find((c) => c.name === "diff-size")?.category).toBe("diff");
   });
 
   it("should fail when tests do not exist", async () => {
@@ -157,6 +164,7 @@ describe("runQualityGate", () => {
     // Only diff-size check
     expect(result.checks).toHaveLength(1);
     expect(result.checks[0]!.name).toBe("diff-size");
+    expect(result.checks[0]!.category).toBe("diff");
   });
 
   it("should run all checks even if some fail", async () => {

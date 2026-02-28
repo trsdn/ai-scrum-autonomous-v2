@@ -24,6 +24,7 @@ export interface PromptPerformance {
  * @param passed - Whether the quality gate passed on this attempt.
  * @param retries - Number of retries needed before passing (0 if first-pass).
  */
+/** @experimental Not yet implemented — Phase 4 stub. */
 export async function trackPromptPerformance(
   template: string,
   passed: boolean,

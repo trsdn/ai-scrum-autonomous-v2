@@ -11,6 +11,7 @@ import { appendVelocity } from "./documentation/velocity.js";
 import { calculateSprintMetrics } from "./metrics.js";
 import { holisticDriftCheck } from "./enforcement/drift-control.js";
 import { escalateToStakeholder } from "./enforcement/escalation.js";
+import { getIssue } from "./github/issues.js";
 import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
 import { logger as defaultLogger } from "./logger.js";
 import {
@@ -128,9 +129,11 @@ export class SprintRunner {
         let result = previous.result;
         let review = previous.review;
 
+        // Filter out already-completed issues before execution
+        await this.filterCompletedIssues(plan);
+
         // If we crashed during or after execute but before review
         if (!result || previous.phase === "execute") {
-          // Filter out already-completed issues (they have status:done labels)
           await this.checkPaused();
           const workerModel = (await resolveSessionConfig(this.config, "worker")).model;
           this.transition("execute", workerModel, "Worker Agent");
@@ -181,6 +184,9 @@ export class SprintRunner {
       this.events.emitTyped("sprint:planned", {
         issues: plan.sprint_issues.map((i) => ({ number: i.number, title: i.title })),
       });
+
+      // Filter out already-completed issues before execution
+      await this.filterCompletedIssues(plan);
 
       // 4. execute
       await this.checkPaused();
@@ -248,7 +254,7 @@ export class SprintRunner {
         next = await getNextOpenMilestone(sampleConfig.sprintPrefix);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
-        log.error({ error: msg }, "Failed to detect next sprint milestone");
+        log.error({ error: msg }, "Failed to detect next sprint milestone — check that a milestone like 'Sprint N' exists");
         bus.emitTyped("log", { level: "error", message: `Milestone detection failed: ${msg}` });
         break;
       }
@@ -456,6 +462,34 @@ export class SprintRunner {
     this.state.phase = phase;
     this.log.info({ from: previous, to: phase, model, agent }, "Phase transition");
     this.events.emitTyped("phase:change", { from: previous, to: phase, model, agent });
+  }
+
+  /** Filter out issues that already have the status:done label. */
+  private async filterCompletedIssues(plan: SprintPlan): Promise<void> {
+    if (!plan.sprint_issues?.length) return;
+    const activeIssues = [];
+    for (const issue of plan.sprint_issues) {
+      try {
+        const details = await getIssue(issue.number);
+        const labels = details.labels?.map((l) => l.name) ?? [];
+        if (labels.includes("status:done")) {
+          this.log.warn({ issue: issue.number, title: issue.title }, "Skipping already-completed issue");
+        } else {
+          activeIssues.push(issue);
+        }
+      } catch (err: unknown) {
+        // If we can't fetch the issue, keep it in the plan to be safe
+        this.log.warn({ issue: issue.number, err }, "Could not check issue status, keeping in plan");
+        activeIssues.push(issue);
+      }
+    }
+    if (activeIssues.length < plan.sprint_issues.length) {
+      this.log.info(
+        { removed: plan.sprint_issues.length - activeIssues.length, remaining: activeIssues.length },
+        "Filtered completed issues from sprint plan",
+      );
+      plan.sprint_issues = activeIssues;
+    }
   }
 
   private async checkPaused(): Promise<void> {
