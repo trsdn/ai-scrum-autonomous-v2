@@ -64,7 +64,9 @@ vi.mock("node:fs/promises", () => ({
         if (filePath.includes("item-planner")) {
           return Promise.resolve("Plan for issue #{{ISSUE_NUMBER}}: {{ISSUE_TITLE}}");
         }
-        return Promise.resolve("Worker prompt for issue #{{ISSUE_NUMBER}}");
+        return Promise.resolve(`Worker prompt for issue #{{ISSUE_NUMBER}}
+
+Files in scope: {{FILES_IN_SCOPE}}`);
       }),
   },
 }));
@@ -304,6 +306,59 @@ describe("executeIssue", () => {
         cleanupWarning: undefined,
       }),
     );
+  });
+
+  it("includes FILES_IN_SCOPE in worker prompt with expectedFiles", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+
+    const issue = makeIssue({
+      expectedFiles: ["src/api.ts", "tests/api.test.ts"],
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), issue);
+
+    // Worker prompt (2nd call) should include formatted file list
+    const workerPromptCall = mockClient.sendPrompt.mock.calls[1];
+    expect(workerPromptCall).toBeDefined();
+    expect(workerPromptCall![1]).toContain("- `src/api.ts`");
+    expect(workerPromptCall![1]).toContain("- `tests/api.test.ts`");
+  });
+
+  it("includes fallback text when expectedFiles is empty", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+
+    const issue = makeIssue({ expectedFiles: [] });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), issue);
+
+    // Worker prompt (2nd call) should include fallback message
+    const workerPromptCall = mockClient.sendPrompt.mock.calls[1];
+    expect(workerPromptCall).toBeDefined();
+    expect(workerPromptCall![1]).toContain("No file restrictions");
+  });
+
+  it("formats FILES_IN_SCOPE as bullet list", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate).mockResolvedValue(passingQuality);
+
+    const issue = makeIssue({
+      expectedFiles: ["src/foo.ts", "src/bar.ts", "tests/baz.test.ts"],
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await executeIssue(mockClient as any, makeConfig(), issue);
+
+    const workerPromptCall = mockClient.sendPrompt.mock.calls[1];
+    expect(workerPromptCall).toBeDefined();
+    
+    // Verify bullet format with newlines between items
+    expect(workerPromptCall![1]).toMatch(/- `src\/foo\.ts`/);
+    expect(workerPromptCall![1]).toMatch(/- `src\/bar\.ts`/);
+    expect(workerPromptCall![1]).toMatch(/- `tests\/baz\.test\.ts`/);
   });
 });
 
