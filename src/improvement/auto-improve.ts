@@ -24,6 +24,7 @@ export interface AppliedImprovement {
  * Each improvement is returned with `applied: false` and a descriptive detail
  * explaining what would be changed.
  */
+/** @experimental Dry-run only — Phase 4 stub. */
 export async function applyImprovements(
   improvements: RetroImprovement[],
   configPath: string,

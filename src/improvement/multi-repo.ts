@@ -16,7 +16,7 @@ export interface MultiRepoConfig {
   crossRepoDeps: boolean;
 }
 
-/** Load multi-repo configuration (when supported). */
+/** @experimental Not yet implemented — Phase 4 stub. */
 export function loadMultiRepoConfig(_config: SprintConfig): MultiRepoConfig | null {
   // TODO: Phase 4 — parse multi-repo config from sprint-runner.config.yaml
   return null;

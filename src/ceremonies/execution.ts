@@ -252,7 +252,7 @@ export async function executeIssue(
         passed: false,
         checks: [
           ...qualityResult.checks,
-          { name: "files-changed", passed: false, detail: "Worker produced 0 file changes" },
+          { name: "files-changed", passed: false, detail: "Worker produced 0 file changes", category: "other" as const },
         ],
       };
     } else {

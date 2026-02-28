@@ -72,6 +72,27 @@ export function appendVelocity(
       return;
     }
 
+    const existing = readVelocity(filePath);
+    const duplicateIndex = existing.findIndex((e) => e.sprint === entry.sprint);
+
+    if (duplicateIndex !== -1) {
+      // Replace the existing entry for this sprint
+      const content = fs.readFileSync(filePath, "utf-8");
+      const lines = content.split("\n");
+      const dataLineIndices = lines.reduce<number[]>((acc, line, idx) => {
+        if (line.startsWith("| ") && !line.startsWith("| Sprint") && !line.startsWith("|---")) {
+          acc.push(idx);
+        }
+        return acc;
+      }, []);
+      const lineIdx = dataLineIndices[duplicateIndex];
+      if (lineIdx !== undefined) {
+        lines[lineIdx] = formatRow(entry);
+        fs.writeFileSync(filePath, lines.join("\n"), "utf-8");
+      }
+      return;
+    }
+
     fs.appendFileSync(filePath, formatRow(entry) + "\n", "utf-8");
   } catch (err: unknown) {
     logger.warn({ err, filePath }, "Failed to write velocity data — continuing");

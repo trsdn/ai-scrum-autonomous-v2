@@ -151,16 +151,16 @@ function makeMockClient() {
 const passingQuality: QualityResult = {
   passed: true,
   checks: [
-    { name: "tests-pass", passed: true, detail: "Tests passed" },
-    { name: "lint-clean", passed: true, detail: "Lint clean" },
+    { name: "tests-pass", passed: true, detail: "Tests passed", category: "test" },
+    { name: "lint-clean", passed: true, detail: "Lint clean", category: "lint" },
   ],
 };
 
 const failingQuality: QualityResult = {
   passed: false,
   checks: [
-    { name: "tests-pass", passed: false, detail: "2 tests failed" },
-    { name: "lint-clean", passed: true, detail: "Lint clean" },
+    { name: "tests-pass", passed: false, detail: "2 tests failed", category: "test" },
+    { name: "lint-clean", passed: true, detail: "Lint clean", category: "lint" },
   ],
 };
 

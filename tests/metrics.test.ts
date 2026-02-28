@@ -98,21 +98,21 @@ describe("calculateSprintMetrics", () => {
         issueNumber: 1,
         qualityDetails: {
           passed: false,
-          checks: [{ name: "scope_drift", passed: false, detail: "drift" }],
+          checks: [{ name: "scope_drift", passed: false, detail: "drift", category: "diff" }],
         },
       }),
       makeIssue({
         issueNumber: 2,
         qualityDetails: {
           passed: true,
-          checks: [{ name: "scope_drift", passed: true, detail: "ok" }],
+          checks: [{ name: "scope_drift", passed: true, detail: "ok", category: "diff" }],
         },
       }),
       makeIssue({
         issueNumber: 3,
         qualityDetails: {
           passed: false,
-          checks: [{ name: "scope_drift", passed: false, detail: "drift" }],
+          checks: [{ name: "scope_drift", passed: false, detail: "drift", category: "diff" }],
         },
       }),
     ]);
@@ -128,8 +128,8 @@ describe("topFailedGates", () => {
         qualityDetails: {
           passed: false,
           checks: [
-            { name: "lint", passed: false, detail: "" },
-            { name: "tests", passed: false, detail: "" },
+            { name: "lint", passed: false, detail: "", category: "lint" },
+            { name: "tests", passed: false, detail: "", category: "test" },
           ],
         },
       }),
@@ -137,8 +137,8 @@ describe("topFailedGates", () => {
         qualityDetails: {
           passed: false,
           checks: [
-            { name: "lint", passed: false, detail: "" },
-            { name: "scope_drift", passed: false, detail: "" },
+            { name: "lint", passed: false, detail: "", category: "lint" },
+            { name: "scope_drift", passed: false, detail: "", category: "diff" },
           ],
         },
       }),

@@ -13,8 +13,8 @@ function makeEntry(overrides: Partial<HuddleEntry> = {}): HuddleEntry {
     qualityResult: {
       passed: true,
       checks: [
-        { name: "tests", passed: true, detail: "All 12 tests pass" },
-        { name: "lint", passed: true, detail: "No errors" },
+        { name: "tests", passed: true, detail: "All 12 tests pass", category: "test" },
+        { name: "lint", passed: true, detail: "No errors", category: "lint" },
       ],
     },
     duration_ms: 125_000,
@@ -45,8 +45,8 @@ describe("formatHuddleComment", () => {
       qualityResult: {
         passed: false,
         checks: [
-          { name: "tests", passed: false, detail: "3 failures" },
-          { name: "lint", passed: true, detail: "No errors" },
+          { name: "tests", passed: false, detail: "3 failures", category: "test" },
+          { name: "lint", passed: true, detail: "No errors", category: "lint" },
         ],
       },
     });
@@ -76,7 +76,7 @@ describe("formatSprintLogEntry", () => {
       qualityResult: {
         passed: false,
         checks: [
-          { name: "types", passed: false, detail: "5 type errors" },
+          { name: "types", passed: false, detail: "5 type errors", category: "type" },
         ],
       },
     });

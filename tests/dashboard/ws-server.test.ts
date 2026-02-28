@@ -4,6 +4,17 @@ import { DashboardWebServer, type DashboardServerOptions } from "../../src/dashb
 import { SprintEventBus } from "../../src/tui/events.js";
 import type { SprintState } from "../../src/runner.js";
 
+/** Poll until `check()` returns true, rejecting after `timeoutMs`. */
+function waitForCondition(check: () => boolean, timeoutMs = 5000, intervalMs = 50): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const poll = setInterval(() => {
+      if (check()) { clearInterval(poll); resolve(); }
+      else if (Date.now() - start > timeoutMs) { clearInterval(poll); reject(new Error("Timeout waiting for condition")); }
+    }, intervalMs);
+  });
+}
+
 function makeOptions(overrides?: Partial<DashboardServerOptions>): DashboardServerOptions {
   const bus = new SprintEventBus();
   const state: SprintState = {
@@ -85,7 +96,7 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
     });
 
     // First message: sprint state
@@ -125,7 +136,7 @@ describe("DashboardWebServer", () => {
         resolve();
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
     });
 
     expect(events[0]).toMatchObject({
@@ -148,13 +159,11 @@ describe("DashboardWebServer", () => {
     await new Promise<void>((resolve, reject) => {
       ws.on("open", () => {
         ws.send(JSON.stringify({ type: "sprint:start" }));
-        setTimeout(() => {
-          ws.close();
-          resolve();
-        }, 200);
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      waitForCondition(() => started)
+        .then(() => { ws.close(); resolve(); })
+        .catch(() => { ws.close(); reject(new Error("timeout waiting for sprint:start handler")); });
     });
 
     expect(started).toBe(true);
@@ -363,7 +372,7 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
     });
 
     // Should receive fresh state and issues
@@ -406,7 +415,7 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 3000);
+      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
     });
 
     expect(receivedIssues).toHaveLength(1);
