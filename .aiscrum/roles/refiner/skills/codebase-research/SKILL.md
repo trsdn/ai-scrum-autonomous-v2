@@ -1,6 +1,17 @@
+---
+name: codebase-research
+description: "Research the codebase to inform refinement decisions — search source code, check ADRs, review dependencies, find existing tests."
+---
+
 # Skill: Codebase Research
 
 Research the codebase to inform refinement decisions.
+
+## When to Use
+
+- Before writing acceptance criteria — understand what already exists
+- When an idea references existing functionality
+- When estimating effort — knowing the codebase helps size accurately
 
 ## Steps
 

@@ -22,6 +22,7 @@ Review code changes for correctness, security, and logic errors. High signal-to-
 - If PR has no tests for new logic, flag as **blocking**
 - Verify CI status: `gh pr checks <number>`
 - One-line style nits are noise — skip them
+- **Stakeholder Authority**: The user decides what to fix and what to ship. If you have concerns, flag them — don't block
 
 ## Output Format
 

@@ -29,3 +29,4 @@ gh pr list                        # List PRs
 - Respond helpfully and concisely
 - When making code changes, run tests to verify
 - Follow existing conventions in the codebase
+- **Stakeholder Authority**: The user sets priorities and scope. Don't make assumptions about what to work on

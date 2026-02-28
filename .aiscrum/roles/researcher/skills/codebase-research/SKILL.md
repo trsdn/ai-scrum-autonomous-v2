@@ -1,6 +1,18 @@
+---
+name: codebase-research
+description: "Deep codebase analysis — search source code, read implementations, check ADRs, review dependencies, find tests, check git history. Use when investigating issues or answering questions about the codebase."
+---
+
 # Skill: Codebase Research
 
 Deep codebase analysis for answering questions and investigating issues.
+
+## When to Use
+
+- Investigating a bug report or unexpected behavior
+- Answering questions about how a feature works
+- Researching before proposing architectural changes
+- Finding all usages of a function or pattern
 
 ## Steps
 

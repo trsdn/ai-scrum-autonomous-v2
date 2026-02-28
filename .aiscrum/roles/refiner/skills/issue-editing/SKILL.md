@@ -1,6 +1,17 @@
+---
+name: issue-editing
+description: "Edit GitHub issues via gh CLI — read issue details, update body, manage labels, add comments. Use when refining ideas into actionable issues."
+---
+
 # Skill: Issue Editing
 
 Edit GitHub issues via `gh` CLI.
+
+## When to Use
+
+- Updating an issue body after refinement
+- Adding or removing labels during status transitions
+- Adding comments to document refinement decisions
 
 ## Commands
 

@@ -1,4 +1,15 @@
+---
+name: sprint-planning
+description: "Sprint planning workflow — fetch backlog, ICE score issues, analyze dependencies, select sprint scope, assign milestones. Use when planning a new sprint."
+---
+
 # Skill: Sprint Planning
+
+## When to Use
+
+- Starting a new sprint planning session
+- Re-evaluating sprint scope mid-sprint
+- Triaging newly refined issues into the backlog
 
 ## Steps
 

@@ -1,6 +1,17 @@
+---
+name: code-review
+description: "Structured code review of pull requests — read diffs, check DoD, verify test coverage, check scope, provide blocking/non-blocking findings."
+---
+
 # Skill: Code Review
 
 Perform a structured review of code changes.
+
+## When to Use
+
+- Reviewing a pull request before merge
+- Auditing staged changes before commit
+- Checking if a PR meets Definition of Done
 
 ## Steps
 

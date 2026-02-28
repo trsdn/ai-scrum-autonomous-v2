@@ -1,6 +1,17 @@
+---
+name: tdd-workflow
+description: "Test-driven development cycle — write tests first, run vitest, check coverage, verify red-to-green transition. Use when validating code changes or writing new tests."
+---
+
 # Skill: TDD Workflow
 
 Test-driven development cycle for validating changes.
+
+## When to Use
+
+- Writing tests for new functionality before implementation
+- Verifying a bug fix with a regression test (red → green)
+- Checking test coverage after code changes
 
 ## Steps
 

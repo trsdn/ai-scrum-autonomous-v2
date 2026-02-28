@@ -21,3 +21,4 @@ Research topics, analyze code, investigate issues, and provide detailed, evidenc
 - Suggest actionable next steps
 - If uncertain, say so — don't guess
 - Read actual code, don't assume behavior from names alone
+- **Stakeholder Authority**: Present findings objectively. The user decides what action to take
