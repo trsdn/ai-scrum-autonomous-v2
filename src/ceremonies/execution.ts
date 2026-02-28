@@ -26,7 +26,7 @@ import { getPRStats } from "../git/merge.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
 import type { SprintEventBus } from "../events.js";
-import { handleQualityFailure, buildBranch, DEFAULT_QUALITY_GATE_CONFIG } from "./quality-retry.js";
+import { handleQualityFailure, buildBranch, buildQualityGateConfig } from "./quality-retry.js";
 
 // Re-export for backward compatibility
 export { handleQualityFailure } from "./quality-retry.js";
@@ -94,7 +94,7 @@ export async function executeIssue(
         BRANCH_NAME: branch,
         BASE_BRANCH: config.baseBranch,
         WORKTREE_PATH: worktreePath,
-        MAX_DIFF_LINES: String(DEFAULT_QUALITY_GATE_CONFIG.maxDiffLines),
+        MAX_DIFF_LINES: String(buildQualityGateConfig(config).maxDiffLines),
       };
 
       // Step 4: Plan phase — switch to Plan Mode and create implementation plan
@@ -170,8 +170,10 @@ export async function executeIssue(
       await client.endSession(sessionId);
     }
     progress("quality gate");
+    const gateConfig = buildQualityGateConfig(config);
+    gateConfig.expectedFiles = issue.expectedFiles;
     qualityResult = await runQualityGate(
-      DEFAULT_QUALITY_GATE_CONFIG,
+      gateConfig,
       worktreePath,
       branch,
       config.baseBranch,
@@ -222,8 +224,10 @@ export async function executeIssue(
           }
 
           // Re-run quality gate after fix
+          const rerunGateConfig = buildQualityGateConfig(config);
+          rerunGateConfig.expectedFiles = issue.expectedFiles;
           qualityResult = await runQualityGate(
-            DEFAULT_QUALITY_GATE_CONFIG,
+            rerunGateConfig,
             worktreePath,
             branch,
             config.baseBranch,
@@ -238,6 +242,28 @@ export async function executeIssue(
       } catch (err: unknown) {
         log.warn({ err }, "code review failed — proceeding without review");
         codeReview = undefined;
+      }
+    }
+
+    // Step 8b: Challenger review (adversarial review — only if quality + code review passed)
+    if (qualityResult.passed && config.enableChallenger) {
+      try {
+        progress("challenger review");
+        const { runChallengerReview } = await import("../enforcement/challenger.js");
+        const challengerResult = await runChallengerReview(client, config, branch, issue.number);
+        log.info({ approved: challengerResult.approved }, "challenger review completed");
+
+        if (!challengerResult.approved) {
+          log.warn({ feedback: challengerResult.feedback.slice(0, 200) }, "challenger rejected — marking as concern");
+          // Don't fail the issue, but log the concern. Challenger is advisory.
+          // Post feedback as issue comment for visibility
+          await addComment(
+            issue.number,
+            `### 🔍 Challenger Review\n\n**Result:** ⚠️ Concerns raised\n\n${challengerResult.feedback}`,
+          ).catch((err) => log.warn({ err: String(err) }, "failed to post challenger comment"));
+        }
+      } catch (err: unknown) {
+        log.warn({ err }, "challenger review failed — proceeding without");
       }
     }
 

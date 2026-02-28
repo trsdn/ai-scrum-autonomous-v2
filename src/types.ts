@@ -273,4 +273,16 @@ export interface SprintConfig {
   globalMcpServers: McpServerEntry[];
   globalInstructions: string[];
   phases: Record<string, PhaseConfig>;
+  /** Quality gate settings from YAML config. Falls back to hardcoded defaults when absent. */
+  qualityGate?: {
+    requireTests: boolean;
+    requireLint: boolean;
+    requireTypes: boolean;
+    requireBuild: boolean;
+    maxDiffLines: number;
+    testCommand: string | string[];
+    lintCommand: string | string[];
+    typecheckCommand: string | string[];
+    buildCommand: string | string[];
+  };
 }

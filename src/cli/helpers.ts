@@ -36,6 +36,17 @@ export function buildSprintConfig(config: ConfigFile, sprintNumber: number): Spr
     globalMcpServers: config.copilot.mcp_servers,
     globalInstructions: config.copilot.instructions,
     phases: config.copilot.phases,
+    qualityGate: {
+      requireTests: config.quality_gates.require_tests,
+      requireLint: config.quality_gates.require_lint,
+      requireTypes: config.quality_gates.require_types,
+      requireBuild: config.quality_gates.require_build,
+      maxDiffLines: config.quality_gates.max_diff_lines,
+      testCommand: config.quality_gates.test_command,
+      lintCommand: config.quality_gates.lint_command,
+      typecheckCommand: config.quality_gates.typecheck_command,
+      buildCommand: config.quality_gates.build_command,
+    },
   };
 }
 
