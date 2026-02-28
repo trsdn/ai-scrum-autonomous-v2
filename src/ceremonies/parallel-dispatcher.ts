@@ -93,7 +93,7 @@ export async function runParallelExecution(
                     detail: `Failed checks: ${failedChecks}. Main branch may be broken.`,
                     context: { issueNumber: result.issueNumber, branch: result.branch },
                     timestamp: new Date(),
-                  }, { ntfyEnabled: false }, eventBus);
+                  }, { ntfyEnabled: !!config.ntfy?.enabled, ntfyTopic: config.ntfy?.topic }, eventBus);
                 }
               } catch (verifyErr: unknown) {
                 log.warn({ err: verifyErr }, "post-merge verification could not run");
@@ -143,7 +143,7 @@ export async function runParallelExecution(
         detail: `Failed issues: ${failedIssueNumbers}. Sprint execution paused until stakeholder intervenes. Unblock issues and resume to retry.`,
         context: { group: group.group, failures: failures.length },
         timestamp: new Date(),
-      }, { ntfyEnabled: false }, eventBus);
+      }, { ntfyEnabled: !!config.ntfy?.enabled, ntfyTopic: config.ntfy?.topic }, eventBus);
 
       // Emit event so runner can handle pause
       eventBus?.emitTyped("sprint:error", {
