@@ -48,6 +48,32 @@ export async function getPRStats(branch: string): Promise<PRStats | undefined> {
 }
 
 /**
+ * Get the status of a PR by its head branch name.
+ * Returns the PR number and state (MERGED/CLOSED/OPEN), or undefined if not found.
+ */
+export async function getPRStatus(
+  branch: string,
+): Promise<{ prNumber: number; state: "MERGED" | "CLOSED" | "OPEN" } | undefined> {
+  const log = logger.child({ module: "merge" });
+  try {
+    const json = await execGh([
+      "pr", "list",
+      "--head", branch,
+      "--state", "all",
+      "--json", "number,state",
+      "--limit", "1",
+    ]);
+    const prs = JSON.parse(json) as { number: number; state: "MERGED" | "CLOSED" | "OPEN" }[];
+    if (prs.length > 0) {
+      return { prNumber: prs[0]!.number, state: prs[0]!.state };
+    }
+  } catch (err: unknown) {
+    log.debug({ branch, err }, "Could not fetch PR status");
+  }
+  return undefined;
+}
+
+/**
  * Find and merge a PR by its head branch name using `gh pr merge`.
  * Returns success: false if no PR found or merge fails.
  */
