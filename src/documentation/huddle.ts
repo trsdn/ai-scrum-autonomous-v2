@@ -1,5 +1,15 @@
 import type { HuddleEntry } from "../types.js";
 
+export interface ZeroChangeDiagnostic {
+  lastOutputLines: string[];
+  timedOut: boolean;
+  workerOutcome: "worker-error" | "task-not-applicable";
+}
+
+export type HuddleEntryWithDiag = HuddleEntry & {
+  zeroChangeDiagnostic?: ZeroChangeDiagnostic;
+};
+
 function statusIcon(status: "completed" | "failed"): string {
   return status === "completed" ? "✅" : "❌";
 }
@@ -18,7 +28,27 @@ function formatQualityChecks(entry: HuddleEntry): string {
     .join("\n");
 }
 
-export function formatHuddleComment(entry: HuddleEntry): string {
+function formatZeroChangeDiagnostic(diag: ZeroChangeDiagnostic): string {
+  const outcomeIcon = diag.workerOutcome === "worker-error" ? "🐛" : "🔇";
+  const outcomeLabel = diag.workerOutcome === "worker-error" ? "Worker Error" : "Task Not Applicable";
+  const timeoutIndicator = diag.timedOut ? " ⏱ Timed out" : "";
+  
+  const lines = [
+    `**${outcomeIcon} ${outcomeLabel}**${timeoutIndicator}`,
+    "",
+    "<details>",
+    "<summary>Last ACP output (click to expand)</summary>",
+    "",
+    "```",
+    ...diag.lastOutputLines,
+    "```",
+    "</details>",
+  ];
+  
+  return lines.join("\n");
+}
+
+export function formatHuddleComment(entry: HuddleEntryWithDiag): string {
   const icon = statusIcon(entry.status);
   const duration = formatDuration(entry.duration_ms);
   const qualityStatus = entry.qualityResult.passed ? "PASSED" : "FAILED";
@@ -55,6 +85,10 @@ export function formatHuddleComment(entry: HuddleEntry): string {
     }
   }
 
+  if (entry.zeroChangeDiagnostic) {
+    lines.push("", formatZeroChangeDiagnostic(entry.zeroChangeDiagnostic));
+  }
+
   lines.push(
     "",
     `**Files Changed** (${entry.filesChanged.length}):`,
@@ -76,7 +110,7 @@ export function formatHuddleComment(entry: HuddleEntry): string {
   return lines.join("\n");
 }
 
-export function formatSprintLogEntry(entry: HuddleEntry): string {
+export function formatSprintLogEntry(entry: HuddleEntryWithDiag): string {
   const icon = statusIcon(entry.status);
   const duration = formatDuration(entry.duration_ms);
   const qualityStatus = entry.qualityResult.passed ? "PASSED" : "FAILED";
@@ -105,6 +139,10 @@ export function formatSprintLogEntry(entry: HuddleEntry): string {
     lines.push("", "**Quality Checks**:", checks);
   } else if (entry.status === "failed") {
     lines.push("", "**Quality Checks**: _No diagnostic data available_");
+  }
+
+  if (entry.zeroChangeDiagnostic) {
+    lines.push("", formatZeroChangeDiagnostic(entry.zeroChangeDiagnostic));
   }
 
   if (entry.cleanupWarning) {
