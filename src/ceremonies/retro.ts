@@ -6,6 +6,7 @@ import type {
   SprintResult,
   ReviewResult,
   RetroResult,
+  RetroImprovement,
 } from "../types.js";
 import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics } from "../metrics.js";
@@ -115,20 +116,39 @@ export async function runSprintRetro(
       "Sprint retro completed",
     );
 
-    // Create improvement issues for non-auto-applicable items
+    // Process improvements: auto-apply or create issues
     for (const improvement of retro.improvements) {
-      if (!improvement.autoApplicable) {
-        // Validate fields before creating issue (ACP may return undefined fields)
-        const title = improvement.title;
-        const description = improvement.description;
-        if (!title || typeof title !== "string" || title.trim().length === 0) {
-          log.warn({ improvement }, "Skipping improvement with missing or empty title");
-          continue;
+      const title = improvement.title;
+      const description = improvement.description;
+      if (!title || typeof title !== "string" || title.trim().length === 0) {
+        log.warn({ improvement }, "Skipping improvement with missing or empty title");
+        continue;
+      }
+      if (!description || typeof description !== "string" || description.trim().length === 0) {
+        log.warn({ title }, "Skipping improvement with missing or empty description");
+        continue;
+      }
+
+      if (improvement.autoApplicable && (improvement.target === "skill" || improvement.target === "agent")) {
+        // Auto-apply skill/agent improvements via ACP session
+        await applySkillImprovement(client, config, improvement, eventBus);
+        log.info({ title, target: improvement.target }, "Auto-applied improvement");
+      } else if (improvement.autoApplicable && improvement.target === "config") {
+        // Config changes create an issue for stakeholder review (safety)
+        const issue = await createIssueRateLimited(
+          {
+            title: `chore(config): ${title}`,
+            body: `**Auto-suggested config change:**\n\n${description}\n\n_This change was identified by the sprint retro as auto-applicable but requires stakeholder review._`,
+            labels: ["type:chore", "scope:config", "needs:review"],
+          },
+          state,
+          config.maxIssuesCreatedPerSprint ?? 10,
+        );
+        if (issue) {
+          log.info({ title, number: issue.number }, "Created config improvement issue for review");
         }
-        if (!description || typeof description !== "string" || description.trim().length === 0) {
-          log.warn({ title }, "Skipping improvement with missing or empty description");
-          continue;
-        }
+      } else {
+        // Non-auto-applicable or process improvements → create issue
         const issue = await createIssueRateLimited(
           {
             title: `chore(process): ${title}`,
@@ -150,5 +170,47 @@ export async function runSprintRetro(
   } finally {
     await client.endSession(sessionId);
     eventBus?.emitTyped("session:end", { sessionId });
+  }
+}
+
+/**
+ * Auto-apply a skill/agent improvement by sending the improvement description
+ * to an ACP session that can edit the relevant files in .aiscrum/roles/.
+ */
+async function applySkillImprovement(
+  client: AcpClient,
+  config: SprintConfig,
+  improvement: RetroImprovement,
+  eventBus?: SprintEventBus,
+): Promise<void> {
+  const log = logger.child({ ceremony: "retro", target: improvement.target });
+  const sessionConfig = await resolveSessionConfig(config, "worker");
+  const { sessionId } = await client.createSession({
+    cwd: config.projectPath,
+    mcpServers: sessionConfig.mcpServers,
+  });
+  eventBus?.emitTyped("session:start", { sessionId, role: "retro-apply" });
+  try {
+    if (sessionConfig.model) {
+      await client.setModel(sessionId, sessionConfig.model);
+    }
+    const prompt = [
+      `## Apply Retro Improvement`,
+      "",
+      `**Title:** ${improvement.title}`,
+      `**Target:** ${improvement.target}`,
+      `**Description:** ${improvement.description}`,
+      "",
+      `Apply this improvement by editing the appropriate files under \`.aiscrum/roles/\`.`,
+      `Look at the existing files to understand the structure, then make minimal targeted changes.`,
+      `Do NOT create new files — only edit existing ones.`,
+    ].join("\n");
+    await client.sendPrompt(sessionId, prompt, config.sessionTimeoutMs);
+    log.info({ title: improvement.title }, "Applied skill/agent improvement via ACP");
+  } catch (err: unknown) {
+    log.warn({ err: String(err), title: improvement.title }, "Failed to auto-apply improvement");
+  } finally {
+    eventBus?.emitTyped("session:end", { sessionId });
+    await client.endSession(sessionId);
   }
 }

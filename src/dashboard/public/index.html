@@ -53,6 +53,7 @@
   <nav id="tab-nav" class="tab-nav">
     <button class="tab-btn tab-active" data-tab="sprint">🏃 Sprint</button>
     <button class="tab-btn" data-tab="backlog">📋 Backlog</button>
+    <button class="tab-btn" data-tab="blocked">🚫 Blocked</button>
     <button class="tab-btn" data-tab="ideas">💡 Ideas</button>
   </nav>
 
@@ -87,6 +88,20 @@
         <p class="tab-description">Refined issues ready for sprint planning. Click <strong>+ Sprint</strong> to add an issue to the current sprint.</p>
         <ul id="backlog-list" class="backlog-list"></ul>
         <div id="backlog-empty" class="empty-state" style="display:none">No refined issues in backlog. Refine ideas first.</div>
+      </section>
+    </div>
+
+    <!-- Blocked Tab -->
+    <div id="tab-blocked" class="tab-content" style="display:none">
+      <section class="panel panel-full">
+        <div class="backlog-header">
+          <h2>🚫 Blocked Issues</h2>
+          <span id="blocked-count" class="badge">0 blocked</span>
+          <button id="btn-refresh-blocked" class="btn btn-small">🔄 Refresh</button>
+        </div>
+        <p class="tab-description">Issues blocked during execution. Add comments to provide guidance, then unblock to retry.</p>
+        <ul id="blocked-list" class="backlog-list"></ul>
+        <div id="blocked-empty" class="empty-state" style="display:none">No blocked issues. 🎉</div>
       </section>
     </div>
 

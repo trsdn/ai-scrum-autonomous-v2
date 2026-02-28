@@ -27,7 +27,7 @@ import { getPRStats } from "../git/merge.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { logger } from "../logger.js";
 import type { SprintEventBus } from "../events.js";
-import { handleQualityFailure, buildBranch, buildQualityGateConfig } from "./quality-retry.js";
+import { buildBranch, buildQualityGateConfig } from "./quality-retry.js";
 import { sessionController } from "../dashboard/session-control.js";
 import type { Logger } from "pino";
 
@@ -171,8 +171,13 @@ async function tddPhase(ctx: ExecutionContext, implementationPlan: string): Prom
 // Sub-phase: Implement
 // ---------------------------------------------------------------------------
 
-/** Create ACP session in Agent mode, implement the plan, tear down session. Returns captured output lines. */
-async function implementPhase(ctx: ExecutionContext, implementationPlan: string): Promise<string[]> {
+interface ImplementResult {
+  acpOutputLines: string[];
+  sessionId: string;
+}
+
+/** Create ACP session in Agent mode, implement the plan. Session stays open for QG retries. */
+async function implementPhase(ctx: ExecutionContext, implementationPlan: string): Promise<ImplementResult> {
   const { client, config, issue, eventBus, log, worktreePath, progress } = ctx;
   const workerConfig = await resolveSessionConfig(config, "worker");
   const promptVars = buildPromptVars(ctx);
@@ -228,13 +233,16 @@ async function implementPhase(ctx: ExecutionContext, implementationPlan: string)
       eventBus?.emitTyped("worker:output", { sessionId, text: "\n\n⏹ Session stopped by user.\n" });
     }
     sessionController.cleanup(sessionId);
-  } finally {
+  } catch (err: unknown) {
+    // On error, close session before re-throwing
     acpOutputLines = client.getSessionOutput(sessionId, 50);
     eventBus?.emitTyped("session:end", { sessionId });
     await client.endSession(sessionId);
+    throw err;
   }
 
-  return acpOutputLines;
+  acpOutputLines = client.getSessionOutput(sessionId, 50);
+  return { acpOutputLines, sessionId };
 }
 
 // ---------------------------------------------------------------------------
@@ -247,8 +255,8 @@ interface ReviewOutcome {
   retryCount: number;
 }
 
-/** Run quality gate and code review. Posts results as issue comments. */
-async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutcome> {
+/** Run quality gate and code review. Sends QG retry feedback to the developer session. */
+async function qualityAndReviewPhase(ctx: ExecutionContext, devSessionId: string): Promise<ReviewOutcome> {
   const { client, config, issue, log, worktreePath, branch, progress } = ctx;
 
   progress("quality gate");
@@ -268,7 +276,10 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
 
   let retryCount = 0;
   if (!qualityResult.passed) {
-    qualityResult = await handleQualityFailure(client, config, issue, worktreePath, qualityResult, 0, ctx.eventBus);
+    // Retry using the SAME developer session — it has full context
+    qualityResult = await handleQualityRetryInSession(
+      client, config, issue, worktreePath, qualityResult, devSessionId,
+    );
     retryCount = qualityResult.passed ? 0 : config.maxRetries;
   }
 
@@ -279,7 +290,7 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
       codeReview = await runCodeReview(client, config, issue, branch, worktreePath, ctx.eventBus);
 
       if (!codeReview.approved) {
-        const fixResult = await attemptCodeReviewFix(ctx, codeReview);
+        const fixResult = await attemptCodeReviewFix(ctx, codeReview, devSessionId);
         qualityResult = fixResult.qualityResult;
         codeReview = fixResult.codeReview;
       }
@@ -292,40 +303,70 @@ async function qualityAndReviewPhase(ctx: ExecutionContext): Promise<ReviewOutco
   return { qualityResult, codeReview, retryCount };
 }
 
-/** Attempt to fix code review issues and re-run gates. */
+/**
+ * Retry quality gate failures by sending feedback to the existing developer session.
+ * The developer retains full context from implementation.
+ */
+async function handleQualityRetryInSession(
+  client: AcpClient,
+  config: SprintConfig,
+  issue: SprintIssue,
+  worktreePath: string,
+  qualityResult: QualityResult,
+  devSessionId: string,
+): Promise<QualityResult> {
+  const log = logger.child({ ceremony: "execution", issue: issue.number });
+
+  for (let retry = 0; retry < config.maxRetries; retry++) {
+    const failedChecks = qualityResult.checks
+      .filter((c) => !c.passed)
+      .map((c) => `- ${c.name}: ${c.detail}`)
+      .join("\n");
+
+    const feedbackPrompt = [
+      `## Quality Gate Failed — Retry ${retry + 1}/${config.maxRetries}`,
+      "",
+      `The quality gate for issue #${issue.number} failed with the following checks:`,
+      "",
+      failedChecks,
+      "",
+      "Please fix the failing checks. You have the full context of your implementation.",
+    ].join("\n");
+
+    log.info({ retryCount: retry + 1 }, "retrying quality gate in same developer session");
+
+    await client.sendPrompt(devSessionId, feedbackPrompt, config.sessionTimeoutMs);
+
+    const branch = buildBranch(config, issue.number);
+    const gateConfig = buildQualityGateConfig(config);
+    gateConfig.expectedFiles = issue.expectedFiles;
+    qualityResult = await runQualityGate(gateConfig, worktreePath, branch, config.baseBranch);
+
+    if (qualityResult.passed) {
+      return qualityResult;
+    }
+  }
+
+  return qualityResult;
+}
+
+/** Attempt to fix code review issues using the existing developer session. */
 async function attemptCodeReviewFix(
   ctx: ExecutionContext,
   codeReview: CodeReviewResult,
+  devSessionId: string,
 ): Promise<{ qualityResult: QualityResult; codeReview?: CodeReviewResult }> {
   const { client, config, issue, log, worktreePath, branch } = ctx;
 
-  log.warn("code review rejected — attempting fix");
-  const fixConfig = await resolveSessionConfig(config, "worker");
-  const { sessionId: fixSession } = await client.createSession({
-    cwd: worktreePath,
-    mcpServers: fixConfig.mcpServers,
-  });
-  ctx.eventBus?.emitTyped("session:start", {
-    sessionId: fixSession,
-    role: "developer (fix)",
-    issueNumber: issue.number,
-    model: fixConfig.model,
-  });
-  try {
-    if (fixConfig.model) {
-      await client.setModel(fixSession, fixConfig.model);
-    }
-    const fixPrompt = [
-      "The automated code review found issues with your implementation.",
-      "Please address the following feedback:\n",
-      codeReview.feedback,
-      "\nFix the issues and ensure tests still pass.",
-    ].join("\n");
-    await client.sendPrompt(fixSession, fixPrompt, config.sessionTimeoutMs);
-  } finally {
-    ctx.eventBus?.emitTyped("session:end", { sessionId: fixSession });
-    await client.endSession(fixSession);
-  }
+  log.warn("code review rejected — attempting fix in same session");
+
+  const fixPrompt = [
+    "The automated code review found issues with your implementation.",
+    "Please address the following feedback:\n",
+    codeReview.feedback,
+    "\nFix the issues and ensure tests still pass.",
+  ].join("\n");
+  await client.sendPrompt(devSessionId, fixPrompt, config.sessionTimeoutMs);
 
   const rerunGateConfig = buildQualityGateConfig(config);
   rerunGateConfig.expectedFiles = issue.expectedFiles;
@@ -506,6 +547,7 @@ export async function executeIssue(
   let errorMessage: string | undefined;
   let acpOutputLines: string[] = [];
   let timedOut = false;
+  let devSessionId: string | undefined;
 
   try {
     // Step 3: Plan phase (own ACP session as planner)
@@ -516,9 +558,11 @@ export async function executeIssue(
       await tddPhase(ctx, implementationPlan);
     }
 
-    // Step 4: Implement phase (own ACP session as developer)
+    // Step 4: Implement phase (session stays open for QG retries)
     try {
-      acpOutputLines = await implementPhase(ctx, implementationPlan);
+      const implResult = await implementPhase(ctx, implementationPlan);
+      acpOutputLines = implResult.acpOutputLines;
+      devSessionId = implResult.sessionId;
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
       if (errMsg.toLowerCase().includes("timed out")) {
@@ -527,8 +571,8 @@ export async function executeIssue(
       throw err;
     }
 
-    // Step 5-6: Quality gate + code review
-    const reviewOutcome = await qualityAndReviewPhase(ctx);
+    // Step 5-6: Quality gate + code review (uses developer session for retries)
+    const reviewOutcome = await qualityAndReviewPhase(ctx, devSessionId);
     qualityResult = reviewOutcome.qualityResult;
     codeReview = reviewOutcome.codeReview;
     retryCount = reviewOutcome.retryCount;
@@ -555,6 +599,11 @@ export async function executeIssue(
     log.error({ err: errorMessage, issue: issue.number }, "issue execution failed");
     status = "failed";
   } finally {
+    // Close developer session after all retries are done
+    if (devSessionId) {
+      eventBus?.emitTyped("session:end", { sessionId: devSessionId });
+      await client.endSession(devSessionId).catch(() => {});
+    }
     // Step 8: Cleanup (worktree, huddle, labels)
     await cleanupPhase(ctx, { status, qualityResult, codeReview, retryCount, filesChanged, errorMessage, startTime, acpOutputLines, timedOut });
   }

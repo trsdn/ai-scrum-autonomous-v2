@@ -245,6 +245,31 @@ describe("executeIssue", () => {
     expect(setLabel).toHaveBeenCalledWith(42, "status:blocked");
   });
 
+  it("sends QG retry feedback to same developer session instead of creating new one", async () => {
+    const mockClient = makeMockClient();
+    vi.mocked(runQualityGate)
+      .mockResolvedValueOnce(failingQuality) // first QG fails
+      .mockResolvedValueOnce(passingQuality); // retry QG passes
+
+    const config = makeConfig({ maxRetries: 1 });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await executeIssue(mockClient as any, config, makeIssue());
+
+    expect(result.status).toBe("completed");
+
+    // Only 2 sessions created: planner + developer (no new session for retry)
+    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
+
+    // 3 sendPrompt calls: planner + developer + QG retry feedback
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(3);
+
+    // The retry prompt goes to the developer session (same sessionId)
+    const retryCall = mockClient.sendPrompt.mock.calls[2];
+    expect(retryCall[0]).toBe("session-abc"); // same session
+    expect(retryCall[1]).toContain("Quality Gate Failed");
+  });
+
   it("cleans up worktree even when ACP session fails", async () => {
     const mockClient = makeMockClient();
     mockClient.sendPrompt.mockRejectedValue(new Error("session timeout"));
