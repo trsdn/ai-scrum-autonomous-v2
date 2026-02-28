@@ -334,28 +334,35 @@ function registerWeb(program: Command): void {
 
         // Update issues from events
         eventBus.onTyped("sprint:planned", ({ issues: plannedIssues }) => {
-          // Replace issue list with what the planner actually selected
-          currentIssues = plannedIssues.map((i) => ({
-            number: i.number,
-            title: i.title,
-            status: "planned" as const,
-          }));
+          try {
+            currentIssues = plannedIssues.map((i) => ({
+              number: i.number,
+              title: i.title,
+              status: "planned" as const,
+            }));
+          } catch (err) { logger.warn({ err }, "event handler error: sprint:planned"); }
         });
         eventBus.onTyped("issue:start", ({ issue }) => {
-          const existing = currentIssues.find((i) => i.number === issue.number);
-          if (existing) {
-            existing.status = "in-progress";
-          } else {
-            currentIssues.push({ number: issue.number, title: issue.title, status: "in-progress" });
-          }
+          try {
+            const existing = currentIssues.find((i) => i.number === issue.number);
+            if (existing) {
+              existing.status = "in-progress";
+            } else {
+              currentIssues.push({ number: issue.number, title: issue.title, status: "in-progress" });
+            }
+          } catch (err) { logger.warn({ err }, "event handler error: issue:start"); }
         });
         eventBus.onTyped("issue:done", ({ issueNumber }) => {
-          const issue = currentIssues.find((i) => i.number === issueNumber);
-          if (issue) issue.status = "done";
+          try {
+            const issue = currentIssues.find((i) => i.number === issueNumber);
+            if (issue) issue.status = "done";
+          } catch (err) { logger.warn({ err }, "event handler error: issue:done"); }
         });
         eventBus.onTyped("issue:fail", ({ issueNumber }) => {
-          const issue = currentIssues.find((i) => i.number === issueNumber);
-          if (issue) issue.status = "failed";
+          try {
+            const issue = currentIssues.find((i) => i.number === issueNumber);
+            if (issue) issue.status = "failed";
+          } catch (err) { logger.warn({ err }, "event handler error: issue:fail"); }
         });
 
         // Start/loop functions
