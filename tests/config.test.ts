@@ -87,7 +87,7 @@ project:
 
     expect(config.project.base_branch).toBe("main");
     expect(config.copilot.max_parallel_sessions).toBe(4);
-    expect(config.sprint.max_issues).toBe(8);
+    expect(config.sprint.max_issues).toBe(6);
     expect(config.sprint.max_retries).toBe(2);
     expect(config.git.squash_merge).toBe(true);
     expect(config.copilot.mcp_servers).toEqual([]);
