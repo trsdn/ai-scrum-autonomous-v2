@@ -1,0 +1,56 @@
+{
+  "description": "E2E test scenarios for sprint runner stabilization",
+  "repo": "trsdn/ai-scrum-test-project",
+  "milestone": "Sprint 1",
+  "scenarios": [
+    {
+      "id": "nav-hover",
+      "title": "feat: add hover effects to navigation links",
+      "body": "## Description\nThe navigation links in the navbar should have hover effects for better UX.\n\n## Acceptance Criteria\n- [ ] Navigation links change color on hover (e.g., from #ccc to white)\n- [ ] Hover transition is smooth (CSS transition, at least 0.2s)\n- [ ] Add a test in `tests/` that verifies the nav hover styles exist in `style.css`\n\n## Technical Notes\n- Edit `style.css` to add `.nav-links a:hover` rule\n- The test should read `style.css` and check for the hover rule",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy"
+    },
+    {
+      "id": "footer-bugfix",
+      "title": "fix: correct broken privacy policy link in footer",
+      "body": "## Description\nThe footer contains a broken link: `htps://cloudpulse.example.com/privacy` — it should be `https://` (missing the second 't' in https).\n\n## Acceptance Criteria\n- [ ] Footer link href is `https://cloudpulse.example.com/privacy` (not `htps://`)\n- [ ] Add a regression test that reads `index.html` and verifies the link starts with `https://`\n\n## Technical Notes\n- Fix the typo in `index.html` footer section\n- Test should use fs.readFileSync to read index.html and assert the correct URL",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy"
+    },
+    {
+      "id": "pricing-utils",
+      "title": "feat: add pricing tier calculator utility",
+      "body": "## Description\nAdd a utility function that determines the pricing tier based on monthly usage.\n\n## Acceptance Criteria\n- [ ] Create `getPricingTier(monthlyHours: number)` in `src/pricing.ts`\n- [ ] Returns `'starter'` for 0-100 hours, `'pro'` for 101-500 hours, `'enterprise'` for 500+ hours\n- [ ] Throws error for negative hours\n- [ ] Add at least 4 tests covering all tiers and the error case\n\n## Technical Notes\n- New file `src/pricing.ts`\n- Tests in `tests/pricing.test.ts`",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium"
+    },
+    {
+      "id": "dark-mode-vars",
+      "title": "feat: add CSS custom properties for dark mode",
+      "body": "## Description\nAdd CSS custom properties (variables) to support a future dark mode toggle.\n\n## Acceptance Criteria\n- [ ] Add `:root` CSS variables for colors: `--bg-primary`, `--bg-secondary`, `--text-primary`, `--text-secondary`, `--accent`\n- [ ] Add `[data-theme='dark']` selector that overrides these variables with dark colors\n- [ ] Existing styles use the CSS variables instead of hardcoded colors (at minimum: body background, body color, navbar background)\n- [ ] Add a test that reads `style.css` and verifies the CSS variables exist\n\n## Technical Notes\n- Edit `style.css`\n- This is a prerequisite for the dark mode toggle feature",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium"
+    },
+    {
+      "id": "testimonials",
+      "title": "feat: add testimonials section with customer quotes",
+      "body": "## Description\nAdd a testimonials section to the landing page between features and footer.\n\n## Acceptance Criteria\n- [ ] Add a `<section id='testimonials'>` to `index.html` after the features section\n- [ ] Include at least 3 testimonial cards with name, role, company, and quote\n- [ ] Add CSS styles for the testimonials grid (responsive, 1 column on mobile, 3 on desktop)\n- [ ] Export a `getTestimonials()` function from `src/testimonials.ts` that returns the testimonial data as an array\n- [ ] Add tests for `getTestimonials()` verifying it returns at least 3 items with required fields\n\n## Technical Notes\n- New file `src/testimonials.ts`\n- Tests in `tests/testimonials.test.ts`\n- Add styles to `style.css`",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium"
+    },
+    {
+      "id": "vague-perf",
+      "title": "feat: improve overall site performance",
+      "body": "## Description\nThe site should load faster and feel snappier.\n\n## Acceptance Criteria\n- [ ] Improve performance metrics\n- [ ] Make the site faster\n- [ ] Better user experience",
+      "labels": ["status:ready"],
+      "expected": "failed",
+      "complexity": "impossible",
+      "notes": "Deliberately vague — no measurable criteria, no specific files, no clear action. Should fail AC review or get blocked."
+    }
+  ]
+}
