@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, RefinedIssue } from "../types.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 import { listIssues } from "../github/issues.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";

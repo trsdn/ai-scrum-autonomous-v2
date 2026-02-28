@@ -15,7 +15,7 @@ import { readSprintLog } from "../documentation/sprint-log.js";
 import { holisticDriftCheck } from "../enforcement/drift-control.js";
 import { getNextOpenMilestone } from "../github/milestones.js";
 import { SprintRunner } from "../runner.js";
-import { SprintEventBus } from "../tui/events.js";
+import { SprintEventBus } from "../events.js";
 import { logger, redirectLogToFile } from "../logger.js";
 import type { SprintIssue } from "../types.js";
 import {

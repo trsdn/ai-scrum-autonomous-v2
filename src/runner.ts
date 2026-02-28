@@ -22,7 +22,7 @@ import {
   acquireLock,
   releaseLock,
 } from "./state-manager.js";
-import { SprintEventBus } from "./tui/events.js";
+import { SprintEventBus } from "./events.js";
 import type {
   SprintConfig,
   SprintPlan,

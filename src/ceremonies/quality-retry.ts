@@ -7,7 +7,7 @@ import type {
 } from "../types.js";
 import { runQualityGate } from "../enforcement/quality-gate.js";
 import { logger } from "../logger.js";
-import type { SprintEventBus } from "../tui/events.js";
+import type { SprintEventBus } from "../events.js";
 
 export const DEFAULT_QUALITY_GATE_CONFIG = {
   requireTests: true,
