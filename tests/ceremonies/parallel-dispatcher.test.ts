@@ -490,11 +490,14 @@ describe("runParallelExecution", () => {
       { group: 0, issues: [1] },
     ]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
-    // execFile fails on test command (first call after fetch + merge)
+    // execFile: rebase calls (fetch, rebase, push) then pre-merge (fetch, merge, npm test fails)
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
-      .mockRejectedValueOnce(new Error("test failure"));  // npm test
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
+      .mockRejectedValueOnce(new Error("test failure"));  // pre-merge: npm test
 
     const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
@@ -512,12 +515,15 @@ describe("runParallelExecution", () => {
       { group: 0, issues: [1] },
     ]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
-    // execFile: fetch ok, merge ok, tests ok, typecheck fails
+    // execFile: rebase calls (fetch, rebase, push) then pre-merge (fetch, merge, tests ok, typecheck fails)
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // npm test
-      .mockRejectedValueOnce(new Error("type error"));    // tsc --noEmit
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: npm test
+      .mockRejectedValueOnce(new Error("type error"));    // pre-merge: tsc --noEmit
 
     const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
@@ -552,9 +558,12 @@ describe("runParallelExecution", () => {
     ]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // git merge
-      .mockRejectedValueOnce(new Error("test failure"));  // npm test
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
+      .mockRejectedValueOnce(new Error("test failure"));  // pre-merge: npm test
 
     await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
