@@ -142,7 +142,7 @@ export class DashboardWebServer {
 
   /** Effective active sprint number (override takes precedence over options). */
   private get activeSprintNumber(): number | undefined {
-    return this.activeSprintNumberOverride ?? this.activeSprintNumber;
+    return this.activeSprintNumberOverride ?? this.options.activeSprintNumber;
   }
 
   async start(): Promise<void> {
