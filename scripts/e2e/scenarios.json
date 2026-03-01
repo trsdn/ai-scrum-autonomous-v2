@@ -114,6 +114,69 @@
       "expected": "skipped",
       "complexity": "easy",
       "notes": "Missing 'status:ready' label — should NOT be picked up by the planner. Tests label filtering."
+    },
+    {
+      "id": "delete-dead-code",
+      "title": "refactor: remove unused truncate function from app module",
+      "body": "## Description\nThe `truncate()` function in `src/app.ts` is exported but never used anywhere in the codebase. Remove it to reduce maintenance burden.\n\n## Acceptance Criteria\n- [ ] `truncate()` function is removed from `src/app.ts`\n- [ ] Any tests for `truncate()` in `tests/app.test.ts` are also removed\n- [ ] All remaining tests still pass\n- [ ] No other file imports `truncate` from app\n\n## Technical Notes\n- Verify with a codebase search that `truncate` is truly unused before deleting\n- This is a deletion-only change — no new code",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Tests agent's ability to DELETE code (not just add). Most agents default to adding — this requires removing."
+    },
+    {
+      "id": "duplicate-issue",
+      "title": "feat: add CSS hover effects to nav bar links",
+      "body": "## Description\nNavigation links need hover styling.\n\n## Acceptance Criteria\n- [ ] Nav links change color on hover\n- [ ] Smooth CSS transition\n- [ ] Test verifies hover styles exist\n\n## Technical Notes\n- Same as nav-hover issue — this is a duplicate",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Near-duplicate of nav-hover. Tests if planner detects duplicate scope or if both get picked and cause merge conflicts."
+    },
+    {
+      "id": "error-handling",
+      "title": "feat: add error boundary utility with retry logic",
+      "body": "## Description\nAdd a utility that wraps async operations with retry logic and error categorization.\n\n## Acceptance Criteria\n- [ ] Create `src/errors.ts` with `withRetry<T>(fn: () => Promise<T>, options?: RetryOptions): Promise<T>`\n- [ ] `RetryOptions` type: `maxRetries: number` (default 3), `delayMs: number` (default 1000), `backoff: boolean` (default true)\n- [ ] Retries on failure up to `maxRetries` times with exponential backoff when `backoff` is true\n- [ ] Throws the last error if all retries fail\n- [ ] Export `AppError` class extending `Error` with `code: string` and `retryable: boolean` fields\n- [ ] At least 8 tests: success first try, success after retry, all retries fail, custom options, exponential backoff timing, non-retryable error skips retry, zero retries, negative retries throws\n\n## Technical Notes\n- New files: `src/errors.ts`, `tests/errors.test.ts`\n- Use `setTimeout` / `await new Promise(r => setTimeout(r, ms))` for delays\n- Tests should use `vi.useFakeTimers()` for timing-sensitive tests",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "hard",
+      "notes": "Complex async logic with timers. Tests agent's ability to handle async patterns and fake timers in tests."
+    },
+    {
+      "id": "contradictory-ac",
+      "title": "feat: add light mode that defaults to dark mode",
+      "body": "## Description\nAdd a light mode color scheme.\n\n## Acceptance Criteria\n- [ ] Default theme must be light mode\n- [ ] Default theme must be dark mode\n- [ ] Toggle switches between themes\n- [ ] User preference persisted in localStorage\n\n## Technical Notes\n- The first two acceptance criteria contradict each other",
+      "labels": ["status:ready"],
+      "expected": "failed",
+      "complexity": "impossible",
+      "notes": "Contradictory acceptance criteria (light AND dark as default). Should fail AC review or be escalated."
+    },
+    {
+      "id": "large-scope",
+      "title": "feat: add complete user authentication system with JWT",
+      "body": "## Description\nImplement a full authentication system.\n\n## Acceptance Criteria\n- [ ] User registration with email/password\n- [ ] Login endpoint returning JWT\n- [ ] Password hashing with bcrypt\n- [ ] Token refresh endpoint\n- [ ] Protected route middleware\n- [ ] Session management with Redis\n- [ ] OAuth2 integration with Google\n- [ ] Email verification flow\n- [ ] Password reset flow\n- [ ] Rate limiting on auth endpoints\n- [ ] CSRF protection\n- [ ] 2FA with TOTP\n- [ ] Comprehensive test suite (50+ tests)\n\n## Technical Notes\n- This is a static landing page project. Adding auth is completely out of scope and disproportionately large.",
+      "labels": ["status:ready"],
+      "expected": "failed",
+      "complexity": "impossible",
+      "notes": "Massively out of scope for a landing page. Tests if planner rejects oversized/irrelevant issues."
+    },
+    {
+      "id": "modify-existing-tests",
+      "title": "fix: improve test coverage for estimateMonthlyCost edge cases",
+      "body": "## Description\nThe `estimateMonthlyCost()` function in `src/app.ts` lacks edge case testing.\n\n## Acceptance Criteria\n- [ ] Add test for `estimateMonthlyCost(0)` — should return 0 or minimum cost\n- [ ] Add test for very large values (e.g., 1000000 GB)\n- [ ] Add test for fractional values (e.g., 0.5 GB)\n- [ ] Add test for negative values — should throw or return 0\n- [ ] All new tests added to `tests/app.test.ts` in a new describe block\n- [ ] Existing tests must not be modified or removed\n\n## Technical Notes\n- Only add tests, do not change the implementation\n- Check the function signature first to understand expected behavior",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Test-only change. Agent must read existing code to understand behavior before writing tests."
+    },
+    {
+      "id": "chained-dependency",
+      "title": "feat: add pricing page summary widget using pricing-page module",
+      "body": "## Description\nAdd a summary widget that shows the most popular pricing tier.\n\n## Acceptance Criteria\n- [ ] Create `src/pricing-widget.ts` with `getMostPopularTier(): string`\n- [ ] Uses `getPricingPageData()` from `src/pricing-page.ts` (which depends on `src/pricing.ts`)\n- [ ] Returns the tier name with the lowest price as 'most popular'\n- [ ] Add 3 tests in `tests/pricing-widget.test.ts`\n\n## Technical Notes\n- Depends on both `pricing-utils` AND `depends-on-pricing` being completed first\n- This creates a 3-level dependency chain: pricing.ts → pricing-page.ts → pricing-widget.ts",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "3-level transitive dependency chain. Very likely to fail if dependencies aren't executed in order."
     }
   ]
 }
