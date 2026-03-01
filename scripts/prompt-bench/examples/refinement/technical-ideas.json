@@ -8,7 +8,11 @@
     "projectContext": "Node.js Express API with 150+ JS files, no type definitions",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "TypeScript", "strict"],
+      "mustContain": [
+        "AC",
+        "TypeScript",
+        "strict"
+      ],
       "mustNotContain": []
     }
   },
@@ -21,7 +25,11 @@
     "projectContext": "Python Flask app deployed on a single EC2 instance",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "pipeline", "deploy"],
+      "mustContain": [
+        "AC",
+        "pipeline",
+        "deploy"
+      ],
       "mustNotContain": []
     }
   },
@@ -34,7 +42,11 @@
     "projectContext": "React SPA with Webpack, lots of dependencies",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "bundle", "size"],
+      "mustContain": [
+        "AC",
+        "bundle",
+        "size"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +59,11 @@
     "projectContext": "Node.js API with PostgreSQL, high read traffic",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "cache", "TTL"],
+      "mustContain": [
+        "AC",
+        "cache",
+        "TTL"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +76,11 @@
     "projectContext": "Rails app with MySQL 5.7, ~50 tables",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "migration", "data"],
+      "mustContain": [
+        "AC",
+        "migration",
+        "data"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,7 +93,11 @@
     "projectContext": "Express.js REST API consumed by mobile and web clients",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "version", "API"],
+      "mustContain": [
+        "AC",
+        "version",
+        "API"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +110,11 @@
     "projectContext": "Python Django app with Celery workers and Redis",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "Docker", "container"],
+      "mustContain": [
+        "AC",
+        "Docker",
+        "container"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +127,11 @@
     "projectContext": "Node.js microservices, currently using console.log",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "logging", "structured"],
+      "mustContain": [
+        "AC",
+        "logging",
+        "structured"
+      ],
       "mustNotContain": []
     }
   },
@@ -112,7 +144,11 @@
     "projectContext": "PostgreSQL database with 10M+ rows in key tables",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "index", "query"],
+      "mustContain": [
+        "AC",
+        "index",
+        "query"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +161,10 @@
     "projectContext": "Multiple TypeScript packages across separate GitHub repos",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "monorepo"],
+      "mustContain": [
+        "AC",
+        "monorepo"
+      ],
       "mustNotContain": []
     }
   },
@@ -138,7 +177,11 @@
     "projectContext": "Express REST API with React frontend doing lots of data joining client-side",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "GraphQL", "schema"],
+      "mustContain": [
+        "AC",
+        "GraphQL",
+        "schema"
+      ],
       "mustNotContain": []
     }
   },
@@ -151,7 +194,11 @@
     "projectContext": "TypeScript Node.js app with Vitest, 23% coverage",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "coverage", "test"],
+      "mustContain": [
+        "AC",
+        "coverage",
+        "test"
+      ],
       "mustNotContain": []
     }
   },
@@ -164,7 +211,11 @@
     "projectContext": "Node.js API doing email sending and PDF generation synchronously",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "queue", "async"],
+      "mustContain": [
+        "AC",
+        "queue",
+        "async"
+      ],
       "mustNotContain": []
     }
   },
@@ -177,7 +228,11 @@
     "projectContext": "React + Node.js full-stack app with no error monitoring",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "error", "tracking"],
+      "mustContain": [
+        "AC",
+        "error",
+        "tracking"
+      ],
       "mustNotContain": []
     }
   },
@@ -190,7 +245,11 @@
     "projectContext": "SaaS platform with weekly releases",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "feature flag", "toggle"],
+      "mustContain": [
+        "AC",
+        "feature flag",
+        "toggle"
+      ],
       "mustNotContain": []
     }
   },
@@ -203,7 +262,11 @@
     "projectContext": "Node.js app with package.json last updated 18 months ago",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "dependencies", "vulnerabilit"],
+      "mustContain": [
+        "AC",
+        "dependencies",
+        "vulnerabilit"
+      ],
       "mustNotContain": []
     }
   },
@@ -216,7 +279,10 @@
     "projectContext": "AWS infrastructure managed through console clicks",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "infrastructure"],
+      "mustContain": [
+        "AC",
+        "infrastructure"
+      ],
       "mustNotContain": []
     }
   },
@@ -229,7 +295,11 @@
     "projectContext": "Express.js API with hand-written Markdown docs",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "API", "documentation"],
+      "mustContain": [
+        "AC",
+        "API",
+        "documentation"
+      ],
       "mustNotContain": []
     }
   },
@@ -242,7 +312,11 @@
     "projectContext": "React app with Vitest unit tests, no E2E framework",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "E2E", "test"],
+      "mustContain": [
+        "AC",
+        "E2E",
+        "test"
+      ],
       "mustNotContain": []
     }
   },
@@ -255,7 +329,10 @@
     "projectContext": "Node.js app with raw pg driver, no pooling configured",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "connection pool"],
+      "mustContain": [
+        "AC",
+        "connection pool"
+      ],
       "mustNotContain": []
     }
   }

@@ -145,26 +145,25 @@ const plannerAdapter: RoleAdapter = {
       "- Prefer finishing in-progress work over starting new work",
       "",
       "## Response Format",
-      "Respond with a JSON object:",
-      "```json",
-      '{ "selected": [{ "number": 1, "title": "...", "points": 3, "reason": "..." }], "excluded": [{ "number": 5, "reason": "..." }] }',
+      "First line must be: `SPRINT_PLAN:`",
+      "Then list selected issues in priority order using `#N` issue references:",
       "```",
-      "First line must be: `SPRINT_PLAN:` followed by the JSON.",
+      "SPRINT_PLAN:",
+      "Selected:",
+      "- #12: Fix login bug (2pts) — critical priority, must fix first",
+      "- #10: Set up CI pipeline (5pts) — high priority infrastructure",
+      "Excluded:",
+      "- #15: Refactor DB layer — exceeds remaining velocity",
+      "Total: 7/21 points",
+      "```",
+      "IMPORTANT: Always use #N format when referring to issues (e.g., #12, #10).",
     ].join("\n");
   },
   parseResponse(response) {
     const trimmed = response.trim();
     const passed = trimmed.toUpperCase().startsWith("SPRINT_PLAN:");
     const issues: string[] = [];
-    // Extract JSON if present
-    const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) issues.push("No JSON found in response");
-    else {
-      try {
-        const plan = JSON.parse(jsonMatch[0]);
-        if (!Array.isArray(plan.selected)) issues.push("Missing 'selected' array");
-      } catch { issues.push("Invalid JSON in response"); }
-    }
+    if (!trimmed.toLowerCase().includes("selected")) issues.push("Missing selected section");
     return { passed, issues };
   },
 };

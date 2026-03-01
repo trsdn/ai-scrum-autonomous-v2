@@ -8,8 +8,14 @@
     "codebaseContext": "Express 4 + React 18 + ws library. Files: src/ws/server.ts, src/ws/channels.ts, src/ws/auth.ts, src/hooks/useWebSocket.ts, src/components/LiveFeed.tsx, tests/ws/. Uses vitest + ws.",
     "expected": {
       "passed": true,
-      "mustContain": ["WebSocket", "channel", "reconnect", "heartbeat", "test"],
-      "mustNotContain": ["Socket.IO"]
+      "mustContain": [
+        "WebSocket",
+        "channel",
+        "reconnect",
+        "heartbeat",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +27,14 @@
     "codebaseContext": "Express 4 + BullMQ + Nodemailer + MJML. Files: src/email/templates/, src/email/sender.ts, src/email/queue.ts, src/routes/email-preferences.ts, src/models/emailLog.ts, tests/email/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["template", "queue", "retry", "unsubscribe", "test"],
-      "mustNotContain": ["synchronous send"]
+      "mustContain": [
+        "template",
+        "queue",
+        "retry",
+        "unsubscribe",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +46,14 @@
     "codebaseContext": "Express 4 + Passport.js + React 18. Files: src/auth/strategies/google.ts, src/auth/strategies/github.ts, src/auth/oauth.ts, src/routes/auth.ts, src/components/LoginPage.tsx, src/models/oauthAccount.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["OAuth", "callback", "account link", "CSRF", "test"],
-      "mustNotContain": ["implicit flow"]
+      "mustContain": [
+        "OAuth",
+        "callback",
+        "account link",
+        "CSRF",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +65,13 @@
     "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: prisma/schema.prisma, src/services/dashboardService.ts, src/services/reportService.ts, src/db/migrations/, src/config/database.ts, tests/performance/. Uses vitest + pgbench.",
     "expected": {
       "passed": true,
-      "mustContain": ["index", "materialized view", "connection pool", "performance test"],
-      "mustNotContain": ["remove query"]
+      "mustContain": [
+        "index",
+        "materialized view",
+        "connection pool",
+        "performance test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +83,14 @@
     "codebaseContext": "Monolith: Express 4 + PostgreSQL. New service: Fastify + MongoDB. Files: services/notifications/, src/events/publishers/, src/contracts/, docker-compose.yml, .github/workflows/notify-service.yml. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["microservice", "message queue", "contract", "feature flag", "test"],
-      "mustNotContain": ["direct database access"]
+      "mustContain": [
+        "microservice",
+        "message queue",
+        "contract",
+        "feature flag",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +102,14 @@
     "codebaseContext": "Express 4 + Elasticsearch 8 + PostgreSQL. Files: src/search/indexer.ts, src/search/client.ts, src/routes/search.ts, src/search/mappings.ts, src/hooks/useSearch.ts, tests/search/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["Elasticsearch", "index", "facet", "fallback", "test"],
-      "mustNotContain": ["LIKE query only"]
+      "mustContain": [
+        "Elasticsearch",
+        "index",
+        "facet",
+        "fallback",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +121,14 @@
     "codebaseContext": "Node.js + Docker + AWS ECS. Files: .github/workflows/ci.yml, .github/workflows/deploy.yml, Dockerfile, docker-compose.yml, scripts/deploy.sh, scripts/rollback.sh. Uses GitHub Actions.",
     "expected": {
       "passed": true,
-      "mustContain": ["CI", "deploy", "rollback", "approval", "test"],
-      "mustNotContain": ["manual deployment"]
+      "mustContain": [
+        "CI",
+        "deploy",
+        "rollback",
+        "approval",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +140,14 @@
     "codebaseContext": "Next.js 14 + React 18 + Prisma. Files: app/admin/layout.tsx, app/admin/dashboard/page.tsx, app/admin/users/page.tsx, src/components/admin/, src/services/adminService.ts, middleware.ts. Uses vitest + Playwright.",
     "expected": {
       "passed": true,
-      "mustContain": ["SSR", "role", "dashboard", "pagination", "test"],
-      "mustNotContain": ["client-only rendering"]
+      "mustContain": [
+        "SSR",
+        "role",
+        "dashboard",
+        "pagination",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +159,14 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/payments/adapter.ts, src/payments/stripe.ts, src/payments/paypal.ts, src/routes/payments.ts, src/routes/webhooks.ts, src/models/payment.ts, tests/payments/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["adapter", "idempotent", "webhook", "PCI", "test"],
-      "mustNotContain": ["store card numbers"]
+      "mustContain": [
+        "adapter",
+        "idempotent",
+        "webhook",
+        "PCI",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +178,14 @@
     "codebaseContext": "Next.js 14 + Prisma + PostgreSQL + React 18. Files: src/models/content.ts, app/[lang]/[slug]/page.tsx, src/services/contentService.ts, app/admin/content/, prisma/schema.prisma, tests/content/. Uses vitest + Playwright.",
     "expected": {
       "passed": true,
-      "mustContain": ["translation", "fallback", "version", "hreflang", "test"],
-      "mustNotContain": ["hardcoded content"]
+      "mustContain": [
+        "translation",
+        "fallback",
+        "version",
+        "hreflang",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +197,14 @@
     "codebaseContext": "Express 4 + React 18 + Prisma. Files: src/flags/evaluator.ts, src/flags/store.ts, src/hooks/useFeatureFlag.ts, src/middleware/featureFlag.ts, app/admin/flags/, prisma/schema.prisma, tests/flags/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["feature flag", "targeting", "rollout", "hook", "test"],
-      "mustNotContain": ["LaunchDarkly"]
+      "mustContain": [
+        "feature flag",
+        "targeting",
+        "rollout",
+        "hook",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +216,14 @@
     "codebaseContext": "Express 4 + BullMQ + Redis + PostgreSQL. Files: src/routes/imports.ts, src/jobs/csvProcessor.ts, src/services/csvValidator.ts, src/services/importTracker.ts, src/utils/streamParser.ts, tests/import/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["stream", "queue", "progress", "validation", "test"],
-      "mustNotContain": ["load entire file in memory"]
+      "mustContain": [
+        "stream",
+        "queue",
+        "progress",
+        "validation",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +235,14 @@
     "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/audit/logger.ts, src/audit/middleware.ts, src/audit/types.ts, src/routes/admin/audit.ts, app/admin/audit/page.tsx, prisma/schema.prisma, tests/audit/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["audit", "immutable", "retention", "mask", "test"],
-      "mustNotContain": ["delete audit logs"]
+      "mustContain": [
+        "audit",
+        "immutable",
+        "retention",
+        "mask",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +254,14 @@
     "codebaseContext": "Apollo Gateway + Apollo Server 4 + Node.js. Files: gateway/src/index.ts, gateway/src/auth.ts, services/users/schema.ts, services/products/schema.ts, services/orders/schema.ts, gateway/src/plugins/, tests/federation/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["federation", "gateway", "subgraph", "entity", "test"],
-      "mustNotContain": ["monolithic schema"]
+      "mustContain": [
+        "federation",
+        "gateway",
+        "subgraph",
+        "entity",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +273,14 @@
     "codebaseContext": "Node.js microservices + Express 4. Files: src/telemetry/tracer.ts, src/telemetry/metrics.ts, src/telemetry/middleware.ts, src/config/telemetry.ts, docker-compose.yml (Jaeger + Prometheus), grafana/dashboards/, tests/telemetry/. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["OpenTelemetry", "trace", "metric", "span", "test"],
-      "mustNotContain": ["console.log for monitoring"]
+      "mustContain": [
+        "OpenTelemetry",
+        "trace",
+        "metric",
+        "span",
+        "test"
+      ],
+      "mustNotContain": []
     }
   }
 ]

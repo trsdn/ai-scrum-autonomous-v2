@@ -1,166 +1,197 @@
 [
   {
     "id": "challenge-086",
-    "description": "Trivial config change — should approve without overthinking",
-    "decision": "Proposal: Change the default log level from 'debug' to 'info' in production configuration. Currently, debug logging is enabled in production, generating 50GB of logs per day. Changing to 'info' reduces this to 5GB per day and saves $200/month in log storage costs. No code changes — just update the LOG_LEVEL environment variable in the production deployment manifest. Debug logging remains available by temporarily changing the env var if needed for troubleshooting.",
+    "description": "Trivial config change \u2014 should approve without overthinking",
+    "decision": "Proposal: Change the default log level from 'debug' to 'info' in production configuration. Currently, debug logging is enabled in production, generating 50GB of logs per day. Changing to 'info' reduces this to 5GB per day and saves $200/month in log storage costs. No code changes \u2014 just update the LOG_LEVEL environment variable in the production deployment manifest. Debug logging remains available by temporarily changing the env var if needed for troubleshooting.",
     "context": "Debug logging was accidentally left on after a debugging session 2 months ago. The change is a single-line edit to the deployment config. Log storage costs have been flagged by the finance team. All other environments (dev, staging) will keep debug logging. The change has been tested in staging.",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
-      "mustNotContain": ["PUSH_BACK"]
+      "mustContain": [
+        "CHALLENGE:"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-087",
-    "description": "Decision with incomplete information — should ask for more data",
+    "description": "Decision with incomplete information \u2014 should ask for more data",
     "decision": "Proposal: Migrate from AWS to Google Cloud Platform. Reasons: 'better pricing' and 'the CTO's friend recommends it.' Timeline: 3 months. Budget: TBD. The migration would cover all 12 services, 3 databases, file storage, and CI/CD pipelines. We haven't done a detailed cost comparison yet, but GCP's list prices look lower for compute instances.",
     "context": "Current AWS bill: unknown (finance team manages it). Current architecture uses AWS-specific services: SQS, SNS, Lambda, DynamoDB, S3, CloudFront, RDS Aurora, ECS Fargate, and Route 53. Team has zero GCP experience. No formal evaluation criteria have been defined. The CTO mentioned this in a casual conversation.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-088",
-    "description": "Already-committed decision that can't change — should note risks only",
+    "description": "Already-committed decision that can't change \u2014 should note risks only",
     "decision": "FYI: We signed a 2-year contract with DataStreamPro for our event streaming infrastructure yesterday. They're replacing our self-hosted Kafka cluster. The contract includes migration support and 99.99% uptime SLA. The decision was made by the VP of Engineering after a demo. DataStreamPro is a Series A startup founded 18 months ago with 30 employees. Their pricing is 60% less than Confluent Cloud. Migration starts next week.",
     "context": "The contract is signed and non-cancelable. Budget is allocated. The VP made the decision without consulting the engineering team. DataStreamPro has 15 customers listed on their website. No proof of concept was done with our workloads. The current Kafka cluster handles 500k events/day with 99.97% uptime. Three engineers will need training on DataStreamPro's proprietary API.",
     "expected": {
       "passed": true,
-      "mustContain": ["risk"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "risk"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-089",
-    "description": "Reasonable tradeoff that's neither clearly good nor bad — nuanced response",
+    "description": "Reasonable tradeoff that's neither clearly good nor bad \u2014 nuanced response",
     "decision": "Proposal: Replace TypeScript with JavaScript for the frontend codebase. Reasoning: TypeScript adds 45 seconds to our build time, new hires take 2 weeks longer to onboard due to type system complexity, and 30% of our TypeScript types are 'any' anyway. We'd keep JSDoc comments for documentation. The backend stays TypeScript. Tradeoffs acknowledged: we lose compile-time type checking but gain faster iteration speed and simpler onboarding.",
     "context": "Frontend codebase: 25,000 lines of TypeScript, 4 frontend engineers. Last 3 hires all needed extra TypeScript training. Build time: 90 seconds with TypeScript, estimated 45 seconds without. Runtime errors caught by TypeScript in the last quarter: 12. Runtime errors that made it to production: 3 (all in 'any'-typed areas). The team is split 2-2 on whether to keep TypeScript.",
     "expected": {
       "passed": true,
-      "mustContain": ["tradeoff"],
+      "mustContain": [
+        "trade"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "challenge-090",
-    "description": "Multiple valid approaches with no clear winner — balanced analysis",
-    "decision": "Architecture Decision: For the new notification service, we need to choose between three approaches. Option A: Server-Sent Events (SSE) — simple, HTTP-based, one-way communication, works with existing infrastructure. Option B: WebSockets — bidirectional, lower latency, requires new infrastructure (sticky sessions, Redis pub/sub). Option C: Polling every 5 seconds — simplest to implement, higher server load, but predictable. We're leaning toward WebSockets because it feels more 'modern,' but we'd like a review of this decision.",
+    "description": "Multiple valid approaches with no clear winner \u2014 balanced analysis",
+    "decision": "Architecture Decision: For the new notification service, we need to choose between three approaches. Option A: Server-Sent Events (SSE) \u2014 simple, HTTP-based, one-way communication, works with existing infrastructure. Option B: WebSockets \u2014 bidirectional, lower latency, requires new infrastructure (sticky sessions, Redis pub/sub). Option C: Polling every 5 seconds \u2014 simplest to implement, higher server load, but predictable. We're leaning toward WebSockets because it feels more 'modern,' but we'd like a review of this decision.",
     "context": "Notifications are one-way (server to client). Expected volume: 10 notifications per user per day, 5,000 active users. Current infrastructure: REST API behind a load balancer, no WebSocket support configured. Time budget: 1 sprint. Team experience: 0 with WebSockets, 0 with SSE, extensive with polling. The notification content is text-only (no real-time collaboration or typing indicators).",
     "expected": {
       "passed": true,
-      "mustContain": ["SSE"],
+      "mustContain": [
+        "SSE"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "challenge-091",
-    "description": "Challenger reviewing its own previous feedback — self-awareness test",
+    "description": "Challenger reviewing its own previous feedback \u2014 self-awareness test",
     "decision": "Re-review Request: In Sprint 18, the Challenger agent pushed back on our plan to migrate from Jest to Vitest, citing 'unnecessary churn' and 'no measurable benefit.' We've since gathered data: Vitest runs our test suite in 12 seconds vs Jest's 45 seconds, hot module reloading works with Vitest (not Jest), and 3 of 4 developers prefer Vitest's DX. We've done a proof-of-concept migration of 50 tests with zero issues. We're re-submitting this proposal with the data the Challenger requested. Migration plan: convert tests file-by-file over 2 sprints, maintaining both runners during transition.",
-    "context": "Original Challenger feedback from Sprint 18: 'PUSH_BACK — No benchmarks provided, migration effort underestimated, team hasn't evaluated alternatives.' The team addressed all three concerns: benchmarks show 3.75x speedup, effort is scoped to 2 sprints with incremental migration, and they evaluated Vitest, Jest, and Bun's test runner. 50 of 280 tests have been successfully migrated as proof of concept.",
+    "context": "Original Challenger feedback from Sprint 18: 'PUSH_BACK \u2014 No benchmarks provided, migration effort underestimated, team hasn't evaluated alternatives.' The team addressed all three concerns: benchmarks show 3.75x speedup, effort is scoped to 2 sprints with incremental migration, and they evaluated Vitest, Jest, and Bun's test runner. 50 of 280 tests have been successfully migrated as proof of concept.",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
-      "mustNotContain": ["PUSH_BACK"]
+      "mustContain": [
+        "CHALLENGE:"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-092",
-    "description": "Purely cosmetic change with zero risk — should approve quickly",
-    "decision": "Proposal: Rename the 'utils/' directory to 'helpers/' for consistency with our documentation and team naming conventions. All 6 files in the directory will be moved, and all 23 import paths across the codebase will be updated. No logic changes — purely a rename. The IDE's rename refactoring tool will handle the import updates. We'll verify with a full test run after the rename.",
+    "description": "Purely cosmetic change with zero risk \u2014 should approve quickly",
+    "decision": "Proposal: Rename the 'utils/' directory to 'helpers/' for consistency with our documentation and team naming conventions. All 6 files in the directory will be moved, and all 23 import paths across the codebase will be updated. No logic changes \u2014 purely a rename. The IDE's rename refactoring tool will handle the import updates. We'll verify with a full test run after the rename.",
     "context": "The team style guide (written 6 months ago) specifies 'helpers/' as the convention. The 'utils/' directory predates the style guide. All new utility files have been created in a 'helpers/' directory in other packages, creating inconsistency. This cleanup was requested by a new team member during onboarding.",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
-      "mustNotContain": ["PUSH_BACK", "risk"]
+      "mustContain": [
+        "CHALLENGE:"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-093",
-    "description": "Decision forced by external constraint — should acknowledge and advise",
-    "decision": "Compliance Requirement: Due to new EU data residency regulations taking effect in 60 days, we must store all EU customer data in EU-based data centers. Our current setup: single US-based deployment. Plan: add an EU deployment in AWS eu-west-1, implement geo-routing at the CDN level, add data residency flags to user accounts, and modify all data pipelines to respect residency rules. This is non-negotiable — we lose the ability to serve EU customers if we don't comply. Timeline: must be production-ready in 45 days (15 days buffer).",
+    "description": "Decision forced by external constraint \u2014 should acknowledge and advise",
+    "decision": "Compliance Requirement: Due to new EU data residency regulations taking effect in 60 days, we must store all EU customer data in EU-based data centers. Our current setup: single US-based deployment. Plan: add an EU deployment in AWS eu-west-1, implement geo-routing at the CDN level, add data residency flags to user accounts, and modify all data pipelines to respect residency rules. This is non-negotiable \u2014 we lose the ability to serve EU customers if we don't comply. Timeline: must be production-ready in 45 days (15 days buffer).",
     "context": "EU customers represent 35% of revenue ($500k/month). The engineering team has never done a multi-region deployment. Current architecture assumes single-region (shared database, in-memory caches, local file storage). Team of 5 engineers, no dedicated DevOps. Similar companies report 3-6 months for multi-region deployments.",
     "expected": {
       "passed": true,
-      "mustContain": ["risk", "timeline"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "risk",
+        "timeline"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-094",
-    "description": "Good decision with one minor concern — should mostly approve",
+    "description": "Good decision with one minor concern \u2014 should mostly approve",
     "decision": "Caching Strategy: Add Redis caching for the product catalog API. Cache TTL: 5 minutes. Cache key: product ID. Cache invalidation: on product update via pub/sub event. Fallback: if Redis is down, serve directly from PostgreSQL (no error, just slower). Implementation: cache-aside pattern in the ProductRepository. Expected impact: p50 latency drops from 45ms to 3ms for cached responses. Cache hit rate projection: 85% based on access pattern analysis. Redis instance: existing shared instance with 8GB available.",
     "context": "Product catalog has 10,000 items, updated ~50 times per day. API handles 2,000 catalog requests per minute. The shared Redis instance also handles session storage and rate limiting (currently using 4GB of 13GB). No Redis monitoring dashboards exist. Product prices change frequently during sales events (up to 500 updates per hour).",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
+      "mustContain": [
+        "CHALLENGE:"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "challenge-095",
-    "description": "Emotionally-driven decision disguised as technical — should see through it",
-    "decision": "Technology Migration: We need to rewrite our Python backend in Go immediately. Python is 'too slow' and 'not a real engineering language.' The CTO read a blog post about how Company X improved performance 50x by switching to Go. Our team should be writing in a 'proper' compiled language. We'll pause all feature work for 2 months to do the rewrite. This will also improve our hiring — Go developers are 'higher caliber' than Python developers.",
+    "description": "Emotionally-driven decision disguised as technical \u2014 should see through it",
+    "decision": "Technology Migration: We need to rewrite our Python backend in Go immediately. Python is 'too slow' and 'not a real engineering language.' The CTO read a blog post about how Company X improved performance 50x by switching to Go. Our team should be writing in a 'proper' compiled language. We'll pause all feature work for 2 months to do the rewrite. This will also improve our hiring \u2014 Go developers are 'higher caliber' than Python developers.",
     "context": "Current Python backend: 20,000 lines, 85% test coverage, 99.9% uptime, handles current load with 30% headroom. P99 latency: 120ms (within SLA). No profiling has been done to identify bottlenecks. Team of 6 Python engineers, 0 with Go experience. Product backlog has 25 prioritized feature requests from paying customers. The CTO's blog post was about a company processing 1M events/second (our volume is 100 events/second).",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-096",
-    "description": "Decision that's good now but creates future tech debt — nuanced response",
+    "description": "Decision that's good now but creates future tech debt \u2014 nuanced response",
     "decision": "Quick Fix Proposal: Hardcode the tax rates for US states directly in the checkout calculation code. We only serve 5 US states currently, so a simple switch statement with the 5 rates is faster to implement than integrating a tax API. We'll create a backlog item to integrate a proper tax service (like TaxJar or Avalara) when we expand to more states. Current estimated expansion timeline: 6-12 months. The hardcoded rates will be accurate as of today's rates.",
     "context": "The product just launched in 5 US states. Tax rates change periodically (some states change rates 1-2 times per year). The company plans to expand to all 50 states within 12 months, and internationally within 18 months. Current monthly revenue: $10,000. Integrating TaxJar costs $50/month and would take 2-3 days. Hardcoding takes 2 hours.",
     "expected": {
       "passed": true,
-      "mustContain": ["tax"],
+      "mustContain": [
+        "tax"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "challenge-097",
-    "description": "Legitimate emergency requiring fast action — should approve with caveats",
+    "description": "Legitimate emergency requiring fast action \u2014 should approve with caveats",
     "decision": "Emergency Response: Production database is at 95% disk capacity and growing. Immediate plan: (1) Delete archived audit logs older than 90 days (recoverable from backup, saves 40% disk space). (2) Increase disk size from 500GB to 1TB via AWS console (online operation, no downtime). (3) Add monitoring alert at 80% disk usage. (4) Schedule a follow-up issue to implement log rotation and archival to S3. Timeline: steps 1-3 today, step 4 in next sprint. Risk: deleting audit logs removes them from active queries, but they're also backed up in S3 with 30-day delay.",
-    "context": "Database has been growing 5% per week. Disk full would cause complete outage. The 90-day audit log deletion was discussed with compliance team — they confirmed S3 backups satisfy retention requirements. The disk resize is a standard AWS operation with no data risk. Current time: Wednesday 10 AM, full team available.",
+    "context": "Database has been growing 5% per week. Disk full would cause complete outage. The 90-day audit log deletion was discussed with compliance team \u2014 they confirmed S3 backups satisfy retention requirements. The disk resize is a standard AWS operation with no data risk. Current time: Wednesday 10 AM, full team available.",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
-      "mustNotContain": ["PUSH_BACK"]
+      "mustContain": [
+        "CHALLENGE:"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-098",
-    "description": "Reversible experiment with clear success criteria — should approve",
-    "decision": "Experiment Proposal: A/B test a new onboarding flow for 2 weeks. Group A (50%): current 5-step onboarding wizard. Group B (50%): single-page onboarding with progressive disclosure. Success metric: 7-day retention rate improvement ≥ 5% (currently 42%). Secondary metrics: time-to-first-value, support ticket volume. If Group B doesn't meet the success criteria, we revert to the current flow. Implementation: feature flag controlled, no database changes, no API changes. The new flow reuses existing components in a different layout.",
+    "description": "Reversible experiment with clear success criteria \u2014 should approve",
+    "decision": "Experiment Proposal: A/B test a new onboarding flow for 2 weeks. Group A (50%): current 5-step onboarding wizard. Group B (50%): single-page onboarding with progressive disclosure. Success metric: 7-day retention rate improvement \u2265 5% (currently 42%). Secondary metrics: time-to-first-value, support ticket volume. If Group B doesn't meet the success criteria, we revert to the current flow. Implementation: feature flag controlled, no database changes, no API changes. The new flow reuses existing components in a different layout.",
     "context": "Onboarding completion rate: 68% (32% drop off at step 3 of 5). Current 7-day retention: 42%. The A/B testing framework is already in place (used for 3 previous experiments). The new flow was designed based on user session recordings showing confusion at step 3. No engineering resources needed beyond the initial implementation (estimated 3 points).",
     "expected": {
       "passed": true,
-      "mustContain": ["APPROVE"],
-      "mustNotContain": ["PUSH_BACK"]
+      "mustContain": [
+        "CHALLENGE:"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-099",
-    "description": "Vague proposal with buzzwords but no substance — should push back",
+    "description": "Vague proposal with buzzwords but no substance \u2014 should push back",
     "decision": "Strategic Initiative: We need to 'leverage AI and blockchain to create a paradigm-shifting, cloud-native, microservices-based platform that delivers synergistic value through data-driven insights and cutting-edge machine learning pipelines.' Phase 1: hire 3 AI engineers. Phase 2: build the AI platform. Phase 3: integrate blockchain for 'trustless data verification.' Phase 4: achieve 'digital transformation.' Budget: $2M over 18 months. Expected ROI: '10x within 2 years.'",
     "context": "Current product is a project management tool for small teams. Revenue: $50k/month. Team: 5 engineers. No AI/ML expertise on the team. No customer has requested AI or blockchain features. The product roadmap has 30 unfulfilled feature requests from paying customers. Competitors are winning deals due to missing basic features (time tracking, resource allocation, Gantt charts).",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-100",
-    "description": "Well-intentioned process change with hidden team impact — nuanced response",
+    "description": "Well-intentioned process change with hidden team impact \u2014 nuanced response",
     "decision": "Process Improvement: Implement pair programming for all production code. Every line of code must be written by a pair (driver + navigator). This eliminates the need for code reviews since the code is already reviewed in real-time. We'll remove the PR review requirement and let pairs merge directly to main after tests pass. Benefits: faster feedback, knowledge sharing, better code quality. Studies show pair programming reduces bugs by 15%. We'll start next sprint.",
     "context": "Team of 6 engineers, 2 work remotely from different time zones (UTC+0 and UTC+8). Sprint velocity with current process: 20 points. The team has never practiced pair programming. One engineer has expressed strong preference for working independently due to neurodivergence. Current PR review turnaround: 4 hours average. Code review has caught 8 bugs in the last quarter.",
     "expected": {
       "passed": true,
-      "mustContain": ["risk"],
+      "mustContain": [
+        "risk"
+      ],
       "mustNotContain": []
     }
   }

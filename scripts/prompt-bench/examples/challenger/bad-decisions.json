@@ -1,222 +1,281 @@
 [
   {
     "id": "challenge-021",
-    "description": "Sprint plan exceeding velocity by 60% — should push back",
+    "description": "Sprint plan exceeding velocity by 60% \u2014 should push back",
     "decision": "Sprint 9 Plan: We're pulling in 8 issues totaling 32 story points. The sprint goal is 'Complete checkout redesign, add analytics dashboard, and migrate to new auth provider.' Issues include: checkout UI overhaul (13pts), analytics dashboard MVP (8pts), auth provider migration (5pts), 3 bug fixes (2pts each). The team is motivated and wants to push hard this sprint to make up for the slower Sprint 8.",
     "context": "Team velocity: Sprint 6=18pts, Sprint 7=21pts, Sprint 8=20pts. Rolling average: 19.7 points. Sprint 8 had 2 issues carry over due to unexpected complexity. One team member is on vacation for 3 days this sprint.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "velocity"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "velocity"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-022",
-    "description": "Full rewrite proposal with no migration plan — should push back",
+    "description": "Full rewrite proposal with no migration plan \u2014 should push back",
     "decision": "Proposal: Rewrite the entire backend from Express.js to Fastify. Express is showing its age and Fastify benchmarks show 2x throughput. We'll create a new repository, port all 45 endpoints, and switch DNS once it's ready. Timeline: 3 sprints. The old codebase will be archived once the new one is deployed. We'll start fresh with better patterns and cleaner code.",
     "context": "Express backend has been in production for 2 years with 45 endpoints, 89% test coverage, and 99.8% uptime. Team of 3 backend engineers. Current throughput handles 2x peak traffic comfortably.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "migration"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "migration"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-023",
-    "description": "Skipping tests to meet deadline — should push back",
+    "description": "Skipping tests to meet deadline \u2014 should push back",
     "decision": "Due to the upcoming product launch on Friday, we're going to skip writing tests for the new payment integration endpoints. We have 4 endpoints to build (create charge, refund, list transactions, webhook handler) and only 3 days left. We'll add tests in the sprint after launch. The endpoints are straightforward CRUD operations so the risk is low. Manual QA will cover the critical paths before launch.",
     "context": "Payment integration is a new feature for a key enterprise client. The contract requires launch by end of week. The team has been working on this for 2 sprints already but underestimated the complexity of the webhook handler.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "test"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-024",
-    "description": "Adding features mid-sprint (scope creep) — should push back",
+    "description": "Adding features mid-sprint (scope creep) \u2014 should push back",
     "decision": "Sprint 10 Update (Day 5 of 10): We're adding 3 new issues to the sprint. The CEO demoed the product to a potential investor and they asked about dark mode, CSV export, and a mobile-responsive layout. These are high-visibility items so we're prioritizing them. Current sprint has 5 issues, 3 are completed, 2 are in progress. The new issues are estimated at 3, 5, and 8 story points respectively. We'll extend the sprint by 3 days if needed.",
     "context": "Sprint 10 started with 20 story points (5 issues). Team velocity average is 19 points. Two issues are currently in progress and blocking on code review. The team hasn't done dark mode, CSV export, or responsive design before.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-025",
-    "description": "Deploying directly to production without staging — should push back",
-    "decision": "Deployment Plan: We'll deploy the new user registration flow directly to production. Our staging environment has been flaky this week (intermittent database connection issues) and we can't wait for infra to fix it. The changes are well-tested locally — all 23 unit tests pass and we did manual testing on localhost. We'll monitor production closely after deploy and rollback if anything looks wrong. The feature flag is ready so we can disable the new flow instantly if needed.",
+    "description": "Deploying directly to production without staging \u2014 should push back",
+    "decision": "Deployment Plan: We'll deploy the new user registration flow directly to production. Our staging environment has been flaky this week (intermittent database connection issues) and we can't wait for infra to fix it. The changes are well-tested locally \u2014 all 23 unit tests pass and we did manual testing on localhost. We'll monitor production closely after deploy and rollback if anything looks wrong. The feature flag is ready so we can disable the new flow instantly if needed.",
     "context": "The staging environment has been unreliable for 2 days due to a misconfigured connection pool (infra team is working on it). The registration flow change touches the auth middleware, user model, and email service. Production serves 8,000 active users.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "staging"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "staging"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-026",
-    "description": "No rollback plan for database migration — should push back",
+    "description": "No rollback plan for database migration \u2014 should push back",
     "decision": "Database Migration Plan: We're renaming the 'users' table to 'accounts' and changing the primary key from auto-increment integer to UUID. This requires updating all 23 foreign key references across 8 tables. We'll run the migration during a 2-hour maintenance window on Saturday. The application code has already been updated to use the new table and column names. Once the migration completes, we'll deploy the new application code immediately.",
     "context": "Production database has 2 million rows in the users table. The application has been running for 3 years. SLA requires 99.9% uptime (allows ~8.7 hours downtime per year). Already used 4 hours this year.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "rollback"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "rollback"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-027",
-    "description": "Removing error handling for cleaner code — should push back",
+    "description": "Removing error handling for cleaner code \u2014 should push back",
     "decision": "Code Cleanup Proposal: Remove try-catch blocks from 15 service methods to reduce code noise. Current pattern wraps every database call in try-catch and logs the error before re-throwing. This adds 4-6 lines per method and makes the business logic harder to read. Proposed approach: rely on the global error handler in the Express middleware to catch and log all errors. We'll remove the per-method try-catch blocks and let errors bubble up naturally. The global handler already logs errors with stack traces.",
     "context": "Codebase has 45 service methods, 15 of which have explicit try-catch blocks. The global error handler was added 6 months ago. Some try-catch blocks include context-specific error messages like 'Failed to create user: duplicate email' that get lost with generic handling.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "error handling"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "error handling"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-028",
-    "description": "Single engineer bottleneck with no knowledge sharing — should push back",
+    "description": "Single engineer bottleneck with no knowledge sharing \u2014 should push back",
     "decision": "Architecture Decision: Dave will be the sole owner of the new real-time notification system. He has the most experience with WebSockets and event-driven architectures. He'll design, implement, test, and maintain the system. To avoid conflicts and keep velocity high, other team members should not modify the notification codebase. Dave will handle all PRs, bug fixes, and feature requests for this service. Code reviews for notification changes will be optional since Dave is the domain expert.",
     "context": "Team of 5 engineers. Dave has been with the company for 4 years, others 1-2 years. The notification system is expected to be a critical part of the product, handling 50k events/day. Dave is also the on-call lead.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "bus factor"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "bus factor"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-029",
-    "description": "Ignoring tech debt indefinitely — should push back",
+    "description": "Ignoring tech debt indefinitely \u2014 should push back",
     "decision": "Backlog Grooming Decision: We're deprioritizing all tech debt issues for the next 3 quarters to focus entirely on new features. The product roadmap has 15 major features planned and stakeholders want them all by year-end. Tech debt items (38 issues) will remain in the backlog but won't be scheduled. We'll revisit tech debt in Q1 next year. Current velocity should increase once we stop spending time on refactoring.",
     "context": "Tech debt includes: 12 deprecated dependency upgrades, 8 code quality issues flagged by SonarQube, 6 performance optimizations, 5 security hardening items, 4 documentation gaps, 3 test coverage improvements. Some dependencies have known CVEs. Build times have increased 40% over the last 6 months.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "tech debt"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "tech debt"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-030",
-    "description": "No acceptance criteria on sprint issues — should push back",
-    "decision": "Sprint 11 Planning: We've selected 6 issues for the sprint. Issue titles: 'Improve search', 'Fix dashboard', 'Better error messages', 'Update API', 'Refactor auth', 'Add logging'. Each is estimated at 3 story points based on gut feeling. We'll define what 'done' means as we work on each issue — the developers know what needs to be done. Detailed acceptance criteria would slow down planning and we want to stay agile.",
+    "description": "No acceptance criteria on sprint issues \u2014 should push back",
+    "decision": "Sprint 11 Planning: We've selected 6 issues for the sprint. Issue titles: 'Improve search', 'Fix dashboard', 'Better error messages', 'Update API', 'Refactor auth', 'Add logging'. Each is estimated at 3 story points based on gut feeling. We'll define what 'done' means as we work on each issue \u2014 the developers know what needs to be done. Detailed acceptance criteria would slow down planning and we want to stay agile.",
     "context": "Sprint 10 had 2 issues rejected at review because the implementation didn't match what the product owner expected. One issue ('Improve notifications') was interpreted differently by the developer and the PM, resulting in a full redo in Sprint 11.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "acceptance criteria"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "acceptance criteria"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-031",
-    "description": "Storing passwords in plain text — should push back",
-    "decision": "User Authentication Implementation: For the MVP, we'll store user passwords directly in the database alongside the username. We'll add hashing later when we have time — the MVP is only for internal beta testers (about 20 people) so security isn't a major concern yet. Implementing bcrypt or argon2 adds complexity and would take an extra day that we don't have. We'll create a follow-up ticket for password hashing before public launch.",
+    "description": "Storing passwords in plain text \u2014 should push back",
+    "decision": "User Authentication Implementation: For the MVP, we'll store user passwords directly in the database alongside the username. We'll add hashing later when we have time \u2014 the MVP is only for internal beta testers (about 20 people) so security isn't a major concern yet. Implementing bcrypt or argon2 adds complexity and would take an extra day that we don't have. We'll create a follow-up ticket for password hashing before public launch.",
     "context": "Building an internal tool MVP for a 3-day hackathon demo. The tool will be deployed on the company's internal network. 20 beta testers will use their work email addresses to sign up. Plans to open to external users within 2 months.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "security"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "security"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-032",
-    "description": "Copying production data to dev environment — should push back",
+    "description": "Copying production data to dev environment \u2014 should push back",
     "decision": "Testing Strategy: To make our staging environment more realistic, we'll copy the full production database to staging every night via a cron job. This gives us real data patterns for testing, realistic data volumes, and catches edge cases we'd miss with synthetic data. The staging environment is behind a VPN so access is restricted to the development team. We'll use pg_dump/pg_restore for the nightly sync.",
     "context": "Production database contains 500k user records including names, email addresses, phone numbers, and payment method tokens. The application is subject to GDPR. Staging environment has 4 developers with access. No data masking or anonymization tools are currently in place.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "data"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "data"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-033",
-    "description": "Monolith with no separation of concerns — should push back",
-    "decision": "Architecture for New Product: We'll build the entire application as a single file — one main.ts that handles routing, database queries, business logic, authentication, and email sending. This keeps things simple and avoids the overhead of creating multiple files and modules. When the file gets too large, we'll refactor. For now, we want to move fast. Estimated size: about 2,000-3,000 lines of TypeScript.",
+    "description": "Monolith with no separation of concerns \u2014 should push back",
+    "decision": "Architecture for New Product: We'll build the entire application as a single file \u2014 one main.ts that handles routing, database queries, business logic, authentication, and email sending. This keeps things simple and avoids the overhead of creating multiple files and modules. When the file gets too large, we'll refactor. For now, we want to move fast. Estimated size: about 2,000-3,000 lines of TypeScript.",
     "context": "Building a B2B SaaS product with 12 planned API endpoints, user management, billing integration, and email notifications. Team of 3 engineers. Expected timeline: MVP in 6 weeks, production release in 12 weeks. The product will need to scale to handle hundreds of concurrent users.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-034",
-    "description": "Using outdated technology with known vulnerabilities — should push back",
+    "description": "Using outdated technology with known vulnerabilities \u2014 should push back",
     "decision": "Technology Choice: For the new microservice, we'll use Python 2.7 since our senior developer has 10 years of experience with it and can build the service faster. Python 3 has some syntax changes that would slow him down. We'll write the service in Python 2.7 and migrate to Python 3 'when we have time.' The service will handle internal API calls only, so the attack surface is limited.",
     "context": "Python 2.7 reached end of life in January 2020. The service will process customer data including billing information. The company's other 8 microservices all use Python 3.11. The senior developer is the only team member who prefers Python 2.7.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "end of life"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "end of life"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-035",
-    "description": "No logging or observability in production service — should push back",
+    "description": "No logging or observability in production service \u2014 should push back",
     "decision": "MVP Launch Plan: We'll launch the new API service without structured logging or monitoring. Adding Datadog or similar tooling would cost $200/month and take 2 days to set up. For the MVP phase, we'll SSH into the server and check console output if something goes wrong. We can add proper logging after we validate product-market fit. The service is stateless so we can always restart it if it crashes.",
     "context": "Service will handle user registration and authentication for up to 1,000 early adopters. It runs on a single EC2 instance. No auto-scaling, no load balancer. The team has 2 engineers, neither has on-call experience.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "logging"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "logging"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-036",
-    "description": "Bypassing code review for speed — should push back",
+    "description": "Bypassing code review for speed \u2014 should push back",
     "decision": "Process Change: To increase velocity, we're removing mandatory code reviews for PRs under 50 lines. Engineers can self-merge small changes after running tests locally. This should cut our PR-to-merge time from 4 hours to 15 minutes for small changes. We'll keep code reviews for PRs over 50 lines. This includes config changes, database migrations, and dependency updates as long as they're under 50 lines.",
     "context": "Team of 4 engineers. Last quarter, 3 production incidents were caused by small changes (typo in environment variable, wrong default value in config, incorrect SQL migration). Average PR size is 35 lines. 70% of PRs are under 50 lines.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "review"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "review"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-037",
-    "description": "Hardcoding secrets in source code — should push back",
+    "description": "Hardcoding secrets in source code \u2014 should push back",
     "decision": "Configuration Approach: For simplicity, we'll store API keys and database credentials directly in the config.ts file. We'll add a .gitignore entry for config.ts so it won't be committed. Each developer will create their own config.ts from a config.example.ts template. For production, we'll copy the config.ts file directly to the server via SCP. This avoids the complexity of setting up a secrets manager or environment variables.",
     "context": "Team of 5 developers. Git repository is on GitHub (private repo). CI/CD pipeline runs on GitHub Actions. Production runs on 3 EC2 instances behind a load balancer. The application integrates with Stripe, SendGrid, and AWS S3.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "secret"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "secret"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-038",
-    "description": "No backup strategy for production database — should push back",
-    "decision": "Database Operations: We've been running production PostgreSQL for 6 months without automated backups. The database is on a managed instance with high availability (primary + replica). Since we have a replica, we effectively have a backup. If the primary fails, the replica takes over automatically. We don't need point-in-time recovery because our data changes are all append-only — we never delete or update records. Setting up automated backups would cost an extra $50/month in storage.",
+    "description": "No backup strategy for production database \u2014 should push back",
+    "decision": "Database Operations: We've been running production PostgreSQL for 6 months without automated backups. The database is on a managed instance with high availability (primary + replica). Since we have a replica, we effectively have a backup. If the primary fails, the replica takes over automatically. We don't need point-in-time recovery because our data changes are all append-only \u2014 we never delete or update records. Setting up automated backups would cost an extra $50/month in storage.",
     "context": "Production database has 800k records, 15GB of data. No backup has ever been taken. The managed instance provider (RDS) offers automated backups as an opt-in feature. The data includes 3 years of customer transaction history required for compliance. One developer accidentally dropped a table in staging last month.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "backup"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "backup"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-039",
-    "description": "Premature optimization without measurements — should push back",
+    "description": "Premature optimization without measurements \u2014 should push back",
     "decision": "Performance Proposal: We should rewrite our REST API in Rust to improve performance. Our Node.js API has been 'feeling slow' and Rust is known for being faster. The rewrite would take approximately 4-6 sprints. We'll rewrite all 30 endpoints, the ORM layer, and the middleware stack. The team will learn Rust during the rewrite. Once complete, we expect 10x performance improvement based on Rust vs Node.js benchmarks we found online.",
     "context": "Current API handles 500 requests/minute with p99 latency of 200ms. No performance profiling has been done. The team has zero Rust experience. The application is CPU-bound for 5% of requests (report generation) and I/O-bound for the rest. No specific performance SLA has been defined by customers.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "premature"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "premature"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-040",
-    "description": "Ignoring accessibility requirements — should push back",
+    "description": "Ignoring accessibility requirements \u2014 should push back",
     "decision": "Frontend Development Guidelines: For the new dashboard, we'll focus exclusively on Chrome desktop users since that's 80% of our user base. We won't test on Firefox, Safari, or mobile browsers to save QA time. Accessibility features (ARIA labels, keyboard navigation, screen reader support) are nice-to-have and will be added in a future sprint if users request them. Color contrast ratios don't need to meet WCAG guidelines since our users are primarily young developers who don't have vision issues.",
     "context": "B2B SaaS product used by 500 companies. Three enterprise customers have explicitly asked about WCAG 2.1 AA compliance in their procurement questionnaires. The company's legal team flagged potential ADA compliance risks last quarter. Two competitors recently announced WCAG AA compliance.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "accessibility"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "accessibility"
+      ],
+      "mustNotContain": []
     }
   }
 ]

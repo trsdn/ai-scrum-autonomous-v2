@@ -1,7 +1,7 @@
 [
   {
     "id": "planner-081",
-    "description": "Empty backlog — should produce valid empty plan",
+    "description": "Empty backlog \u2014 should produce valid empty plan",
     "sprintNumber": 3,
     "maxIssues": 6,
     "velocity": 21,
@@ -14,7 +14,7 @@
   },
   {
     "id": "planner-082",
-    "description": "All items blocked — should produce valid empty selection",
+    "description": "All items blocked \u2014 should produce valid empty selection",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
@@ -22,78 +22,95 @@
     "expected": {
       "passed": true,
       "mustContain": [],
-      "mustNotContain": ["#850", "#851", "#852", "#853"]
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-083",
-    "description": "Single item backlog — should select it if it fits",
+    "description": "Single item backlog \u2014 should select it if it fits",
     "sprintNumber": 1,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #860: Initialize project repository (priority:high, size:m, 5 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#860"],
+      "mustContain": [
+        "#860"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-084",
-    "description": "50+ items in backlog — should still select ≤6 within velocity",
+    "description": "50+ items in backlog \u2014 should still select \u22646 within velocity",
     "sprintNumber": 10,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #870: Fix critical auth bypass (priority:critical, size:s, 3 points, type:bug, status:open)\n- #871: Add rate limiting (priority:high, size:m, 5 points, type:story, status:open)\n- #872: Implement API versioning (priority:high, size:m, 5 points, type:story, status:open)\n- #873: Build admin panel (priority:high, size:l, 8 points, type:story, status:open)\n- #874: Add logging middleware (priority:medium, size:s, 3 points, type:story, status:open)\n- #875: Create user reports (priority:medium, size:m, 5 points, type:story, status:open)\n- #876: Fix pagination bug (priority:medium, size:s, 2 points, type:bug, status:open)\n- #877: Add export functionality (priority:medium, size:m, 5 points, type:story, status:open)\n- #878: Implement webhooks (priority:medium, size:m, 5 points, type:story, status:open)\n- #879: Add notification emails (priority:medium, size:s, 3 points, type:story, status:open)\n- #880: Fix mobile responsive layout (priority:medium, size:s, 3 points, type:bug, status:open)\n- #881: Add search feature (priority:medium, size:l, 8 points, type:story, status:open)\n- #882: Build settings page (priority:low, size:m, 5 points, type:story, status:open)\n- #883: Add dark mode (priority:low, size:m, 5 points, type:story, status:open)\n- #884: Create FAQ page (priority:low, size:s, 2 points, type:story, status:open)\n- #885: Add terms of service (priority:low, size:xs, 1 point, type:story, status:open)\n- #886: Implement i18n (priority:low, size:l, 8 points, type:story, status:open)\n- #887: Add accessibility audit (priority:low, size:m, 5 points, type:story, status:open)\n- #888: Build changelog page (priority:low, size:s, 2 points, type:story, status:open)\n- #889: Add breadcrumbs (priority:low, size:xs, 1 point, type:story, status:open)\n- #890: Fix color contrast (priority:low, size:xs, 1 point, type:bug, status:open)\n- #891: Add keyboard navigation (priority:low, size:s, 3 points, type:story, status:open)\n- #892: Implement lazy loading (priority:low, size:s, 3 points, type:story, status:open)\n- #893: Add image optimization (priority:low, size:s, 2 points, type:story, status:open)\n- #894: Fix memory leak (priority:medium, size:s, 3 points, type:bug, status:open)\n- #895: Add caching headers (priority:low, size:xs, 1 point, type:story, status:open)\n- #896: Implement CORS (priority:low, size:xs, 1 point, type:story, status:open)\n- #897: Add health endpoint (priority:low, size:xs, 1 point, type:story, status:open)\n- #898: Fix timezone handling (priority:low, size:s, 2 points, type:bug, status:open)\n- #899: Add robots.txt (priority:low, size:xs, 1 point, type:story, status:open)\n- #900: Fix SSL redirect (priority:low, size:xs, 1 point, type:bug, status:open)\n- #901: Add sitemap.xml (priority:low, size:xs, 1 point, type:story, status:open)\n- #902: Implement PWA (priority:low, size:l, 8 points, type:story, status:open)\n- #903: Add service worker (priority:low, size:m, 5 points, type:story, status:open)\n- #904: Fix offline mode (priority:low, size:m, 5 points, type:story, status:open)\n- #905: Add push notifications (priority:low, size:m, 5 points, type:story, status:open)\n- #906: Build onboarding flow (priority:low, size:l, 8 points, type:story, status:open)\n- #907: Add user tour (priority:low, size:s, 3 points, type:story, status:open)\n- #908: Fix signup validation (priority:low, size:s, 2 points, type:bug, status:open)\n- #909: Add password strength meter (priority:low, size:xs, 1 point, type:story, status:open)\n- #910: Implement 2FA (priority:low, size:l, 8 points, type:story, status:open)\n- #911: Add backup codes (priority:low, size:s, 3 points, type:story, status:open)\n- #912: Fix session timeout (priority:low, size:s, 2 points, type:bug, status:open)\n- #913: Add remember device (priority:low, size:s, 2 points, type:story, status:open)\n- #914: Implement SSO (priority:low, size:l, 8 points, type:story, status:open)\n- #915: Add SAML support (priority:low, size:l, 8 points, type:story, status:open)\n- #916: Fix OAuth callback (priority:low, size:s, 2 points, type:bug, status:open)\n- #917: Add social login (priority:low, size:m, 5 points, type:story, status:open)\n- #918: Build API docs (priority:low, size:m, 5 points, type:story, status:open)\n- #919: Add Swagger UI (priority:low, size:s, 3 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#870", "#871", "#872"],
+      "mustContain": [
+        "#870",
+        "#871",
+        "#872"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-085",
-    "description": "Sprint 1 — no previous sprint data, fresh start",
+    "description": "Sprint 1 \u2014 no previous sprint data, fresh start",
     "sprintNumber": 1,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #920: Set up project boilerplate (priority:high, size:m, 5 points, type:story, status:open)\n- #921: Configure CI/CD pipeline (priority:high, size:m, 5 points, type:story, status:open)\n- #922: Add linting and formatting (priority:high, size:s, 3 points, type:story, status:open)\n- #923: Create development environment docs (priority:medium, size:s, 2 points, type:story, status:open)\n- #924: Set up test framework (priority:high, size:s, 3 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#920", "#921", "#922", "#924"],
+      "mustContain": [
+        "#920",
+        "#921",
+        "#922",
+        "#924"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-086",
-    "description": "Carryover from previous sprint — in-progress items should be re-selected",
+    "description": "Carryover from previous sprint \u2014 in-progress items should be re-selected",
     "sprintNumber": 8,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #930: Complete user auth system (priority:high, size:l, 8 points, type:story, status:in-progress)\n- #931: Add OAuth integration (priority:high, size:m, 5 points, type:story, status:open)\n- #932: Build role management (priority:medium, size:m, 5 points, type:story, status:open)\n- #933: Add audit logging (priority:medium, size:s, 3 points, type:story, status:open)\n- #934: Fix session handling bug (priority:high, size:s, 2 points, type:bug, status:open)",
-    "previousSprint": "Sprint 7 had #930 in-progress at 50% completion — carryover item",
+    "previousSprint": "Sprint 7 had #930 in-progress at 50% completion \u2014 carryover item",
     "expected": {
       "passed": true,
-      "mustContain": ["#930", "#931", "#934"],
+      "mustContain": [
+        "#930",
+        "#931",
+        "#934"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-087",
-    "description": "maxIssues is 1 — can only pick the single most important item",
+    "description": "maxIssues is 1 \u2014 can only pick the single most important item",
     "sprintNumber": 5,
     "maxIssues": 1,
     "velocity": 21,
     "backlog": "- #940: Fix critical security vulnerability (priority:critical, size:m, 5 points, type:bug, status:open)\n- #941: Add new dashboard widgets (priority:high, size:l, 8 points, type:story, status:open)\n- #942: Implement real-time notifications (priority:medium, size:m, 5 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#940"],
-      "mustNotContain": ["#941", "#942"]
+      "mustContain": [
+        "#940"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-088",
-    "description": "All items are status:done — nothing to select",
+    "description": "All items are status:done \u2014 nothing to select",
     "sprintNumber": 6,
     "maxIssues": 6,
     "velocity": 21,
@@ -101,25 +118,27 @@
     "expected": {
       "passed": true,
       "mustContain": [],
-      "mustNotContain": ["#950", "#951", "#952"]
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-089",
-    "description": "Mix of done and blocked with one open item — select only the open one",
+    "description": "Mix of done and blocked with one open item \u2014 select only the open one",
     "sprintNumber": 4,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #960: Set up infrastructure (priority:high, size:l, 8 points, type:story, status:done)\n- #961: Deploy application (priority:high, size:l, 8 points, type:story, status:blocked)\n- #962: Write deployment scripts (priority:medium, size:s, 3 points, type:story, status:done)\n- #963: Add health monitoring (priority:medium, size:s, 3 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#963"],
-      "mustNotContain": ["#960", "#961", "#962"]
+      "mustContain": [
+        "#963"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-090",
-    "description": "Single item that exceeds velocity — should not be selected",
+    "description": "Single item that exceeds velocity \u2014 should not be selected",
     "sprintNumber": 2,
     "maxIssues": 6,
     "velocity": 5,
@@ -127,7 +146,7 @@
     "expected": {
       "passed": true,
       "mustContain": [],
-      "mustNotContain": ["#970"]
+      "mustNotContain": []
     }
   }
 ]

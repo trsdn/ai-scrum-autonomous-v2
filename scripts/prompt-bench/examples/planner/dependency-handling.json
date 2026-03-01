@@ -1,7 +1,7 @@
 [
   {
     "id": "planner-026",
-    "description": "B depends on A — both should be selected with A first",
+    "description": "B depends on A \u2014 both should be selected with A first",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
@@ -9,13 +9,16 @@
     "dependencies": "#301 depends on #300",
     "expected": {
       "passed": true,
-      "mustContain": ["#300", "#301"],
+      "mustContain": [
+        "#300",
+        "#301"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-027",
-    "description": "Chain A→B→C — all should be selected in correct order",
+    "description": "Chain A\u2192B\u2192C \u2014 all should be selected in correct order",
     "sprintNumber": 4,
     "maxIssues": 6,
     "velocity": 21,
@@ -23,27 +26,34 @@
     "dependencies": "#311 depends on #310; #312 depends on #311",
     "expected": {
       "passed": true,
-      "mustContain": ["#310", "#311", "#312"],
+      "mustContain": [
+        "#310",
+        "#311",
+        "#312"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-028",
-    "description": "Issue depends on something outside the sprint — must not select dependent",
+    "description": "Issue depends on something outside the sprint \u2014 must not select dependent",
     "sprintNumber": 3,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #320: Add OAuth2 provider integration (priority:high, size:m, 5 points, type:story, status:open)\n- #321: Build SSO login page (priority:high, size:m, 5 points, type:story, status:open)\n- #322: Add password complexity rules (priority:medium, size:s, 3 points, type:story, status:open)",
-    "dependencies": "#321 depends on #999 (not in backlog — external dependency, not yet completed)",
+    "dependencies": "#321 depends on #999 (not in backlog \u2014 external dependency, not yet completed)",
     "expected": {
       "passed": true,
-      "mustContain": ["#320", "#322"],
-      "mustNotContain": ["#321"]
+      "mustContain": [
+        "#320",
+        "#322"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-029",
-    "description": "Two independent dependency pairs — both pairs selected",
+    "description": "Two independent dependency pairs \u2014 both pairs selected",
     "sprintNumber": 6,
     "maxIssues": 6,
     "velocity": 21,
@@ -51,13 +61,18 @@
     "dependencies": "#331 depends on #330; #333 depends on #332",
     "expected": {
       "passed": true,
-      "mustContain": ["#330", "#331", "#332", "#333"],
+      "mustContain": [
+        "#330",
+        "#331",
+        "#332",
+        "#333"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-030",
-    "description": "Dependency on blocked item — dependent should be excluded",
+    "description": "Dependency on blocked item \u2014 dependent should be excluded",
     "sprintNumber": 7,
     "maxIssues": 6,
     "velocity": 21,
@@ -65,13 +80,15 @@
     "dependencies": "#341 depends on #340; #343 depends on #340",
     "expected": {
       "passed": true,
-      "mustContain": ["#342"],
-      "mustNotContain": ["#340", "#341", "#343"]
+      "mustContain": [
+        "#342"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-031",
-    "description": "Long chain A→B→C→D exceeds velocity — select what fits",
+    "description": "Long chain A\u2192B\u2192C\u2192D exceeds velocity \u2014 select what fits",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
@@ -79,13 +96,16 @@
     "dependencies": "#351 depends on #350; #352 depends on #351; #353 depends on #352",
     "expected": {
       "passed": true,
-      "mustContain": ["#350", "#351"],
-      "mustNotContain": ["#353"]
+      "mustContain": [
+        "#350",
+        "#351"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-032",
-    "description": "Circular dependency — planner should detect and skip/flag circular items",
+    "description": "Circular dependency \u2014 planner should detect and skip/flag circular items",
     "sprintNumber": 4,
     "maxIssues": 6,
     "velocity": 21,
@@ -93,13 +113,16 @@
     "dependencies": "#360 depends on #361; #361 depends on #360 (circular dependency)",
     "expected": {
       "passed": true,
-      "mustContain": ["#362", "#363"],
+      "mustContain": [
+        "#362",
+        "#363"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-033",
-    "description": "Diamond dependency — A→B, A→C, B→D, C→D — all fit",
+    "description": "Diamond dependency \u2014 A\u2192B, A\u2192C, B\u2192D, C\u2192D \u2014 all fit",
     "sprintNumber": 8,
     "maxIssues": 6,
     "velocity": 21,
@@ -107,13 +130,17 @@
     "dependencies": "#371 depends on #370; #372 depends on #370; #373 depends on #371; #373 depends on #372",
     "expected": {
       "passed": true,
-      "mustContain": ["#370", "#371", "#372"],
+      "mustContain": [
+        "#370",
+        "#371",
+        "#372"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-034",
-    "description": "Dependency on done item — dependent can be selected",
+    "description": "Dependency on done item \u2014 dependent can be selected",
     "sprintNumber": 6,
     "maxIssues": 6,
     "velocity": 21,
@@ -121,13 +148,17 @@
     "dependencies": "#381 depends on #380 (already done)",
     "expected": {
       "passed": true,
-      "mustContain": ["#381", "#382", "#383"],
-      "mustNotContain": ["#380"]
+      "mustContain": [
+        "#381",
+        "#382",
+        "#383"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-035",
-    "description": "Multiple items depend on one root — root must be included",
+    "description": "Multiple items depend on one root \u2014 root must be included",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
@@ -135,13 +166,17 @@
     "dependencies": "#391 depends on #390; #392 depends on #390; #393 depends on #390; #394 depends on #390",
     "expected": {
       "passed": true,
-      "mustContain": ["#390", "#391", "#392"],
+      "mustContain": [
+        "#390",
+        "#391",
+        "#392"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-036",
-    "description": "Dependency chain where middle item is blocked — downstream excluded",
+    "description": "Dependency chain where middle item is blocked \u2014 downstream excluded",
     "sprintNumber": 7,
     "maxIssues": 6,
     "velocity": 21,
@@ -149,13 +184,16 @@
     "dependencies": "#401 depends on #400; #402 depends on #401",
     "expected": {
       "passed": true,
-      "mustContain": ["#400", "#404"],
-      "mustNotContain": ["#401", "#402"]
+      "mustContain": [
+        "#400",
+        "#404"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-037",
-    "description": "Independent and dependent items — select independent + satisfied deps",
+    "description": "Independent and dependent items \u2014 select independent + satisfied deps",
     "sprintNumber": 3,
     "maxIssues": 6,
     "velocity": 21,
@@ -163,13 +201,18 @@
     "dependencies": "#411 depends on #410; #413 depends on #412",
     "expected": {
       "passed": true,
-      "mustContain": ["#410", "#412", "#411", "#413"],
+      "mustContain": [
+        "#410",
+        "#412",
+        "#411",
+        "#413"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-038",
-    "description": "Dependency pulls in low-priority prerequisite — both should be selected",
+    "description": "Dependency pulls in low-priority prerequisite \u2014 both should be selected",
     "sprintNumber": 9,
     "maxIssues": 6,
     "velocity": 21,
@@ -177,13 +220,17 @@
     "dependencies": "#421 depends on #420; #422 depends on #420",
     "expected": {
       "passed": true,
-      "mustContain": ["#420", "#421", "#422"],
+      "mustContain": [
+        "#420",
+        "#421",
+        "#422"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-039",
-    "description": "Three-way circular dependency — all three should be skipped",
+    "description": "Three-way circular dependency \u2014 all three should be skipped",
     "sprintNumber": 4,
     "maxIssues": 6,
     "velocity": 21,
@@ -191,7 +238,10 @@
     "dependencies": "#430 depends on #432; #431 depends on #430; #432 depends on #431 (three-way circular)",
     "expected": {
       "passed": true,
-      "mustContain": ["#433", "#434"],
+      "mustContain": [
+        "#433",
+        "#434"
+      ],
       "mustNotContain": []
     }
   },
@@ -205,13 +255,17 @@
     "dependencies": "#441 depends on #440; #442 depends on #441",
     "expected": {
       "passed": true,
-      "mustContain": ["#440", "#441", "#442"],
-      "mustNotContain": ["#443"]
+      "mustContain": [
+        "#440",
+        "#441",
+        "#442"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-041",
-    "description": "Dependency on in-progress item from previous sprint — dependent is selectable",
+    "description": "Dependency on in-progress item from previous sprint \u2014 dependent is selectable",
     "sprintNumber": 8,
     "maxIssues": 6,
     "velocity": 21,
@@ -220,13 +274,16 @@
     "previousSprint": "Sprint 7 had #450 in-progress at 60% completion",
     "expected": {
       "passed": true,
-      "mustContain": ["#450", "#451"],
+      "mustContain": [
+        "#450",
+        "#451"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-042",
-    "description": "High-priority item depends on low-priority — both should be selected",
+    "description": "High-priority item depends on low-priority \u2014 both should be selected",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
@@ -234,13 +291,18 @@
     "dependencies": "#461 depends on #460",
     "expected": {
       "passed": true,
-      "mustContain": ["#460", "#461", "#462", "#463"],
+      "mustContain": [
+        "#460",
+        "#461",
+        "#462",
+        "#463"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-043",
-    "description": "Complex dependency graph — partial selection based on capacity",
+    "description": "Complex dependency graph \u2014 partial selection based on capacity",
     "sprintNumber": 7,
     "maxIssues": 6,
     "velocity": 21,
@@ -248,7 +310,9 @@
     "dependencies": "#471 depends on #470; #472 depends on #470; #473 depends on #471; #473 depends on #472",
     "expected": {
       "passed": true,
-      "mustContain": ["#470"],
+      "mustContain": [
+        "#470"
+      ],
       "mustNotContain": []
     }
   },
@@ -262,8 +326,11 @@
     "dependencies": "#481 depends on #480",
     "expected": {
       "passed": true,
-      "mustContain": ["#482", "#483"],
-      "mustNotContain": ["#480", "#481"]
+      "mustContain": [
+        "#482",
+        "#483"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -276,7 +343,11 @@
     "dependencies": "#490 depends on #289 (completed in previous sprint, status:done); #491 depends on #490",
     "expected": {
       "passed": true,
-      "mustContain": ["#490", "#491", "#492"],
+      "mustContain": [
+        "#490",
+        "#491",
+        "#492"
+      ],
       "mustNotContain": []
     }
   }

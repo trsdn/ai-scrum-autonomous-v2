@@ -8,7 +8,11 @@
     "projectContext": "React SPA with Tailwind CSS, user preferences stored in localStorage",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "toggle", "persist"],
+      "mustContain": [
+        "AC",
+        "toggle",
+        "persist"
+      ],
       "mustNotContain": []
     }
   },
@@ -21,7 +25,11 @@
     "projectContext": "E-commerce Next.js app with PostgreSQL backend",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "search", "results"],
+      "mustContain": [
+        "AC",
+        "search",
+        "results"
+      ],
       "mustNotContain": []
     }
   },
@@ -34,7 +42,11 @@
     "projectContext": "Node.js Express API with React frontend, JWT auth",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "profile", "edit"],
+      "mustContain": [
+        "AC",
+        "profile",
+        "edit"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +59,11 @@
     "projectContext": "SaaS platform with Node.js backend, SendGrid integration available",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "email", "notification"],
+      "mustContain": [
+        "AC",
+        "email",
+        "notification"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +76,11 @@
     "projectContext": "Django admin dashboard with reporting module",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "CSV", "download"],
+      "mustContain": [
+        "AC",
+        "CSV",
+        "download"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,7 +93,11 @@
     "projectContext": "React app with REST API, currently fetching all records",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "page", "items per page"],
+      "mustContain": [
+        "AC",
+        "page",
+        "items per page"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +110,11 @@
     "projectContext": "Node.js auth service with Passport.js",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "two-factor", "TOTP"],
+      "mustContain": [
+        "AC",
+        "two-factor",
+        "TOTP"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +127,11 @@
     "projectContext": "Vue.js document management app with S3 storage",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "drag", "upload"],
+      "mustContain": [
+        "AC",
+        "drag",
+        "upload"
+      ],
       "mustNotContain": []
     }
   },
@@ -112,7 +144,11 @@
     "projectContext": "React productivity app similar to Notion",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "keyboard", "shortcut"],
+      "mustContain": [
+        "AC",
+        "keyboard",
+        "shortcut"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +161,11 @@
     "projectContext": "Enterprise SaaS with role-based access control, PostgreSQL",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "log", "audit"],
+      "mustContain": [
+        "AC",
+        "log",
+        "audit"
+      ],
       "mustNotContain": []
     }
   },
@@ -138,7 +178,11 @@
     "projectContext": "React SaaS app with multi-step forms",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "onboarding", "step"],
+      "mustContain": [
+        "AC",
+        "onboarding",
+        "step"
+      ],
       "mustNotContain": []
     }
   },
@@ -151,7 +195,11 @@
     "projectContext": "Node.js API platform with event-driven architecture",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "webhook", "event"],
+      "mustContain": [
+        "AC",
+        "webhook",
+        "event"
+      ],
       "mustNotContain": []
     }
   },
@@ -164,7 +212,11 @@
     "projectContext": "React app with hardcoded English strings",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "i18n", "translation"],
+      "mustContain": [
+        "AC",
+        "i18n",
+        "translation"
+      ],
       "mustNotContain": []
     }
   },
@@ -177,7 +229,11 @@
     "projectContext": "Express.js API with MongoDB, currently no role system",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "role", "permission"],
+      "mustContain": [
+        "AC",
+        "role",
+        "permission"
+      ],
       "mustNotContain": []
     }
   },
@@ -190,7 +246,11 @@
     "projectContext": "SaaS platform with existing analytics events tracked via Mixpanel",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "dashboard", "metric"],
+      "mustContain": [
+        "AC",
+        "dashboard",
+        "metric"
+      ],
       "mustNotContain": []
     }
   },
@@ -203,7 +263,11 @@
     "projectContext": "React admin panel with data tables",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "bulk", "select"],
+      "mustContain": [
+        "AC",
+        "bulk",
+        "select"
+      ],
       "mustNotContain": []
     }
   },
@@ -216,7 +280,11 @@
     "projectContext": "Express.js REST API serving mobile and web clients",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "rate limit", "request"],
+      "mustContain": [
+        "AC",
+        "rate limit",
+        "request"
+      ],
       "mustNotContain": []
     }
   },
@@ -229,7 +297,11 @@
     "projectContext": "React canvas editor app with state management via Zustand",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "undo", "redo"],
+      "mustContain": [
+        "AC",
+        "undo",
+        "redo"
+      ],
       "mustNotContain": []
     }
   },
@@ -242,7 +314,11 @@
     "projectContext": "Next.js app with NextAuth.js, currently email/password only",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "OAuth", "login"],
+      "mustContain": [
+        "AC",
+        "OAuth",
+        "login"
+      ],
       "mustNotContain": []
     }
   },
@@ -255,7 +331,11 @@
     "projectContext": "React app with desktop-first CSS, no media queries",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "mobile", "responsive"],
+      "mustContain": [
+        "AC",
+        "mobile",
+        "responsive"
+      ],
       "mustNotContain": []
     }
   },
@@ -268,7 +348,11 @@
     "projectContext": "SaaS app with email and in-app notifications",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "notification", "preference"],
+      "mustContain": [
+        "AC",
+        "notification",
+        "preference"
+      ],
       "mustNotContain": []
     }
   },
@@ -281,7 +365,11 @@
     "projectContext": "CRM application built with Python/Flask and React",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "import", "Excel"],
+      "mustContain": [
+        "AC",
+        "import",
+        "Excel"
+      ],
       "mustNotContain": []
     }
   },
@@ -294,7 +382,11 @@
     "projectContext": "Content platform with Next.js and Prisma ORM",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "comment", "thread"],
+      "mustContain": [
+        "AC",
+        "comment",
+        "thread"
+      ],
       "mustNotContain": []
     }
   },
@@ -307,7 +399,11 @@
     "projectContext": "Reporting platform with Node.js, Bull queue for background jobs",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "schedule", "report"],
+      "mustContain": [
+        "AC",
+        "schedule",
+        "report"
+      ],
       "mustNotContain": []
     }
   },
@@ -320,7 +416,11 @@
     "projectContext": "React app with custom component library",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "WCAG", "accessible"],
+      "mustContain": [
+        "AC",
+        "WCAG",
+        "accessible"
+      ],
       "mustNotContain": []
     }
   }

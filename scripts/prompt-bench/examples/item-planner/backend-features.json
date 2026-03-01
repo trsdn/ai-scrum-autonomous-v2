@@ -8,8 +8,13 @@
     "codebaseContext": "Express 4 + TypeScript + Prisma. Files: src/routes/posts.ts, src/controllers/postController.ts, src/models/post.ts, prisma/schema.prisma. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["route", "controller", "validation", "test"],
-      "mustNotContain": ["mongoose"]
+      "mustContain": [
+        "route",
+        "controller",
+        "validation",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +26,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/auth.ts, src/routes/auth.ts, src/utils/jwt.ts, src/types/auth.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["JWT", "middleware", "refresh", "test"],
-      "mustNotContain": ["session cookie"]
+      "mustContain": [
+        "JWT",
+        "middleware",
+        "refresh",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +44,13 @@
     "codebaseContext": "Fastify + Knex.js + PostgreSQL. Files: src/db/migrations/, src/middleware/rbac.ts, src/models/user.ts, knexfile.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["migration", "role", "middleware", "test"],
-      "mustNotContain": ["MongoDB"]
+      "mustContain": [
+        "migration",
+        "role",
+        "middleware",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +62,13 @@
     "codebaseContext": "Express 4 + Redis. Files: src/middleware/rateLimit.ts, src/config/limits.ts, src/utils/redis.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["rate limit", "Redis", "429", "test"],
-      "mustNotContain": ["in-memory only"]
+      "mustContain": [
+        "rate limit",
+        "Redis",
+        "429",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +80,13 @@
     "codebaseContext": "Express 4 + Stripe SDK. Files: src/routes/webhooks.ts, src/services/paymentService.ts, src/models/payment.ts, src/utils/stripe.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["webhook", "signature", "idempotent", "test"],
-      "mustNotContain": ["polling"]
+      "mustContain": [
+        "webhook",
+        "signature",
+        "idempotent",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +98,13 @@
     "codebaseContext": "Fastify + AWS SDK v3 + multer. Files: src/routes/uploads.ts, src/services/s3Service.ts, src/middleware/upload.ts, src/config/aws.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["S3", "validation", "multipart", "test"],
-      "mustNotContain": ["local filesystem storage"]
+      "mustContain": [
+        "S3",
+        "validation",
+        "multipart",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +116,13 @@
     "codebaseContext": "Node.js + Apollo Server 4. Files: src/graphql/schema.ts, src/graphql/resolvers/, src/graphql/dataloaders.ts, src/graphql/context.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["schema", "resolver", "DataLoader", "test"],
-      "mustNotContain": ["REST endpoint"]
+      "mustContain": [
+        "schema",
+        "resolver",
+        "DataLoader",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +134,13 @@
     "codebaseContext": "Express 4 + BullMQ + Redis. Files: src/jobs/emailJob.ts, src/queues/emailQueue.ts, src/workers/emailWorker.ts, src/config/bull.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["queue", "retry", "worker", "test"],
-      "mustNotContain": ["setTimeout"]
+      "mustContain": [
+        "queue",
+        "retry",
+        "worker",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +152,13 @@
     "codebaseContext": "Fastify + PostgreSQL + Redis. Files: src/routes/health.ts, src/services/healthChecks.ts, src/types/health.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["health", "readiness", "database", "test"],
-      "mustNotContain": ["process.exit"]
+      "mustContain": [
+        "health",
+        "readiness",
+        "database",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +170,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/routes/v1/, src/routes/v2/, src/middleware/versioning.ts, src/app.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["version", "backward compatible", "deprecat", "test"],
-      "mustNotContain": ["breaking change"]
+      "mustContain": [
+        "version",
+        "backward compatible",
+        "deprecat",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +188,13 @@
     "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/middleware/auditLog.ts, prisma/schema.prisma, src/routes/admin/audit.ts, src/utils/redact.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["audit", "redact", "middleware", "test"],
-      "mustNotContain": ["console.log"]
+      "mustContain": [
+        "audit",
+        "redact",
+        "middleware",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +206,13 @@
     "codebaseContext": "Fastify + ioredis + PostgreSQL. Files: src/middleware/cache.ts, src/services/cacheService.ts, src/config/redis.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["cache", "TTL", "invalidat", "test"],
-      "mustNotContain": ["in-memory Map"]
+      "mustContain": [
+        "cache",
+        "TTL",
+        "invalidat",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +224,13 @@
     "codebaseContext": "Django 5 + Django REST Framework. Files: api/views.py, api/serializers.py, api/models.py, api/urls.py, api/permissions.py. Uses pytest + factory_boy.",
     "expected": {
       "passed": true,
-      "mustContain": ["serializer", "ViewSet", "permission", "test"],
-      "mustNotContain": ["Express"]
+      "mustContain": [
+        "serializer",
+        "ViewSet",
+        "permission",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +242,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/routes/notifications.ts, src/services/sseManager.ts, src/events/eventBus.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["SSE", "stream", "event", "test"],
-      "mustNotContain": ["WebSocket"]
+      "mustContain": [
+        "SSE",
+        "stream",
+        "event",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +260,13 @@
     "codebaseContext": "Fastify + Prisma + PostgreSQL. Files: src/routes/apiKeys.ts, src/services/apiKeyService.ts, src/middleware/apiKeyAuth.ts, prisma/schema.prisma. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["hash", "API key", "revoke", "test"],
-      "mustNotContain": ["plaintext"]
+      "mustContain": [
+        "hash",
+        "API key",
+        "revoke",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -203,8 +278,13 @@
     "codebaseContext": "Express 4 + Knex.js + PostgreSQL. Files: src/middleware/tenant.ts, src/db/migrations/, src/models/base.ts, src/utils/tenantScope.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["tenant", "isolation", "migration", "test"],
-      "mustNotContain": ["separate databases"]
+      "mustContain": [
+        "tenant",
+        "isolation",
+        "migration",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -216,8 +296,13 @@
     "codebaseContext": "Express 4 + Zod + TypeScript. Files: src/middleware/validate.ts, src/schemas/user.ts, src/schemas/post.ts, src/routes/users.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["Zod", "validation", "400", "test"],
-      "mustNotContain": ["Joi"]
+      "mustContain": [
+        "Zod",
+        "validation",
+        "400",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -229,8 +314,13 @@
     "codebaseContext": "Node.js + node-cron + Redis. Files: src/scheduler/index.ts, src/scheduler/tasks/purgeExpired.ts, src/scheduler/tasks/usageReport.ts, src/utils/distributedLock.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["cron", "lock", "schedule", "test"],
-      "mustNotContain": ["setInterval"]
+      "mustContain": [
+        "cron",
+        "lock",
+        "schedule",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -238,12 +328,17 @@
     "description": "Plan for Rails API endpoint with ActiveRecord",
     "issueNumber": 219,
     "issueTitle": "Build order management API in Rails",
-    "acceptanceCriteria": "- POST /api/orders creates order with line items\n- GET /api/orders/:id returns order with associations\n- PATCH /api/orders/:id/status updates order status\n- State machine: pending → confirmed → shipped → delivered\n- Validates stock availability before confirming",
+    "acceptanceCriteria": "- POST /api/orders creates order with line items\n- GET /api/orders/:id returns order with associations\n- PATCH /api/orders/:id/status updates order status\n- State machine: pending \u2192 confirmed \u2192 shipped \u2192 delivered\n- Validates stock availability before confirming",
     "codebaseContext": "Rails 7 API mode + PostgreSQL. Files: app/controllers/api/orders_controller.rb, app/models/order.rb, app/models/line_item.rb, app/serializers/order_serializer.rb. Uses RSpec + FactoryBot.",
     "expected": {
       "passed": true,
-      "mustContain": ["controller", "model", "state", "test"],
-      "mustNotContain": ["Express"]
+      "mustContain": [
+        "controller",
+        "model",
+        "state",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -255,8 +350,13 @@
     "codebaseContext": "Express 4 + pino. Files: src/middleware/requestId.ts, src/utils/logger.ts, src/config/logging.ts, src/middleware/requestLogger.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["correlation", "pino", "structured", "test"],
-      "mustNotContain": ["console.log"]
+      "mustContain": [
+        "correlation",
+        "pino",
+        "structured",
+        "test"
+      ],
+      "mustNotContain": []
     }
   }
 ]

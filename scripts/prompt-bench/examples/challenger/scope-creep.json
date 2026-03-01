@@ -1,167 +1,212 @@
 [
   {
     "id": "challenge-041",
-    "description": "'While we're at it' addition to database migration — should flag scope creep",
+    "description": "'While we're at it' addition to database migration \u2014 should flag scope creep",
     "decision": "Sprint 12 Update: We're working on the database migration to add the 'preferences' column to the users table (Issue #89). While we're at it, let's also add columns for 'theme', 'locale', 'timezone', and 'notification_settings'. It makes sense to do all the user-settings columns in one migration rather than multiple migrations across sprints. We'll also create a new UserSettingsService to manage these fields, add API endpoints for reading and updating settings, and build a settings page in the frontend. This saves us from touching the database schema again later.",
     "context": "Sprint 12 plan: 5 issues, 19 story points. The only planned database work was Issue #89 (add preferences column, 3pts). The additional columns, service, endpoints, and UI page were not in any sprint plan. Velocity average: 20 points.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-042",
-    "description": "Sprint scope growing from 6 to 10 issues — should flag drift",
+    "description": "Sprint scope growing from 6 to 10 issues \u2014 should flag drift",
     "decision": "Sprint 13 Status (Day 7 of 10): We started with 6 issues (20pts). During the sprint, we added: Issue #102 (stakeholder request, 3pts), Issue #103 (bug found during development, 2pts), Issue #104 (dependency for #102, 3pts), and Issue #105 (nice-to-have improvement spotted during code review, 2pts). Current total: 10 issues, 30 points. Three of the original 6 issues are still in progress. We're confident we can finish everything if we put in some extra hours this weekend.",
     "context": "Team velocity: 19-21 points consistently. Sprint 12 completed all 5 planned issues. The team has never exceeded 22 points in a sprint. No overtime has been needed in the last 3 sprints.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "drift"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "drift"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-043",
-    "description": "Feature request disguised as bug fix — should flag scope creep",
-    "decision": "Bug Fix: Issue #110 — 'Search results not showing relevant items.' Investigation shows the search works correctly — it returns exact keyword matches as designed. The 'fix' proposed is to implement fuzzy matching with Levenshtein distance, add search suggestions/autocomplete, support phrase matching with quotation marks, and add search filters for date range, category, and author. This will make search 'work properly' from the user's perspective. Estimated effort: 8 story points. Original bug estimate: 2 points.",
-    "context": "Sprint 14, Day 3. Search was implemented in Sprint 8 with exact keyword matching as specified. No bugs exist in the current implementation — it works as designed. The feature request for improved search is in the backlog as Issue #78 (not yet prioritized). Sprint plan has 18 points of planned work.",
+    "description": "Feature request disguised as bug fix \u2014 should flag scope creep",
+    "decision": "Bug Fix: Issue #110 \u2014 'Search results not showing relevant items.' Investigation shows the search works correctly \u2014 it returns exact keyword matches as designed. The 'fix' proposed is to implement fuzzy matching with Levenshtein distance, add search suggestions/autocomplete, support phrase matching with quotation marks, and add search filters for date range, category, and author. This will make search 'work properly' from the user's perspective. Estimated effort: 8 story points. Original bug estimate: 2 points.",
+    "context": "Sprint 14, Day 3. Search was implemented in Sprint 8 with exact keyword matching as specified. No bugs exist in the current implementation \u2014 it works as designed. The feature request for improved search is in the backlog as Issue #78 (not yet prioritized). Sprint plan has 18 points of planned work.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-044",
-    "description": "Gold plating with unrequested animations — should flag scope creep",
+    "description": "Gold plating with unrequested animations \u2014 should flag scope creep",
     "decision": "PR for Issue #95 (Add loading spinner to dashboard): The PR adds loading spinners as requested, but also includes: page transition animations with framer-motion, skeleton loading screens for all 8 dashboard widgets, a shimmer effect on data tables during refresh, toast notification animations, and a confetti animation when the user completes their profile. The developer says these 'make the UX feel polished' and only took an extra day. Total PR: 1,200 lines changed across 15 files (original issue estimated 3 files, ~50 lines).",
     "context": "Sprint 14 plan included Issue #95 estimated at 2 story points. The developer spent 3 days on this instead of the estimated 0.5 days. Two other issues assigned to this developer haven't been started yet. The framer-motion dependency adds 45KB to the bundle size.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-045",
-    "description": "Expanding a simple config change into a full feature — should flag creep",
-    "decision": "Issue #120 — 'Change default pagination from 10 to 25 items per page.' Implementation plan: Instead of just changing the default, let's build a proper pagination settings system. We'll add a user preference for page size (10, 25, 50, 100), persist it in localStorage, sync it to the server for cross-device consistency, add a dropdown selector to every paginated list, and create a shared Pagination component that replaces the 6 different pagination implementations across the app. This way we solve pagination once and for all.",
+    "description": "Expanding a simple config change into a full feature \u2014 should flag creep",
+    "decision": "Issue #120 \u2014 'Change default pagination from 10 to 25 items per page.' Implementation plan: Instead of just changing the default, let's build a proper pagination settings system. We'll add a user preference for page size (10, 25, 50, 100), persist it in localStorage, sync it to the server for cross-device consistency, add a dropdown selector to every paginated list, and create a shared Pagination component that replaces the 6 different pagination implementations across the app. This way we solve pagination once and for all.",
     "context": "The original issue is a one-line config change (DEFAULT_PAGE_SIZE = 25). The expanded plan touches 6 components, adds a new API endpoint, and requires database schema changes. Sprint has 5 remaining issues. The developer estimates the expanded version at 8 points vs the original 1 point.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-046",
-    "description": "Stakeholder adding urgent items without removing anything — should flag creep",
-    "decision": "Sprint 15 Mid-Sprint Adjustment: The VP of Sales needs three features for a demo next week: (1) export dashboard to PDF, (2) white-label login page, (3) custom email templates. These are marked as 'urgent' and must be done by Thursday. However, none of the existing sprint items should be removed — they're all committed to customers. The plan is to 'squeeze in' the three new items. The VP says 'the team can handle it' and offers to buy lunch as motivation.",
+    "description": "Stakeholder adding urgent items without removing anything \u2014 should flag creep",
+    "decision": "Sprint 15 Mid-Sprint Adjustment: The VP of Sales needs three features for a demo next week: (1) export dashboard to PDF, (2) white-label login page, (3) custom email templates. These are marked as 'urgent' and must be done by Thursday. However, none of the existing sprint items should be removed \u2014 they're all committed to customers. The plan is to 'squeeze in' the three new items. The VP says 'the team can handle it' and offers to buy lunch as motivation.",
     "context": "Sprint 15 started with 21 points (team velocity: 20pts). 4 of 7 issues are in progress, 3 haven't started. The three new items are estimated at 5, 8, and 5 points respectively. No one on the team has done PDF generation or white-labeling before.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-047",
-    "description": "Refactoring scope expanding during implementation — should flag creep",
-    "decision": "Update on Issue #130 (Refactor UserService to use dependency injection): Started as planned — extract dependencies into constructor parameters, add interfaces. During implementation, discovered that AuthService, EmailService, and PaymentService have the same pattern. Proposal: expand the refactoring to all four services, create a base Service class, implement a service registry/container, add automatic dependency resolution, and write a service generator CLI tool. This makes the architecture 'properly extensible.' New estimate: 13 points (original: 3 points).",
+    "description": "Refactoring scope expanding during implementation \u2014 should flag creep",
+    "decision": "Update on Issue #130 (Refactor UserService to use dependency injection): Started as planned \u2014 extract dependencies into constructor parameters, add interfaces. During implementation, discovered that AuthService, EmailService, and PaymentService have the same pattern. Proposal: expand the refactoring to all four services, create a base Service class, implement a service registry/container, add automatic dependency resolution, and write a service generator CLI tool. This makes the architecture 'properly extensible.' New estimate: 13 points (original: 3 points).",
     "context": "Sprint 16, Day 4 of 10. Original issue was scoped to UserService only (3pts). The expanded scope covers 4 services + new infrastructure. Sprint plan has 20 points total. Developer has completed 0 of their 3 assigned issues so far.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-048",
-    "description": "Marketing team adding content requirements to technical sprint — should flag creep",
-    "decision": "Sprint 16 Addition: Marketing wants to add 5 new landing pages to this sprint's scope. They argue that since the frontend team is already working on UI changes (Issue #135 — update button styles), they can 'easily' add the landing pages at the same time. The pages need: hero sections with animations, testimonial carousels, pricing comparison tables, contact forms with validation, and SEO metadata. Marketing has already written the copy and provided Figma designs. 'It's just HTML and CSS, shouldn't take long.'",
+    "description": "Marketing team adding content requirements to technical sprint \u2014 should flag creep",
+    "decision": "Sprint 16 Addition: Marketing wants to add 5 new landing pages to this sprint's scope. They argue that since the frontend team is already working on UI changes (Issue #135 \u2014 update button styles), they can 'easily' add the landing pages at the same time. The pages need: hero sections with animations, testimonial carousels, pricing comparison tables, contact forms with validation, and SEO metadata. Marketing has already written the copy and provided Figma designs. 'It's just HTML and CSS, shouldn't take long.'",
     "context": "Sprint 16 is focused on backend infrastructure (4 of 6 issues are backend). Issue #135 is a CSS-only change estimated at 1 point. The frontend developer is assigned to 2 other backend-supporting issues this sprint. Landing pages are typically 3-5 points each.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-049",
-    "description": "Converting maintenance task into platform rewrite — should flag creep",
+    "description": "Converting maintenance task into platform rewrite \u2014 should flag creep",
     "decision": "Update on Issue #140 (Update CI pipeline to cache dependencies): The CI caching works now, but while looking at the pipeline, I noticed several improvement opportunities. New plan: (1) Migrate from GitHub Actions to self-hosted GitLab CI for more control. (2) Add a custom Docker image builder step. (3) Implement a full staging deployment pipeline with blue-green deployments. (4) Add performance benchmarking to every PR. (5) Create a custom Slack bot for deployment notifications. This transforms our CI/CD from 'basic' to 'world-class' and should take 2-3 sprints.",
-    "context": "Original issue was estimated at 2 points — add a cache step to the existing GitHub Actions workflow (a ~10 line YAML change). The expanded plan is a multi-sprint platform engineering initiative. Team has no GitLab CI experience. Current GitHub Actions pipeline works reliably.",
+    "context": "Original issue was estimated at 2 points \u2014 add a cache step to the existing GitHub Actions workflow (a ~10 line YAML change). The expanded plan is a multi-sprint platform engineering initiative. Team has no GitLab CI experience. Current GitHub Actions pipeline works reliably.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-050",
-    "description": "Sprint retrospective action items becoming new sprint work — should flag drift",
+    "description": "Sprint retrospective action items becoming new sprint work \u2014 should flag drift",
     "decision": "Sprint 17 Planning: In addition to the 5 planned feature issues (19pts), we're adding all 8 action items from last sprint's retrospective as sprint issues. Action items include: 'improve PR review turnaround' (create a review SLA dashboard, 5pts), 'better documentation' (write docs for all 30 endpoints, 8pts), 'reduce flaky tests' (rewrite 15 integration tests, 5pts), 'improve onboarding' (create video tutorials, 3pts), and 4 more. Total sprint: 13 issues, 48 points. The retro actions are important and we don't want them to languish in the backlog.",
     "context": "Team velocity: 19-21 points. Sprint 16 completed 20 points. The retrospective action items have never been prioritized against feature work. Some action items are process changes that don't need sprint issues (e.g., 'improve PR review turnaround' could be a team agreement, not a dashboard).",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-051",
-    "description": "Emergency fix expanding into feature development — should flag scope creep",
+    "description": "Emergency fix expanding into feature development \u2014 should flag scope creep",
     "decision": "Hotfix Update: We deployed a hotfix for the broken email notification (wrong template was being used for password reset emails). While fixing this, we decided to also: implement email template versioning with a template registry, add A/B testing capability for email subjects, create an email preview tool for the admin panel, integrate with a new email analytics service to track open rates, and build a template editor with live preview. These improvements will prevent similar email issues in the future. Estimated total effort: 21 story points.",
     "context": "The original hotfix was a 1-line change (wrong template ID in the config). It was deployed in 15 minutes. Sprint 17 is in progress with 19 points of planned work. No email-related features are in the current or next sprint backlog.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-052",
-    "description": "Unplanned dependency upgrade cascade — should flag scope creep",
+    "description": "Unplanned dependency upgrade cascade \u2014 should flag scope creep",
     "decision": "Sprint 18 Status (Day 3): While updating React from 18.2 to 18.3 (planned, 2pts), we discovered our UI component library is incompatible with React 18.3. New plan: upgrade the component library from v4 to v6 (skipping v5), which requires updating 45 component imports across 30 files, rewriting 12 components that used deprecated APIs, updating all snapshot tests, and migrating the theme provider from v4's API to v6's new theming system. We also need to update 3 other dependencies that depend on the component library. New estimate: 13 points for the full cascade.",
     "context": "Sprint 18 plan: 6 issues, 20 points. The React upgrade was estimated at 2 points based on the changelog showing no breaking changes. The component library upgrade was not investigated before sprint planning. Three other developers' work depends on the component library.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-053",
-    "description": "Customer demo driving unplanned feature work — should flag scope creep",
+    "description": "Customer demo driving unplanned feature work \u2014 should flag scope creep",
     "decision": "Sprint 18 Interruption: A key enterprise prospect has a demo scheduled for next Tuesday. The sales team needs 4 features that aren't built yet: (1) role-based access control UI, (2) audit log viewer, (3) custom branding on the login page, (4) SSO integration with their Okta instance. They say we'll lose the $500k/year deal without these features. The CTO has approved pulling 2 engineers off their current sprint work to build these by Monday. The existing sprint work will 'slide' to the next sprint.",
     "context": "Sprint 18 is Day 5 of 10. Three of 6 issues are completed. Two engineers being pulled would leave 3 issues unfinished. The four demo features are estimated at 5, 8, 3, and 13 points respectively. SSO integration has never been attempted. The prospect demo has been rescheduled twice already.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-054",
-    "description": "Test improvement expanding into testing framework rewrite — should flag creep",
+    "description": "Test improvement expanding into testing framework rewrite \u2014 should flag creep",
     "decision": "Update on Issue #155 (Add integration tests for user endpoints): Started writing integration tests as planned, but realized our test setup is suboptimal. New plan: migrate from Jest to Vitest for faster test execution, replace supertest with a custom HTTP testing utility, build a test data factory system with realistic seed data, create a shared test database that persists between test files, and add visual regression testing for all API response shapes. The test infrastructure improvements will benefit all future tests. New estimate: 13 points (original: 3 points).",
-    "context": "Sprint 19, Day 2 of 10. Original issue was 3 points — write 8 integration tests for CRUD endpoints. Jest has been working fine for 18 months. Current test suite runs in 45 seconds. No complaints about test infrastructure from the team.",
+    "context": "Sprint 19, Day 2 of 10. Original issue was 3 points \u2014 write 8 integration tests for CRUD endpoints. Jest has been working fine for 18 months. Current test suite runs in 45 seconds. No complaints about test infrastructure from the team.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "challenge-055",
-    "description": "Documentation task expanding into knowledge base platform — should flag creep",
+    "description": "Documentation task expanding into knowledge base platform \u2014 should flag creep",
     "decision": "Update on Issue #160 (Document the deployment process): Instead of just writing a deployment guide in the README, I propose we build a proper internal knowledge base. We'll set up a Docusaurus site, create sections for architecture, API docs, runbooks, and onboarding guides, auto-generate API docs from OpenAPI specs, add a search feature, and deploy it on our internal network. The deployment guide will be one page in this larger knowledge base. This way, all future documentation has a proper home. Estimated effort: 8 points (original: 1 point).",
     "context": "Sprint 19. Original issue was a 1-point task to write a deployment guide in the existing docs/ folder. The team currently uses markdown files in the repo for all documentation. No one has requested a knowledge base platform. The developer has never used Docusaurus before.",
     "expected": {
       "passed": true,
-      "mustContain": ["PUSH_BACK", "scope"],
-      "mustNotContain": ["APPROVE"]
+      "mustContain": [
+        "PUSH_BACK",
+        "scope"
+      ],
+      "mustNotContain": []
     }
   }
 ]

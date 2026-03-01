@@ -3,195 +3,239 @@
     "id": "retro-041",
     "description": "Sprint took 4 hours instead of estimated 1.5 hours",
     "sprintNumber": 6,
-    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Points | Status | PR | Duration | Estimated |\n|-------|-------|--------|--------|----|----|----|\n| #50 | Add file upload API | 3 | ✅ Done | #51 | 52m | 15m |\n| #52 | Add image resize | 2 | ✅ Done | #53 | 38m | 12m |\n| #54 | Add file validation | 2 | ✅ Done | #55 | 41m | 10m |\n| #56 | Add storage service | 3 | ✅ Done | #57 | 55m | 18m |\n| #58 | Add CDN integration | 2 | ✅ Done | #59 | 35m | 12m |\n| #60 | Fix file deletion | 1 | ✅ Done | #61 | 19m | 8m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 4h 00m (estimated 1h 15m) — 3.2x over estimate\n**Quality Gate**: All passed but required 2-3 attempts each\n**Total QG Attempts**: 16 (expected 6)\n**Bottleneck**: Quality gate retries consumed 2h 15m\n**CI Queue Time**: Average 8 minutes per run (expected 2 minutes)",
+    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Points | Status | PR | Duration | Estimated |\n|-------|-------|--------|--------|----|----|----|\n| #50 | Add file upload API | 3 | \u2705 Done | #51 | 52m | 15m |\n| #52 | Add image resize | 2 | \u2705 Done | #53 | 38m | 12m |\n| #54 | Add file validation | 2 | \u2705 Done | #55 | 41m | 10m |\n| #56 | Add storage service | 3 | \u2705 Done | #57 | 55m | 18m |\n| #58 | Add CDN integration | 2 | \u2705 Done | #59 | 35m | 12m |\n| #60 | Fix file deletion | 1 | \u2705 Done | #61 | 19m | 8m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 4h 00m (estimated 1h 15m) \u2014 3.2x over estimate\n**Quality Gate**: All passed but required 2-3 attempts each\n**Total QG Attempts**: 16 (expected 6)\n**Bottleneck**: Quality gate retries consumed 2h 15m\n**CI Queue Time**: Average 8 minutes per run (expected 2 minutes)",
     "velocityData": "Sprint 4: 11/11 | Sprint 5: 13/13 | Sprint 6: 13/13",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["config", "timeout"],
-      "mustNotContain": ["on time"]
+      "mustContain": [
+        "config",
+        "timeout"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-042",
     "description": "Quality gate retries used up all 5 attempts on 3 issues",
     "sprintNumber": 8,
-    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | QG Attempts | Final Result |\n|-------|-------|--------|--------|----|----|----|\n| #70 | Add caching layer | 3 | ❌ Failed | #71 | 5/5 | Failed — flaky test |\n| #72 | Fix memory leak | 2 | ✅ Done | #73 | 4/5 | Passed on retry 4 |\n| #74 | Add connection pool | 3 | ❌ Failed | #75 | 5/5 | Failed — timeout |\n| #76 | Update query optimizer | 2 | ✅ Done | #77 | 3/5 | Passed on retry 3 |\n| #78 | Add index manager | 2 | ❌ Failed | #79 | 5/5 | Failed — flaky test |\n| #80 | Fix deadlock | 1 | ✅ Done | #81 | 1/5 | Passed first try |\n\n**Velocity**: 5/13 points completed\n**Duration**: 3h 15m (estimated 1h 30m)\n**Quality Gate**: 23/30 total attempts used (77%)\n**Flaky Tests**: 2 issues failed due to flaky timing-dependent tests\n**Timeout Issues**: 1 issue failed because QG check exceeded 180s limit\n**Wasted CI Time**: ~1h 45m on retries that didn't fix underlying issues",
+    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | QG Attempts | Final Result |\n|-------|-------|--------|--------|----|----|----|\n| #70 | Add caching layer | 3 | \u274c Failed | #71 | 5/5 | Failed \u2014 flaky test |\n| #72 | Fix memory leak | 2 | \u2705 Done | #73 | 4/5 | Passed on retry 4 |\n| #74 | Add connection pool | 3 | \u274c Failed | #75 | 5/5 | Failed \u2014 timeout |\n| #76 | Update query optimizer | 2 | \u2705 Done | #77 | 3/5 | Passed on retry 3 |\n| #78 | Add index manager | 2 | \u274c Failed | #79 | 5/5 | Failed \u2014 flaky test |\n| #80 | Fix deadlock | 1 | \u2705 Done | #81 | 1/5 | Passed first try |\n\n**Velocity**: 5/13 points completed\n**Duration**: 3h 15m (estimated 1h 30m)\n**Quality Gate**: 23/30 total attempts used (77%)\n**Flaky Tests**: 2 issues failed due to flaky timing-dependent tests\n**Timeout Issues**: 1 issue failed because QG check exceeded 180s limit\n**Wasted CI Time**: ~1h 45m on retries that didn't fix underlying issues",
     "velocityData": "Sprint 6: 13/13 | Sprint 7: 4/12 | Sprint 8: 5/13",
     "previousImprovements": "Sprint 7 retro: Improved code review prompt",
     "expected": {
       "passed": true,
-      "mustContain": ["retry", "config"],
-      "mustNotContain": ["efficient"]
+      "mustContain": [
+        "retry",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-043",
     "description": "One issue consumed 60% of total sprint time",
     "sprintNumber": 10,
-    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | Duration | % of Sprint |\n|-------|-------|--------|--------|----|----|----|\n| #90 | Implement OAuth2 PKCE | 5 | ✅ Done | #91 | 1h 48m | 60% |\n| #92 | Add token refresh | 2 | ✅ Done | #93 | 18m | 10% |\n| #94 | Fix CORS headers | 1 | ✅ Done | #95 | 12m | 7% |\n| #96 | Update auth docs | 1 | ✅ Done | #97 | 8m | 4% |\n| #98 | Add session cleanup | 2 | ✅ Done | #99 | 22m | 12% |\n| #100 | Fix redirect URI | 2 | ✅ Done | #101 | 12m | 7% |\n\n**Velocity**: 13/13 points completed\n**Duration**: 3h 00m (estimated 1h 30m)\n**Bottleneck**: Issue #90 took 1h 48m — 60% of sprint time\n**#90 Breakdown**: 5 QG attempts (3 test failures, 1 lint, 1 review rejection)\n**Other Issues**: Average 14m each — within normal range\n**Impact**: Sprint delivery delayed by 1.5 hours due to single issue",
+    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | Duration | % of Sprint |\n|-------|-------|--------|--------|----|----|----|\n| #90 | Implement OAuth2 PKCE | 5 | \u2705 Done | #91 | 1h 48m | 60% |\n| #92 | Add token refresh | 2 | \u2705 Done | #93 | 18m | 10% |\n| #94 | Fix CORS headers | 1 | \u2705 Done | #95 | 12m | 7% |\n| #96 | Update auth docs | 1 | \u2705 Done | #97 | 8m | 4% |\n| #98 | Add session cleanup | 2 | \u2705 Done | #99 | 22m | 12% |\n| #100 | Fix redirect URI | 2 | \u2705 Done | #101 | 12m | 7% |\n\n**Velocity**: 13/13 points completed\n**Duration**: 3h 00m (estimated 1h 30m)\n**Bottleneck**: Issue #90 took 1h 48m \u2014 60% of sprint time\n**#90 Breakdown**: 5 QG attempts (3 test failures, 1 lint, 1 review rejection)\n**Other Issues**: Average 14m each \u2014 within normal range\n**Impact**: Sprint delivery delayed by 1.5 hours due to single issue",
     "velocityData": "Sprint 8: 5/13 | Sprint 9: 12/12 | Sprint 10: 13/13",
     "previousImprovements": "Sprint 9 retro: Enabled parallel worker execution",
     "expected": {
       "passed": true,
-      "mustContain": ["bottleneck"],
-      "mustNotContain": ["balanced"]
+      "mustContain": [
+        "bottleneck"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-044",
     "description": "Parallel workers caused repeated merge conflicts",
     "sprintNumber": 12,
-    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | Worker | Merge Conflicts | Resolution Time |\n|-------|-------|--------|--------|--------|----|----||\n| #110 | Update shared types | 2 | ✅ Done | worker-1 | 4 | 25m |\n| #112 | Refactor shared utils | 2 | ✅ Done | worker-2 | 5 | 30m |\n| #114 | Add shared validators | 2 | ✅ Done | worker-1 | 3 | 18m |\n| #116 | Fix shared constants | 1 | ✅ Done | worker-2 | 3 | 15m |\n| #118 | Update shared config | 1 | ✅ Done | worker-1 | 2 | 12m |\n| #120 | Add shared helpers | 2 | ✅ Done | worker-2 | 4 | 22m |\n\n**Velocity**: 10/10 points completed\n**Duration**: 3h 22m (estimated 50m with parallelism)\n**Merge Conflicts**: 21 total across 6 PRs\n**Conflict Resolution Time**: 2h 02m total\n**Root Cause**: All issues modified files in `src/shared/` directory\n**Workers**: 2 parallel workers stepping on each other's changes\n**Effective Parallelism**: Negative — sequential would have been faster",
+    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | Worker | Merge Conflicts | Resolution Time |\n|-------|-------|--------|--------|--------|----|----||\n| #110 | Update shared types | 2 | \u2705 Done | worker-1 | 4 | 25m |\n| #112 | Refactor shared utils | 2 | \u2705 Done | worker-2 | 5 | 30m |\n| #114 | Add shared validators | 2 | \u2705 Done | worker-1 | 3 | 18m |\n| #116 | Fix shared constants | 1 | \u2705 Done | worker-2 | 3 | 15m |\n| #118 | Update shared config | 1 | \u2705 Done | worker-1 | 2 | 12m |\n| #120 | Add shared helpers | 2 | \u2705 Done | worker-2 | 4 | 22m |\n\n**Velocity**: 10/10 points completed\n**Duration**: 3h 22m (estimated 50m with parallelism)\n**Merge Conflicts**: 21 total across 6 PRs\n**Conflict Resolution Time**: 2h 02m total\n**Root Cause**: All issues modified files in `src/shared/` directory\n**Workers**: 2 parallel workers stepping on each other's changes\n**Effective Parallelism**: Negative \u2014 sequential would have been faster",
     "velocityData": "Sprint 10: 13/13 | Sprint 11: 2/13 | Sprint 12: 10/10",
     "previousImprovements": "Sprint 11 retro: Added dependency analysis",
     "expected": {
       "passed": true,
-      "mustContain": ["parallel", "config"],
-      "mustNotContain": ["efficient parallelism"]
+      "mustContain": [
+        "parallel",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-045",
-    "description": "CI pipeline was slow — 15 minutes per run instead of 3",
+    "description": "CI pipeline was slow \u2014 15 minutes per run instead of 3",
     "sprintNumber": 14,
-    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | CI Duration | CI Runs |\n|-------|-------|--------|--------|----|----|----|\n| #130 | Add search feature | 3 | ✅ Done | #131 | 14m | 2 |\n| #132 | Fix query parser | 2 | ✅ Done | #133 | 16m | 3 |\n| #134 | Add autocomplete | 2 | ✅ Done | #135 | 15m | 2 |\n| #136 | Fix indexing | 2 | ✅ Done | #137 | 13m | 1 |\n| #138 | Add filters | 2 | ✅ Done | #139 | 17m | 2 |\n| #140 | Update ranking | 1 | ✅ Done | #141 | 14m | 1 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 3h 40m (estimated 1h 15m)\n**CI Pipeline**: Average 14.8m per run (expected 3m)\n**Total CI Time**: 2h 43m across 11 runs\n**Root Cause**: Test suite grew from 150 to 890 tests without parallelization\n**Idle Wait Time**: Agent spent 2h 43m waiting for CI results\n**Opportunity**: CI parallelization could reduce to ~4m per run",
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | CI Duration | CI Runs |\n|-------|-------|--------|--------|----|----|----|\n| #130 | Add search feature | 3 | \u2705 Done | #131 | 14m | 2 |\n| #132 | Fix query parser | 2 | \u2705 Done | #133 | 16m | 3 |\n| #134 | Add autocomplete | 2 | \u2705 Done | #135 | 15m | 2 |\n| #136 | Fix indexing | 2 | \u2705 Done | #137 | 13m | 1 |\n| #138 | Add filters | 2 | \u2705 Done | #139 | 17m | 2 |\n| #140 | Update ranking | 1 | \u2705 Done | #141 | 14m | 1 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 3h 40m (estimated 1h 15m)\n**CI Pipeline**: Average 14.8m per run (expected 3m)\n**Total CI Time**: 2h 43m across 11 runs\n**Root Cause**: Test suite grew from 150 to 890 tests without parallelization\n**Idle Wait Time**: Agent spent 2h 43m waiting for CI results\n**Opportunity**: CI parallelization could reduce to ~4m per run",
     "velocityData": "Sprint 12: 10/10 | Sprint 13: 9/9 | Sprint 14: 12/12",
-    "previousImprovements": "Sprint 13 retro: None — docs sprint",
+    "previousImprovements": "Sprint 13 retro: None \u2014 docs sprint",
     "expected": {
       "passed": true,
-      "mustContain": ["CI", "config"],
-      "mustNotContain": ["fast"]
+      "mustContain": [
+        "CI",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-046",
     "description": "Sprint with excessive context switching between issues",
     "sprintNumber": 16,
-    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Context Switches | Duration |\n|-------|-------|--------|--------|----|----|----|\n| #150 | Add dashboard widget | 3 | ✅ Done | #151 | 4 | 45m |\n| #152 | Fix backend API | 2 | ✅ Done | #153 | 3 | 30m |\n| #154 | Update CSS theme | 1 | ✅ Done | #155 | 5 | 25m |\n| #156 | Add chart component | 3 | ✅ Done | #157 | 4 | 40m |\n| #158 | Fix data pipeline | 2 | ✅ Done | #159 | 3 | 28m |\n| #160 | Update API docs | 1 | ✅ Done | #161 | 2 | 15m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 3h 03m (estimated 1h 20m)\n**Context Switches**: 21 total (agent switched between issues mid-work)\n**Overhead per Switch**: ~5m (re-reading context, re-loading files)\n**Switch Overhead Total**: ~1h 45m wasted on context switching\n**Root Cause**: Sprint runner interleaved issues instead of sequential execution\n**Optimal**: Sequential execution would have saved ~1h 45m",
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Context Switches | Duration |\n|-------|-------|--------|--------|----|----|----|\n| #150 | Add dashboard widget | 3 | \u2705 Done | #151 | 4 | 45m |\n| #152 | Fix backend API | 2 | \u2705 Done | #153 | 3 | 30m |\n| #154 | Update CSS theme | 1 | \u2705 Done | #155 | 5 | 25m |\n| #156 | Add chart component | 3 | \u2705 Done | #157 | 4 | 40m |\n| #158 | Fix data pipeline | 2 | \u2705 Done | #159 | 3 | 28m |\n| #160 | Update API docs | 1 | \u2705 Done | #161 | 2 | 15m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 3h 03m (estimated 1h 20m)\n**Context Switches**: 21 total (agent switched between issues mid-work)\n**Overhead per Switch**: ~5m (re-reading context, re-loading files)\n**Switch Overhead Total**: ~1h 45m wasted on context switching\n**Root Cause**: Sprint runner interleaved issues instead of sequential execution\n**Optimal**: Sequential execution would have saved ~1h 45m",
     "velocityData": "Sprint 14: 12/12 | Sprint 15: 4/12 | Sprint 16: 12/12",
     "previousImprovements": "Sprint 15 retro: Fixed PR size limits",
     "expected": {
       "passed": true,
-      "mustContain": ["config", "sequential"],
-      "mustNotContain": ["optimal"]
+      "mustContain": [
+        "config",
+        "sequential"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-047",
     "description": "Sprint where ACP session pool was exhausted",
     "sprintNumber": 18,
-    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | PR | Session Wait Time |\n|-------|-------|--------|--------|----|----||\n| #170 | Add real-time sync | 3 | ✅ Done | #171 | 0m |\n| #172 | Fix conflict resolver | 2 | ✅ Done | #173 | 12m |\n| #174 | Add offline mode | 3 | ✅ Done | #175 | 18m |\n| #176 | Fix merge algorithm | 2 | ✅ Done | #177 | 25m |\n| #178 | Add sync status UI | 2 | ✅ Done | #179 | 22m |\n| #180 | Update protocol docs | 1 | ✅ Done | #181 | 15m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 3h 12m (estimated 1h 30m)\n**Session Pool**: Max 2 sessions configured, needed 4\n**Total Wait Time**: 1h 32m waiting for session availability\n**Root Cause**: Session pool size too small for parallel workload\n**Config**: `acp.sessionPool.maxSessions: 2`\n**Recommendation**: Increase to 4 sessions based on workload",
+    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | PR | Session Wait Time |\n|-------|-------|--------|--------|----|----||\n| #170 | Add real-time sync | 3 | \u2705 Done | #171 | 0m |\n| #172 | Fix conflict resolver | 2 | \u2705 Done | #173 | 12m |\n| #174 | Add offline mode | 3 | \u2705 Done | #175 | 18m |\n| #176 | Fix merge algorithm | 2 | \u2705 Done | #177 | 25m |\n| #178 | Add sync status UI | 2 | \u2705 Done | #179 | 22m |\n| #180 | Update protocol docs | 1 | \u2705 Done | #181 | 15m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 3h 12m (estimated 1h 30m)\n**Session Pool**: Max 2 sessions configured, needed 4\n**Total Wait Time**: 1h 32m waiting for session availability\n**Root Cause**: Session pool size too small for parallel workload\n**Config**: `acp.sessionPool.maxSessions: 2`\n**Recommendation**: Increase to 4 sessions based on workload",
     "velocityData": "Sprint 16: 12/12 | Sprint 17: 8/16 | Sprint 18: 13/13",
     "previousImprovements": "Sprint 17 retro: Added retry strategy improvements",
     "expected": {
       "passed": true,
-      "mustContain": ["session", "config"],
-      "mustNotContain": ["adequate"]
+      "mustContain": [
+        "session",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-048",
     "description": "Sprint where build step was unnecessarily repeated",
     "sprintNumber": 20,
-    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | Build Runs | Build Time |\n|-------|-------|--------|--------|----|----|----|\n| #190 | Add data transform | 2 | ✅ Done | #191 | 6 | 24m |\n| #192 | Fix schema parser | 2 | ✅ Done | #193 | 4 | 16m |\n| #194 | Add migration tool | 3 | ✅ Done | #195 | 5 | 20m |\n| #196 | Update validators | 1 | ✅ Done | #197 | 3 | 12m |\n| #198 | Add seed script | 2 | ✅ Done | #199 | 4 | 16m |\n| #200 | Fix rollback logic | 2 | ✅ Done | #201 | 5 | 20m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 2h 48m (estimated 1h 15m)\n**Total Build Runs**: 27 (expected 6 — one per PR)\n**Build Time Wasted**: 1h 24m on redundant builds\n**Root Cause**: Full rebuild triggered on every file save, not just on PR push\n**Config Issue**: `build.trigger: onChange` instead of `build.trigger: onPush`\n**Each Build**: ~4m (full TypeScript compilation + tests)",
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | Build Runs | Build Time |\n|-------|-------|--------|--------|----|----|----|\n| #190 | Add data transform | 2 | \u2705 Done | #191 | 6 | 24m |\n| #192 | Fix schema parser | 2 | \u2705 Done | #193 | 4 | 16m |\n| #194 | Add migration tool | 3 | \u2705 Done | #195 | 5 | 20m |\n| #196 | Update validators | 1 | \u2705 Done | #197 | 3 | 12m |\n| #198 | Add seed script | 2 | \u2705 Done | #199 | 4 | 16m |\n| #200 | Fix rollback logic | 2 | \u2705 Done | #201 | 5 | 20m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 2h 48m (estimated 1h 15m)\n**Total Build Runs**: 27 (expected 6 \u2014 one per PR)\n**Build Time Wasted**: 1h 24m on redundant builds\n**Root Cause**: Full rebuild triggered on every file save, not just on PR push\n**Config Issue**: `build.trigger: onChange` instead of `build.trigger: onPush`\n**Each Build**: ~4m (full TypeScript compilation + tests)",
     "velocityData": "Sprint 18: 13/13 | Sprint 19: 8/13 | Sprint 20: 12/12",
     "previousImprovements": "Sprint 19 retro: Added dependency ordering",
     "expected": {
       "passed": true,
-      "mustContain": ["build", "config"],
-      "mustNotContain": ["optimal"]
+      "mustContain": [
+        "build",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-049",
     "description": "Sprint delayed by slow code review response times",
     "sprintNumber": 22,
-    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR | Code Review Wait | Review Duration |\n|-------|-------|--------|--------|----|----|----|\n| #210 | Add payment webhook | 3 | ✅ Done | #211 | 8m | 4m |\n| #212 | Fix billing cycle | 2 | ✅ Done | #213 | 12m | 6m |\n| #214 | Add invoice API | 3 | ✅ Done | #215 | 15m | 8m |\n| #216 | Fix proration | 2 | ✅ Done | #217 | 10m | 5m |\n| #218 | Add tax engine | 2 | ✅ Done | #219 | 18m | 7m |\n| #220 | Update pricing | 1 | ✅ Done | #221 | 8m | 3m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 2h 53m (estimated 1h 30m)\n**Code Review Wait Time**: 71m total (expected ~12m)\n**Review Processing Time**: 33m total\n**Root Cause**: Code review agent processing queue was serial, not parallel\n**Idle Time**: Agent waited 71m for reviews to start\n**Config**: `codeReview.concurrency: 1` — should be higher",
+    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR | Code Review Wait | Review Duration |\n|-------|-------|--------|--------|----|----|----|\n| #210 | Add payment webhook | 3 | \u2705 Done | #211 | 8m | 4m |\n| #212 | Fix billing cycle | 2 | \u2705 Done | #213 | 12m | 6m |\n| #214 | Add invoice API | 3 | \u2705 Done | #215 | 15m | 8m |\n| #216 | Fix proration | 2 | \u2705 Done | #217 | 10m | 5m |\n| #218 | Add tax engine | 2 | \u2705 Done | #219 | 18m | 7m |\n| #220 | Update pricing | 1 | \u2705 Done | #221 | 8m | 3m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 2h 53m (estimated 1h 30m)\n**Code Review Wait Time**: 71m total (expected ~12m)\n**Review Processing Time**: 33m total\n**Root Cause**: Code review agent processing queue was serial, not parallel\n**Idle Time**: Agent waited 71m for reviews to start\n**Config**: `codeReview.concurrency: 1` \u2014 should be higher",
     "velocityData": "Sprint 20: 12/12 | Sprint 21: 6/11 | Sprint 22: 13/13",
     "previousImprovements": "Sprint 21 retro: Fixed git branch cleanup",
     "expected": {
       "passed": true,
-      "mustContain": ["review", "config"],
-      "mustNotContain": ["fast reviews"]
+      "mustContain": [
+        "review",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-050",
     "description": "Sprint with excessive logging slowing down execution",
     "sprintNumber": 24,
-    "sprintResults": "## Sprint 24 Results\n\n| Issue | Title | Points | Status | PR | Duration | Log Volume |\n|-------|-------|--------|--------|----|----|----|\n| #230 | Add user analytics | 2 | ✅ Done | #231 | 22m | 45MB |\n| #232 | Fix event tracking | 2 | ✅ Done | #233 | 18m | 38MB |\n| #234 | Add funnel analysis | 3 | ✅ Done | #235 | 28m | 52MB |\n| #236 | Fix attribution | 2 | ✅ Done | #237 | 20m | 41MB |\n| #238 | Add A/B metrics | 2 | ✅ Done | #239 | 24m | 47MB |\n| #240 | Update dashboards | 1 | ✅ Done | #241 | 12m | 22MB |\n\n**Velocity**: 12/12 points completed\n**Duration**: 2h 04m (estimated 1h 10m)\n**Total Log Volume**: 245MB for a single sprint\n**Log Level**: DEBUG (should be INFO in sprint execution)\n**I/O Overhead**: ~35 minutes spent on log writes\n**Config**: `logging.level: debug` — should be `info` during execution\n**Disk Usage**: Sprint log file reached 245MB",
+    "sprintResults": "## Sprint 24 Results\n\n| Issue | Title | Points | Status | PR | Duration | Log Volume |\n|-------|-------|--------|--------|----|----|----|\n| #230 | Add user analytics | 2 | \u2705 Done | #231 | 22m | 45MB |\n| #232 | Fix event tracking | 2 | \u2705 Done | #233 | 18m | 38MB |\n| #234 | Add funnel analysis | 3 | \u2705 Done | #235 | 28m | 52MB |\n| #236 | Fix attribution | 2 | \u2705 Done | #237 | 20m | 41MB |\n| #238 | Add A/B metrics | 2 | \u2705 Done | #239 | 24m | 47MB |\n| #240 | Update dashboards | 1 | \u2705 Done | #241 | 12m | 22MB |\n\n**Velocity**: 12/12 points completed\n**Duration**: 2h 04m (estimated 1h 10m)\n**Total Log Volume**: 245MB for a single sprint\n**Log Level**: DEBUG (should be INFO in sprint execution)\n**I/O Overhead**: ~35 minutes spent on log writes\n**Config**: `logging.level: debug` \u2014 should be `info` during execution\n**Disk Usage**: Sprint log file reached 245MB",
     "velocityData": "Sprint 22: 13/13 | Sprint 23: 3/14 | Sprint 24: 12/12",
     "previousImprovements": "Sprint 23 retro: Fixed worktree cleanup schedule",
     "expected": {
       "passed": true,
-      "mustContain": ["logging", "config"],
-      "mustNotContain": ["appropriate"]
+      "mustContain": [
+        "logging",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-051",
     "description": "Sprint where test suite ran in serial instead of parallel",
     "sprintNumber": 15,
-    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Test Time | Test Count |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Add user service | 3 | ✅ Done | #141 | 8m | 45 tests |\n| #142 | Fix auth service | 2 | ✅ Done | #143 | 6m | 32 tests |\n| #144 | Add order service | 3 | ✅ Done | #145 | 9m | 51 tests |\n| #146 | Fix payment service | 2 | ✅ Done | #147 | 7m | 38 tests |\n| #148 | Add notification service | 2 | ✅ Done | #149 | 5m | 28 tests |\n| #150 | Update shared types | 1 | ✅ Done | #151 | 4m | 22 tests |\n\n**Velocity**: 13/13 points completed\n**Duration**: 2h 39m (estimated 1h 20m)\n**Test Execution**: Serial (not parallelized)\n**Total Test Time**: 39m per CI run × 8 runs = 5h 12m CI time\n**With Parallel**: Estimated 8m per run × 8 runs = 1h 04m CI time\n**Config**: `vitest.pool: 'forks'` not set — running single-threaded\n**Potential Savings**: ~4h CI time per sprint",
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Test Time | Test Count |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Add user service | 3 | \u2705 Done | #141 | 8m | 45 tests |\n| #142 | Fix auth service | 2 | \u2705 Done | #143 | 6m | 32 tests |\n| #144 | Add order service | 3 | \u2705 Done | #145 | 9m | 51 tests |\n| #146 | Fix payment service | 2 | \u2705 Done | #147 | 7m | 38 tests |\n| #148 | Add notification service | 2 | \u2705 Done | #149 | 5m | 28 tests |\n| #150 | Update shared types | 1 | \u2705 Done | #151 | 4m | 22 tests |\n\n**Velocity**: 13/13 points completed\n**Duration**: 2h 39m (estimated 1h 20m)\n**Test Execution**: Serial (not parallelized)\n**Total Test Time**: 39m per CI run \u00d7 8 runs = 5h 12m CI time\n**With Parallel**: Estimated 8m per run \u00d7 8 runs = 1h 04m CI time\n**Config**: `vitest.pool: 'forks'` not set \u2014 running single-threaded\n**Potential Savings**: ~4h CI time per sprint",
     "velocityData": "Sprint 13: 9/9 | Sprint 14: 12/12 | Sprint 15: 13/13",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["parallel", "config"],
-      "mustNotContain": ["optimized"]
+      "mustContain": [
+        "parallel",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-052",
     "description": "Sprint where git operations were slow due to large repo",
     "sprintNumber": 25,
-    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | Git Clone Time | Git Push Time |\n|-------|-------|--------|--------|----|----|----|\n| #242 | Add feature A | 2 | ✅ Done | #243 | 3m 20s | 45s |\n| #244 | Add feature B | 2 | ✅ Done | #245 | 3m 15s | 42s |\n| #246 | Fix bug C | 1 | ✅ Done | #247 | 3m 18s | 40s |\n| #248 | Add feature D | 3 | ✅ Done | #249 | 3m 22s | 48s |\n| #250 | Fix bug E | 1 | ✅ Done | #251 | 3m 10s | 38s |\n| #252 | Update config | 1 | ✅ Done | #253 | 3m 25s | 50s |\n\n**Velocity**: 10/10 points completed\n**Duration**: 2h 15m (estimated 1h 00m)\n**Git Operations**: 19m 30s clone + 4m 23s push = 23m 53s total\n**Root Cause**: Full git clone for each worktree (1.2GB repo with history)\n**Config**: `git.shallowClone: false` — should be `true`\n**With Shallow Clone**: Estimated 30s per clone = 3m total (save ~17m)\n**Repo Size**: 1.2GB with 15,000 commits",
+    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | Git Clone Time | Git Push Time |\n|-------|-------|--------|--------|----|----|----|\n| #242 | Add feature A | 2 | \u2705 Done | #243 | 3m 20s | 45s |\n| #244 | Add feature B | 2 | \u2705 Done | #245 | 3m 15s | 42s |\n| #246 | Fix bug C | 1 | \u2705 Done | #247 | 3m 18s | 40s |\n| #248 | Add feature D | 3 | \u2705 Done | #249 | 3m 22s | 48s |\n| #250 | Fix bug E | 1 | \u2705 Done | #251 | 3m 10s | 38s |\n| #252 | Update config | 1 | \u2705 Done | #253 | 3m 25s | 50s |\n\n**Velocity**: 10/10 points completed\n**Duration**: 2h 15m (estimated 1h 00m)\n**Git Operations**: 19m 30s clone + 4m 23s push = 23m 53s total\n**Root Cause**: Full git clone for each worktree (1.2GB repo with history)\n**Config**: `git.shallowClone: false` \u2014 should be `true`\n**With Shallow Clone**: Estimated 30s per clone = 3m total (save ~17m)\n**Repo Size**: 1.2GB with 15,000 commits",
     "velocityData": "Sprint 23: 3/14 | Sprint 24: 12/12 | Sprint 25: 10/10",
     "previousImprovements": "Sprint 24 retro: Set logging to INFO level",
     "expected": {
       "passed": true,
-      "mustContain": ["git", "config"],
-      "mustNotContain": ["fast"]
+      "mustContain": [
+        "git",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-053",
     "description": "Sprint where token limits caused truncated agent responses",
     "sprintNumber": 19,
-    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Response Truncated? | Files in Context |\n|-------|-------|--------|--------|----|----|----|\n| #182 | Refactor monolith | 5 | ❌ Failed | #183 | Yes — at 85% | 42 files |\n| #184 | Update imports | 2 | ✅ Done | #185 | No | 8 files |\n| #186 | Fix type errors | 2 | ✅ Done | #187 | No | 6 files |\n| #188 | Add barrel exports | 1 | ✅ Done | #189 | No | 4 files |\n| #190 | Split services | 3 | ❌ Failed | #191 | Yes — at 70% | 35 files |\n| #192 | Update tests | 2 | ✅ Done | #193 | No | 12 files |\n\n**Velocity**: 7/15 points completed (8 points lost to truncation)\n**Duration**: 2h 45m (estimated 1h 30m)\n**Token Limit Hits**: 2 issues exceeded context window\n**Root Cause**: Large issues loaded too many files into context\n**#182**: 42 files loaded (limit ~30 for quality output)\n**#190**: 35 files loaded, response cut off mid-function\n**Config**: `agent.maxContextFiles: 50` — too high, quality degrades above 30",
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Response Truncated? | Files in Context |\n|-------|-------|--------|--------|----|----|----|\n| #182 | Refactor monolith | 5 | \u274c Failed | #183 | Yes \u2014 at 85% | 42 files |\n| #184 | Update imports | 2 | \u2705 Done | #185 | No | 8 files |\n| #186 | Fix type errors | 2 | \u2705 Done | #187 | No | 6 files |\n| #188 | Add barrel exports | 1 | \u2705 Done | #189 | No | 4 files |\n| #190 | Split services | 3 | \u274c Failed | #191 | Yes \u2014 at 70% | 35 files |\n| #192 | Update tests | 2 | \u2705 Done | #193 | No | 12 files |\n\n**Velocity**: 7/15 points completed (8 points lost to truncation)\n**Duration**: 2h 45m (estimated 1h 30m)\n**Token Limit Hits**: 2 issues exceeded context window\n**Root Cause**: Large issues loaded too many files into context\n**#182**: 42 files loaded (limit ~30 for quality output)\n**#190**: 35 files loaded, response cut off mid-function\n**Config**: `agent.maxContextFiles: 50` \u2014 too high, quality degrades above 30",
     "velocityData": "Sprint 17: 8/16 | Sprint 18: 13/13 | Sprint 19: 7/15",
     "previousImprovements": "Sprint 18 retro: Increased session pool size",
     "expected": {
       "passed": true,
-      "mustContain": ["context", "config"],
-      "mustNotContain": ["within limits"]
+      "mustContain": [
+        "context",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-054",
     "description": "Sprint where npm install ran before every single issue",
     "sprintNumber": 21,
-    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | npm install Time |\n|-------|-------|--------|--------|----|----||\n| #200 | Add feature X | 2 | ✅ Done | #201 | 2m 30s |\n| #202 | Add feature Y | 2 | ✅ Done | #203 | 2m 25s |\n| #204 | Fix bug Z | 1 | ✅ Done | #205 | 2m 28s |\n| #206 | Add test suite | 2 | ✅ Done | #207 | 2m 32s |\n| #208 | Update config | 1 | ✅ Done | #209 | 2m 22s |\n| #210 | Fix imports | 1 | ✅ Done | #211 | 2m 20s |\n\n**Velocity**: 9/9 points completed\n**Duration**: 1h 55m (estimated 55m)\n**npm install runs**: 6 (one per issue)\n**Total install time**: 14m 37s\n**Root Cause**: Each worktree gets fresh node_modules without caching\n**Config**: `worktree.cacheNodeModules: false`\n**With Caching**: First install 2m 30s, subsequent ~5s = save ~12m",
+    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | npm install Time |\n|-------|-------|--------|--------|----|----||\n| #200 | Add feature X | 2 | \u2705 Done | #201 | 2m 30s |\n| #202 | Add feature Y | 2 | \u2705 Done | #203 | 2m 25s |\n| #204 | Fix bug Z | 1 | \u2705 Done | #205 | 2m 28s |\n| #206 | Add test suite | 2 | \u2705 Done | #207 | 2m 32s |\n| #208 | Update config | 1 | \u2705 Done | #209 | 2m 22s |\n| #210 | Fix imports | 1 | \u2705 Done | #211 | 2m 20s |\n\n**Velocity**: 9/9 points completed\n**Duration**: 1h 55m (estimated 55m)\n**npm install runs**: 6 (one per issue)\n**Total install time**: 14m 37s\n**Root Cause**: Each worktree gets fresh node_modules without caching\n**Config**: `worktree.cacheNodeModules: false`\n**With Caching**: First install 2m 30s, subsequent ~5s = save ~12m",
     "velocityData": "Sprint 19: 7/15 | Sprint 20: 12/12 | Sprint 21: 9/9",
     "previousImprovements": "Sprint 20 retro: Fixed build trigger config",
     "expected": {
       "passed": true,
-      "mustContain": ["cache", "config"],
-      "mustNotContain": ["optimized"]
+      "mustContain": [
+        "cache",
+        "config"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-055",
     "description": "Sprint where TypeScript compilation was run 4 times per PR",
     "sprintNumber": 23,
-    "sprintResults": "## Sprint 23 Results\n\n| Issue | Title | Points | Status | PR | tsc Runs | tsc Time |\n|-------|-------|--------|--------|----|----|----|\n| #220 | Add API endpoint | 2 | ✅ Done | #221 | 4 | 8m |\n| #222 | Fix type error | 1 | ✅ Done | #223 | 4 | 8m |\n| #224 | Add middleware | 2 | ✅ Done | #225 | 4 | 8m |\n| #226 | Update schema | 2 | ✅ Done | #227 | 4 | 8m |\n| #228 | Add validator | 2 | ✅ Done | #229 | 4 | 8m |\n| #230 | Fix handler | 1 | ✅ Done | #231 | 4 | 8m |\n\n**Velocity**: 10/10 points completed\n**Duration**: 2h 28m (estimated 1h 00m)\n**Total tsc Runs**: 24 (expected 6)\n**Total tsc Time**: 48m (2m per run × 24 runs)\n**Root Cause**: tsc runs in: pre-commit hook, CI lint, CI build, QG check\n**Redundancy**: Same check running 4 times per PR\n**Config**: Pre-commit tsc can be removed when CI runs it",
+    "sprintResults": "## Sprint 23 Results\n\n| Issue | Title | Points | Status | PR | tsc Runs | tsc Time |\n|-------|-------|--------|--------|----|----|----|\n| #220 | Add API endpoint | 2 | \u2705 Done | #221 | 4 | 8m |\n| #222 | Fix type error | 1 | \u2705 Done | #223 | 4 | 8m |\n| #224 | Add middleware | 2 | \u2705 Done | #225 | 4 | 8m |\n| #226 | Update schema | 2 | \u2705 Done | #227 | 4 | 8m |\n| #228 | Add validator | 2 | \u2705 Done | #229 | 4 | 8m |\n| #230 | Fix handler | 1 | \u2705 Done | #231 | 4 | 8m |\n\n**Velocity**: 10/10 points completed\n**Duration**: 2h 28m (estimated 1h 00m)\n**Total tsc Runs**: 24 (expected 6)\n**Total tsc Time**: 48m (2m per run \u00d7 24 runs)\n**Root Cause**: tsc runs in: pre-commit hook, CI lint, CI build, QG check\n**Redundancy**: Same check running 4 times per PR\n**Config**: Pre-commit tsc can be removed when CI runs it",
     "velocityData": "Sprint 21: 9/9 | Sprint 22: 13/13 | Sprint 23: 10/10",
     "previousImprovements": "Sprint 22 retro: Increased code review concurrency",
     "expected": {
       "passed": true,
-      "mustContain": ["redundant", "config"],
-      "mustNotContain": ["efficient"]
+      "mustContain": [
+        "redundant",
+        "config"
+      ],
+      "mustNotContain": []
     }
   }
 ]

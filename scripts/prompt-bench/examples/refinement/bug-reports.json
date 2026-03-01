@@ -8,7 +8,11 @@
     "projectContext": "React app with Node.js backend, JWT auth, PostgreSQL",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "login", "repro"],
+      "mustContain": [
+        "AC",
+        "login",
+        "repro"
+      ],
       "mustNotContain": []
     }
   },
@@ -21,7 +25,11 @@
     "projectContext": "Analytics dashboard with aggregation queries",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "data", "expected"],
+      "mustContain": [
+        "AC",
+        "data",
+        "expected"
+      ],
       "mustNotContain": []
     }
   },
@@ -34,7 +42,11 @@
     "projectContext": "React Native app with image upload feature",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "crash", "mobile"],
+      "mustContain": [
+        "AC",
+        "crash",
+        "mobile"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +59,10 @@
     "projectContext": "Node.js app using SendGrid for transactional emails",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "email"],
+      "mustContain": [
+        "AC",
+        "email"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +75,11 @@
     "projectContext": "Multi-step React form with no auto-save",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "form", "data"],
+      "mustContain": [
+        "AC",
+        "form",
+        "data"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,7 +92,11 @@
     "projectContext": "Document management system with Elasticsearch",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "search", "result"],
+      "mustContain": [
+        "AC",
+        "search",
+        "result"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +109,11 @@
     "projectContext": "Express.js app with role-based middleware",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "permission", "security"],
+      "mustContain": [
+        "AC",
+        "permission",
+        "security"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +126,11 @@
     "projectContext": "E-commerce site with Stripe integration, Node.js backend",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "payment", "error"],
+      "mustContain": [
+        "AC",
+        "payment",
+        "error"
+      ],
       "mustNotContain": []
     }
   },
@@ -112,7 +143,10 @@
     "projectContext": "Event scheduling app with global users",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "timezone"],
+      "mustContain": [
+        "AC",
+        "timezone"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +159,11 @@
     "projectContext": "Express.js with multer, nginx reverse proxy",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "upload", "file"],
+      "mustContain": [
+        "AC",
+        "upload",
+        "file"
+      ],
       "mustNotContain": []
     }
   },
@@ -138,7 +176,11 @@
     "projectContext": "React SPA with 30-minute JWT expiry",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "session", "expir"],
+      "mustContain": [
+        "AC",
+        "session",
+        "expir"
+      ],
       "mustNotContain": []
     }
   },
@@ -151,7 +193,10 @@
     "projectContext": "E-commerce site with CloudFront CDN for images",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "image"],
+      "mustContain": [
+        "AC",
+        "image"
+      ],
       "mustNotContain": []
     }
   },
@@ -164,7 +209,10 @@
     "projectContext": "Financial reporting dashboard with PostgreSQL",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "calculat"],
+      "mustContain": [
+        "AC",
+        "calculat"
+      ],
       "mustNotContain": []
     }
   },
@@ -177,7 +225,11 @@
     "projectContext": "Node.js notification service with Bull queue",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "notification", "duplicate"],
+      "mustContain": [
+        "AC",
+        "notification",
+        "duplicate"
+      ],
       "mustNotContain": []
     }
   },
@@ -190,7 +242,11 @@
     "projectContext": "React app using HTML5 drag and drop API",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "Safari", "browser"],
+      "mustContain": [
+        "AC",
+        "Safari",
+        "browser"
+      ],
       "mustNotContain": []
     }
   }

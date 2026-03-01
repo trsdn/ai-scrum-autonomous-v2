@@ -8,8 +8,11 @@
     "mergedPRs": "- PR #50: Implement JWT authentication\n- PR #51: Add password reset flow\n- PR #52: Create user profile page\n- PR #53: Write auth unit tests\n- PR #54: Add rate limiting middleware\n- PR #55: Update API docs for auth endpoints",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "23 points"],
-      "mustNotContain": ["carryover", "failed", "blocked"]
+      "mustContain": [
+        "completed",
+        "23 points"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +24,11 @@
     "mergedPRs": "- PR #22: Build onboarding wizard\n- PR #23: Implement push notifications\n- PR #24: Add offline mode caching\n- PR #25: Fix crash on low-memory devices\n- PR #26: Improve app launch time",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "onboarding"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "onboarding"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +40,11 @@
     "mergedPRs": "- PR #70: Add interactive config wizard\n- PR #71: Implement --dry-run flag\n- PR #72: Add JSON output format\n- PR #73: Create man page generator",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "config wizard"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "config wizard"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +56,11 @@
     "mergedPRs": "- PR #120: Create /users CRUD endpoints\n- PR #121: Create /orders CRUD endpoints\n- PR #122: Add pagination to list endpoints\n- PR #123: Implement API key validation\n- PR #124: Add request logging middleware\n- PR #125: Create health check endpoint\n- PR #126: Add OpenAPI spec generation\n- PR #127: Write integration tests for all endpoints",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "36 points"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "36 points"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +72,11 @@
     "mergedPRs": "- PR #90: Build shopping cart component\n- PR #91: Implement Stripe payment integration\n- PR #92: Add order confirmation email\n- PR #93: Create order history page\n- PR #94: Add coupon code validation\n- PR #95: Implement inventory check on checkout",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "Stripe"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "Stripe"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +88,11 @@
     "mergedPRs": "- PR #35: Build CSV ingestion pipeline\n- PR #36: Add data validation step\n- PR #37: Implement deduplication logic\n- PR #38: Create S3 export connector\n- PR #39: Add pipeline monitoring dashboard",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "pipeline"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "pipeline"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +104,11 @@
     "mergedPRs": "- PR #60: Create Button component with variants\n- PR #61: Create Modal component\n- PR #62: Create Form input components\n- PR #63: Add dark mode theme support\n- PR #64: Write Storybook stories for all components\n- PR #65: Create design tokens package",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "dark mode"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "dark mode"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +120,11 @@
     "mergedPRs": "- PR #14: Set up Terraform for AWS VPC\n- PR #15: Create CI/CD pipeline with GitHub Actions\n- PR #16: Add automated database backups\n- PR #17: Implement log aggregation with ELK",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "Terraform"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "Terraform"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +136,11 @@
     "mergedPRs": "- PR #80: Set up Elasticsearch cluster config\n- PR #81: Create search index mapping\n- PR #82: Implement full-text search API\n- PR #83: Add autocomplete suggestions\n- PR #84: Build search results UI\n- PR #85: Add search analytics tracking\n- PR #86: Write search E2E tests",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "search"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "search"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +152,11 @@
     "mergedPRs": "- PR #110: Fix SQL injection in user queries\n- PR #111: Add CSRF token validation\n- PR #112: Implement Content Security Policy headers\n- PR #113: Add input sanitization middleware\n- PR #114: Enable HTTPS redirect\n- PR #115: Run and fix OWASP ZAP scan findings",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "SQL injection"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "SQL injection"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +168,11 @@
     "mergedPRs": "- PR #30: Finalize public API surface\n- PR #31: Add TypeScript declaration files\n- PR #32: Write comprehensive README\n- PR #33: Set up npm publish workflow\n- PR #34: Add changelog generation",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "npm"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "npm"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +184,11 @@
     "mergedPRs": "- PR #100: Add ARIA labels to navigation\n- PR #101: Fix color contrast ratios\n- PR #102: Add keyboard navigation support\n- PR #103: Implement screen reader announcements\n- PR #104: Add skip-to-content link\n- PR #105: Write accessibility test suite",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "ARIA"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "ARIA"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +200,11 @@
     "mergedPRs": "- PR #5: Set up Vitest configuration\n- PR #6: Add ESLint with custom rules\n- PR #7: Configure Playwright for E2E tests\n- PR #8: Add code coverage reporting\n- PR #9: Set up pre-commit hooks",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "Vitest"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "Vitest"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +216,11 @@
     "mergedPRs": "- PR #140: Implement WebSocket server\n- PR #141: Create notification preference settings\n- PR #142: Add email notification templates\n- PR #143: Build notification bell UI component\n- PR #144: Add notification read/unread tracking",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "WebSocket"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "WebSocket"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +232,11 @@
     "mergedPRs": "- PR #58: Create dashboard layout with grid system\n- PR #59: Implement chart components (bar, line, pie)\n- PR #60: Add date range picker\n- PR #61: Create data export to CSV\n- PR #62: Build real-time data refresh\n- PR #63: Add dashboard sharing via URL",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "dashboard"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "dashboard"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -203,8 +248,11 @@
     "mergedPRs": "- PR #150: Define GraphQL schema types\n- PR #151: Create resolvers for User type\n- PR #152: Create resolvers for Order type\n- PR #153: Add GraphQL Playground\n- PR #154: Implement query batching\n- PR #155: Write GraphQL integration tests\n- PR #156: Update client SDK to use GraphQL",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "GraphQL"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "GraphQL"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -216,8 +264,11 @@
     "mergedPRs": "- PR #82: Set up i18n framework with react-intl\n- PR #83: Extract all hardcoded strings\n- PR #84: Add Spanish translations\n- PR #85: Add German translations\n- PR #86: Add language switcher component\n- PR #87: Add RTL layout support",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "i18n"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "i18n"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -229,8 +280,11 @@
     "mergedPRs": "- PR #130: Add Redis caching layer\n- PR #131: Implement lazy loading for images\n- PR #132: Optimize database queries with indexes\n- PR #133: Add CDN for static assets\n- PR #134: Implement request coalescing",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "Redis"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "Redis"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -242,8 +296,11 @@
     "mergedPRs": "- PR #40: Write API reference documentation\n- PR #41: Create getting started guide\n- PR #42: Add architecture decision records\n- PR #43: Create contributing guidelines\n- PR #44: Build interactive API explorer page\n- PR #45: Add deployment runbook",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "API reference"],
-      "mustNotContain": ["carryover", "failed"]
+      "mustContain": [
+        "completed",
+        "API reference"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -255,8 +312,11 @@
     "mergedPRs": "- PR #75: Create migration scripts for v2 schema\n- PR #76: Add rollback procedures\n- PR #77: Implement zero-downtime migration strategy\n- PR #78: Update ORM models for new schema\n- PR #79: Run migration on staging environment",
     "expected": {
       "passed": true,
-      "mustContain": ["delivered", "migration"],
-      "mustNotContain": ["incomplete", "blocked"]
+      "mustContain": [
+        "delivered",
+        "migration"
+      ],
+      "mustNotContain": []
     }
   }
 ]

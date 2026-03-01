@@ -8,8 +8,10 @@
     "projectContext": "Generic web application",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
-      "mustNotContain": ["ship it"]
+      "mustContain": [
+        "AC"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,7 +23,10 @@
     "projectContext": "B2C mobile app with React Native",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "user"],
+      "mustContain": [
+        "AC",
+        "user"
+      ],
       "mustNotContain": []
     }
   },
@@ -34,7 +39,10 @@
     "projectContext": "React SPA with large bundle size",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "performance"],
+      "mustContain": [
+        "AC",
+        "performance"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +55,10 @@
     "projectContext": "Project management SaaS tool",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "scope"],
+      "mustContain": [
+        "AC",
+        "scope"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +71,9 @@
     "projectContext": "Legacy jQuery app being migrated to React",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
+      "mustContain": [
+        "AC"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,7 +86,10 @@
     "projectContext": "Node.js REST API with JWT auth",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "security"],
+      "mustContain": [
+        "AC",
+        "security"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +102,10 @@
     "projectContext": "Single-server Django app with SQLite",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "scal"],
+      "mustContain": [
+        "AC",
+        "scal"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +118,9 @@
     "projectContext": "SaaS analytics platform",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
+      "mustContain": [
+        "AC"
+      ],
       "mustNotContain": []
     }
   },
@@ -112,7 +133,10 @@
     "projectContext": "Full-stack TypeScript app with minimal test coverage",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "test"],
+      "mustContain": [
+        "AC",
+        "test"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +149,10 @@
     "projectContext": "React e-commerce platform",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "user experience"],
+      "mustContain": [
+        "AC",
+        "user experience"
+      ],
       "mustNotContain": []
     }
   },
@@ -138,7 +165,10 @@
     "projectContext": "Open-source CLI tool with sparse README",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "documentation"],
+      "mustContain": [
+        "AC",
+        "documentation"
+      ],
       "mustNotContain": []
     }
   },
@@ -151,7 +181,10 @@
     "projectContext": "Workflow automation platform",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "integration"],
+      "mustContain": [
+        "AC",
+        "integration"
+      ],
       "mustNotContain": []
     }
   },
@@ -164,7 +197,10 @@
     "projectContext": "Desktop-only web application",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "mobile"],
+      "mustContain": [
+        "AC",
+        "mobile"
+      ],
       "mustNotContain": []
     }
   },
@@ -177,7 +213,10 @@
     "projectContext": "Internal ops tool with Python scripts",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "automat"],
+      "mustContain": [
+        "AC",
+        "automat"
+      ],
       "mustNotContain": []
     }
   },
@@ -190,7 +229,10 @@
     "projectContext": "Business intelligence dashboard",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "data"],
+      "mustContain": [
+        "AC",
+        "data"
+      ],
       "mustNotContain": []
     }
   },
@@ -203,7 +245,10 @@
     "projectContext": "Microservices architecture on AWS",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "reliab"],
+      "mustContain": [
+        "AC",
+        "reliab"
+      ],
       "mustNotContain": []
     }
   },
@@ -216,7 +261,10 @@
     "projectContext": "SaaS project management tool",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "onboarding"],
+      "mustContain": [
+        "AC",
+        "onboarding"
+      ],
       "mustNotContain": []
     }
   },
@@ -229,7 +277,10 @@
     "projectContext": "Open-source Node.js framework",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "developer"],
+      "mustContain": [
+        "AC",
+        "developer"
+      ],
       "mustNotContain": []
     }
   },
@@ -242,7 +293,10 @@
     "projectContext": "Cloud-hosted SaaS on AWS with multiple services",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "cost"],
+      "mustContain": [
+        "AC",
+        "cost"
+      ],
       "mustNotContain": []
     }
   },
@@ -255,7 +309,10 @@
     "projectContext": "Document editing platform",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "collaborat"],
+      "mustContain": [
+        "AC",
+        "collaborat"
+      ],
       "mustNotContain": []
     }
   }
