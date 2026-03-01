@@ -258,20 +258,23 @@ export class SprintRunner {
    * from GitHub milestones. Closes each milestone on completion and
    * moves to the next open one. Stops when no open milestone is found
    * or maxSprints is reached. maxSprints=0 means infinite.
+   * maxSprints can be a number or a getter function for runtime updates.
    */
   static async sprintLoop(
     configBuilder: (sprintNumber: number) => SprintConfig,
     eventBus?: SprintEventBus,
-    maxSprints = 0,
+    maxSprints: number | (() => number) = 0,
   ): Promise<SprintState[]> {
     const log = defaultLogger.child({ component: "sprint-loop" });
     const results: SprintState[] = [];
     const bus = eventBus ?? new SprintEventBus();
+    const getLimit = typeof maxSprints === "function" ? maxSprints : () => maxSprints;
 
     while (true) {
-      if (maxSprints > 0 && results.length >= maxSprints) {
-        log.info({ completed: results.length, limit: maxSprints }, "Sprint limit reached — pausing");
-        bus.emitTyped("log", { level: "info", message: `Sprint limit reached (${results.length}/${maxSprints}) — pausing` });
+      const limit = getLimit();
+      if (limit > 0 && results.length >= limit) {
+        log.info({ completed: results.length, limit }, "Sprint limit reached — pausing");
+        bus.emitTyped("log", { level: "info", message: `Sprint limit reached (${results.length}/${limit}) — pausing` });
         break;
       }
       // Use configBuilder to get prefix for milestone detection

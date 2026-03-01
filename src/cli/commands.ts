@@ -365,7 +365,7 @@ function registerWeb(program: Command): void {
           SprintRunner.sprintLoop(
             (sprintNumber) => buildSprintConfig(config, sprintNumber),
             eventBus,
-            sprintLimit,
+            () => sprintLimit,
           ).catch((err: unknown) => {
             const msg = err instanceof Error ? err.message : String(err);
             eventBus.emitTyped("sprint:error", { error: msg });

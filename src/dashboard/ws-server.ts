@@ -116,6 +116,7 @@ export class DashboardWebServer {
   private eventBuffer: BufferedEvent[] = [];
   private knownMilestones: { sprintNumber: number; title: string; state: string }[] = [];
   private executionMode: "autonomous" | "hitl" = "autonomous";
+  private activeSprintNumberOverride: number | undefined;
   public sprintLimit = 0;
 
   constructor(options: DashboardServerOptions) {
@@ -125,7 +126,7 @@ export class DashboardWebServer {
 
   /** Update the active sprint number (called when sprint loop advances). */
   setActiveSprintNumber(n: number): void {
-    (this.options as { activeSprintNumber?: number }).activeSprintNumber = n;
+    this.activeSprintNumberOverride = n;
     // Clear event buffer for new sprint
     this.eventBuffer = [];
     // Broadcast sprint switch to all clients
@@ -137,6 +138,11 @@ export class DashboardWebServer {
 
   getExecutionMode(): "autonomous" | "hitl" {
     return this.executionMode;
+  }
+
+  /** Effective active sprint number (override takes precedence over options). */
+  private get activeSprintNumber(): number | undefined {
+    return this.activeSprintNumberOverride ?? this.activeSprintNumber;
   }
 
   async start(): Promise<void> {
@@ -160,7 +166,7 @@ export class DashboardWebServer {
       // Send active sprint info so client knows which sprint is running
       this.sendTo(ws, {
         type: "sprint:switched",
-        payload: { sprintNumber: this.options.activeSprintNumber, activeSprintNumber: this.options.activeSprintNumber },
+        payload: { sprintNumber: this.activeSprintNumber, activeSprintNumber: this.activeSprintNumber },
       });
       // Send current execution mode so client dropdown syncs
       this.sendTo(ws, {
@@ -221,7 +227,7 @@ export class DashboardWebServer {
 
     // Discover sprints from GitHub milestones (async, non-blocking)
     const prefix = this.options.sprintPrefix ?? "Sprint";
-    const activeNum = this.options.activeSprintNumber ?? 1;
+    const activeNum = this.activeSprintNumber ?? 1;
     listSprintMilestones(prefix).then((milestones) => {
       this.knownMilestones = milestones;
       // Determine max sprint from both milestones and active sprint
@@ -346,7 +352,7 @@ export class DashboardWebServer {
       setTimeout(() => {
         this.broadcast({ type: "sprint:issues", payload: this.options.getIssues() });
         // Also update the issue cache
-        const sprintNum = this.options.activeSprintNumber ?? 1;
+        const sprintNum = this.activeSprintNumber ?? 1;
         if (this.issueCache) {
           this.issueCache.set(sprintNum, this.options.getIssues().map((i) => ({
             number: i.number,
@@ -423,7 +429,7 @@ export class DashboardWebServer {
                 payload: state ?? this.options.getState(),
               });
               // For active sprint use live issues; for historical use cache
-              const isActive = sprintNum === this.options.activeSprintNumber;
+              const isActive = sprintNum === this.activeSprintNumber;
               if (isActive) {
                 this.sendTo(ws, {
                   type: "sprint:issues",
@@ -445,7 +451,7 @@ export class DashboardWebServer {
               }
               this.sendTo(ws, {
                 type: "sprint:switched",
-                payload: { sprintNumber: sprintNum, activeSprintNumber: this.options.activeSprintNumber },
+                payload: { sprintNumber: sprintNum, activeSprintNumber: this.activeSprintNumber },
               });
             })
             .catch((err: unknown) => {
@@ -650,7 +656,7 @@ export class DashboardWebServer {
       if (session) {
         writeSessionLog(session, {
           projectPath: this.options.projectPath ?? process.cwd(),
-          sprintNumber: this.options.activeSprintNumber ?? 1,
+          sprintNumber: this.activeSprintNumber ?? 1,
         });
       }
       await this.getChatManager().closeSession(sessionId);
@@ -782,7 +788,7 @@ export class DashboardWebServer {
 
     // /api/sprint-capacity — current sprint capacity info
     if (pathname === "/api/sprint-capacity") {
-      const sprintNum = this.options.activeSprintNumber ?? 1;
+      const sprintNum = this.activeSprintNumber ?? 1;
       const maxIssues = this.options.maxIssuesPerSprint ?? 8;
       const plannedCount = this.options.getIssues().length;
       res.writeHead(200);
@@ -797,7 +803,7 @@ export class DashboardWebServer {
   /** Fetch issues for a sprint — serves from cache, loads on demand if needed. */
   private handleSprintIssues(sprintNumber: number, res: http.ServerResponse): void {
     // Active sprint: always return live tracked issues
-    if (sprintNumber === this.options.activeSprintNumber) {
+    if (sprintNumber === this.activeSprintNumber) {
       const issues = this.options.getIssues();
       if (this.issueCache) {
         this.issueCache.set(sprintNumber, issues);
@@ -858,7 +864,8 @@ export class DashboardWebServer {
       }));
       this.issueCache?.set(sprintNumber, mapped);
       return mapped;
-    } catch {
+    } catch (err: unknown) {
+      log.warn({ err, sprintNumber }, "Failed to load historical issues from GitHub");
       return [];
     }
   }
@@ -1011,7 +1018,7 @@ export class DashboardWebServer {
 
   /** Add an issue to the current sprint (set milestone + status:planned label). */
   private async handlePlanIssue(issueNumber: number, ws: WebSocket): Promise<void> {
-    const sprintNum = this.options.activeSprintNumber ?? 1;
+    const sprintNum = this.activeSprintNumber ?? 1;
     const prefix = this.options.sprintPrefix ?? "Sprint";
     const milestoneTitle = `${prefix} ${sprintNum}`;
     try {
@@ -1102,7 +1109,7 @@ export class DashboardWebServer {
             const state = JSON.parse(raw) as { phase?: string };
             sprintMap.set(num, {
               phase: state.phase ?? "unknown",
-              isActive: num === this.options.activeSprintNumber,
+              isActive: num === this.activeSprintNumber,
             });
           } catch {
             sprintMap.set(num, { phase: "unknown", isActive: false });
@@ -1123,7 +1130,7 @@ export class DashboardWebServer {
     }
 
     // Ensure active sprint is in the list
-    const activeNum = this.options.activeSprintNumber;
+    const activeNum = this.activeSprintNumber;
     if (activeNum && !sprintMap.has(activeNum)) {
       const currentState = this.options.getState();
       sprintMap.set(activeNum, { phase: currentState.phase, isActive: true });
@@ -1157,7 +1164,7 @@ export class DashboardWebServer {
   /** Load sprint state from disk. */
   private loadSprintState(sprintNumber: number): SprintState | null {
     // If this is the active sprint, return live state
-    if (sprintNumber === this.options.activeSprintNumber) {
+    if (sprintNumber === this.activeSprintNumber) {
       return this.options.getState();
     }
 
