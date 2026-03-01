@@ -1,0 +1,55 @@
+.issue-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.issue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.issue-item:hover { background: var(--bg-hover); }
+
+.issue-icon {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.issue-number {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.issue-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.issue-step { flex-shrink: 0; font-size: 14px; }
+.issue-fail { flex-shrink: 0; color: var(--red); cursor: help; }
+
+/* Status colors */
+.issue-planned .issue-icon { color: var(--text-dim); }
+.issue-planned .issue-title { color: var(--text-dim); }
+.issue-in-progress .issue-icon { color: var(--yellow); }
+.issue-done .issue-icon, .issue-completed .issue-icon { color: var(--green); }
+.issue-failed .issue-icon { color: var(--red); }
+.issue-blocked .issue-icon { color: var(--red); }
+
+.empty-state {
+  color: var(--text-dim);
+  font-size: 13px;
+  padding: 20px;
+  text-align: center;
+}
