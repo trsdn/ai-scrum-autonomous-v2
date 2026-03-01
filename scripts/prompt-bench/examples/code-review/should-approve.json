@@ -1,0 +1,82 @@
+[
+  {
+    "id": "simple-bugfix-approve",
+    "description": "Simple null check bugfix — should be approved",
+    "issueTitle": "Fix null pointer in user lookup",
+    "issueNumber": 42,
+    "acceptanceCriteria": "- User lookup returns null instead of throwing when user not found\n- Test added for null case",
+    "diffStats": { "filesChanged": 2, "linesChanged": 12 },
+    "branch": "fix/42-null-pointer",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "test-only-approve",
+    "description": "Adding tests for existing code — should be approved",
+    "issueTitle": "Add tests for formatBytes utility",
+    "issueNumber": 55,
+    "acceptanceCriteria": "- Unit tests cover 0, bytes, KB, MB, GB ranges\n- Edge case: negative numbers handled",
+    "diffStats": { "filesChanged": 1, "linesChanged": 45 },
+    "branch": "test/55-format-bytes",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "css-only-approve",
+    "description": "CSS-only styling change — should be approved",
+    "issueTitle": "Add hover effects to navigation links",
+    "issueNumber": 10,
+    "acceptanceCriteria": "- Nav links change color on hover\n- Transition is smooth (0.3s)",
+    "diffStats": { "filesChanged": 1, "linesChanged": 8 },
+    "branch": "feat/10-nav-hover",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "config-change-approve",
+    "description": "Config file edit — should be approved",
+    "issueTitle": "Add build script to package.json",
+    "issueNumber": 77,
+    "acceptanceCriteria": "- package.json has 'build' script\n- Script runs tsc",
+    "diffStats": { "filesChanged": 1, "linesChanged": 3 },
+    "branch": "feat/77-build-script",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "docs-only-approve",
+    "description": "Documentation-only change — should be approved",
+    "issueTitle": "Update README with installation instructions",
+    "issueNumber": 88,
+    "acceptanceCriteria": "- README has install section\n- npm install command documented",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "docs/88-readme",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "refactor-clean-approve",
+    "description": "Clean refactor with tests passing — should be approved",
+    "issueTitle": "Extract validation logic into helper",
+    "issueNumber": 33,
+    "acceptanceCriteria": "- Validation logic extracted to validateInput()\n- Existing tests still pass\n- No behavior change",
+    "diffStats": { "filesChanged": 3, "linesChanged": 40 },
+    "branch": "refactor/33-extract-validation",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "error-handling-approve",
+    "description": "Adding proper error handling — should be approved",
+    "issueTitle": "Add error handling to API fetch calls",
+    "issueNumber": 44,
+    "acceptanceCriteria": "- fetch() calls wrapped in try/catch\n- User-friendly error messages displayed\n- Tests for error cases",
+    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "branch": "feat/44-error-handling",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "small-feature-approve",
+    "description": "Small well-scoped feature — should be approved",
+    "issueTitle": "Add dark mode toggle button",
+    "issueNumber": 22,
+    "acceptanceCriteria": "- Button toggles dark-mode class on body\n- Preference saved to localStorage\n- Test verifies toggle behavior",
+    "diffStats": { "filesChanged": 3, "linesChanged": 25 },
+    "branch": "feat/22-dark-mode",
+    "expected": { "approved": true }
+  }
+]
