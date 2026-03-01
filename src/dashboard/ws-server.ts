@@ -401,10 +401,27 @@ export class DashboardWebServer {
                 type: "sprint:state",
                 payload: state ?? this.options.getState(),
               });
-              this.sendTo(ws, {
-                type: "sprint:issues",
-                payload: this.options.getIssues(),
-              });
+              // For active sprint use live issues; for historical use cache
+              const isActive = sprintNum === this.options.activeSprintNumber;
+              if (isActive) {
+                this.sendTo(ws, {
+                  type: "sprint:issues",
+                  payload: this.options.getIssues(),
+                });
+              } else if (this.issueCache?.has(sprintNum)) {
+                this.sendTo(ws, {
+                  type: "sprint:issues",
+                  payload: this.issueCache.get(sprintNum),
+                });
+              } else {
+                // Cache miss — load from GitHub async
+                this.loadHistoricalIssues(sprintNum).then((issues) => {
+                  this.sendTo(ws, {
+                    type: "sprint:issues",
+                    payload: issues,
+                  });
+                }).catch(() => {});
+              }
               this.sendTo(ws, {
                 type: "sprint:switched",
                 payload: { sprintNumber: sprintNum, activeSprintNumber: this.options.activeSprintNumber },
@@ -794,6 +811,27 @@ export class DashboardWebServer {
       res.writeHead(200);
       res.end(JSON.stringify([]));
     });
+  }
+
+  /** Load historical sprint issues from GitHub (for sprint:switch cache misses). */
+  private async loadHistoricalIssues(sprintNumber: number): Promise<IssueEntry[]> {
+    const prefix = this.options.sprintPrefix ?? "Sprint";
+    try {
+      const { listIssues } = await import("../github/issues.js");
+      const ghIssues = await listIssues({
+        milestone: `${prefix} ${sprintNumber}`,
+        state: "all",
+      });
+      const mapped: IssueEntry[] = ghIssues.map((i) => ({
+        number: i.number,
+        title: i.title,
+        status: (i.state === "closed" ? "done" : "planned") as "planned" | "done",
+      }));
+      this.issueCache?.set(sprintNumber, mapped);
+      return mapped;
+    } catch {
+      return [];
+    }
   }
 
   /** Return backlog issues (refined, not assigned to an open sprint). */
