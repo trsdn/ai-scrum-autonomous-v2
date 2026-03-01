@@ -78,5 +78,225 @@
     "diffStats": { "filesChanged": 3, "linesChanged": 25 },
     "branch": "feat/22-dark-mode",
     "expected": { "approved": true }
+  },
+  {
+    "id": "type-annotation-approve",
+    "description": "Adding TypeScript type annotations — should be approved",
+    "issueTitle": "Add types to utility functions",
+    "issueNumber": 60,
+    "acceptanceCriteria": "- All exported functions have return type annotations\n- Parameter types specified\n- No any types",
+    "diffStats": { "filesChanged": 4, "linesChanged": 30 },
+    "branch": "chore/60-add-types",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "accessibility-approve",
+    "description": "Adding ARIA labels for accessibility — should be approved",
+    "issueTitle": "Add ARIA labels to navigation",
+    "issueNumber": 61,
+    "acceptanceCriteria": "- nav element has aria-label\n- Links have descriptive aria-labels\n- Skip-to-content link added",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/61-aria-labels",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "delete-dead-code-approve",
+    "description": "Removing unused/dead code — should be approved",
+    "issueTitle": "Remove deprecated helper functions",
+    "issueNumber": 62,
+    "acceptanceCriteria": "- Remove formatLegacyDate()\n- Remove parseOldConfig()\n- No callers exist (verified by grep)",
+    "diffStats": { "filesChanged": 2, "linesChanged": 45 },
+    "branch": "chore/62-remove-dead-code",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "env-config-approve",
+    "description": "Moving hardcoded values to env config — should be approved",
+    "issueTitle": "Use environment variables for API URLs",
+    "issueNumber": 63,
+    "acceptanceCriteria": "- API base URL read from process.env.API_URL\n- Fallback to default if not set\n- .env.example updated",
+    "diffStats": { "filesChanged": 3, "linesChanged": 20 },
+    "branch": "feat/63-env-config",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "rename-variable-approve",
+    "description": "Renaming variable for clarity — should be approved",
+    "issueTitle": "Rename 'data' to 'userProfile' for clarity",
+    "issueNumber": 64,
+    "acceptanceCriteria": "- All references to 'data' renamed to 'userProfile'\n- Tests updated\n- No behavior change",
+    "diffStats": { "filesChanged": 3, "linesChanged": 15 },
+    "branch": "refactor/64-rename-var",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "add-logging-approve",
+    "description": "Adding structured logging — should be approved",
+    "issueTitle": "Add logging to payment processing",
+    "issueNumber": 65,
+    "acceptanceCriteria": "- Log payment start/end/failure\n- Use structured logger (not console.log)\n- No sensitive data logged",
+    "diffStats": { "filesChanged": 2, "linesChanged": 18 },
+    "branch": "feat/65-payment-logging",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "html-semantic-approve",
+    "description": "Converting divs to semantic HTML — should be approved",
+    "issueTitle": "Use semantic HTML elements",
+    "issueNumber": 66,
+    "acceptanceCriteria": "- Replace div.header with <header>\n- Replace div.nav with <nav>\n- Replace div.footer with <footer>",
+    "diffStats": { "filesChanged": 1, "linesChanged": 12 },
+    "branch": "refactor/66-semantic-html",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "test-fixture-approve",
+    "description": "Adding test fixtures/helpers — should be approved",
+    "issueTitle": "Create shared test fixtures for user data",
+    "issueNumber": 67,
+    "acceptanceCriteria": "- Test fixture file with mock user data\n- Used by at least 2 test files\n- Replaces inline mock objects",
+    "diffStats": { "filesChanged": 4, "linesChanged": 50 },
+    "branch": "test/67-fixtures",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "dependency-update-approve",
+    "description": "Updating a dependency version — should be approved",
+    "issueTitle": "Update vitest to latest version",
+    "issueNumber": 68,
+    "acceptanceCriteria": "- vitest updated in package.json\n- package-lock.json regenerated\n- All tests still pass",
+    "diffStats": { "filesChanged": 2, "linesChanged": 200 },
+    "branch": "chore/68-update-vitest",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "gitignore-approve",
+    "description": "Updating .gitignore — should be approved",
+    "issueTitle": "Add coverage directory to gitignore",
+    "issueNumber": 69,
+    "acceptanceCriteria": "- coverage/ added to .gitignore\n- .env files ignored",
+    "diffStats": { "filesChanged": 1, "linesChanged": 3 },
+    "branch": "chore/69-gitignore",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "input-validation-approve",
+    "description": "Adding input validation with Zod — should be approved",
+    "issueTitle": "Validate contact form inputs",
+    "issueNumber": 70,
+    "acceptanceCriteria": "- Email validated with Zod schema\n- Name required, min 2 chars\n- Error messages shown inline\n- Tests for valid/invalid inputs",
+    "diffStats": { "filesChanged": 3, "linesChanged": 40 },
+    "branch": "feat/70-form-validation",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "rate-limit-approve",
+    "description": "Adding rate limiting to API — should be approved",
+    "issueTitle": "Add rate limiting to API endpoints",
+    "issueNumber": 71,
+    "acceptanceCriteria": "- Max 100 requests per minute per IP\n- 429 status returned when exceeded\n- Test covers rate limit trigger",
+    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "branch": "feat/71-rate-limit",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "cache-impl-approve",
+    "description": "Adding caching layer — should be approved",
+    "issueTitle": "Cache API responses with TTL",
+    "issueNumber": 72,
+    "acceptanceCriteria": "- In-memory cache with configurable TTL\n- Cache invalidation on mutation\n- Tests for cache hit/miss/expiry",
+    "diffStats": { "filesChanged": 3, "linesChanged": 55 },
+    "branch": "feat/72-cache",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "pagination-approve",
+    "description": "Adding pagination to list endpoint — should be approved",
+    "issueTitle": "Add pagination to user list",
+    "issueNumber": 73,
+    "acceptanceCriteria": "- Page size configurable (default 20)\n- Response includes totalCount, page, pageSize\n- Tests for boundary pages",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/73-pagination",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "timeout-handling-approve",
+    "description": "Adding request timeout handling — should be approved",
+    "issueTitle": "Add timeout to external API calls",
+    "issueNumber": 74,
+    "acceptanceCriteria": "- AbortController with 5s timeout\n- Timeout error shown to user\n- Test with mocked timeout",
+    "diffStats": { "filesChanged": 2, "linesChanged": 25 },
+    "branch": "feat/74-timeout",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "loading-state-approve",
+    "description": "Adding loading state to UI — should be approved",
+    "issueTitle": "Show loading spinner during data fetch",
+    "issueNumber": 75,
+    "acceptanceCriteria": "- Spinner shown while fetch is pending\n- Spinner hidden on success or error\n- Accessible: aria-busy attribute set",
+    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "branch": "feat/75-loading-state",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "debounce-search-approve",
+    "description": "Adding debounce to search input — should be approved",
+    "issueTitle": "Debounce search input to reduce API calls",
+    "issueNumber": 76,
+    "acceptanceCriteria": "- Search input debounced at 300ms\n- Previous pending request cancelled\n- Test verifies debounce behavior",
+    "diffStats": { "filesChanged": 2, "linesChanged": 25 },
+    "branch": "feat/76-debounce",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "responsive-layout-approve",
+    "description": "Making layout responsive — should be approved",
+    "issueTitle": "Add responsive breakpoints for mobile",
+    "issueNumber": 78,
+    "acceptanceCriteria": "- Layout stacks vertically below 768px\n- Navigation collapses to hamburger\n- Font sizes adjust for readability",
+    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "branch": "feat/78-responsive",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "error-boundary-approve",
+    "description": "Adding error boundary component — should be approved",
+    "issueTitle": "Add error boundary for graceful error handling",
+    "issueNumber": 79,
+    "acceptanceCriteria": "- Error boundary catches render errors\n- Fallback UI shown with retry button\n- Error logged to console",
+    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "branch": "feat/79-error-boundary",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "date-format-approve",
+    "description": "Adding date formatting utility — should be approved",
+    "issueTitle": "Add relative date formatting (e.g., '2 hours ago')",
+    "issueNumber": 80,
+    "acceptanceCriteria": "- Formats dates as relative time strings\n- Falls back to absolute date beyond 7 days\n- Tests for various time ranges",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/80-relative-dates",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "cleanup-imports-approve",
+    "description": "Cleaning up unused imports — should be approved",
+    "issueTitle": "Remove unused imports across codebase",
+    "issueNumber": 81,
+    "acceptanceCriteria": "- All unused imports removed\n- No behavior change\n- ESLint no-unused-vars passes",
+    "diffStats": { "filesChanged": 8, "linesChanged": 20 },
+    "branch": "chore/81-clean-imports",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "retry-with-backoff-approve",
+    "description": "Adding retry with exponential backoff — should be approved",
+    "issueTitle": "Add retry with backoff for flaky API",
+    "issueNumber": 82,
+    "acceptanceCriteria": "- Max 3 retries with exponential backoff\n- Jitter added to prevent thundering herd\n- Test mocks failures then success",
+    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "branch": "feat/82-retry-backoff",
+    "expected": { "approved": true }
   }
 ]

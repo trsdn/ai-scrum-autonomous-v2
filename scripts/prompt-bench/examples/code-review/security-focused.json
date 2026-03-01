@@ -1,0 +1,152 @@
+[
+  {
+    "id": "prototype-pollution-reject",
+    "description": "Object merge without prototype pollution protection — should be rejected",
+    "issueTitle": "Add settings merge utility",
+    "issueNumber": 121,
+    "acceptanceCriteria": "- User settings merged with defaults\n- Nested objects merged recursively",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/121-settings-merge",
+    "expected": { "approved": false, "mustContain": ["prototype", "__proto__", "constructor", "pollution"] }
+  },
+  {
+    "id": "path-traversal-reject",
+    "description": "File path constructed from user input without sanitization — should be rejected",
+    "issueTitle": "Add file download endpoint",
+    "issueNumber": 122,
+    "acceptanceCriteria": "- Users can download files by name\n- Files served from uploads directory",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/122-download",
+    "expected": { "approved": false, "mustContain": ["path", "traversal", "sanitiz", ".."] }
+  },
+  {
+    "id": "regex-dos-reject",
+    "description": "Regex vulnerable to ReDoS — should be rejected",
+    "issueTitle": "Add email validation with regex",
+    "issueNumber": 123,
+    "acceptanceCriteria": "- Email format validated before submission\n- Clear error message for invalid emails",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/123-email-regex",
+    "expected": { "approved": false, "mustContain": ["regex", "dos", "catastrophic", "backtrack"] }
+  },
+  {
+    "id": "timing-attack-reject",
+    "description": "String comparison vulnerable to timing attack — should be rejected",
+    "issueTitle": "Add API key verification",
+    "issueNumber": 124,
+    "acceptanceCriteria": "- API key checked against stored key\n- Unauthorized requests return 401",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/124-api-key-verify",
+    "expected": { "approved": false, "mustContain": ["timing", "constant", "compare", "equal"] }
+  },
+  {
+    "id": "cors-wildcard-reject",
+    "description": "CORS configured with wildcard origin on authenticated endpoint — should be rejected",
+    "issueTitle": "Enable CORS for API",
+    "issueNumber": 125,
+    "acceptanceCriteria": "- CORS enabled for all endpoints\n- Credentials included in requests",
+    "diffStats": { "filesChanged": 1, "linesChanged": 5 },
+    "branch": "feat/125-cors-all",
+    "expected": { "approved": false, "mustContain": ["wildcard", "origin", "*", "credential"] }
+  },
+  {
+    "id": "type-confusion-reject",
+    "description": "Loose equality causing type confusion — should be rejected",
+    "issueTitle": "Add admin role check",
+    "issueNumber": 126,
+    "acceptanceCriteria": "- Admin users identified by role field\n- Non-admin users see restricted view",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/126-admin-check",
+    "expected": { "approved": false, "mustContain": ["strict", "===", "equality", "type"] }
+  },
+  {
+    "id": "unsafe-deserialization-reject",
+    "description": "Deserializing untrusted data without validation — should be rejected",
+    "issueTitle": "Add import from JSON file",
+    "issueNumber": 127,
+    "acceptanceCriteria": "- Users can import data from JSON file\n- Data displayed in table",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/127-json-import",
+    "expected": { "approved": false, "mustContain": ["validat", "schema", "untrusted", "sanitiz"] }
+  },
+  {
+    "id": "unhandled-promise-reject",
+    "description": "Promise without catch handler — should be rejected",
+    "issueTitle": "Add background data sync",
+    "issueNumber": 128,
+    "acceptanceCriteria": "- Data syncs every 5 minutes in background\n- Sync status shown in UI",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/128-bg-sync",
+    "expected": { "approved": false, "mustContain": ["promise", "catch", "unhandled", "reject"] }
+  },
+  {
+    "id": "missing-csrf-reject",
+    "description": "State-changing endpoint without CSRF protection — should be rejected",
+    "issueTitle": "Add account deletion endpoint",
+    "issueNumber": 129,
+    "acceptanceCriteria": "- POST /api/account/delete removes user account\n- Confirmation required",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/129-delete-account",
+    "expected": { "approved": false, "mustContain": ["csrf", "token", "cross-site", "forgery"] }
+  },
+  {
+    "id": "insecure-random-reject",
+    "description": "Using Math.random for security-sensitive operation — should be rejected",
+    "issueTitle": "Generate password reset tokens",
+    "issueNumber": 130,
+    "acceptanceCriteria": "- Unique token generated for password reset\n- Token expires after 1 hour",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/130-reset-token",
+    "expected": { "approved": false, "mustContain": ["random", "crypto", "secure", "Math.random"] }
+  },
+  {
+    "id": "sensitive-data-log-reject",
+    "description": "Logging sensitive user data — should be rejected",
+    "issueTitle": "Add request logging middleware",
+    "issueNumber": 131,
+    "acceptanceCriteria": "- All requests logged with method, path, status\n- Request body logged for debugging",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/131-request-logging",
+    "expected": { "approved": false, "mustContain": ["sensitive", "password", "redact", "pii"] }
+  },
+  {
+    "id": "no-rate-limit-reject",
+    "description": "Authentication endpoint without rate limiting — should be rejected",
+    "issueTitle": "Add login endpoint",
+    "issueNumber": 132,
+    "acceptanceCriteria": "- POST /api/login authenticates user\n- Returns JWT token on success",
+    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "branch": "feat/132-login",
+    "expected": { "approved": false, "mustContain": ["rate", "limit", "brute", "throttle"] }
+  },
+  {
+    "id": "http-no-https-reject",
+    "description": "Making HTTP request instead of HTTPS to external API — should be rejected",
+    "issueTitle": "Add payment processing integration",
+    "issueNumber": 133,
+    "acceptanceCriteria": "- Payments processed via external API\n- Transaction status tracked",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/133-payments",
+    "expected": { "approved": false, "mustContain": ["http", "https", "secure", "tls"] }
+  },
+  {
+    "id": "unbounded-query-reject",
+    "description": "Database query without limit clause — should be rejected",
+    "issueTitle": "Add 'all users' admin endpoint",
+    "issueNumber": 134,
+    "acceptanceCriteria": "- GET /api/admin/users returns all users\n- Response includes user count",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/134-all-users",
+    "expected": { "approved": false, "mustContain": ["limit", "pagina", "unbounded", "memory"] }
+  },
+  {
+    "id": "missing-timeout-reject",
+    "description": "External HTTP call without timeout — should be rejected",
+    "issueTitle": "Add geocoding service integration",
+    "issueNumber": 135,
+    "acceptanceCriteria": "- Address converted to coordinates via external API\n- Results cached for 24 hours",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/135-geocoding",
+    "expected": { "approved": false, "mustContain": ["timeout", "abort", "hang", "stuck"] }
+  }
+]

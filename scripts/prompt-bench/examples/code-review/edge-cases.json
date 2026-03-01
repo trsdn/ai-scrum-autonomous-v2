@@ -1,0 +1,152 @@
+[
+  {
+    "id": "large-test-file-approve",
+    "description": "Large diff but all test code — should be approved",
+    "issueTitle": "Add comprehensive test suite for auth module",
+    "issueNumber": 201,
+    "acceptanceCriteria": "- Tests for login, logout, token refresh\n- Edge cases: expired tokens, invalid credentials\n- At least 90% coverage for auth module",
+    "diffStats": { "filesChanged": 3, "linesChanged": 300 },
+    "branch": "test/201-auth-tests",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "lock-file-only-approve",
+    "description": "Only package-lock.json changed — should be approved",
+    "issueTitle": "Regenerate lock file after dependency update",
+    "issueNumber": 202,
+    "acceptanceCriteria": "- package-lock.json regenerated\n- No security vulnerabilities introduced",
+    "diffStats": { "filesChanged": 1, "linesChanged": 500 },
+    "branch": "chore/202-lockfile",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "migration-file-approve",
+    "description": "Database migration file — should be approved",
+    "issueTitle": "Add migration for user preferences table",
+    "issueNumber": 203,
+    "acceptanceCriteria": "- Migration creates user_preferences table\n- Columns: user_id, theme, language, notifications\n- Rollback drops the table",
+    "diffStats": { "filesChanged": 1, "linesChanged": 30 },
+    "branch": "feat/203-preferences-migration",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "i18n-strings-approve",
+    "description": "Adding internationalization strings — should be approved",
+    "issueTitle": "Add German translation strings",
+    "issueNumber": 204,
+    "acceptanceCriteria": "- All UI strings have German translations\n- Fallback to English if translation missing",
+    "diffStats": { "filesChanged": 2, "linesChanged": 150 },
+    "branch": "feat/204-german-i18n",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "snapshot-update-approve",
+    "description": "Updating test snapshots after intentional change — should be approved",
+    "issueTitle": "Update snapshots after header redesign",
+    "issueNumber": 205,
+    "acceptanceCriteria": "- Snapshots updated to match new header\n- Visual regression confirmed intentional",
+    "diffStats": { "filesChanged": 5, "linesChanged": 200 },
+    "branch": "test/205-snapshot-update",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "env-example-approve",
+    "description": "Adding .env.example with placeholder values — should be approved",
+    "issueTitle": "Document required environment variables",
+    "issueNumber": 206,
+    "acceptanceCriteria": "- .env.example lists all required variables\n- Placeholder values, no real secrets\n- README references .env.example",
+    "diffStats": { "filesChanged": 2, "linesChanged": 15 },
+    "branch": "docs/206-env-example",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "multi-file-rename-approve",
+    "description": "Consistent file renaming — should be approved",
+    "issueTitle": "Rename utils/ to lib/ for consistency",
+    "issueNumber": 207,
+    "acceptanceCriteria": "- All files in utils/ moved to lib/\n- All imports updated\n- No behavior change",
+    "diffStats": { "filesChanged": 12, "linesChanged": 40 },
+    "branch": "refactor/207-rename-utils",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "perf-optimization-approve",
+    "description": "Performance optimization with benchmarks — should be approved",
+    "issueTitle": "Optimize list rendering with virtual scrolling",
+    "issueNumber": 208,
+    "acceptanceCriteria": "- Virtual scrolling for lists > 100 items\n- Benchmark: 10x faster render for 1000 items\n- Tests verify correct rendering",
+    "diffStats": { "filesChanged": 3, "linesChanged": 80 },
+    "branch": "perf/208-virtual-scroll",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "ci-config-approve",
+    "description": "CI/CD configuration change — should be approved",
+    "issueTitle": "Add GitHub Actions CI workflow",
+    "issueNumber": 209,
+    "acceptanceCriteria": "- CI runs on push and PR\n- Steps: install, lint, test, build\n- Fails on any step failure",
+    "diffStats": { "filesChanged": 1, "linesChanged": 40 },
+    "branch": "chore/209-ci-workflow",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "feature-flag-approve",
+    "description": "Adding feature flag for gradual rollout — should be approved",
+    "issueTitle": "Add feature flag for new checkout flow",
+    "issueNumber": 210,
+    "acceptanceCriteria": "- Feature flag: NEW_CHECKOUT_ENABLED\n- Falls back to old flow when disabled\n- Tests for both paths",
+    "diffStats": { "filesChanged": 3, "linesChanged": 35 },
+    "branch": "feat/210-feature-flag",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "deprecation-warning-approve",
+    "description": "Adding deprecation warnings before removal — should be approved",
+    "issueTitle": "Deprecate legacy API endpoints",
+    "issueNumber": 211,
+    "acceptanceCriteria": "- Deprecated endpoints log warning\n- Sunset header added to response\n- Documentation updated",
+    "diffStats": { "filesChanged": 3, "linesChanged": 25 },
+    "branch": "chore/211-deprecation",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "webhook-handler-approve",
+    "description": "Adding webhook handler with signature verification — should be approved",
+    "issueTitle": "Add Stripe webhook handler",
+    "issueNumber": 212,
+    "acceptanceCriteria": "- Webhook signature verified\n- Payment events processed\n- Idempotent: duplicate events handled\n- Tests with mock events",
+    "diffStats": { "filesChanged": 2, "linesChanged": 55 },
+    "branch": "feat/212-stripe-webhook",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "graceful-shutdown-approve",
+    "description": "Adding graceful shutdown handling — should be approved",
+    "issueTitle": "Handle SIGTERM for graceful shutdown",
+    "issueNumber": 213,
+    "acceptanceCriteria": "- SIGTERM/SIGINT handlers registered\n- In-flight requests completed before exit\n- Connections closed cleanly\n- Test verifies shutdown sequence",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/213-graceful-shutdown",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "health-check-approve",
+    "description": "Adding health check endpoint — should be approved",
+    "issueTitle": "Add /health endpoint for monitoring",
+    "issueNumber": 214,
+    "acceptanceCriteria": "- GET /health returns 200 with status: ok\n- Includes uptime and version\n- Test verifies response format",
+    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "branch": "feat/214-health-check",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "cors-config-approve",
+    "description": "Adding CORS configuration — should be approved",
+    "issueTitle": "Configure CORS for API endpoints",
+    "issueNumber": 215,
+    "acceptanceCriteria": "- CORS enabled for configured origins\n- Credentials allowed\n- Preflight requests handled\n- Origin whitelist configurable",
+    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "branch": "feat/215-cors",
+    "expected": { "approved": true }
+  }
+]
