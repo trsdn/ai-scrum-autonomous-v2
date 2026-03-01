@@ -1,0 +1,197 @@
+[
+  {
+    "id": "itemplan-041",
+    "description": "Plan for fixing race condition in concurrent data fetching",
+    "issueNumber": 301,
+    "issueTitle": "Fix race condition in dashboard data loading",
+    "acceptanceCriteria": "- Dashboard shows correct data when multiple fetches complete out of order\n- AbortController cancels stale requests\n- No stale data flashes before current data\n- Regression test simulates out-of-order responses",
+    "codebaseContext": "React 18 + TanStack Query. Files: src/hooks/useDashboardData.ts, src/pages/Dashboard.tsx, src/api/dashboard.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["race condition", "AbortController", "regression test"],
+      "mustNotContain": ["setTimeout workaround"]
+    }
+  },
+  {
+    "id": "itemplan-042",
+    "description": "Plan for fixing memory leak from unremoved event listeners",
+    "issueNumber": 302,
+    "issueTitle": "Fix memory leak in resize event listener",
+    "acceptanceCriteria": "- Event listener removed on component unmount\n- useEffect cleanup function properly removes listener\n- Memory profiling confirms no leak after 100 mount/unmount cycles\n- Regression test verifies cleanup called",
+    "codebaseContext": "React 18. Files: src/components/ResponsiveLayout.tsx, src/hooks/useWindowSize.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["cleanup", "removeEventListener", "regression test"],
+      "mustNotContain": ["ignore the leak"]
+    }
+  },
+  {
+    "id": "itemplan-043",
+    "description": "Plan for fixing off-by-one error in pagination",
+    "issueNumber": 303,
+    "issueTitle": "Fix pagination showing wrong page count",
+    "acceptanceCriteria": "- Total pages = ceil(totalItems / pageSize)\n- Page 1 shows items 0-19, page 2 shows 20-39\n- Last page shows remaining items without duplication\n- Edge case: exactly divisible total handled correctly\n- Edge case: 0 items shows 'no results'",
+    "codebaseContext": "Express 4 + Prisma. Files: src/utils/pagination.ts, src/routes/products.ts, tests/utils/pagination.test.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["ceil", "off-by-one", "edge case", "test"],
+      "mustNotContain": ["Math.floor"]
+    }
+  },
+  {
+    "id": "itemplan-044",
+    "description": "Plan for fixing XSS vulnerability in user-generated content",
+    "issueNumber": 304,
+    "issueTitle": "Fix XSS vulnerability in comment rendering",
+    "acceptanceCriteria": "- All user input sanitized before rendering\n- Script tags stripped from content\n- HTML entities properly escaped\n- Rich text formatting preserved (bold, links)\n- Security test with known XSS payloads",
+    "codebaseContext": "React 18 + DOMPurify. Files: src/components/CommentList.tsx, src/utils/sanitize.ts, src/api/comments.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["sanitiz", "XSS", "escape", "security test"],
+      "mustNotContain": ["dangerouslySetInnerHTML without sanitization"]
+    }
+  },
+  {
+    "id": "itemplan-045",
+    "description": "Plan for fixing timezone handling in date display",
+    "issueNumber": 305,
+    "issueTitle": "Fix dates showing wrong timezone for international users",
+    "acceptanceCriteria": "- Dates stored in UTC in database\n- Displayed in user's local timezone\n- Date picker sends UTC to server\n- Formatting respects user's locale\n- Regression tests for UTC+12, UTC-12, UTC+5:30 offsets",
+    "codebaseContext": "React 18 + date-fns. Files: src/utils/dateFormat.ts, src/components/DateDisplay.tsx, src/api/events.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["UTC", "timezone", "locale", "regression test"],
+      "mustNotContain": ["new Date() without timezone"]
+    }
+  },
+  {
+    "id": "itemplan-046",
+    "description": "Plan for fixing N+1 query problem in list endpoint",
+    "issueNumber": 306,
+    "issueTitle": "Fix N+1 query in GET /api/orders endpoint",
+    "acceptanceCriteria": "- Orders list loads with eager loading of associations\n- Single query for orders + joined line_items + products\n- Response time < 200ms for 100 orders\n- SQL query count reduced from N+1 to 2-3\n- Performance test validates improvement",
+    "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/routes/orders.ts, src/services/orderService.ts, prisma/schema.prisma. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["eager loading", "include", "N+1", "test"],
+      "mustNotContain": ["loop query"]
+    }
+  },
+  {
+    "id": "itemplan-047",
+    "description": "Plan for fixing CORS configuration blocking legitimate requests",
+    "issueNumber": 307,
+    "issueTitle": "Fix CORS rejecting requests from staging domain",
+    "acceptanceCriteria": "- Allow origins: production, staging, localhost\n- Origins configured via environment variable\n- Preflight OPTIONS requests handled correctly\n- Credentials (cookies) allowed for same-origin\n- Regression test for each allowed origin",
+    "codebaseContext": "Express 4 + cors middleware. Files: src/middleware/cors.ts, src/config/index.ts, src/app.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["origin", "CORS", "environment", "test"],
+      "mustNotContain": ["Access-Control-Allow-Origin: *"]
+    }
+  },
+  {
+    "id": "itemplan-048",
+    "description": "Plan for fixing broken image lazy loading on Safari",
+    "issueNumber": 308,
+    "issueTitle": "Fix images not loading on Safari due to IntersectionObserver issue",
+    "acceptanceCriteria": "- Images load on scroll in all major browsers\n- Safari fallback for missing IntersectionObserver support\n- loading='lazy' native attribute used where supported\n- Polyfill loaded only when needed\n- Cross-browser test verification",
+    "codebaseContext": "React 18. Files: src/components/LazyImage.tsx, src/hooks/useLazyLoad.ts, src/utils/browserSupport.ts. Uses vitest + Playwright.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Safari", "fallback", "polyfill", "test"],
+      "mustNotContain": ["ignore Safari"]
+    }
+  },
+  {
+    "id": "itemplan-049",
+    "description": "Plan for fixing deadlock in concurrent database transactions",
+    "issueNumber": 309,
+    "issueTitle": "Fix database deadlock during concurrent order processing",
+    "acceptanceCriteria": "- Consistent lock ordering in transaction\n- SELECT FOR UPDATE with NOWAIT or SKIP LOCKED\n- Retry logic with exponential backoff on deadlock\n- Max 3 retries before failing with clear error\n- Concurrent stress test to verify fix",
+    "codebaseContext": "Node.js + Knex.js + PostgreSQL. Files: src/services/orderProcessor.ts, src/db/transactions.ts, src/utils/retry.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["deadlock", "lock ordering", "retry", "test"],
+      "mustNotContain": ["disable transactions"]
+    }
+  },
+  {
+    "id": "itemplan-050",
+    "description": "Plan for fixing session fixation vulnerability",
+    "issueNumber": 310,
+    "issueTitle": "Fix session fixation vulnerability in login flow",
+    "acceptanceCriteria": "- Session ID regenerated after successful login\n- Old session invalidated on login\n- Session cookie attributes: HttpOnly, Secure, SameSite=Strict\n- Session timeout after 30 minutes of inactivity\n- Security test verifies old session ID rejected post-login",
+    "codebaseContext": "Express 4 + express-session + Redis. Files: src/routes/auth.ts, src/middleware/session.ts, src/config/session.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["regenerat", "session fixation", "HttpOnly", "security test"],
+      "mustNotContain": ["reuse session"]
+    }
+  },
+  {
+    "id": "itemplan-051",
+    "description": "Plan for fixing circular dependency causing import errors",
+    "issueNumber": 311,
+    "issueTitle": "Fix circular dependency between User and Post modules",
+    "acceptanceCriteria": "- Circular import chain broken\n- Shared types extracted to common module\n- No runtime 'undefined' from circular resolution\n- madge or similar tool confirms no cycles\n- Existing tests still pass after refactor",
+    "codebaseContext": "TypeScript + ESM. Files: src/models/user.ts, src/models/post.ts, src/models/types.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["circular", "extract", "types", "test"],
+      "mustNotContain": ["lazy import workaround"]
+    }
+  },
+  {
+    "id": "itemplan-052",
+    "description": "Plan for fixing incorrect cache invalidation on update",
+    "issueNumber": 312,
+    "issueTitle": "Fix stale data served after product update",
+    "acceptanceCriteria": "- Cache entry deleted on product update and delete\n- Cache key includes all relevant query parameters\n- TTL reduced from 1 hour to 5 minutes\n- Cache stampede protection with mutex\n- Test verifies fresh data after update",
+    "codebaseContext": "Express 4 + Redis. Files: src/middleware/cache.ts, src/services/productService.ts, src/utils/cacheKeys.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["invalidat", "cache", "stale", "test"],
+      "mustNotContain": ["disable caching"]
+    }
+  },
+  {
+    "id": "itemplan-053",
+    "description": "Plan for fixing unhandled promise rejection crashing server",
+    "issueNumber": 313,
+    "issueTitle": "Fix unhandled rejection in async middleware chain",
+    "acceptanceCriteria": "- All async middleware wrapped with error handler\n- Express error middleware catches async errors\n- Unhandled rejection handler logs and returns 500\n- Client receives generic error message (no stack trace)\n- Test triggers async error and verifies 500 response",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/asyncHandler.ts, src/middleware/errorHandler.ts, src/app.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["async", "error handler", "500", "test"],
+      "mustNotContain": ["process.exit"]
+    }
+  },
+  {
+    "id": "itemplan-054",
+    "description": "Plan for fixing password reset token not expiring",
+    "issueNumber": 314,
+    "issueTitle": "Fix password reset tokens valid indefinitely",
+    "acceptanceCriteria": "- Reset token expires after 1 hour\n- Expired tokens return 400 with clear message\n- Token invalidated after successful password change\n- One active token per user (new request invalidates old)\n- Test verifies expired token rejected",
+    "codebaseContext": "Express 4 + Prisma. Files: src/routes/auth.ts, src/services/passwordResetService.ts, prisma/schema.prisma. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["expir", "token", "invalidat", "test"],
+      "mustNotContain": ["never expires"]
+    }
+  },
+  {
+    "id": "itemplan-055",
+    "description": "Plan for fixing data loss on concurrent form submissions",
+    "issueNumber": 315,
+    "issueTitle": "Fix form data overwritten by concurrent edits",
+    "acceptanceCriteria": "- Optimistic concurrency control with version field\n- 409 Conflict returned when version mismatch\n- Client shows merge conflict UI\n- Last-write-wins option available for admin\n- Test simulates concurrent edits and verifies conflict detection",
+    "codebaseContext": "React 18 + Express 4 + Prisma. Files: src/middleware/concurrency.ts, src/components/ConflictDialog.tsx, prisma/schema.prisma. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["version", "409", "conflict", "test"],
+      "mustNotContain": ["last write wins only"]
+    }
+  }
+]

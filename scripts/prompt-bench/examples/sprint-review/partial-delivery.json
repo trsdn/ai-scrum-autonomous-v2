@@ -1,0 +1,262 @@
+[
+  {
+    "id": "review-021",
+    "description": "4/6 issues done, 2 carried over due to external API dependency",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Implement OAuth2 login (status:done, PR #50 merged, 5 points)\n- #43: Add social login buttons (status:done, PR #51 merged, 3 points)\n- #44: Create user settings page (status:done, PR #52 merged, 5 points)\n- #45: Add two-factor authentication (status:done, PR #53 merged, 8 points)\n- #46: Integrate with SAML provider (status:in-progress, PR #54 open, 8 points)\n- #47: Add SSO for enterprise accounts (status:in-progress, no PR, 8 points)",
+    "velocityData": "Planned: 37 points, Completed: 21 points.",
+    "mergedPRs": "- PR #50: Implement OAuth2 login\n- PR #51: Add social login buttons\n- PR #52: Create user settings page\n- PR #53: Add two-factor authentication",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "SAML"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-022",
+    "description": "3/5 done for mobile app, 2 blocked by iOS SDK update",
+    "sprintNumber": 9,
+    "sprintIssues": "- #78: Redesign home screen layout (status:done, PR #88 merged, 5 points)\n- #79: Add pull-to-refresh on feeds (status:done, PR #89 merged, 3 points)\n- #80: Implement deep linking (status:done, PR #90 merged, 5 points)\n- #81: Add Apple Sign-In (status:in-progress, PR #91 open, 5 points)\n- #82: Update to iOS 17 SDK (status:in-progress, no PR, 8 points)",
+    "velocityData": "Planned: 26 points, Completed: 13 points.",
+    "mergedPRs": "- PR #88: Redesign home screen layout\n- PR #89: Add pull-to-refresh on feeds\n- PR #90: Implement deep linking",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "iOS"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-023",
+    "description": "5/7 completed, 2 deferred due to underestimated complexity",
+    "sprintNumber": 3,
+    "sprintIssues": "- #20: Build REST API for products (status:done, PR #28 merged, 5 points)\n- #21: Add product image upload (status:done, PR #29 merged, 3 points)\n- #22: Create product search with filters (status:done, PR #30 merged, 5 points)\n- #23: Add product reviews feature (status:done, PR #31 merged, 5 points)\n- #24: Implement product recommendations engine (status:done, PR #32 merged, 8 points)\n- #25: Build product comparison tool (status:in-progress, PR #33 open, 8 points)\n- #26: Add product inventory tracking (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 39 points, Completed: 26 points.",
+    "mergedPRs": "- PR #28: Build REST API for products\n- PR #29: Add product image upload\n- PR #30: Create product search with filters\n- PR #31: Add product reviews feature\n- PR #32: Implement product recommendations engine",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "comparison tool"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-024",
+    "description": "4/6 done, 2 blocked by third-party service outage",
+    "sprintNumber": 11,
+    "sprintIssues": "- #96: Create email template builder (status:done, PR #106 merged, 8 points)\n- #97: Add contact list import from CSV (status:done, PR #107 merged, 5 points)\n- #98: Implement email scheduling (status:done, PR #108 merged, 5 points)\n- #99: Add A/B testing for subject lines (status:done, PR #109 merged, 5 points)\n- #100: Integrate SendGrid for delivery (status:in-progress, PR #110 open, 5 points)\n- #101: Add bounce and complaint handling (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 33 points, Completed: 23 points.",
+    "mergedPRs": "- PR #106: Create email template builder\n- PR #107: Add contact list import from CSV\n- PR #108: Implement email scheduling\n- PR #109: Add A/B testing for subject lines",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "SendGrid"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-025",
+    "description": "3/5 done, CI pipeline changes slowed remaining work",
+    "sprintNumber": 7,
+    "sprintIssues": "- #60: Migrate from Jenkins to GitHub Actions (status:done, PR #68 merged, 8 points)\n- #61: Add parallel test execution (status:done, PR #69 merged, 5 points)\n- #62: Create staging deployment workflow (status:done, PR #70 merged, 5 points)\n- #63: Add canary deployment support (status:in-progress, PR #71 open, 8 points)\n- #64: Implement blue-green deployment (status:in-progress, no PR, 8 points)",
+    "velocityData": "Planned: 34 points, Completed: 18 points.",
+    "mergedPRs": "- PR #68: Migrate from Jenkins to GitHub Actions\n- PR #69: Add parallel test execution\n- PR #70: Create staging deployment workflow",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "canary"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-026",
+    "description": "5/6 delivered, last item needs design review",
+    "sprintNumber": 4,
+    "sprintIssues": "- #33: Create landing page hero section (status:done, PR #40 merged, 5 points)\n- #34: Add pricing table component (status:done, PR #41 merged, 3 points)\n- #35: Build testimonials carousel (status:done, PR #42 merged, 5 points)\n- #36: Add contact form with validation (status:done, PR #43 merged, 3 points)\n- #37: Implement responsive navigation (status:done, PR #44 merged, 5 points)\n- #38: Create animated feature showcase (status:in-progress, PR #45 open, 8 points)",
+    "velocityData": "Planned: 29 points, Completed: 21 points.",
+    "mergedPRs": "- PR #40: Create landing page hero section\n- PR #41: Add pricing table component\n- PR #42: Build testimonials carousel\n- PR #43: Add contact form with validation\n- PR #44: Implement responsive navigation",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "animated feature"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-027",
+    "description": "4/6 completed, database performance issues blocked 2 items",
+    "sprintNumber": 8,
+    "sprintIssues": "- #68: Add full-text search to articles (status:done, PR #78 merged, 5 points)\n- #69: Implement article versioning (status:done, PR #79 merged, 5 points)\n- #70: Create collaborative editing (status:done, PR #80 merged, 8 points)\n- #71: Add comment threading (status:done, PR #81 merged, 5 points)\n- #72: Implement real-time co-editing with CRDT (status:in-progress, PR #82 open, 13 points)\n- #73: Add export to PDF and DOCX (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 41 points, Completed: 23 points.",
+    "mergedPRs": "- PR #78: Add full-text search to articles\n- PR #79: Implement article versioning\n- PR #80: Create collaborative editing\n- PR #81: Add comment threading",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "CRDT"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-028",
+    "description": "3/5 done, payment provider migration took longer than expected",
+    "sprintNumber": 6,
+    "sprintIssues": "- #52: Migrate from Braintree to Stripe (status:done, PR #60 merged, 8 points)\n- #53: Update subscription management UI (status:done, PR #61 merged, 5 points)\n- #54: Add invoice generation (status:done, PR #62 merged, 5 points)\n- #55: Implement prorated upgrades/downgrades (status:in-progress, PR #63 open, 8 points)\n- #56: Add payment retry logic (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 31 points, Completed: 18 points.",
+    "mergedPRs": "- PR #60: Migrate from Braintree to Stripe\n- PR #61: Update subscription management UI\n- PR #62: Add invoice generation",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "prorated"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-029",
+    "description": "4/6 done, team member out sick reduced capacity",
+    "sprintNumber": 10,
+    "sprintIssues": "- #85: Implement file upload service (status:done, PR #95 merged, 5 points)\n- #86: Add image thumbnail generation (status:done, PR #96 merged, 3 points)\n- #87: Create file browser component (status:done, PR #97 merged, 5 points)\n- #88: Add drag-and-drop upload (status:done, PR #98 merged, 5 points)\n- #89: Implement file versioning (status:in-progress, PR #99 open, 8 points)\n- #90: Add virus scanning integration (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 31 points, Completed: 18 points.",
+    "mergedPRs": "- PR #95: Implement file upload service\n- PR #96: Add image thumbnail generation\n- PR #97: Create file browser component\n- PR #98: Add drag-and-drop upload",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "capacity"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-030",
+    "description": "6/8 done, 2 items need additional QA review",
+    "sprintNumber": 12,
+    "sprintIssues": "- #102: Build admin user management panel (status:done, PR #112 merged, 5 points)\n- #103: Add role-based access control (status:done, PR #113 merged, 8 points)\n- #104: Create audit log viewer (status:done, PR #114 merged, 5 points)\n- #105: Implement account suspension flow (status:done, PR #115 merged, 3 points)\n- #106: Add bulk user import (status:done, PR #116 merged, 5 points)\n- #107: Create admin dashboard widgets (status:done, PR #117 merged, 5 points)\n- #108: Implement multi-tenant isolation (status:in-progress, PR #118 open, 13 points)\n- #109: Add tenant billing management (status:in-progress, no PR, 8 points)",
+    "velocityData": "Planned: 52 points, Completed: 31 points.",
+    "mergedPRs": "- PR #112: Build admin user management panel\n- PR #113: Add role-based access control\n- PR #114: Create audit log viewer\n- PR #115: Implement account suspension flow\n- PR #116: Add bulk user import\n- PR #117: Create admin dashboard widgets",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "multi-tenant"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-031",
+    "description": "3/4 done, real-time feature needs WebSocket infrastructure first",
+    "sprintNumber": 2,
+    "sprintIssues": "- #14: Create chat message model (status:done, PR #18 merged, 3 points)\n- #15: Build chat room list UI (status:done, PR #19 merged, 5 points)\n- #16: Implement message sending API (status:done, PR #20 merged, 5 points)\n- #17: Add real-time message delivery via WebSocket (status:in-progress, PR #21 open, 13 points)",
+    "velocityData": "Planned: 26 points, Completed: 13 points.",
+    "mergedPRs": "- PR #18: Create chat message model\n- PR #19: Build chat room list UI\n- PR #20: Implement message sending API",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "WebSocket"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-032",
+    "description": "5/7 completed, testing infrastructure gaps slowed 2 items",
+    "sprintNumber": 14,
+    "sprintIssues": "- #135: Add Prometheus metrics endpoint (status:done, PR #145 merged, 5 points)\n- #136: Create Grafana dashboard templates (status:done, PR #146 merged, 5 points)\n- #137: Implement custom business metrics (status:done, PR #147 merged, 5 points)\n- #138: Add alerting rules for SLOs (status:done, PR #148 merged, 5 points)\n- #139: Create SLA compliance report (status:done, PR #149 merged, 3 points)\n- #140: Add distributed tracing with Jaeger (status:in-progress, PR #150 open, 8 points)\n- #141: Implement log correlation IDs (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 36 points, Completed: 23 points.",
+    "mergedPRs": "- PR #145: Add Prometheus metrics endpoint\n- PR #146: Create Grafana dashboard templates\n- PR #147: Implement custom business metrics\n- PR #148: Add alerting rules for SLOs\n- PR #149: Create SLA compliance report",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "Jaeger"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-033",
+    "description": "4/6 done, scope creep on map feature caused delays",
+    "sprintNumber": 5,
+    "sprintIssues": "- #44: Create location search endpoint (status:done, PR #52 merged, 5 points)\n- #45: Add geocoding integration (status:done, PR #53 merged, 5 points)\n- #46: Build map component with markers (status:done, PR #54 merged, 8 points)\n- #47: Add geofencing alerts (status:done, PR #55 merged, 5 points)\n- #48: Implement route planning with directions API (status:in-progress, PR #56 open, 13 points)\n- #49: Add location history tracking (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 41 points, Completed: 23 points.",
+    "mergedPRs": "- PR #52: Create location search endpoint\n- PR #53: Add geocoding integration\n- PR #54: Build map component with markers\n- PR #55: Add geofencing alerts",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "route planning"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-034",
+    "description": "3/5 done, authentication provider migration caused delays",
+    "sprintNumber": 16,
+    "sprintIssues": "- #150: Migrate from Auth0 to Keycloak (status:done, PR #160 merged, 13 points)\n- #151: Update login and registration flows (status:done, PR #161 merged, 5 points)\n- #152: Add social login adapters for Keycloak (status:done, PR #162 merged, 5 points)\n- #153: Implement token refresh with new provider (status:in-progress, PR #163 open, 5 points)\n- #154: Update all service-to-service auth (status:in-progress, no PR, 8 points)",
+    "velocityData": "Planned: 36 points, Completed: 23 points.",
+    "mergedPRs": "- PR #160: Migrate from Auth0 to Keycloak\n- PR #161: Update login and registration flows\n- PR #162: Add social login adapters for Keycloak",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "Keycloak"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-035",
+    "description": "5/6 done, last item needs upstream API availability",
+    "sprintNumber": 3,
+    "sprintIssues": "- #22: Create webhook receiver endpoint (status:done, PR #30 merged, 5 points)\n- #23: Add webhook signature verification (status:done, PR #31 merged, 3 points)\n- #24: Implement retry logic for failed webhooks (status:done, PR #32 merged, 5 points)\n- #25: Create webhook event log viewer (status:done, PR #33 merged, 5 points)\n- #26: Add webhook delivery status dashboard (status:done, PR #34 merged, 5 points)\n- #27: Integrate with partner billing webhook (status:in-progress, PR #35 open, 5 points)",
+    "velocityData": "Planned: 28 points, Completed: 23 points.",
+    "mergedPRs": "- PR #30: Create webhook receiver endpoint\n- PR #31: Add webhook signature verification\n- PR #32: Implement retry logic for failed webhooks\n- PR #33: Create webhook event log viewer\n- PR #34: Add webhook delivery status dashboard",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "partner billing"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-036",
+    "description": "4/5 done, complex caching logic caused delay on last item",
+    "sprintNumber": 9,
+    "sprintIssues": "- #80: Set up Redis cluster configuration (status:done, PR #88 merged, 5 points)\n- #81: Implement session store with Redis (status:done, PR #89 merged, 5 points)\n- #82: Add cache invalidation for user data (status:done, PR #90 merged, 5 points)\n- #83: Create cache warming strategy (status:done, PR #91 merged, 5 points)\n- #84: Implement distributed rate limiting with Redis (status:in-progress, PR #92 open, 8 points)",
+    "velocityData": "Planned: 28 points, Completed: 20 points.",
+    "mergedPRs": "- PR #88: Set up Redis cluster configuration\n- PR #89: Implement session store with Redis\n- PR #90: Add cache invalidation for user data\n- PR #91: Create cache warming strategy",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "rate limiting"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-037",
+    "description": "3/6 done, new hire onboarding reduced team velocity",
+    "sprintNumber": 6,
+    "sprintIssues": "- #55: Build workflow engine core (status:done, PR #63 merged, 13 points)\n- #56: Add workflow step definitions (status:done, PR #64 merged, 5 points)\n- #57: Create workflow builder UI (status:done, PR #65 merged, 8 points)\n- #58: Implement conditional branching logic (status:in-progress, PR #66 open, 8 points)\n- #59: Add workflow execution history (status:in-progress, no PR, 5 points)\n- #60: Create workflow templates library (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 44 points, Completed: 26 points.",
+    "mergedPRs": "- PR #63: Build workflow engine core\n- PR #64: Add workflow step definitions\n- PR #65: Create workflow builder UI",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "branching"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-038",
+    "description": "5/7 done, API versioning complexity blocked 2 items",
+    "sprintNumber": 15,
+    "sprintIssues": "- #143: Define API v2 route structure (status:done, PR #153 merged, 5 points)\n- #144: Add backward-compatible response transformers (status:done, PR #154 merged, 5 points)\n- #145: Create API version negotiation middleware (status:done, PR #155 merged, 5 points)\n- #146: Update SDK to support v2 endpoints (status:done, PR #156 merged, 5 points)\n- #147: Add API deprecation warning headers (status:done, PR #157 merged, 3 points)\n- #148: Implement v1 to v2 data migration script (status:in-progress, PR #158 open, 8 points)\n- #149: Create API changelog generator (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 36 points, Completed: 23 points.",
+    "mergedPRs": "- PR #153: Define API v2 route structure\n- PR #154: Add backward-compatible response transformers\n- PR #155: Create API version negotiation middleware\n- PR #156: Update SDK to support v2 endpoints\n- PR #157: Add API deprecation warning headers",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "migration script"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-039",
+    "description": "4/6 done, external integration dependency caused carryover",
+    "sprintNumber": 8,
+    "sprintIssues": "- #70: Build event ingestion pipeline (status:done, PR #78 merged, 8 points)\n- #71: Create event replay mechanism (status:done, PR #79 merged, 5 points)\n- #72: Add event schema validation (status:done, PR #80 merged, 3 points)\n- #73: Implement event sourcing for orders (status:done, PR #81 merged, 8 points)\n- #74: Add Kafka consumer group management (status:in-progress, PR #82 open, 8 points)\n- #75: Create event-driven notification triggers (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 37 points, Completed: 24 points.",
+    "mergedPRs": "- PR #78: Build event ingestion pipeline\n- PR #79: Create event replay mechanism\n- PR #80: Add event schema validation\n- PR #81: Implement event sourcing for orders",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "Kafka"],
+      "mustNotContain": ["fully delivered"]
+    }
+  },
+  {
+    "id": "review-040",
+    "description": "4/5 done, complex regex engine not completed in time",
+    "sprintNumber": 4,
+    "sprintIssues": "- #35: Create log parsing library core (status:done, PR #43 merged, 5 points)\n- #36: Add structured log format support (status:done, PR #44 merged, 5 points)\n- #37: Implement log rotation and archiving (status:done, PR #45 merged, 5 points)\n- #38: Create log search CLI tool (status:done, PR #46 merged, 5 points)\n- #39: Build custom regex pattern engine for log queries (status:in-progress, PR #47 open, 13 points)",
+    "velocityData": "Planned: 33 points, Completed: 20 points.",
+    "mergedPRs": "- PR #43: Create log parsing library core\n- PR #44: Add structured log format support\n- PR #45: Implement log rotation and archiving\n- PR #46: Create log search CLI tool",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete", "regex"],
+      "mustNotContain": ["all completed"]
+    }
+  }
+]

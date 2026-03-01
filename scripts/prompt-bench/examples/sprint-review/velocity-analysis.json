@@ -1,0 +1,197 @@
+[
+  {
+    "id": "review-056",
+    "description": "Significant underperformance: planned 21 points, completed 13",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Build user dashboard (status:done, PR #50 merged, 5 points)\n- #43: Add notification preferences (status:done, PR #51 merged, 3 points)\n- #44: Create activity feed (status:done, PR #52 merged, 5 points)\n- #45: Implement user mentions (status:in-progress, PR #53 open, 3 points)\n- #46: Add real-time dashboard updates (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 21 points, Completed: 13 points. Previous sprint velocity: 18 points. Sprint before that: 20 points.",
+    "mergedPRs": "- PR #50: Build user dashboard\n- PR #51: Add notification preferences\n- PR #52: Create activity feed",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "13"],
+      "mustNotContain": ["exceeded"]
+    }
+  },
+  {
+    "id": "review-057",
+    "description": "Overperformance: planned 15 points, completed 21",
+    "sprintNumber": 7,
+    "sprintIssues": "- #60: Fix pagination bug in list views (status:done, PR #68 merged, 2 points)\n- #61: Add bulk delete for records (status:done, PR #69 merged, 3 points)\n- #62: Create export functionality (status:done, PR #70 merged, 5 points)\n- #63: Add sorting to all table columns (status:done, PR #71 merged, 3 points)\n- #64: Implement inline editing (status:done, PR #72 merged, 5 points)\n- #65: Add undo/redo for form edits (status:done, PR #73 merged, 3 points)",
+    "velocityData": "Planned: 15 points, Completed: 21 points. Previous sprint velocity: 18 points. Sprint before that: 16 points.",
+    "mergedPRs": "- PR #68: Fix pagination bug in list views\n- PR #69: Add bulk delete for records\n- PR #70: Create export functionality\n- PR #71: Add sorting to all table columns\n- PR #72: Implement inline editing\n- PR #73: Add undo/redo for form edits",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "21 points"],
+      "mustNotContain": ["underperformed"]
+    }
+  },
+  {
+    "id": "review-058",
+    "description": "Velocity trending downward: 30 → 25 → 18 over 3 sprints",
+    "sprintNumber": 9,
+    "sprintIssues": "- #78: Create user onboarding flow (status:done, PR #88 merged, 8 points)\n- #79: Add tooltip help system (status:done, PR #89 merged, 5 points)\n- #80: Build guided tour component (status:done, PR #90 merged, 5 points)\n- #81: Add contextual help sidebar (status:in-progress, PR #91 open, 5 points)\n- #82: Create knowledge base search (status:in-progress, no PR, 8 points)\n- #83: Implement feedback widget (status:not-started, no PR, 3 points)",
+    "velocityData": "Planned: 34 points, Completed: 18 points. Sprint 8: 25 points completed. Sprint 7: 30 points completed. Three-sprint trend: 30 → 25 → 18 (declining).",
+    "mergedPRs": "- PR #88: Create user onboarding flow\n- PR #89: Add tooltip help system\n- PR #90: Build guided tour component",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "declining"],
+      "mustNotContain": ["improving"]
+    }
+  },
+  {
+    "id": "review-059",
+    "description": "Velocity trending upward: 15 → 20 → 28 over 3 sprints",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50: Add user preferences API (status:done, PR #58 merged, 5 points)\n- #51: Create theme customization (status:done, PR #59 merged, 5 points)\n- #52: Build settings import/export (status:done, PR #60 merged, 3 points)\n- #53: Add keyboard shortcuts (status:done, PR #61 merged, 5 points)\n- #54: Implement command palette (status:done, PR #62 merged, 5 points)\n- #55: Add workspace layouts (status:done, PR #63 merged, 5 points)",
+    "velocityData": "Planned: 28 points, Completed: 28 points. Sprint 5: 20 points completed. Sprint 4: 15 points completed. Three-sprint trend: 15 → 20 → 28 (improving).",
+    "mergedPRs": "- PR #58: Add user preferences API\n- PR #59: Create theme customization\n- PR #60: Build settings import/export\n- PR #61: Add keyboard shortcuts\n- PR #62: Implement command palette\n- PR #63: Add workspace layouts",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "improving"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-060",
+    "description": "Exact match: planned 20 points, completed 20 points",
+    "sprintNumber": 4,
+    "sprintIssues": "- #33: Create REST API for tasks (status:done, PR #40 merged, 5 points)\n- #34: Add task assignment feature (status:done, PR #41 merged, 3 points)\n- #35: Implement due date reminders (status:done, PR #42 merged, 5 points)\n- #36: Create task dependencies (status:done, PR #43 merged, 5 points)\n- #37: Add task labels and filters (status:done, PR #44 merged, 2 points)",
+    "velocityData": "Planned: 20 points, Completed: 20 points. Previous sprint velocity: 19 points. Sprint before that: 21 points. Average velocity: 20 points.",
+    "mergedPRs": "- PR #40: Create REST API for tasks\n- PR #41: Add task assignment feature\n- PR #42: Implement due date reminders\n- PR #43: Create task dependencies\n- PR #44: Add task labels and filters",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "20 points"],
+      "mustNotContain": ["underperformed", "overperformed"]
+    }
+  },
+  {
+    "id": "review-061",
+    "description": "Major velocity drop: planned 35 points, completed 10",
+    "sprintNumber": 11,
+    "sprintIssues": "- #95: Set up Kubernetes cluster (status:done, PR #105 merged, 5 points)\n- #96: Create Helm charts for services (status:done, PR #106 merged, 5 points)\n- #97: Implement service discovery (status:in-progress, PR #107 open, 8 points)\n- #98: Add pod autoscaling (status:not-started, no PR, 5 points)\n- #99: Implement rolling deployments (status:not-started, no PR, 5 points)\n- #100: Set up ingress controllers (status:not-started, no PR, 5 points)\n- #101: Add resource quotas (status:not-started, no PR, 2 points)",
+    "velocityData": "Planned: 35 points, Completed: 10 points. Previous sprint velocity: 30 points. Sprint before that: 28 points. Velocity ratio: 29% of planned.",
+    "mergedPRs": "- PR #105: Set up Kubernetes cluster\n- PR #106: Create Helm charts for services",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "10"],
+      "mustNotContain": ["on track"]
+    }
+  },
+  {
+    "id": "review-062",
+    "description": "Slight underperformance: planned 24, completed 21 (87.5%)",
+    "sprintNumber": 8,
+    "sprintIssues": "- #70: Add image gallery component (status:done, PR #78 merged, 5 points)\n- #71: Implement image cropping tool (status:done, PR #79 merged, 5 points)\n- #72: Add batch image upload (status:done, PR #80 merged, 3 points)\n- #73: Create image optimization pipeline (status:done, PR #81 merged, 8 points)\n- #74: Add image tagging and search (status:in-progress, PR #82 open, 3 points)",
+    "velocityData": "Planned: 24 points, Completed: 21 points. Previous sprint velocity: 22 points. Completion rate: 87.5%.",
+    "mergedPRs": "- PR #78: Add image gallery component\n- PR #79: Implement image cropping tool\n- PR #80: Add batch image upload\n- PR #81: Create image optimization pipeline",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "21"],
+      "mustNotContain": ["failed"]
+    }
+  },
+  {
+    "id": "review-063",
+    "description": "Significant overperformance: team completed stretch goals",
+    "sprintNumber": 10,
+    "sprintIssues": "- #85: Build form builder component (status:done, PR #95 merged, 8 points)\n- #86: Add conditional form logic (status:done, PR #96 merged, 5 points)\n- #87: Implement form validation engine (status:done, PR #97 merged, 5 points)\n- #88: Add form submission analytics (status:done, PR #98 merged, 3 points)\n- #89: Create form template library (stretch) (status:done, PR #99 merged, 5 points)\n- #90: Add multi-page form support (stretch) (status:done, PR #100 merged, 5 points)",
+    "velocityData": "Planned: 21 points (core), Completed: 31 points (core + stretch). Previous sprint velocity: 24 points. Velocity increase: 29% over plan.",
+    "mergedPRs": "- PR #95: Build form builder component\n- PR #96: Add conditional form logic\n- PR #97: Implement form validation engine\n- PR #98: Add form submission analytics\n- PR #99: Create form template library (stretch)\n- PR #100: Add multi-page form support (stretch)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "31 points"],
+      "mustNotContain": ["underperformed"]
+    }
+  },
+  {
+    "id": "review-064",
+    "description": "Erratic velocity: 25 → 12 → 28 → 10 over 4 sprints",
+    "sprintNumber": 12,
+    "sprintIssues": "- #102: Fix search indexing bug (status:done, PR #112 merged, 3 points)\n- #103: Update search ranking algorithm (status:done, PR #113 merged, 5 points)\n- #104: Add search suggestions (status:in-progress, PR #114 open, 5 points)\n- #105: Implement faceted search (status:not-started, no PR, 8 points)\n- #106: Add search analytics (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 26 points, Completed: 8 points. Sprint 11: 28 points. Sprint 10: 12 points. Sprint 9: 25 points. Sprint 8: 10 points. Pattern: erratic (25 → 12 → 28 → 10 → 8).",
+    "mergedPRs": "- PR #112: Fix search indexing bug\n- PR #113: Update search ranking algorithm",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "points"],
+      "mustNotContain": ["stable"]
+    }
+  },
+  {
+    "id": "review-065",
+    "description": "First sprint: no historical velocity to compare",
+    "sprintNumber": 1,
+    "sprintIssues": "- #1: Set up project repository and CI (status:done, PR #5 merged, 3 points)\n- #2: Create database schema (status:done, PR #6 merged, 5 points)\n- #3: Implement user model (status:done, PR #7 merged, 5 points)\n- #4: Add basic authentication (status:done, PR #8 merged, 5 points)\n- #5: Write initial test suite (status:in-progress, PR #9 open, 5 points)",
+    "velocityData": "Planned: 23 points, Completed: 18 points. No previous sprint data available. This is the team's first sprint.",
+    "mergedPRs": "- PR #5: Set up project repository and CI\n- PR #6: Create database schema\n- PR #7: Implement user model\n- PR #8: Add basic authentication",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "18 points"],
+      "mustNotContain": ["declined"]
+    }
+  },
+  {
+    "id": "review-066",
+    "description": "Velocity plateau: 22 → 23 → 22 → 23 (stable but not growing)",
+    "sprintNumber": 8,
+    "sprintIssues": "- #68: Add CSV import feature (status:done, PR #76 merged, 5 points)\n- #69: Create data validation rules (status:done, PR #77 merged, 5 points)\n- #70: Build import progress tracker (status:done, PR #78 merged, 3 points)\n- #71: Add import error report (status:done, PR #79 merged, 5 points)\n- #72: Implement scheduled imports (status:done, PR #80 merged, 5 points)",
+    "velocityData": "Planned: 23 points, Completed: 23 points. Sprint 7: 22 points. Sprint 6: 23 points. Sprint 5: 22 points. Four-sprint average: 22.5 points. Velocity is stable but plateaued.",
+    "mergedPRs": "- PR #76: Add CSV import feature\n- PR #77: Create data validation rules\n- PR #78: Build import progress tracker\n- PR #79: Add import error report\n- PR #80: Implement scheduled imports",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "23"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-067",
+    "description": "Recovery sprint: velocity improved after previous failed sprint",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50: Fix broken build pipeline (status:done, PR #58 merged, 3 points)\n- #51: Resolve flaky tests (status:done, PR #59 merged, 5 points)\n- #52: Add retry logic to CI (status:done, PR #60 merged, 3 points)\n- #53: Implement test parallelization (status:done, PR #61 merged, 5 points)\n- #54: Add build caching (status:done, PR #62 merged, 5 points)",
+    "velocityData": "Planned: 21 points, Completed: 21 points. Sprint 5 (failed): 5 points completed. Sprint 4: 22 points. Recovery ratio: 420% improvement over previous sprint.",
+    "mergedPRs": "- PR #58: Fix broken build pipeline\n- PR #59: Resolve flaky tests\n- PR #60: Add retry logic to CI\n- PR #61: Implement test parallelization\n- PR #62: Add build caching",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "recovery"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-068",
+    "description": "Capacity-adjusted velocity: team at 60% capacity, hit adjusted target",
+    "sprintNumber": 3,
+    "sprintIssues": "- #22: Create API rate limiting (status:done, PR #28 merged, 5 points)\n- #23: Add API key management (status:done, PR #29 merged, 3 points)\n- #24: Implement usage metering (status:done, PR #30 merged, 5 points)",
+    "velocityData": "Planned: 13 points (adjusted for 60% capacity — 2 of 3 engineers on vacation). Completed: 13 points. Normal velocity: 22 points. Capacity-adjusted target met exactly.",
+    "mergedPRs": "- PR #28: Create API rate limiting\n- PR #29: Add API key management\n- PR #30: Implement usage metering",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "capacity"],
+      "mustNotContain": ["underperformed"]
+    }
+  },
+  {
+    "id": "review-069",
+    "description": "Story point inflation suspected: completed 40 points but only 3 small features",
+    "sprintNumber": 14,
+    "sprintIssues": "- #130: Add tooltip to settings button (status:done, PR #140 merged, 13 points)\n- #131: Fix typo in error message (status:done, PR #141 merged, 13 points)\n- #132: Update color of save button (status:done, PR #142 merged, 14 points)",
+    "velocityData": "Planned: 40 points, Completed: 40 points. Previous sprint velocity: 22 points. Sprint before that: 20 points. Velocity jumped 82% while delivering fewer issues.",
+    "mergedPRs": "- PR #140: Add tooltip to settings button\n- PR #141: Fix typo in error message\n- PR #142: Update color of save button",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "points"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-070",
+    "description": "Large point items dragged velocity: all 3-pointers done, 13-pointer incomplete",
+    "sprintNumber": 10,
+    "sprintIssues": "- #88: Fix login redirect bug (status:done, PR #96 merged, 2 points)\n- #89: Update error messages (status:done, PR #97 merged, 2 points)\n- #90: Add form field validation (status:done, PR #98 merged, 3 points)\n- #91: Fix date picker timezone issue (status:done, PR #99 merged, 3 points)\n- #92: Rebuild entire state management layer (status:in-progress, PR #100 open, 13 points)",
+    "velocityData": "Planned: 23 points, Completed: 10 points. 43% completion. All small items (2-3 points) completed. Single 13-point item is the entire shortfall.",
+    "mergedPRs": "- PR #96: Fix login redirect bug\n- PR #97: Update error messages\n- PR #98: Add form field validation\n- PR #99: Fix date picker timezone issue",
+    "expected": {
+      "passed": true,
+      "mustContain": ["velocity", "10"],
+      "mustNotContain": ["on track"]
+    }
+  }
+]

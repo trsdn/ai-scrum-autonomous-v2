@@ -1,0 +1,197 @@
+[
+  {
+    "id": "itemplan-086",
+    "description": "Plan for adding WebSocket support with server and client",
+    "issueNumber": 601,
+    "issueTitle": "Add real-time WebSocket support for live updates",
+    "acceptanceCriteria": "- WebSocket server on /ws endpoint\n- Client hook useWebSocket with auto-reconnect\n- Channels: notifications, chat, presence\n- Authentication via token in connection handshake\n- Heartbeat ping/pong every 30 seconds\n- Graceful degradation to SSE if WS unavailable",
+    "codebaseContext": "Express 4 + React 18 + ws library. Files: src/ws/server.ts, src/ws/channels.ts, src/ws/auth.ts, src/hooks/useWebSocket.ts, src/components/LiveFeed.tsx, tests/ws/. Uses vitest + ws.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["WebSocket", "channel", "reconnect", "heartbeat", "test"],
+      "mustNotContain": ["Socket.IO"]
+    }
+  },
+  {
+    "id": "itemplan-087",
+    "description": "Plan for implementing email notification system end-to-end",
+    "issueNumber": 602,
+    "issueTitle": "Build email notification system with templates and queue",
+    "acceptanceCriteria": "- Email templates: welcome, password_reset, order_confirm, weekly_digest\n- Template engine with variable substitution\n- Queue-based sending via BullMQ\n- Retry with exponential backoff on failure\n- Unsubscribe link and preference management\n- Email delivery tracking (sent, opened, bounced)",
+    "codebaseContext": "Express 4 + BullMQ + Nodemailer + MJML. Files: src/email/templates/, src/email/sender.ts, src/email/queue.ts, src/routes/email-preferences.ts, src/models/emailLog.ts, tests/email/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["template", "queue", "retry", "unsubscribe", "test"],
+      "mustNotContain": ["synchronous send"]
+    }
+  },
+  {
+    "id": "itemplan-088",
+    "description": "Plan for adding OAuth2 with Google and GitHub providers",
+    "issueNumber": 603,
+    "issueTitle": "Implement OAuth2 login with Google and GitHub",
+    "acceptanceCriteria": "- OAuth2 authorization code flow for both providers\n- Callback URLs: /api/auth/google/callback, /api/auth/github/callback\n- Account linking: OAuth account linked to existing user by email\n- New users auto-created on first OAuth login\n- JWT tokens issued after OAuth success\n- CSRF protection via state parameter",
+    "codebaseContext": "Express 4 + Passport.js + React 18. Files: src/auth/strategies/google.ts, src/auth/strategies/github.ts, src/auth/oauth.ts, src/routes/auth.ts, src/components/LoginPage.tsx, src/models/oauthAccount.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["OAuth", "callback", "account link", "CSRF", "test"],
+      "mustNotContain": ["implicit flow"]
+    }
+  },
+  {
+    "id": "itemplan-089",
+    "description": "Plan for database query optimization across services",
+    "issueNumber": 604,
+    "issueTitle": "Optimize slow database queries across dashboard services",
+    "acceptanceCriteria": "- Add indexes for: orders.created_at, users.email, products.category_id\n- Rewrite dashboard stats query to use materialized view\n- Add query explain analysis for top 5 slowest queries\n- Connection pool tuned: min 5, max 20\n- Query timeout set to 10 seconds\n- Performance tests validate 50% improvement",
+    "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: prisma/schema.prisma, src/services/dashboardService.ts, src/services/reportService.ts, src/db/migrations/, src/config/database.ts, tests/performance/. Uses vitest + pgbench.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["index", "materialized view", "connection pool", "performance test"],
+      "mustNotContain": ["remove query"]
+    }
+  },
+  {
+    "id": "itemplan-090",
+    "description": "Plan for extracting microservice from monolith",
+    "issueNumber": 605,
+    "issueTitle": "Extract notification service from monolith into standalone service",
+    "acceptanceCriteria": "- Notification logic extracted to separate Node.js service\n- Communication via RabbitMQ message queue\n- Shared contracts defined in protobuf/JSON schema\n- Monolith publishes events, service consumes\n- Independent deployment pipeline\n- Feature flag to toggle old vs new path\n- Data migration for notification preferences",
+    "codebaseContext": "Monolith: Express 4 + PostgreSQL. New service: Fastify + MongoDB. Files: services/notifications/, src/events/publishers/, src/contracts/, docker-compose.yml, .github/workflows/notify-service.yml. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["microservice", "message queue", "contract", "feature flag", "test"],
+      "mustNotContain": ["direct database access"]
+    }
+  },
+  {
+    "id": "itemplan-091",
+    "description": "Plan for implementing full-text search with Elasticsearch",
+    "issueNumber": 606,
+    "issueTitle": "Add full-text search for products using Elasticsearch",
+    "acceptanceCriteria": "- Elasticsearch index for products with analyzers\n- Search endpoint: GET /api/search?q=term&filters=...\n- Faceted filtering: category, price range, brand\n- Autocomplete suggestions endpoint\n- Index synced from PostgreSQL on write\n- Fallback to DB LIKE query if ES unavailable",
+    "codebaseContext": "Express 4 + Elasticsearch 8 + PostgreSQL. Files: src/search/indexer.ts, src/search/client.ts, src/routes/search.ts, src/search/mappings.ts, src/hooks/useSearch.ts, tests/search/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Elasticsearch", "index", "facet", "fallback", "test"],
+      "mustNotContain": ["LIKE query only"]
+    }
+  },
+  {
+    "id": "itemplan-092",
+    "description": "Plan for implementing CI/CD pipeline from scratch",
+    "issueNumber": 607,
+    "issueTitle": "Set up complete CI/CD pipeline with GitHub Actions",
+    "acceptanceCriteria": "- Lint, type check, unit test on every PR\n- Integration tests on merge to main\n- Build Docker image and push to registry\n- Deploy to staging automatically\n- Deploy to production with manual approval\n- Rollback workflow for failed deployments\n- Slack notification on failure",
+    "codebaseContext": "Node.js + Docker + AWS ECS. Files: .github/workflows/ci.yml, .github/workflows/deploy.yml, Dockerfile, docker-compose.yml, scripts/deploy.sh, scripts/rollback.sh. Uses GitHub Actions.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["CI", "deploy", "rollback", "approval", "test"],
+      "mustNotContain": ["manual deployment"]
+    }
+  },
+  {
+    "id": "itemplan-093",
+    "description": "Plan for implementing role-based dashboard with SSR",
+    "issueNumber": 608,
+    "issueTitle": "Build role-based admin dashboard with server-side rendering",
+    "acceptanceCriteria": "- Admin dashboard with role-based menu items\n- SSR for initial page load performance\n- Charts: revenue, users, orders (server-fetched data)\n- Table with server-side pagination, sort, filter\n- Export to CSV functionality\n- Responsive layout for tablet/desktop",
+    "codebaseContext": "Next.js 14 + React 18 + Prisma. Files: app/admin/layout.tsx, app/admin/dashboard/page.tsx, app/admin/users/page.tsx, src/components/admin/, src/services/adminService.ts, middleware.ts. Uses vitest + Playwright.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["SSR", "role", "dashboard", "pagination", "test"],
+      "mustNotContain": ["client-only rendering"]
+    }
+  },
+  {
+    "id": "itemplan-094",
+    "description": "Plan for implementing payment processing with multiple gateways",
+    "issueNumber": 609,
+    "issueTitle": "Add payment processing with Stripe and PayPal",
+    "acceptanceCriteria": "- Payment gateway adapter pattern\n- Stripe: card payments, 3D Secure support\n- PayPal: checkout flow with redirect\n- Idempotency keys prevent duplicate charges\n- Payment status webhook handlers for both\n- Refund support through unified API\n- PCI compliance: no card data in logs",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/payments/adapter.ts, src/payments/stripe.ts, src/payments/paypal.ts, src/routes/payments.ts, src/routes/webhooks.ts, src/models/payment.ts, tests/payments/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["adapter", "idempotent", "webhook", "PCI", "test"],
+      "mustNotContain": ["store card numbers"]
+    }
+  },
+  {
+    "id": "itemplan-095",
+    "description": "Plan for implementing multi-language CMS content system",
+    "issueNumber": 610,
+    "issueTitle": "Build multi-language content management for marketing pages",
+    "acceptanceCriteria": "- Content model: Page, Section, Translation\n- Admin UI for content editing per language\n- API: GET /api/pages/:slug?lang=en returns localized content\n- Fallback to default language if translation missing\n- Content versioning with publish/draft states\n- SEO: hreflang tags generated automatically",
+    "codebaseContext": "Next.js 14 + Prisma + PostgreSQL + React 18. Files: src/models/content.ts, app/[lang]/[slug]/page.tsx, src/services/contentService.ts, app/admin/content/, prisma/schema.prisma, tests/content/. Uses vitest + Playwright.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["translation", "fallback", "version", "hreflang", "test"],
+      "mustNotContain": ["hardcoded content"]
+    }
+  },
+  {
+    "id": "itemplan-096",
+    "description": "Plan for implementing feature flag system",
+    "issueNumber": 611,
+    "issueTitle": "Build internal feature flag system with gradual rollout",
+    "acceptanceCriteria": "- Feature flags stored in database with admin UI\n- Targeting: user %, user IDs, environment, custom attributes\n- SDK: useFeatureFlag hook (React) and checkFlag middleware (API)\n- Evaluation logged for analytics\n- Stale flag detection and cleanup workflow\n- No external service dependency (self-hosted)",
+    "codebaseContext": "Express 4 + React 18 + Prisma. Files: src/flags/evaluator.ts, src/flags/store.ts, src/hooks/useFeatureFlag.ts, src/middleware/featureFlag.ts, app/admin/flags/, prisma/schema.prisma, tests/flags/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["feature flag", "targeting", "rollout", "hook", "test"],
+      "mustNotContain": ["LaunchDarkly"]
+    }
+  },
+  {
+    "id": "itemplan-097",
+    "description": "Plan for implementing file processing pipeline",
+    "issueNumber": 612,
+    "issueTitle": "Build async file processing pipeline for CSV imports",
+    "acceptanceCriteria": "- Upload CSV via API endpoint\n- Validate file format and headers\n- Process rows in background job (BullMQ)\n- Progress tracking via SSE or polling endpoint\n- Error report: row number, field, error message\n- Support for 100k+ row files without memory issues\n- Processed results stored and downloadable",
+    "codebaseContext": "Express 4 + BullMQ + Redis + PostgreSQL. Files: src/routes/imports.ts, src/jobs/csvProcessor.ts, src/services/csvValidator.ts, src/services/importTracker.ts, src/utils/streamParser.ts, tests/import/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["stream", "queue", "progress", "validation", "test"],
+      "mustNotContain": ["load entire file in memory"]
+    }
+  },
+  {
+    "id": "itemplan-098",
+    "description": "Plan for implementing audit trail and compliance logging",
+    "issueNumber": 613,
+    "issueTitle": "Add comprehensive audit trail for SOC2 compliance",
+    "acceptanceCriteria": "- All data mutations logged with before/after state\n- Immutable audit log (append-only table)\n- Fields: actor, action, resource, timestamp, IP, user-agent\n- Admin dashboard for audit log viewing with filters\n- Retention policy: 7 years\n- Export to JSON/CSV for auditors\n- Sensitive fields masked in logs",
+    "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/audit/logger.ts, src/audit/middleware.ts, src/audit/types.ts, src/routes/admin/audit.ts, app/admin/audit/page.tsx, prisma/schema.prisma, tests/audit/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["audit", "immutable", "retention", "mask", "test"],
+      "mustNotContain": ["delete audit logs"]
+    }
+  },
+  {
+    "id": "itemplan-099",
+    "description": "Plan for implementing GraphQL federation gateway",
+    "issueNumber": 614,
+    "issueTitle": "Set up Apollo Federation gateway for microservices",
+    "acceptanceCriteria": "- Gateway composes schemas from user, product, order services\n- Each service owns its domain types\n- Entity references resolved across services\n- Authentication at gateway level\n- Rate limiting per client at gateway\n- Monitoring: query complexity analysis and slow query logging\n- Graceful degradation if subgraph unavailable",
+    "codebaseContext": "Apollo Gateway + Apollo Server 4 + Node.js. Files: gateway/src/index.ts, gateway/src/auth.ts, services/users/schema.ts, services/products/schema.ts, services/orders/schema.ts, gateway/src/plugins/, tests/federation/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["federation", "gateway", "subgraph", "entity", "test"],
+      "mustNotContain": ["monolithic schema"]
+    }
+  },
+  {
+    "id": "itemplan-100",
+    "description": "Plan for implementing observability stack with traces and metrics",
+    "issueNumber": 615,
+    "issueTitle": "Add distributed tracing and metrics with OpenTelemetry",
+    "acceptanceCriteria": "- OpenTelemetry SDK instrumented for HTTP, DB, Redis\n- Trace context propagated across service boundaries\n- Custom spans for business operations (order creation, payment)\n- Metrics: request duration, error rate, queue depth\n- Export to Jaeger (traces) and Prometheus (metrics)\n- Dashboard with key SLI/SLO visualizations\n- Sampling rate configurable per environment",
+    "codebaseContext": "Node.js microservices + Express 4. Files: src/telemetry/tracer.ts, src/telemetry/metrics.ts, src/telemetry/middleware.ts, src/config/telemetry.ts, docker-compose.yml (Jaeger + Prometheus), grafana/dashboards/, tests/telemetry/. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["OpenTelemetry", "trace", "metric", "span", "test"],
+      "mustNotContain": ["console.log for monitoring"]
+    }
+  }
+]

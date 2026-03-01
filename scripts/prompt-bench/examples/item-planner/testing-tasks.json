@@ -1,0 +1,197 @@
+[
+  {
+    "id": "itemplan-071",
+    "description": "Plan for adding integration tests for REST API routes",
+    "issueNumber": 501,
+    "issueTitle": "Add integration tests for user API endpoints",
+    "acceptanceCriteria": "- Tests for GET/POST/PUT/DELETE /api/users\n- Test database seeded and torn down per suite\n- Auth token obtained in beforeAll\n- Validates response status, body shape, and headers\n- Edge cases: invalid input, not found, unauthorized\n- Coverage target: 90% for routes/users.ts",
+    "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/routes/users.ts, tests/integration/users.test.ts (new). Uses vitest + supertest. Test DB configured in vitest.config.ts.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["supertest", "integration", "seed", "coverage"],
+      "mustNotContain": ["unit test only"]
+    }
+  },
+  {
+    "id": "itemplan-072",
+    "description": "Plan for setting up E2E tests with Playwright",
+    "issueNumber": 502,
+    "issueTitle": "Set up Playwright E2E testing for critical user flows",
+    "acceptanceCriteria": "- Playwright configured with chromium, firefox, webkit\n- Tests: login flow, create post, search, profile update\n- Page Object Model for maintainability\n- CI integration with screenshots on failure\n- Test data isolated per test run\n- Runs in < 5 minutes",
+    "codebaseContext": "Next.js 14 + React 18. Files: tests/e2e/, tests/e2e/pages/, playwright.config.ts. Uses Playwright.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Playwright", "Page Object", "CI", "screenshot"],
+      "mustNotContain": ["Cypress"]
+    }
+  },
+  {
+    "id": "itemplan-073",
+    "description": "Plan for adding snapshot tests for UI components",
+    "issueNumber": 503,
+    "issueTitle": "Add snapshot tests for design system components",
+    "acceptanceCriteria": "- Snapshot tests for Button, Input, Card, Modal, Alert\n- Each component tested in all variant states\n- Inline snapshots for small components\n- File snapshots for complex components\n- Snapshots updated via --update flag\n- CI fails on unexpected snapshot changes",
+    "codebaseContext": "React 18 + TypeScript. Files: src/components/ui/*.tsx, tests/snapshots/ (new). Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["snapshot", "variant", "toMatchSnapshot", "CI"],
+      "mustNotContain": ["screenshot test"]
+    }
+  },
+  {
+    "id": "itemplan-074",
+    "description": "Plan for increasing test coverage of auth module",
+    "issueNumber": 504,
+    "issueTitle": "Increase auth module coverage from 45% to 90%",
+    "acceptanceCriteria": "- Unit tests for login, register, resetPassword, verifyEmail\n- Edge cases: expired token, invalid credentials, locked account\n- Mock external services (email, OAuth providers)\n- Branch coverage for all conditional paths\n- Coverage report generated in CI\n- No tests rely on network calls",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/services/authService.ts, src/middleware/auth.ts, tests/services/authService.test.ts. Uses vitest + c8 coverage.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["coverage", "mock", "edge case", "branch"],
+      "mustNotContain": ["skip hard tests"]
+    }
+  },
+  {
+    "id": "itemplan-075",
+    "description": "Plan for adding load testing with k6",
+    "issueNumber": 505,
+    "issueTitle": "Set up load testing for API performance baselines",
+    "acceptanceCriteria": "- k6 scripts for: login, list products, create order\n- Scenarios: smoke (1 VU), load (50 VU), stress (200 VU)\n- Thresholds: p95 < 500ms, error rate < 1%\n- Results exported to InfluxDB/Grafana\n- CI job runs smoke test on every PR\n- Baseline results documented",
+    "codebaseContext": "Express 4 + PostgreSQL. Files: tests/load/login.js, tests/load/products.js, tests/load/orders.js, tests/load/k6.config.js. Uses k6.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["k6", "threshold", "VU", "baseline"],
+      "mustNotContain": ["JMeter"]
+    }
+  },
+  {
+    "id": "itemplan-076",
+    "description": "Plan for adding contract tests for microservice API",
+    "issueNumber": 506,
+    "issueTitle": "Add Pact contract tests between order and payment services",
+    "acceptanceCriteria": "- Consumer tests in order-service define expected interactions\n- Provider tests in payment-service verify against pact\n- Contract published to Pact Broker\n- CI verifies contracts on both sides\n- Versioned contracts for backward compatibility\n- Covers: createCharge, refundCharge, getChargeStatus",
+    "codebaseContext": "Node.js microservices. Files: order-service/tests/contract/, payment-service/tests/contract/, pact-broker.config.ts. Uses Pact + vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Pact", "contract", "consumer", "provider"],
+      "mustNotContain": ["integration test only"]
+    }
+  },
+  {
+    "id": "itemplan-077",
+    "description": "Plan for adding visual regression tests",
+    "issueNumber": 507,
+    "issueTitle": "Set up visual regression testing with Chromatic",
+    "acceptanceCriteria": "- Storybook stories for all core components\n- Chromatic integration captures screenshots\n- Visual diff on PR with accept/reject workflow\n- Responsive breakpoints tested: mobile, tablet, desktop\n- Flaky test handling: threshold for pixel diff\n- CI blocks merge on unreviewed visual changes",
+    "codebaseContext": "React 18 + Storybook 8. Files: src/components/**/*.stories.tsx, .chromatic.config.js (new), .github/workflows/chromatic.yml. Uses Chromatic.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Chromatic", "visual", "screenshot", "Storybook"],
+      "mustNotContain": ["manual visual check"]
+    }
+  },
+  {
+    "id": "itemplan-078",
+    "description": "Plan for adding mutation testing to verify test quality",
+    "issueNumber": 508,
+    "issueTitle": "Add mutation testing with Stryker to validate test suite",
+    "acceptanceCriteria": "- Stryker configured for src/utils/ and src/services/\n- Mutation score target: 80%+\n- Report identifies surviving mutants\n- Top 10 surviving mutants documented with fix plan\n- CI runs mutation tests weekly\n- Incremental mode for faster PR feedback",
+    "codebaseContext": "TypeScript + vitest. Files: stryker.conf.mjs (new), src/utils/*.ts, src/services/*.ts. Uses Stryker.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["mutation", "Stryker", "mutant", "score"],
+      "mustNotContain": ["code coverage only"]
+    }
+  },
+  {
+    "id": "itemplan-079",
+    "description": "Plan for adding accessibility testing to component suite",
+    "issueNumber": 509,
+    "issueTitle": "Add automated accessibility tests for all form components",
+    "acceptanceCriteria": "- axe-core integration with Testing Library\n- Tests for: Input, Select, Checkbox, Radio, TextArea\n- WCAG 2.1 AA compliance checked\n- Color contrast violations caught\n- Missing labels and ARIA attributes detected\n- Zero violations in existing components",
+    "codebaseContext": "React 18 + Testing Library. Files: src/components/forms/*.tsx, tests/a11y/ (new). Uses vitest + @axe-core/react + jest-axe.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["axe", "WCAG", "accessibility", "aria"],
+      "mustNotContain": ["manual testing only"]
+    }
+  },
+  {
+    "id": "itemplan-080",
+    "description": "Plan for adding API response schema validation tests",
+    "issueNumber": 510,
+    "issueTitle": "Add JSON schema validation for all API responses",
+    "acceptanceCriteria": "- JSON schemas defined for all API response shapes\n- Test helper validates response body against schema\n- Schemas auto-generated from TypeScript types\n- Additional properties rejected (strict mode)\n- Required fields enforced\n- Schema files versioned alongside API code",
+    "codebaseContext": "Express 4 + TypeScript + Zod. Files: src/schemas/responses/, tests/helpers/schemaValidator.ts, src/routes/*.ts. Uses vitest + zod-to-json-schema.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["schema", "validation", "response", "strict"],
+      "mustNotContain": ["no validation"]
+    }
+  },
+  {
+    "id": "itemplan-081",
+    "description": "Plan for adding database seeding and factory patterns for tests",
+    "issueNumber": 511,
+    "issueTitle": "Create test factories and database seeding utilities",
+    "acceptanceCriteria": "- Factory functions for User, Post, Comment, Order\n- Factories support trait overrides (e.g., adminUser, publishedPost)\n- Database reset between test suites\n- Seed script for development environment\n- Factories generate realistic fake data via faker\n- Shared across unit and integration tests",
+    "codebaseContext": "TypeScript + Prisma + PostgreSQL. Files: tests/factories/ (new), tests/helpers/db.ts, tests/setup.ts. Uses vitest + @faker-js/faker.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["factory", "seed", "faker", "reset"],
+      "mustNotContain": ["hardcoded test data"]
+    }
+  },
+  {
+    "id": "itemplan-082",
+    "description": "Plan for adding error boundary tests for React components",
+    "issueNumber": 512,
+    "issueTitle": "Add tests for error boundaries in critical UI sections",
+    "acceptanceCriteria": "- ErrorBoundary component tested with throwing child\n- Fallback UI rendered on error\n- Error reported to error tracking service\n- Recovery: retry button re-renders child\n- Nested boundaries: inner catches before outer\n- Tests for async errors in useEffect",
+    "codebaseContext": "React 18 + TypeScript. Files: src/components/ErrorBoundary.tsx, tests/components/ErrorBoundary.test.tsx. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["ErrorBoundary", "fallback", "recovery", "test"],
+      "mustNotContain": ["ignore errors"]
+    }
+  },
+  {
+    "id": "itemplan-083",
+    "description": "Plan for adding performance benchmark tests",
+    "issueNumber": 513,
+    "issueTitle": "Add benchmark tests for critical utility functions",
+    "acceptanceCriteria": "- Benchmark: parseCSV, formatCurrency, deepMerge, debounce\n- Baseline measurements stored in benchmark-results.json\n- CI alerts on >20% regression from baseline\n- vitest bench used for consistent measurement\n- Warm-up iterations before measurement\n- Results include ops/sec and memory allocation",
+    "codebaseContext": "TypeScript + vitest. Files: tests/benchmarks/utils.bench.ts (new), benchmark-results.json (new). Uses vitest bench mode.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["benchmark", "baseline", "regression", "ops/sec"],
+      "mustNotContain": ["manual timing"]
+    }
+  },
+  {
+    "id": "itemplan-084",
+    "description": "Plan for adding smoke tests for deployment verification",
+    "issueNumber": 514,
+    "issueTitle": "Add post-deployment smoke tests",
+    "acceptanceCriteria": "- Health endpoint returns 200\n- Login flow completes successfully\n- Database connection verified\n- Critical API endpoint returns expected shape\n- Runs in < 60 seconds\n- Triggered automatically after deployment\n- Alerts on-call team on failure",
+    "codebaseContext": "Node.js + Express. Files: tests/smoke/health.test.ts, tests/smoke/login.test.ts, tests/smoke/api.test.ts, scripts/run-smoke.sh. Uses vitest + node-fetch.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["smoke", "deployment", "health", "alert"],
+      "mustNotContain": ["full test suite"]
+    }
+  },
+  {
+    "id": "itemplan-085",
+    "description": "Plan for adding test coverage for error handling paths",
+    "issueNumber": 515,
+    "issueTitle": "Add tests for uncovered error handling branches",
+    "acceptanceCriteria": "- Network timeout errors handled and tested\n- Database connection failure tested\n- Invalid JSON body returns 400\n- File not found returns 404\n- Permission denied returns 403\n- Each error path has dedicated test case\n- Coverage of error handlers increases from 30% to 85%",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/errorHandler.ts, src/services/*.ts, tests/errors/ (new). Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["error handling", "timeout", "coverage", "test"],
+      "mustNotContain": ["happy path only"]
+    }
+  }
+]

@@ -1,0 +1,197 @@
+[
+  {
+    "id": "review-071",
+    "description": "Sprint 5 showing consistent improvement over 5 sprints",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Build user analytics dashboard (status:done, PR #50 merged, 8 points)\n- #43: Add cohort analysis (status:done, PR #51 merged, 5 points)\n- #44: Create retention metrics (status:done, PR #52 merged, 5 points)\n- #45: Implement funnel visualization (status:done, PR #53 merged, 5 points)\n- #46: Add custom event tracking (status:done, PR #54 merged, 5 points)",
+    "velocityData": "Sprint 1: 12 points. Sprint 2: 16 points. Sprint 3: 20 points. Sprint 4: 24 points. Sprint 5: 28 points. Consistent upward trend of ~4 points per sprint.",
+    "mergedPRs": "- PR #50: Build user analytics dashboard\n- PR #51: Add cohort analysis\n- PR #52: Create retention metrics\n- PR #53: Implement funnel visualization\n- PR #54: Add custom event tracking",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "improving"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-072",
+    "description": "Sprint 8 showing velocity regression after team changes",
+    "sprintNumber": 8,
+    "sprintIssues": "- #68: Add email verification flow (status:done, PR #78 merged, 5 points)\n- #69: Create welcome email template (status:done, PR #79 merged, 3 points)\n- #70: Implement password policy enforcement (status:in-progress, PR #80 open, 5 points)\n- #71: Add brute force protection (status:in-progress, no PR, 5 points)\n- #72: Create security event logging (status:not-started, no PR, 5 points)",
+    "velocityData": "Sprint 5: 30 points. Sprint 6: 28 points. Sprint 7: 22 points. Sprint 8: 8 points. Velocity declining steadily after senior developer left in Sprint 6.",
+    "mergedPRs": "- PR #78: Add email verification flow\n- PR #79: Create welcome email template",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "declining"],
+      "mustNotContain": ["improving"]
+    }
+  },
+  {
+    "id": "review-073",
+    "description": "Sprint 10 compared to Sprint 1: massive growth in team maturity",
+    "sprintNumber": 10,
+    "sprintIssues": "- #88: Implement GraphQL subscriptions (status:done, PR #98 merged, 8 points)\n- #89: Add connection pooling (status:done, PR #99 merged, 5 points)\n- #90: Create data loader batching (status:done, PR #100 merged, 5 points)\n- #91: Implement persisted queries (status:done, PR #101 merged, 5 points)\n- #92: Add schema stitching (status:done, PR #102 merged, 8 points)\n- #93: Write performance benchmarks (status:done, PR #103 merged, 5 points)",
+    "velocityData": "Sprint 1: 10 points. Sprint 5: 22 points. Sprint 10: 36 points. Team velocity has tripled since Sprint 1. Delivery rate improved from 50% to 95%.",
+    "mergedPRs": "- PR #98: Implement GraphQL subscriptions\n- PR #99: Add connection pooling\n- PR #100: Create data loader batching\n- PR #101: Implement persisted queries\n- PR #102: Add schema stitching\n- PR #103: Write performance benchmarks",
+    "expected": {
+      "passed": true,
+      "mustContain": ["compared", "tripled"],
+      "mustNotContain": ["regression"]
+    }
+  },
+  {
+    "id": "review-074",
+    "description": "Sprint 7 recovery after two bad sprints in a row",
+    "sprintNumber": 7,
+    "sprintIssues": "- #60: Create notification service (status:done, PR #68 merged, 5 points)\n- #61: Add push notification support (status:done, PR #69 merged, 5 points)\n- #62: Implement in-app message center (status:done, PR #70 merged, 8 points)\n- #63: Add notification grouping (status:done, PR #71 merged, 3 points)\n- #64: Create notification analytics (status:done, PR #72 merged, 5 points)",
+    "velocityData": "Sprint 4: 25 points. Sprint 5: 8 points (production outage). Sprint 6: 12 points (recovery). Sprint 7: 26 points (full recovery). Team bounced back to pre-incident velocity.",
+    "mergedPRs": "- PR #68: Create notification service\n- PR #69: Add push notification support\n- PR #70: Implement in-app message center\n- PR #71: Add notification grouping\n- PR #72: Create notification analytics",
+    "expected": {
+      "passed": true,
+      "mustContain": ["previous", "recovery"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-075",
+    "description": "Sprint 6 showing seasonal pattern: lower velocity during holiday sprints",
+    "sprintNumber": 6,
+    "sprintIssues": "- #52: Add holiday banner to homepage (status:done, PR #60 merged, 3 points)\n- #53: Update footer with seasonal links (status:done, PR #61 merged, 2 points)\n- #54: Fix date handling for year-end (status:done, PR #62 merged, 3 points)\n- #55: Add promotional pricing rules (status:in-progress, PR #63 open, 5 points)",
+    "velocityData": "Sprint 1 (Sep): 22 points. Sprint 2 (Oct): 24 points. Sprint 3 (Nov): 20 points. Sprint 4 (Dec): 8 points (holidays). Sprint 5 (Jan): 18 points. Sprint 6 (Feb): 8 points. Seasonal dips correlate with holiday periods.",
+    "mergedPRs": "- PR #60: Add holiday banner to homepage\n- PR #61: Update footer with seasonal links\n- PR #62: Fix date handling for year-end",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "previous"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-076",
+    "description": "Sprint 12 comparing bug fix ratio: bugs decreasing sprint over sprint",
+    "sprintNumber": 12,
+    "sprintIssues": "- #110: Implement caching for API responses (status:done, PR #120 merged, 5 points)\n- #111: Add request compression (status:done, PR #121 merged, 3 points)\n- #112: Optimize database connection pool (status:done, PR #122 merged, 5 points)\n- #113: Create API response time SLO (status:done, PR #123 merged, 3 points)\n- #114: Add CDN configuration (status:done, PR #124 merged, 5 points)",
+    "velocityData": "Sprint 9: 24 points (8 bugs, 2 features). Sprint 10: 26 points (5 bugs, 4 features). Sprint 11: 25 points (3 bugs, 5 features). Sprint 12: 21 points (0 bugs, 5 features). Bug ratio improved from 60% to 0% over 4 sprints.",
+    "mergedPRs": "- PR #120: Implement caching for API responses\n- PR #121: Add request compression\n- PR #122: Optimize database connection pool\n- PR #123: Create API response time SLO\n- PR #124: Add CDN configuration",
+    "expected": {
+      "passed": true,
+      "mustContain": ["compared", "bug"],
+      "mustNotContain": ["worsening"]
+    }
+  },
+  {
+    "id": "review-077",
+    "description": "Sprint 4 comparing scope accuracy: estimates improving over time",
+    "sprintNumber": 4,
+    "sprintIssues": "- #30: Create customer portal (status:done, PR #38 merged, 8 points)\n- #31: Add invoice listing (status:done, PR #39 merged, 5 points)\n- #32: Implement payment history (status:done, PR #40 merged, 5 points)\n- #33: Add support ticket creation (status:done, PR #41 merged, 5 points)",
+    "velocityData": "Sprint 1: Planned 25, Completed 10 (40% accuracy). Sprint 2: Planned 22, Completed 15 (68% accuracy). Sprint 3: Planned 20, Completed 18 (90% accuracy). Sprint 4: Planned 23, Completed 23 (100% accuracy). Estimation accuracy improved from 40% to 100%.",
+    "mergedPRs": "- PR #38: Create customer portal\n- PR #39: Add invoice listing\n- PR #40: Implement payment history\n- PR #41: Add support ticket creation",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "accuracy"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-078",
+    "description": "Sprint 9 with sustained high velocity after process improvement",
+    "sprintNumber": 9,
+    "sprintIssues": "- #78: Add GraphQL query caching (status:done, PR #88 merged, 5 points)\n- #79: Implement field-level permissions (status:done, PR #89 merged, 8 points)\n- #80: Create schema documentation generator (status:done, PR #90 merged, 5 points)\n- #81: Add custom scalar types (status:done, PR #91 merged, 3 points)\n- #82: Implement query complexity analysis (status:done, PR #92 merged, 5 points)\n- #83: Add automated schema validation (status:done, PR #93 merged, 5 points)",
+    "velocityData": "Sprint 5: 15 points. Sprint 6: 16 points (introduced TDD). Sprint 7: 28 points. Sprint 8: 30 points. Sprint 9: 31 points. Process improvement in Sprint 6 led to sustained velocity increase.",
+    "mergedPRs": "- PR #88: Add GraphQL query caching\n- PR #89: Implement field-level permissions\n- PR #90: Create schema documentation generator\n- PR #91: Add custom scalar types\n- PR #92: Implement query complexity analysis\n- PR #93: Add automated schema validation",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "sustained"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-079",
+    "description": "Sprint 6 with carryover items accumulating across sprints",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50: Create batch processing engine (status:done, PR #58 merged, 8 points)\n- #51: Add progress tracking UI (status:done, PR #59 merged, 5 points)\n- #52: Implement retry mechanism (status:in-progress, PR #60 open, 5 points)\n- #53: Add batch scheduling (carried from Sprint 5) (status:in-progress, no PR, 5 points)\n- #54: Create batch history viewer (carried from Sprint 4) (status:not-started, no PR, 5 points)",
+    "velocityData": "Sprint 4: Planned 28, Completed 20, Carried 2 items. Sprint 5: Planned 30 (incl. 2 carried), Completed 22, Carried 3 items. Sprint 6: Planned 28 (incl. 3 carried), Completed 13, Carried 3 items. Carryover items accumulating across sprints.",
+    "mergedPRs": "- PR #58: Create batch processing engine\n- PR #59: Add progress tracking UI",
+    "expected": {
+      "passed": true,
+      "mustContain": ["previous", "carryover"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-080",
+    "description": "Sprint 8 showing PR merge time improvement over sprints",
+    "sprintNumber": 8,
+    "sprintIssues": "- #70: Implement automated code formatting (status:done, PR #78 merged, 3 points)\n- #71: Add pre-commit hooks (status:done, PR #79 merged, 3 points)\n- #72: Create PR template with checklist (status:done, PR #80 merged, 2 points)\n- #73: Set up automated dependency updates (status:done, PR #81 merged, 5 points)\n- #74: Add CODEOWNERS file (status:done, PR #82 merged, 2 points)",
+    "velocityData": "Sprint 5: Average PR merge time 4.2 days. Sprint 6: 3.1 days. Sprint 7: 2.4 days. Sprint 8: 1.2 days. PR merge time improved by 71% over 4 sprints.",
+    "mergedPRs": "- PR #78: Implement automated code formatting\n- PR #79: Add pre-commit hooks\n- PR #80: Create PR template with checklist\n- PR #81: Set up automated dependency updates\n- PR #82: Add CODEOWNERS file",
+    "expected": {
+      "passed": true,
+      "mustContain": ["compared", "merge"],
+      "mustNotContain": ["worsening"]
+    }
+  },
+  {
+    "id": "review-081",
+    "description": "Sprint 15 long-term trend: team scaling from 2 to 5 engineers",
+    "sprintNumber": 15,
+    "sprintIssues": "- #145: Create multi-region deployment (status:done, PR #155 merged, 13 points)\n- #146: Add geographic load balancing (status:done, PR #156 merged, 8 points)\n- #147: Implement data replication (status:done, PR #157 merged, 8 points)\n- #148: Create failover automation (status:done, PR #158 merged, 8 points)\n- #149: Add latency monitoring per region (status:done, PR #159 merged, 5 points)",
+    "velocityData": "Sprint 1-3 (2 engineers): avg 14 points. Sprint 4-7 (3 engineers): avg 22 points. Sprint 8-11 (4 engineers): avg 30 points. Sprint 12-15 (5 engineers): avg 42 points. Linear scaling with team growth.",
+    "mergedPRs": "- PR #155: Create multi-region deployment\n- PR #156: Add geographic load balancing\n- PR #157: Implement data replication\n- PR #158: Create failover automation\n- PR #159: Add latency monitoring per region",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "scaling"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-082",
+    "description": "Sprint 7 with tech debt ratio trending up over multiple sprints",
+    "sprintNumber": 7,
+    "sprintIssues": "- #60: Refactor user service to use repository pattern (status:done, PR #68 merged, 8 points)\n- #61: Extract shared validation logic (status:done, PR #69 merged, 5 points)\n- #62: Fix N+1 query in orders list (status:done, PR #70 merged, 3 points)\n- #63: Add missing test coverage for auth module (status:done, PR #71 merged, 5 points)\n- #64: Update deprecated API calls (status:done, PR #72 merged, 3 points)",
+    "velocityData": "Sprint 4: 0% tech debt work. Sprint 5: 15% tech debt. Sprint 6: 30% tech debt. Sprint 7: 100% tech debt sprint. Technical debt ratio trending upward, culminating in a dedicated debt sprint.",
+    "mergedPRs": "- PR #68: Refactor user service to use repository pattern\n- PR #69: Extract shared validation logic\n- PR #70: Fix N+1 query in orders list\n- PR #71: Add missing test coverage for auth module\n- PR #72: Update deprecated API calls",
+    "expected": {
+      "passed": true,
+      "mustContain": ["previous", "tech debt"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-083",
+    "description": "Sprint 11 comparing completion rate trend across quarters",
+    "sprintNumber": 11,
+    "sprintIssues": "- #95: Implement SSO with OIDC (status:done, PR #105 merged, 8 points)\n- #96: Add session management (status:done, PR #106 merged, 5 points)\n- #97: Create user provisioning via SCIM (status:done, PR #107 merged, 8 points)\n- #98: Add directory sync (status:done, PR #108 merged, 5 points)\n- #99: Implement audit logging for auth events (status:done, PR #109 merged, 5 points)",
+    "velocityData": "Q1 (Sprints 1-3): 65% avg completion. Q2 (Sprints 4-6): 78% avg completion. Q3 (Sprints 7-9): 88% avg completion. Q4 Sprint 10: 92%. Sprint 11: 100%. Completion rate improved from 65% to 100% across quarters.",
+    "mergedPRs": "- PR #105: Implement SSO with OIDC\n- PR #106: Add session management\n- PR #107: Create user provisioning via SCIM\n- PR #108: Add directory sync\n- PR #109: Implement audit logging for auth events",
+    "expected": {
+      "passed": true,
+      "mustContain": ["compared", "completion"],
+      "mustNotContain": ["declining"]
+    }
+  },
+  {
+    "id": "review-084",
+    "description": "Sprint 3 showing cycle time decreasing sprint over sprint",
+    "sprintNumber": 3,
+    "sprintIssues": "- #18: Build REST API for comments (status:done, PR #24 merged, 5 points)\n- #19: Add comment threading (status:done, PR #25 merged, 5 points)\n- #20: Implement comment moderation (status:done, PR #26 merged, 5 points)\n- #21: Add comment notifications (status:done, PR #27 merged, 3 points)",
+    "velocityData": "Sprint 1: avg cycle time 5.2 days/issue. Sprint 2: avg 3.8 days/issue. Sprint 3: avg 2.4 days/issue. Cycle time decreased by 54% over 3 sprints. Team is delivering items faster each sprint.",
+    "mergedPRs": "- PR #24: Build REST API for comments\n- PR #25: Add comment threading\n- PR #26: Implement comment moderation\n- PR #27: Add comment notifications",
+    "expected": {
+      "passed": true,
+      "mustContain": ["trend", "cycle time"],
+      "mustNotContain": ["increasing"]
+    }
+  },
+  {
+    "id": "review-085",
+    "description": "Sprint 13 showing test coverage improvement across project lifetime",
+    "sprintNumber": 13,
+    "sprintIssues": "- #120: Add integration tests for payment flow (status:done, PR #130 merged, 5 points)\n- #121: Create E2E tests for checkout (status:done, PR #131 merged, 8 points)\n- #122: Add load tests for API gateway (status:done, PR #132 merged, 5 points)\n- #123: Implement contract tests for microservices (status:done, PR #133 merged, 8 points)\n- #124: Add visual regression tests (status:done, PR #134 merged, 5 points)",
+    "velocityData": "Sprint 1: 0% test coverage. Sprint 5: 35% coverage. Sprint 9: 62% coverage. Sprint 13: 85% coverage. Coverage improved steadily, correlating with fewer production bugs (12 → 8 → 3 → 0).",
+    "mergedPRs": "- PR #130: Add integration tests for payment flow\n- PR #131: Create E2E tests for checkout\n- PR #132: Add load tests for API gateway\n- PR #133: Implement contract tests for microservices\n- PR #134: Add visual regression tests",
+    "expected": {
+      "passed": true,
+      "mustContain": ["compared", "coverage"],
+      "mustNotContain": ["declining"]
+    }
+  }
+]

@@ -1,0 +1,195 @@
+[
+  {
+    "id": "review-086",
+    "description": "Sprint with only 1 issue: single large feature delivery",
+    "sprintNumber": 3,
+    "sprintIssues": "- #20: Build complete payment processing system (status:done, PR #28 merged, 21 points)",
+    "velocityData": "Planned: 21 points, Completed: 21 points. Previous sprint velocity: 20 points.",
+    "mergedPRs": "- PR #28: Build complete payment processing system",
+    "expected": {
+      "passed": true,
+      "mustContain": ["completed", "payment"],
+      "mustNotContain": ["carryover"]
+    }
+  },
+  {
+    "id": "review-087",
+    "description": "Sprint with 0 completed: all issues blocked by dependencies",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Integrate with payment gateway (status:blocked, no PR, 8 points)\n- #43: Add shipping calculator (status:blocked, no PR, 5 points)\n- #44: Create order tracking API (status:blocked, no PR, 5 points)\n- #45: Build receipt generator (status:blocked, no PR, 3 points)",
+    "velocityData": "Planned: 21 points, Completed: 0 points. Previous sprint velocity: 22 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked"],
+      "mustNotContain": ["completed", "delivered"]
+    }
+  },
+  {
+    "id": "review-088",
+    "description": "First sprint ever: no velocity data or historical comparison",
+    "sprintNumber": 1,
+    "sprintIssues": "- #1: Initialize project repository (status:done, PR #1 merged, 2 points)\n- #2: Set up development environment (status:done, PR #2 merged, 3 points)\n- #3: Create initial database schema (status:done, PR #3 merged, 5 points)\n- #4: Implement basic CRUD API (status:in-progress, PR #4 open, 8 points)",
+    "mergedPRs": "- PR #1: Initialize project repository\n- PR #2: Set up development environment\n- PR #3: Create initial database schema",
+    "expected": {
+      "passed": true,
+      "mustContain": ["sprint 1"],
+      "mustNotContain": ["previous sprint", "compared to"]
+    }
+  },
+  {
+    "id": "review-089",
+    "description": "Sprint with only bug fixes: no features, all maintenance",
+    "sprintNumber": 8,
+    "sprintIssues": "- #70: Fix memory leak in WebSocket handler (status:done, PR #78 merged, 5 points)\n- #71: Fix race condition in cache invalidation (status:done, PR #79 merged, 5 points)\n- #72: Fix incorrect timezone in scheduled jobs (status:done, PR #80 merged, 3 points)\n- #73: Fix pagination offset error (status:done, PR #81 merged, 2 points)\n- #74: Fix CSS overflow on mobile devices (status:done, PR #82 merged, 2 points)\n- #75: Fix broken email template rendering (status:done, PR #83 merged, 3 points)",
+    "velocityData": "Planned: 20 points, Completed: 20 points. Previous sprint velocity: 22 points. All items were bug fixes, no new features.",
+    "mergedPRs": "- PR #78: Fix memory leak in WebSocket handler\n- PR #79: Fix race condition in cache invalidation\n- PR #80: Fix incorrect timezone in scheduled jobs\n- PR #81: Fix pagination offset error\n- PR #82: Fix CSS overflow on mobile devices\n- PR #83: Fix broken email template rendering",
+    "expected": {
+      "passed": true,
+      "mustContain": ["bug", "fix"],
+      "mustNotContain": ["feature"]
+    }
+  },
+  {
+    "id": "review-090",
+    "description": "Sprint where scope changed mid-sprint: 2 issues swapped out",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50: Build user profile API (status:done, PR #58 merged, 5 points)\n- #51: Add avatar upload (status:done, PR #59 merged, 3 points)\n- #52: Create activity timeline (status:removed-mid-sprint, no PR, 5 points)\n- #53: Add user badges system (status:removed-mid-sprint, no PR, 5 points)\n- #56: Fix critical production login bug (status:done, PR #60 merged, 5 points, added-mid-sprint)\n- #57: Hotfix: data corruption in user profiles (status:done, PR #61 merged, 8 points, added-mid-sprint)",
+    "velocityData": "Planned: 18 points (original), Adjusted: 21 points (after scope change). Completed: 21 points. 2 items removed, 2 urgent items added mid-sprint.",
+    "mergedPRs": "- PR #58: Build user profile API\n- PR #59: Add avatar upload\n- PR #60: Fix critical production login bug\n- PR #61: Hotfix: data corruption in user profiles",
+    "expected": {
+      "passed": true,
+      "mustContain": ["scope"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-091",
+    "description": "Very long sprint: 15 issues planned for a 4-week sprint",
+    "sprintNumber": 4,
+    "sprintIssues": "- #30: Create user registration API (status:done, PR #40 merged, 3 points)\n- #31: Add email verification (status:done, PR #41 merged, 3 points)\n- #32: Build login page (status:done, PR #42 merged, 3 points)\n- #33: Create forgot password flow (status:done, PR #43 merged, 3 points)\n- #34: Add social login (Google) (status:done, PR #44 merged, 5 points)\n- #35: Add social login (GitHub) (status:done, PR #45 merged, 5 points)\n- #36: Create user dashboard (status:done, PR #46 merged, 5 points)\n- #37: Add profile editing (status:done, PR #47 merged, 3 points)\n- #38: Implement account deletion (status:done, PR #48 merged, 3 points)\n- #39: Add two-factor auth (status:done, PR #49 merged, 8 points)\n- #40: Create session management (status:done, PR #50 merged, 5 points)\n- #41: Add API key management (status:done, PR #51 merged, 5 points)\n- #42: Implement role-based access (status:in-progress, PR #52 open, 8 points)\n- #43: Add audit logging (status:in-progress, no PR, 5 points)\n- #44: Create admin panel (status:not-started, no PR, 8 points)",
+    "velocityData": "Planned: 72 points (4-week sprint), Completed: 51 points. Previous velocity: 25 points/2-week sprint.",
+    "mergedPRs": "- PR #40: Create user registration API\n- PR #41: Add email verification\n- PR #42: Build login page\n- PR #43: Create forgot password flow\n- PR #44: Add social login (Google)\n- PR #45: Add social login (GitHub)\n- PR #46: Create user dashboard\n- PR #47: Add profile editing\n- PR #48: Implement account deletion\n- PR #49: Add two-factor auth\n- PR #50: Create session management\n- PR #51: Add API key management",
+    "expected": {
+      "passed": true,
+      "mustContain": ["completed", "12"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-092",
+    "description": "Sprint with all items at 1 point: many small tasks",
+    "sprintNumber": 7,
+    "sprintIssues": "- #60: Fix typo in login page (status:done, PR #68 merged, 1 point)\n- #61: Update copyright year in footer (status:done, PR #69 merged, 1 point)\n- #62: Fix broken link in docs (status:done, PR #70 merged, 1 point)\n- #63: Update npm dependencies (status:done, PR #71 merged, 1 point)\n- #64: Fix lint warnings (status:done, PR #72 merged, 1 point)\n- #65: Update README badges (status:done, PR #73 merged, 1 point)\n- #66: Fix accessibility warning (status:done, PR #74 merged, 1 point)\n- #67: Update env example file (status:done, PR #75 merged, 1 point)\n- #68: Remove unused imports (status:done, PR #76 merged, 1 point)\n- #69: Fix console warning (status:done, PR #77 merged, 1 point)",
+    "velocityData": "Planned: 10 points, Completed: 10 points. Previous sprint velocity: 22 points. All items 1 point each — housekeeping sprint.",
+    "mergedPRs": "- PR #68-77: Ten small housekeeping fixes",
+    "expected": {
+      "passed": true,
+      "mustContain": ["completed"],
+      "mustNotContain": ["carryover"]
+    }
+  },
+  {
+    "id": "review-093",
+    "description": "Sprint where single 13-point item was the only work",
+    "sprintNumber": 9,
+    "sprintIssues": "- #80: Complete rewrite of authentication module (status:in-progress, PR #88 open, 13 points)",
+    "velocityData": "Planned: 13 points, Completed: 0 points. Previous sprint velocity: 20 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["incomplete"],
+      "mustNotContain": ["delivered"]
+    }
+  },
+  {
+    "id": "review-094",
+    "description": "Sprint with mixed statuses: done, in-progress, blocked, and cancelled",
+    "sprintNumber": 11,
+    "sprintIssues": "- #95: Add webhook support (status:done, PR #105 merged, 5 points)\n- #96: Create webhook testing tool (status:done, PR #106 merged, 3 points)\n- #97: Implement webhook retry logic (status:in-progress, PR #107 open, 5 points)\n- #98: Add webhook signature verification (status:blocked, no PR, 3 points)\n- #99: Create webhook event catalog (status:cancelled, no PR, 5 points)\n- #100: Add webhook delivery logs (status:in-progress, no PR, 5 points)",
+    "velocityData": "Planned: 26 points, Completed: 8 points. 1 item cancelled, 1 blocked, 2 in progress.",
+    "mergedPRs": "- PR #105: Add webhook support\n- PR #106: Create webhook testing tool",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "cancelled"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-095",
+    "description": "Sprint with no points assigned: estimation not yet adopted",
+    "sprintNumber": 2,
+    "sprintIssues": "- #10: Create user registration endpoint (status:done, PR #14 merged)\n- #11: Add input validation (status:done, PR #15 merged)\n- #12: Implement error handling middleware (status:done, PR #16 merged)\n- #13: Add request logging (status:in-progress, PR #17 open)",
+    "mergedPRs": "- PR #14: Create user registration endpoint\n- PR #15: Add input validation\n- PR #16: Implement error handling middleware",
+    "expected": {
+      "passed": true,
+      "mustContain": ["completed"],
+      "mustNotContain": ["velocity"]
+    }
+  },
+  {
+    "id": "review-096",
+    "description": "Sprint where PRs merged but issues not properly closed",
+    "sprintNumber": 10,
+    "sprintIssues": "- #85: Add search filters (status:in-progress, PR #95 merged, 5 points)\n- #86: Create saved searches (status:in-progress, PR #96 merged, 5 points)\n- #87: Add search history (status:in-progress, PR #97 merged, 3 points)\n- #88: Implement search suggestions (status:done, PR #98 merged, 5 points)",
+    "velocityData": "Planned: 18 points. PRs merged: 4/4. Issues marked done: 1/4. Discrepancy between PR status and issue status.",
+    "mergedPRs": "- PR #95: Add search filters\n- PR #96: Create saved searches\n- PR #97: Add search history\n- PR #98: Implement search suggestions",
+    "expected": {
+      "passed": true,
+      "mustContain": ["merged"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-097",
+    "description": "Sprint with duplicate/overlapping issues that were consolidated",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Add user avatar upload (status:done, PR #50 merged, 5 points)\n- #43: Support profile picture upload (status:duplicate-of-42, no PR, 5 points)\n- #44: Create image resize service (status:done, PR #51 merged, 3 points)\n- #45: Add file type validation (status:done, PR #52 merged, 2 points)\n- #46: Implement storage cleanup job (status:done, PR #53 merged, 3 points)",
+    "velocityData": "Planned: 18 points (original 5 issues). Adjusted: 13 points (after dedup). Completed: 13 points. 1 duplicate issue removed.",
+    "mergedPRs": "- PR #50: Add user avatar upload\n- PR #51: Create image resize service\n- PR #52: Add file type validation\n- PR #53: Implement storage cleanup job",
+    "expected": {
+      "passed": true,
+      "mustContain": ["duplicate"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "review-098",
+    "description": "Sprint with only documentation and no code changes",
+    "sprintNumber": 12,
+    "sprintIssues": "- #105: Write API documentation for v2 (status:done, PR #115 merged, 5 points)\n- #106: Create architecture decision records (status:done, PR #116 merged, 3 points)\n- #107: Write deployment guide (status:done, PR #117 merged, 3 points)\n- #108: Create troubleshooting runbook (status:done, PR #118 merged, 3 points)\n- #109: Write onboarding guide for new developers (status:done, PR #119 merged, 5 points)",
+    "velocityData": "Planned: 19 points, Completed: 19 points. Previous sprint velocity: 24 points. All items were documentation — no code changes.",
+    "mergedPRs": "- PR #115: Write API documentation for v2\n- PR #116: Create architecture decision records\n- PR #117: Write deployment guide\n- PR #118: Create troubleshooting runbook\n- PR #119: Write onboarding guide for new developers",
+    "expected": {
+      "passed": true,
+      "mustContain": ["documentation"],
+      "mustNotContain": ["feature"]
+    }
+  },
+  {
+    "id": "review-099",
+    "description": "Sprint with issues split across multiple repositories",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50 (frontend repo): Add settings page UI (status:done, PR #58 merged, 5 points)\n- #51 (frontend repo): Create preference toggles (status:done, PR #59 merged, 3 points)\n- #22 (backend repo): Add settings API endpoints (status:done, PR #30 merged, 5 points)\n- #23 (backend repo): Create settings migration (status:done, PR #31 merged, 3 points)\n- #8 (infra repo): Update deployment config for settings service (status:in-progress, PR #12 open, 5 points)",
+    "velocityData": "Planned: 21 points across 3 repositories. Completed: 16 points. Cross-repo coordination added overhead.",
+    "mergedPRs": "- PR #58 (frontend): Add settings page UI\n- PR #59 (frontend): Create preference toggles\n- PR #30 (backend): Add settings API endpoints\n- PR #31 (backend): Create settings migration",
+    "expected": {
+      "passed": true,
+      "mustContain": ["repo"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-100",
+    "description": "Sprint with emergency rollback: feature shipped then reverted",
+    "sprintNumber": 14,
+    "sprintIssues": "- #130: Deploy new caching layer (status:done, PR #140 merged, 8 points)\n- #131: Add cache warming script (status:done, PR #141 merged, 3 points)\n- #132: Enable feature flag for new cache (status:done-then-reverted, PR #142 merged then reverted, 2 points)\n- #133: Monitor cache hit rates (status:done, PR #143 merged, 3 points)\n- #134: Create cache invalidation API (status:in-progress, PR #144 open, 5 points)",
+    "velocityData": "Planned: 21 points, Completed: 14 points (not counting reverted item). Reverted PR #142 due to production cache inconsistency detected post-deploy.",
+    "mergedPRs": "- PR #140: Deploy new caching layer\n- PR #141: Add cache warming script\n- PR #142: Enable feature flag for new cache (REVERTED)\n- PR #143: Monitor cache hit rates",
+    "expected": {
+      "passed": true,
+      "mustContain": ["reverted"],
+      "mustNotContain": ["all completed"]
+    }
+  }
+]

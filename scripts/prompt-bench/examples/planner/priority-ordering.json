@@ -1,0 +1,202 @@
+[
+  {
+    "id": "planner-066",
+    "description": "Clear priority tiers — critical first, then high, then medium",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #700: Fix production outage handler (priority:critical, size:s, 3 points, type:bug, status:open)\n- #701: Add circuit breaker pattern (priority:high, size:m, 5 points, type:story, status:open)\n- #702: Implement graceful degradation (priority:high, size:m, 5 points, type:story, status:open)\n- #703: Add fallback responses (priority:medium, size:s, 3 points, type:story, status:open)\n- #704: Build status page (priority:medium, size:m, 5 points, type:story, status:open)\n- #705: Add uptime SLA tracking (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#700", "#701", "#702"],
+      "mustNotContain": ["#705"]
+    }
+  },
+  {
+    "id": "planner-067",
+    "description": "In-progress items should be prioritized over new items of same priority",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #710: Complete API refactoring (priority:high, size:m, 5 points, type:story, status:in-progress)\n- #711: Build new reporting module (priority:high, size:l, 8 points, type:story, status:open)\n- #712: Add data visualization (priority:high, size:l, 8 points, type:story, status:open)\n- #713: Write API migration guide (priority:medium, size:s, 3 points, type:story, status:open)",
+    "previousSprint": "Sprint 5 had #710 in-progress at 70% completion",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#710", "#711", "#712"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-068",
+    "description": "Blocked items should be excluded from selection",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #720: Migrate to new cloud provider (priority:high, size:l, 8 points, type:story, status:blocked)\n- #721: Update DNS records (priority:high, size:s, 3 points, type:story, status:open)\n- #722: Configure SSL certificates (priority:high, size:s, 3 points, type:story, status:open)\n- #723: Set up monitoring dashboards (priority:medium, size:m, 5 points, type:story, status:open)\n- #724: Add automated backups (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#721", "#722", "#723", "#724"],
+      "mustNotContain": ["#720"]
+    }
+  },
+  {
+    "id": "planner-069",
+    "description": "Done items should be excluded from selection",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #730: Set up OAuth provider (priority:high, size:m, 5 points, type:story, status:done)\n- #731: Add Google login (priority:high, size:m, 5 points, type:story, status:open)\n- #732: Add GitHub login (priority:high, size:m, 5 points, type:story, status:open)\n- #733: Add Apple login (priority:medium, size:m, 5 points, type:story, status:open)\n- #734: Fix OAuth callback handling (priority:high, size:s, 3 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#731", "#732", "#734"],
+      "mustNotContain": ["#730"]
+    }
+  },
+  {
+    "id": "planner-070",
+    "description": "Mix of blocked, done, and open — only open items should be selected",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #740: Implement SSO (priority:critical, size:l, 8 points, type:story, status:blocked)\n- #741: Add LDAP integration (priority:high, size:m, 5 points, type:story, status:done)\n- #742: Build user sync service (priority:high, size:m, 5 points, type:story, status:open)\n- #743: Add role mapping (priority:high, size:m, 5 points, type:story, status:open)\n- #744: Implement SCIM provisioning (priority:medium, size:l, 8 points, type:story, status:open)\n- #745: Fix group membership sync (priority:high, size:s, 3 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#742", "#743", "#745"],
+      "mustNotContain": ["#740", "#741"]
+    }
+  },
+  {
+    "id": "planner-071",
+    "description": "All critical priority — should select based on size fit",
+    "sprintNumber": 9,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #750: Fix data corruption in exports (priority:critical, size:m, 5 points, type:bug, status:open)\n- #751: Fix payment processing failure (priority:critical, size:m, 5 points, type:bug, status:open)\n- #752: Fix user session hijacking (priority:critical, size:l, 8 points, type:bug, status:open)\n- #753: Fix database connection leak (priority:critical, size:s, 3 points, type:bug, status:open)\n- #754: Fix race condition in queue (priority:critical, size:m, 5 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#750", "#751", "#752", "#753"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-072",
+    "description": "Low priority critical bug vs high priority feature — critical bug wins",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #760: Build marketplace feature (priority:high, size:l, 8 points, type:story, status:open)\n- #761: Add vendor onboarding (priority:high, size:l, 8 points, type:story, status:open)\n- #762: Fix critical auth bypass (priority:critical, size:s, 3 points, type:bug, status:open)\n- #763: Add product categories (priority:medium, size:m, 5 points, type:story, status:open)\n- #764: Implement review system (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#762", "#760", "#761"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-073",
+    "description": "Multiple in-progress items — all should be re-selected as carryover",
+    "sprintNumber": 10,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #770: Complete search indexing (priority:high, size:m, 5 points, type:story, status:in-progress)\n- #771: Finish results caching (priority:high, size:s, 3 points, type:story, status:in-progress)\n- #772: Add new filter options (priority:medium, size:s, 3 points, type:story, status:open)\n- #773: Implement saved searches (priority:medium, size:m, 5 points, type:story, status:open)\n- #774: Add search analytics (priority:low, size:m, 5 points, type:story, status:open)",
+    "previousSprint": "Sprint 9 had #770 (60%) and #771 (80%) in-progress",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#770", "#771"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-074",
+    "description": "Only blocked items in backlog — nothing should be selected",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #780: Deploy to production (priority:critical, size:m, 5 points, type:story, status:blocked)\n- #781: Run load tests (priority:high, size:l, 8 points, type:story, status:blocked)\n- #782: Update security certificates (priority:high, size:s, 3 points, type:story, status:blocked)",
+    "expected": {
+      "passed": true,
+      "mustContain": [],
+      "mustNotContain": ["#780", "#781", "#782"]
+    }
+  },
+  {
+    "id": "planner-075",
+    "description": "Medium and low priority only — medium should come first",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #790: Add cookie consent banner (priority:medium, size:s, 3 points, type:story, status:open)\n- #791: Implement privacy controls (priority:medium, size:m, 5 points, type:story, status:open)\n- #792: Add data deletion request (priority:medium, size:m, 5 points, type:story, status:open)\n- #793: Update privacy policy page (priority:low, size:s, 2 points, type:story, status:open)\n- #794: Add cookie preferences modal (priority:low, size:s, 3 points, type:story, status:open)\n- #795: Implement GDPR export (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#790", "#791", "#792"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-076",
+    "description": "In-progress critical item should be top priority carryover",
+    "sprintNumber": 11,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #800: Fix critical memory leak (priority:critical, size:l, 8 points, type:bug, status:in-progress)\n- #801: Add memory profiling (priority:high, size:m, 5 points, type:story, status:open)\n- #802: Implement connection pooling (priority:high, size:m, 5 points, type:story, status:open)\n- #803: Add cache eviction policy (priority:medium, size:s, 3 points, type:story, status:open)\n- #804: Build resource monitor (priority:medium, size:m, 5 points, type:story, status:open)",
+    "previousSprint": "Sprint 10 had #800 in-progress at 40% — carryover",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#800", "#801", "#802"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-077",
+    "description": "High priority bugs should be selected over high priority features",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #810: Build collaboration features (priority:high, size:l, 8 points, type:story, status:open)\n- #811: Fix data sync race condition (priority:high, size:m, 5 points, type:bug, status:open)\n- #812: Add real-time cursors (priority:high, size:l, 8 points, type:story, status:open)\n- #813: Fix undo stack corruption (priority:high, size:s, 3 points, type:bug, status:open)\n- #814: Add presence indicators (priority:medium, size:s, 3 points, type:story, status:open)\n- #815: Fix merge conflict handler (priority:high, size:m, 5 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#811", "#813", "#815"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-078",
+    "description": "Mix of statuses: open, in-progress, blocked, done — filter correctly",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #820: Set up Kubernetes cluster (priority:high, size:l, 8 points, type:story, status:done)\n- #821: Deploy microservices (priority:high, size:l, 8 points, type:story, status:in-progress)\n- #822: Configure auto-scaling (priority:high, size:m, 5 points, type:story, status:blocked)\n- #823: Add health checks (priority:high, size:s, 3 points, type:story, status:open)\n- #824: Set up logging stack (priority:medium, size:m, 5 points, type:story, status:open)\n- #825: Configure alerting (priority:medium, size:s, 3 points, type:story, status:open)\n- #826: Add dashboard (priority:low, size:m, 5 points, type:story, status:open)",
+    "previousSprint": "Sprint 7 had #821 in-progress",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#821", "#823", "#824", "#825"],
+      "mustNotContain": ["#820", "#822"]
+    }
+  },
+  {
+    "id": "planner-079",
+    "description": "Critical bug with no points listed should still be selected first",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #830: Fix production database crash (priority:critical, size:s, 2 points, type:bug, status:open)\n- #831: Add database replication (priority:high, size:l, 8 points, type:story, status:open)\n- #832: Implement read replicas (priority:high, size:l, 8 points, type:story, status:open)\n- #833: Add connection pooling (priority:medium, size:s, 3 points, type:story, status:open)\n- #834: Write database runbook (priority:low, size:xs, 1 point, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#830", "#831", "#832"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-080",
+    "description": "Several in-progress items exceed velocity — must still include them all as carryover",
+    "sprintNumber": 12,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #840: Complete payment gateway (priority:critical, size:l, 8 points, type:story, status:in-progress)\n- #841: Finish invoice generation (priority:high, size:l, 8 points, type:story, status:in-progress)\n- #842: Complete tax calculation (priority:high, size:m, 5 points, type:story, status:in-progress)\n- #843: Add subscription billing (priority:medium, size:m, 5 points, type:story, status:open)\n- #844: Build billing dashboard (priority:low, size:m, 5 points, type:story, status:open)",
+    "previousSprint": "Sprint 11 had #840, #841, #842 in-progress — all carryover",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#840", "#841", "#842"],
+      "mustNotContain": ["#844"]
+    }
+  }
+]

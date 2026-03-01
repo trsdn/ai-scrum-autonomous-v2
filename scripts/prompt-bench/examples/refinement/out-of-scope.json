@@ -1,0 +1,132 @@
+[
+  {
+    "id": "refine-081",
+    "description": "Full backend rewrite request",
+    "issueNumber": 501,
+    "ideaTitle": "Rewrite the entire backend",
+    "ideaBody": "The backend is a mess. Spaghetti code everywhere. Let's rewrite it from scratch in Go.",
+    "projectContext": "Legacy PHP monolith with 200K+ lines of code",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-082",
+    "description": "Real-time features epic",
+    "issueNumber": 502,
+    "ideaTitle": "Add real-time features",
+    "ideaBody": "We need real-time updates throughout the app - live notifications, real-time chat, collaborative editing, live dashboards.",
+    "projectContext": "Traditional request-response web app with REST API",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-083",
+    "description": "Mobile app from scratch",
+    "issueNumber": 503,
+    "ideaTitle": "Build mobile app",
+    "ideaBody": "We need iOS and Android apps. Should have all the features of the web app plus push notifications and offline mode.",
+    "projectContext": "Web-only SaaS with responsive design",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "MVP"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-084",
+    "description": "Complete design system creation",
+    "issueNumber": 504,
+    "ideaTitle": "Create a design system",
+    "ideaBody": "We need a complete design system with all components, documentation, Figma library, accessibility guidelines, theming, and a Storybook setup.",
+    "projectContext": "React app with ad-hoc styled components",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-085",
+    "description": "Multi-tenant architecture migration",
+    "issueNumber": 505,
+    "ideaTitle": "Add multi-tenancy",
+    "ideaBody": "We need to support multiple organizations with isolated data, custom domains, separate billing, and org-level admin panels.",
+    "projectContext": "Single-tenant SaaS app with shared database",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-086",
+    "description": "Full marketplace platform",
+    "issueNumber": 506,
+    "ideaTitle": "Build a marketplace",
+    "ideaBody": "Turn our app into a marketplace where third-party developers can sell plugins, themes, and integrations. Need review process, payments, analytics for sellers.",
+    "projectContext": "SaaS platform with plugin architecture",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-087",
+    "description": "Complete platform migration",
+    "issueNumber": 507,
+    "ideaTitle": "Migrate to microservices",
+    "ideaBody": "Our monolith is too big. Let's break it into microservices - auth service, user service, billing service, notification service, analytics service.",
+    "projectContext": "Node.js monolith handling all business logic",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-088",
+    "description": "Full compliance implementation",
+    "issueNumber": 508,
+    "ideaTitle": "SOC 2 and GDPR compliance",
+    "ideaBody": "We need to become SOC 2 compliant and GDPR ready. This involves audit logging, data encryption, access controls, privacy controls, right to be forgotten, DPA, and security policies.",
+    "projectContext": "SaaS serving enterprise customers, no compliance framework",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-089",
+    "description": "Complete analytics platform",
+    "issueNumber": 509,
+    "ideaTitle": "Build analytics from scratch",
+    "ideaBody": "Replace Google Analytics with our own analytics platform. Event tracking, funnels, cohort analysis, real-time dashboards, A/B testing, user segmentation.",
+    "projectContext": "Web app currently using GA4 for basic analytics",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "step"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-090",
+    "description": "Full white-label solution",
+    "issueNumber": 510,
+    "ideaTitle": "White-label the product",
+    "ideaBody": "Partners want to resell our product under their own brand. Need custom domains, theming, logos, email templates, custom onboarding, and separate billing.",
+    "projectContext": "Single-brand SaaS application",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "phase"],
+      "mustNotContain": []
+    }
+  }
+]

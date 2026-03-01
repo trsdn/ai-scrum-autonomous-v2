@@ -1,0 +1,197 @@
+[
+  {
+    "id": "retro-056",
+    "description": "Tests pass but code coverage dropped 20% in the sprint",
+    "sprintNumber": 9,
+    "sprintResults": "## Sprint 9 Results\n\n| Issue | Title | Points | Status | PR | Coverage Before | Coverage After |\n|-------|-------|--------|--------|----|----|----|\n| #80 | Add event dispatcher | 3 | ✅ Done | #81 | 85% | 78% |\n| #82 | Add event listeners | 2 | ✅ Done | #83 | 78% | 72% |\n| #84 | Add event queue | 3 | ✅ Done | #85 | 72% | 68% |\n| #86 | Add event retry | 2 | ✅ Done | #87 | 68% | 66% |\n| #88 | Add dead letter queue | 2 | ✅ Done | #89 | 66% | 65% |\n| #90 | Add event metrics | 1 | ✅ Done | #91 | 65% | 65% |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 25m (estimated 1h 30m)\n**Quality Gate**: All passed (coverage threshold not enforced)\n**Coverage**: 85% → 65% (-20 percentage points)\n**New Code Coverage**: Only 42% of new lines have tests\n**Root Cause**: Agent wrote minimal happy-path tests, no edge cases\n**Existing Tests**: All still passing — no regressions detected",
+    "velocityData": "Sprint 7: 4/12 | Sprint 8: 5/13 | Sprint 9: 13/13",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["coverage", "quality gate"],
+      "mustNotContain": ["high quality"]
+    }
+  },
+  {
+    "id": "retro-057",
+    "description": "Lint violations introduced but overridden by disable comments",
+    "sprintNumber": 11,
+    "sprintResults": "## Sprint 11 Results\n\n| Issue | Title | Points | Status | PR | eslint-disable Count |\n|-------|-------|--------|--------|----|----||\n| #100 | Add data pipeline | 3 | ✅ Done | #101 | 8 |\n| #102 | Add ETL process | 3 | ✅ Done | #103 | 12 |\n| #104 | Add data validator | 2 | ✅ Done | #105 | 5 |\n| #106 | Fix transformer | 2 | ✅ Done | #107 | 3 |\n| #108 | Add batch processor | 2 | ✅ Done | #109 | 7 |\n| #110 | Update schemas | 1 | ✅ Done | #111 | 0 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed — lint clean (after disables)\n**eslint-disable comments added**: 35 total across 5 PRs\n**Violations Suppressed**: 14× no-explicit-any, 12× no-unused-vars, 9× no-console\n**Root Cause**: Agent adds eslint-disable instead of fixing lint issues\n**Technical Debt**: 35 suppressed violations now in codebase",
+    "velocityData": "Sprint 9: 13/13 | Sprint 10: 12/13 | Sprint 11: 13/13",
+    "previousImprovements": "Sprint 10 retro: No issues — stable sprint",
+    "expected": {
+      "passed": true,
+      "mustContain": ["lint", "agent"],
+      "mustNotContain": ["clean code"]
+    }
+  },
+  {
+    "id": "retro-058",
+    "description": "Code review approved code with an obvious bug",
+    "sprintNumber": 13,
+    "sprintResults": "## Sprint 13 Results\n\n| Issue | Title | Points | Status | PR | Review | Post-Merge Bug? |\n|-------|-------|--------|--------|----|----|----|\n| #120 | Add discount calculator | 3 | ✅ Done | #121 | ✅ Approved | ❌ Yes — off-by-one |\n| #122 | Fix pricing engine | 2 | ✅ Done | #123 | ✅ Approved | No |\n| #124 | Add coupon system | 2 | ✅ Done | #125 | ✅ Approved | No |\n| #126 | Fix tax rounding | 2 | ✅ Done | #127 | ✅ Approved | No |\n| #128 | Add bulk pricing | 3 | ✅ Done | #129 | ✅ Approved | ❌ Yes — wrong operator |\n| #130 | Update price API | 1 | ✅ Done | #131 | ✅ Approved | No |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 18m (estimated 1h 30m)\n**Quality Gate**: All passed\n**Post-Merge Bugs**: 2 bugs found after merge to main\n**Bug #121**: `discount = price - (price * rate / 100)` should use `rate` not `rate / 100` (rate already decimal)\n**Bug #129**: Used `>` instead of `>=` in bulk pricing threshold\n**Code Review Gap**: Review agent didn't catch arithmetic logic errors",
+    "velocityData": "Sprint 11: 13/13 | Sprint 12: 16/16 | Sprint 13: 13/13",
+    "previousImprovements": "Sprint 12 retro: No issues",
+    "expected": {
+      "passed": true,
+      "mustContain": ["review", "agent"],
+      "mustNotContain": ["thorough review"]
+    }
+  },
+  {
+    "id": "retro-059",
+    "description": "Acceptance criteria not fully met — partial implementations approved",
+    "sprintNumber": 15,
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | AC Met? | Missing |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Add user registration | 3 | ✅ Done | #141 | Partial | Email verification not implemented |\n| #142 | Add login flow | 2 | ✅ Done | #143 | Partial | Password reset missing |\n| #144 | Add profile page | 2 | ✅ Done | #145 | Full | — |\n| #146 | Add settings | 2 | ✅ Done | #147 | Partial | Theme toggle missing |\n| #148 | Add notifications | 2 | ✅ Done | #149 | Full | — |\n| #150 | Add help page | 1 | ✅ Done | #151 | Full | — |\n\n**Velocity**: 12/12 points completed (reported)\n**Duration**: 1h 10m (estimated 1h 20m)\n**Quality Gate**: All passed\n**AC Compliance**: Only 3/6 issues fully met acceptance criteria\n**Missing Features**: Email verification, password reset, theme toggle\n**Root Cause**: Quality gate checks tests pass, not AC completeness\n**Impact**: 3 issues will need follow-up work in next sprint",
+    "velocityData": "Sprint 13: 13/13 | Sprint 14: 12/12 | Sprint 15: 12/12",
+    "previousImprovements": "Sprint 14 retro: Fixed CI pipeline speed",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "quality gate"],
+      "mustNotContain": ["fully met"]
+    }
+  },
+  {
+    "id": "retro-060",
+    "description": "Generated code has poor error handling — only happy path",
+    "sprintNumber": 17,
+    "sprintResults": "## Sprint 17 Results\n\n| Issue | Title | Points | Status | PR | Error Handling |\n|-------|-------|--------|--------|----|----||\n| #160 | Add file parser | 3 | ✅ Done | #161 | No try/catch for file I/O |\n| #162 | Add config loader | 2 | ✅ Done | #163 | No validation of config shape |\n| #164 | Add API client | 3 | ✅ Done | #165 | No timeout/retry handling |\n| #166 | Add data importer | 2 | ✅ Done | #167 | No error on malformed data |\n| #168 | Add log rotator | 1 | ✅ Done | #169 | No disk space check |\n| #170 | Add health check | 2 | ✅ Done | #171 | Adequate error handling |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 15m (estimated 1h 30m)\n**Quality Gate**: All passed\n**Error Handling Assessment**: 5/6 issues have inadequate error handling\n**Pattern**: Agent implements happy path, skips error cases\n**Tests Written**: All test happy paths — no error scenario tests\n**Risk**: Production failures on invalid input, network errors, disk full",
+    "velocityData": "Sprint 15: 12/12 | Sprint 16: 5/13 | Sprint 17: 13/13",
+    "previousImprovements": "Sprint 16 retro: Fixed code review false positives",
+    "expected": {
+      "passed": true,
+      "mustContain": ["error handling", "agent"],
+      "mustNotContain": ["robust"]
+    }
+  },
+  {
+    "id": "retro-061",
+    "description": "Code duplication across PRs — same utility rewritten 4 times",
+    "sprintNumber": 19,
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Duplicate Code? |\n|-------|-------|--------|--------|----|----||\n| #180 | Add user search | 2 | ✅ Done | #181 | Has own `formatDate()` |\n| #182 | Add order search | 2 | ✅ Done | #183 | Has own `formatDate()` |\n| #184 | Add product search | 2 | ✅ Done | #185 | Has own `formatDate()` |\n| #186 | Add invoice search | 2 | ✅ Done | #187 | Has own `formatDate()` |\n| #188 | Add report generator | 3 | ✅ Done | #189 | Uses existing `formatDate()` |\n| #190 | Add analytics export | 2 | ✅ Done | #191 | No date formatting needed |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 28m (estimated 1h 30m)\n**Quality Gate**: All passed\n**Code Duplication**: `formatDate()` implemented 4 different times across 4 PRs\n**Lines Duplicated**: ~60 lines of identical logic\n**Root Cause**: Each issue worked in isolation, agent didn't check for existing utilities\n**Code Review Gap**: Review didn't flag duplication across PRs",
+    "velocityData": "Sprint 17: 13/13 | Sprint 18: 13/13 | Sprint 19: 13/13",
+    "previousImprovements": "Sprint 18 retro: No issues",
+    "expected": {
+      "passed": true,
+      "mustContain": ["duplication", "agent"],
+      "mustNotContain": ["DRY"]
+    }
+  },
+  {
+    "id": "retro-062",
+    "description": "Type safety compromised — excessive use of 'any' type",
+    "sprintNumber": 21,
+    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | `any` Types Added |\n|-------|-------|--------|--------|----|----||\n| #200 | Add API gateway | 3 | ✅ Done | #201 | 14 |\n| #202 | Add request router | 2 | ✅ Done | #203 | 8 |\n| #204 | Add response mapper | 2 | ✅ Done | #205 | 11 |\n| #206 | Add middleware chain | 2 | ✅ Done | #207 | 6 |\n| #208 | Add error handler | 2 | ✅ Done | #209 | 9 |\n| #210 | Add logging wrapper | 1 | ✅ Done | #211 | 3 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 20m (estimated 1h 25m)\n**Quality Gate**: All passed (no-explicit-any rule disabled)\n**`any` Types Added**: 51 total across 6 PRs\n**Before Sprint**: 0 `any` types in codebase\n**After Sprint**: 51 `any` types in codebase\n**Root Cause**: `@typescript-eslint/no-explicit-any` was set to 'warn' not 'error'\n**Impact**: Type safety significantly degraded",
+    "velocityData": "Sprint 19: 13/13 | Sprint 20: 12/12 | Sprint 21: 12/12",
+    "previousImprovements": "Sprint 20 retro: Fixed build trigger config",
+    "expected": {
+      "passed": true,
+      "mustContain": ["type", "config"],
+      "mustNotContain": ["type safe"]
+    }
+  },
+  {
+    "id": "retro-063",
+    "description": "Tests written but all use same test data — no edge cases",
+    "sprintNumber": 23,
+    "sprintResults": "## Sprint 23 Results\n\n| Issue | Title | Points | Status | PR | Tests | Edge Case Tests |\n|-------|-------|--------|--------|----|----|----|\n| #220 | Add form validator | 2 | ✅ Done | #221 | 8 | 0 |\n| #222 | Add input sanitizer | 2 | ✅ Done | #223 | 6 | 0 |\n| #224 | Add schema checker | 3 | ✅ Done | #225 | 10 | 0 |\n| #226 | Add type coercion | 2 | ✅ Done | #227 | 7 | 0 |\n| #228 | Add range validator | 1 | ✅ Done | #229 | 5 | 0 |\n| #230 | Add custom rules | 2 | ✅ Done | #231 | 8 | 0 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 18m (estimated 1h 20m)\n**Quality Gate**: All passed\n**Tests Written**: 44 total\n**Edge Case Tests**: 0 — all tests use valid/normal inputs\n**Missing**: Empty strings, null, undefined, very long strings, special chars, boundary values\n**Root Cause**: Agent prompt doesn't require edge case testing\n**Mutation Testing**: Would likely show many surviving mutants",
+    "velocityData": "Sprint 21: 12/12 | Sprint 22: 13/13 | Sprint 23: 12/12",
+    "previousImprovements": "Sprint 22 retro: Increased review concurrency",
+    "expected": {
+      "passed": true,
+      "mustContain": ["edge case", "agent"],
+      "mustNotContain": ["comprehensive testing"]
+    }
+  },
+  {
+    "id": "retro-064",
+    "description": "PRs merged without all CI checks completing",
+    "sprintNumber": 25,
+    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | CI Checks Run | CI Checks Required |\n|-------|-------|--------|--------|----|----|----|\n| #240 | Add dashboard | 3 | ✅ Done | #241 | 2/4 | 4 |\n| #242 | Fix chart render | 2 | ✅ Done | #243 | 3/4 | 4 |\n| #244 | Add data grid | 2 | ✅ Done | #245 | 2/4 | 4 |\n| #246 | Fix responsive layout | 1 | ✅ Done | #247 | 4/4 | 4 |\n| #248 | Add export button | 2 | ✅ Done | #249 | 3/4 | 4 |\n| #250 | Update styles | 1 | ✅ Done | #251 | 4/4 | 4 |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 05m (estimated 1h 15m)\n**CI Checks**: Only 2/6 PRs had all 4 checks complete before merge\n**Missing Checks**: E2E tests skipped on 3 PRs, security scan skipped on 1\n**Root Cause**: Sprint runner merges when 'required' checks pass, not 'all' checks\n**Config**: `merge.requiredChecks: ['build', 'test']` — missing 'e2e' and 'security'\n**Risk**: E2E regressions and security issues may have been introduced",
+    "velocityData": "Sprint 23: 12/12 | Sprint 24: 12/12 | Sprint 25: 11/11",
+    "previousImprovements": "Sprint 24 retro: Set logging to INFO",
+    "expected": {
+      "passed": true,
+      "mustContain": ["CI", "config"],
+      "mustNotContain": ["all checks passed"]
+    }
+  },
+  {
+    "id": "retro-065",
+    "description": "Sprint produced working code but with poor API design",
+    "sprintNumber": 7,
+    "sprintResults": "## Sprint 7 Results\n\n| Issue | Title | Points | Status | PR | API Issues |\n|-------|-------|--------|--------|----|----||\n| #60 | Add user API | 3 | ✅ Done | #61 | Inconsistent naming: getUser vs fetch_account |\n| #62 | Add order API | 2 | ✅ Done | #63 | Returns array instead of paginated response |\n| #64 | Add product API | 2 | ✅ Done | #65 | Mixed camelCase and snake_case in response |\n| #66 | Add auth API | 3 | ✅ Done | #67 | Token in query params instead of header |\n| #68 | Add search API | 2 | ✅ Done | #69 | Non-standard error response format |\n| #70 | Add health API | 1 | ✅ Done | #71 | Correct design |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 20m (estimated 1h 30m)\n**Quality Gate**: All passed (no API design checks)\n**API Design Issues**: 5/6 endpoints have design problems\n**Root Cause**: No API design guidelines in agent prompt\n**Code Review Gap**: Review checks code quality but not API conventions\n**Impact**: Inconsistent API surface will need refactoring",
+    "velocityData": "Sprint 5: 13/13 | Sprint 6: 14/14 | Sprint 7: 13/13",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "skill"],
+      "mustNotContain": ["consistent API"]
+    }
+  },
+  {
+    "id": "retro-066",
+    "description": "Dependencies added without security audit — 3 have known CVEs",
+    "sprintNumber": 14,
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | New Deps | CVEs |\n|-------|-------|--------|--------|----|----|----|\n| #130 | Add XML parser | 2 | ✅ Done | #131 | xml2js@0.4.19 | 1 high |\n| #132 | Add CSV handler | 1 | ✅ Done | #133 | csv-parse@4.4.0 | 0 |\n| #134 | Add PDF generator | 3 | ✅ Done | #135 | pdfkit@0.11.0, sharp@0.28.0 | 2 medium |\n| #136 | Add ZIP support | 2 | ✅ Done | #137 | archiver@5.0.0 | 0 |\n| #138 | Add email sender | 2 | ✅ Done | #139 | nodemailer@6.4.0 | 1 high |\n| #140 | Add templating | 2 | ✅ Done | #141 | handlebars@4.7.6 | 0 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 25m (estimated 1h 30m)\n**Quality Gate**: All passed (no security audit step)\n**New Dependencies**: 7 packages added\n**Known CVEs**: 4 (2 high, 2 medium)\n**Root Cause**: Quality gate doesn't include `npm audit`\n**Impact**: 2 high-severity vulnerabilities now in dependency tree",
+    "velocityData": "Sprint 12: 10/10 | Sprint 13: 9/9 | Sprint 14: 12/12",
+    "previousImprovements": "Sprint 13 retro: None",
+    "expected": {
+      "passed": true,
+      "mustContain": ["security", "quality gate"],
+      "mustNotContain": ["secure"]
+    }
+  },
+  {
+    "id": "retro-067",
+    "description": "Sprint with inconsistent commit messages across all PRs",
+    "sprintNumber": 10,
+    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | Commit Message |\n|-------|-------|--------|--------|----|----||\n| #90 | Add auth middleware | 2 | ✅ Done | #91 | 'added stuff' |\n| #92 | Fix login bug | 1 | ✅ Done | #93 | 'fix' |\n| #94 | Add session store | 3 | ✅ Done | #95 | 'WIP: session thing' |\n| #96 | Update token logic | 2 | ✅ Done | #97 | 'feat: update token refresh logic (#96)' |\n| #98 | Add 2FA support | 3 | ✅ Done | #99 | 'changes' |\n| #100 | Fix logout flow | 1 | ✅ Done | #101 | 'done' |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 18m (estimated 1h 20m)\n**Quality Gate**: All passed (no commit message check)\n**Commit Quality**: Only 1/6 PRs had proper conventional commit format\n**Bad Messages**: 'added stuff', 'fix', 'WIP: session thing', 'changes', 'done'\n**Root Cause**: Agent prompt doesn't enforce conventional commit format\n**Impact**: Git history is unclear, changelog generation will fail",
+    "velocityData": "Sprint 8: 5/13 | Sprint 9: 13/13 | Sprint 10: 12/12",
+    "previousImprovements": "Sprint 9 retro: No issues",
+    "expected": {
+      "passed": true,
+      "mustContain": ["commit", "agent"],
+      "mustNotContain": ["conventional"]
+    }
+  },
+  {
+    "id": "retro-068",
+    "description": "No documentation added despite 6 new public APIs",
+    "sprintNumber": 22,
+    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR | JSDoc Added? | README Updated? |\n|-------|-------|--------|--------|----|----|----|\n| #210 | Add user API | 3 | ✅ Done | #211 | No | No |\n| #212 | Add product API | 2 | ✅ Done | #213 | No | No |\n| #214 | Add order API | 3 | ✅ Done | #215 | No | No |\n| #216 | Add payment API | 3 | ✅ Done | #217 | No | No |\n| #218 | Add shipping API | 2 | ✅ Done | #219 | No | No |\n| #220 | Add review API | 1 | ✅ Done | #221 | No | No |\n\n**Velocity**: 14/14 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed (no documentation check)\n**Documentation**: 0 JSDoc comments, 0 README updates for 6 new public APIs\n**Exported Functions**: 24 new public functions with no documentation\n**Root Cause**: Quality gate and review don't check for documentation\n**Impact**: New APIs are undiscoverable and unclear for consumers",
+    "velocityData": "Sprint 20: 12/12 | Sprint 21: 12/12 | Sprint 22: 14/14",
+    "previousImprovements": "Sprint 21 retro: Fixed git branch cleanup",
+    "expected": {
+      "passed": true,
+      "mustContain": ["documentation", "quality gate"],
+      "mustNotContain": ["documented"]
+    }
+  },
+  {
+    "id": "retro-069",
+    "description": "Sprint introduced circular dependencies between modules",
+    "sprintNumber": 16,
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Circular Dep? |\n|-------|-------|--------|--------|----|----||\n| #150 | Add auth module | 3 | ✅ Done | #151 | auth → user → auth |\n| #152 | Add user module | 2 | ✅ Done | #153 | user → auth → user |\n| #154 | Add order module | 2 | ✅ Done | #155 | order → user → order |\n| #156 | Add notification module | 2 | ✅ Done | #157 | No circular deps |\n| #158 | Add logging module | 1 | ✅ Done | #159 | No circular deps |\n| #160 | Add config module | 1 | ✅ Done | #161 | No circular deps |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 20m (estimated 1h 25m)\n**Quality Gate**: All passed (no circular dep check)\n**Circular Dependencies**: 3 cycles detected post-merge\n**Root Cause**: Agent creates cross-module imports without checking dependency graph\n**Code Review Gap**: Review doesn't analyze import graph\n**Impact**: Build will break when module bundling is enabled",
+    "velocityData": "Sprint 14: 12/12 | Sprint 15: 12/12 | Sprint 16: 11/11",
+    "previousImprovements": "Sprint 15 retro: Fixed AC compliance checking",
+    "expected": {
+      "passed": true,
+      "mustContain": ["circular", "skill"],
+      "mustNotContain": ["clean architecture"]
+    }
+  },
+  {
+    "id": "retro-070",
+    "description": "Tests mock too much — testing implementation not behavior",
+    "sprintNumber": 24,
+    "sprintResults": "## Sprint 24 Results\n\n| Issue | Title | Points | Status | PR | Mocks per Test | Behavior Tested? |\n|-------|-------|--------|--------|----|----|----|\n| #230 | Add payment processor | 3 | ✅ Done | #231 | 8 | Minimal |\n| #232 | Add refund handler | 2 | ✅ Done | #233 | 6 | Minimal |\n| #234 | Add invoice generator | 2 | ✅ Done | #235 | 5 | Partial |\n| #236 | Add receipt service | 2 | ✅ Done | #237 | 7 | Minimal |\n| #238 | Add billing cycle | 2 | ✅ Done | #239 | 9 | Minimal |\n| #240 | Add payment history | 1 | ✅ Done | #241 | 4 | Partial |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 15m (estimated 1h 20m)\n**Quality Gate**: All passed\n**Tests Written**: 38 tests across 6 PRs\n**Average Mocks per Test**: 6.5 (industry best practice: 1-2)\n**Issue**: Tests are coupled to implementation details\n**Root Cause**: Agent mocks every dependency instead of using integration-style tests\n**Risk**: Any refactoring will break tests even if behavior is preserved",
+    "velocityData": "Sprint 22: 14/14 | Sprint 23: 12/12 | Sprint 24: 12/12",
+    "previousImprovements": "Sprint 23 retro: Added edge case testing requirements",
+    "expected": {
+      "passed": true,
+      "mustContain": ["mock", "agent"],
+      "mustNotContain": ["well-tested"]
+    }
+  }
+]

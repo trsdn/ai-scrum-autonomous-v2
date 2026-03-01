@@ -1,0 +1,132 @@
+[
+  {
+    "id": "refine-091",
+    "description": "Empty idea body",
+    "issueNumber": 601,
+    "ideaTitle": "Improve the thing",
+    "ideaBody": "",
+    "projectContext": "Generic web application",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-092",
+    "description": "Potential duplicate of existing issue",
+    "issueNumber": 602,
+    "ideaTitle": "Add dark mode support",
+    "ideaBody": "We should let users switch to a dark theme. I think someone mentioned this before but I couldn't find the issue.",
+    "projectContext": "React app where issue #101 already covers dark mode",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "duplicate"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-093",
+    "description": "Idea written in German",
+    "issueNumber": 603,
+    "ideaTitle": "Suchfunktion hinzufügen",
+    "ideaBody": "Wir brauchen eine Suchfunktion damit Benutzer Artikel schneller finden können. Volltextsuche wäre ideal.",
+    "projectContext": "E-commerce platform, team uses German and English",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "search"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-094",
+    "description": "Extremely long idea description",
+    "issueNumber": 604,
+    "ideaTitle": "Comprehensive notification system overhaul",
+    "ideaBody": "OK so I've been thinking about this for a while and I have a lot of ideas. First, we need to fix the email notifications because they're unreliable - sometimes they arrive late, sometimes not at all. Second, we should add push notifications for mobile users who have installed the PWA. Third, we need in-app notifications with a notification center where users can see all their past notifications. Fourth, we should add notification preferences so users can choose which notifications they want to receive and how (email, push, in-app, or SMS). Fifth, we need to support notification digests - instead of getting 50 emails a day, users should be able to opt into a daily or weekly summary. Sixth, notification templates should be customizable by admins. Seventh, we need real-time notifications using WebSockets so users see updates without refreshing. Eighth, we should track notification delivery and open rates. Ninth, we need to handle notification throttling to prevent spam. Tenth, we should support rich notifications with images and action buttons. Also, I forgot to mention that we need to handle quiet hours where notifications are suppressed. And we should have a way to mark all notifications as read. Oh and notification sounds would be nice too. And maybe notification categories or channels like Slack has. Basically just make notifications amazing.",
+    "projectContext": "SaaS platform with basic email-only notifications via SendGrid",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "notification"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-095",
+    "description": "Idea with code snippets embedded",
+    "issueNumber": 605,
+    "ideaTitle": "Add retry logic to API calls",
+    "ideaBody": "Our API calls fail sometimes and we just show an error. We should add retry logic like this:\n\n```typescript\nasync function fetchWithRetry(url: string, retries = 3) {\n  for (let i = 0; i < retries; i++) {\n    try {\n      return await fetch(url);\n    } catch (e) {\n      if (i === retries - 1) throw e;\n      await sleep(1000 * Math.pow(2, i));\n    }\n  }\n}\n```\n\nMaybe with exponential backoff. Should work for all our API calls.",
+    "projectContext": "TypeScript React app with fetch-based API layer",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "retry"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-096",
+    "description": "Idea with only emojis and minimal text",
+    "issueNumber": 606,
+    "ideaTitle": "🚀 Performance 🚀",
+    "ideaBody": "⚡ Make it fast ⚡ 🐌➡️🚀",
+    "projectContext": "Web application with no specific performance requirements",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "performance"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-097",
+    "description": "Idea referencing external links and screenshots",
+    "issueNumber": 607,
+    "ideaTitle": "Copy Stripe's billing page",
+    "ideaBody": "I really like how Stripe does their billing page (see https://stripe.com/billing). Can we do something similar? I attached some screenshots in the Google Drive folder but basically we need usage-based billing with tiered pricing.",
+    "projectContext": "SaaS with flat monthly pricing, no usage tracking",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "billing"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-098",
+    "description": "Idea with conflicting requirements",
+    "issueNumber": 608,
+    "ideaTitle": "Simplify AND add more features",
+    "ideaBody": "The app is too complex, users find it overwhelming. We need to simplify the interface. Also, can we add advanced filtering, custom dashboards, workflow automation, and a marketplace for extensions?",
+    "projectContext": "Project management tool with existing feature bloat",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-099",
+    "description": "Idea written in Spanish",
+    "issueNumber": 609,
+    "ideaTitle": "Añadir modo offline",
+    "ideaBody": "Los usuarios necesitan poder usar la aplicación sin conexión a internet. Deberían poder ver sus datos y hacer cambios que se sincronicen cuando vuelvan a estar en línea.",
+    "projectContext": "Progressive Web App with React, no service worker yet",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "offline"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-100",
+    "description": "Idea body is just a URL",
+    "issueNumber": 610,
+    "ideaTitle": "Do what this article says",
+    "ideaBody": "https://martinfowler.com/articles/micro-frontends.html",
+    "projectContext": "React monolithic frontend with multiple product areas",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": []
+    }
+  }
+]

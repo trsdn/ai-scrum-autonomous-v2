@@ -1,0 +1,197 @@
+[
+  {
+    "id": "retro-086",
+    "description": "Timeout improvement should target config, not code",
+    "sprintNumber": 8,
+    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | Notes |\n|-------|-------|--------|--------|----|----||\n| #70 | Add batch processor | 3 | ❌ Failed | #71 | Session timeout at 90m |\n| #72 | Fix queue handler | 2 | ✅ Done | #73 | Completed in 15m |\n| #74 | Add retry logic | 2 | ✅ Done | #75 | Completed in 12m |\n| #76 | Update error handler | 1 | ✅ Done | #77 | Completed in 8m |\n| #78 | Add dead letter queue | 2 | ✅ Done | #79 | Completed in 14m |\n| #80 | Fix throttle config | 1 | ✅ Done | #81 | Completed in 6m |\n\n**Velocity**: 8/11 points completed\n**Duration**: 1h 30m (session limit)\n**Issue**: Session timeout of 90m too short for 3+ point issues\n**Current Config**: `acp.sessionTimeout: 5400000` (90 minutes)\n**Recommendation**: Increase to `acp.sessionTimeout: 10800000` (180 minutes)",
+    "velocityData": "Sprint 6: 13/13 | Sprint 7: 11/12 | Sprint 8: 8/11",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["config"],
+      "mustNotContain": ["code change", "refactor"]
+    }
+  },
+  {
+    "id": "retro-087",
+    "description": "Code review prompt too strict — should target agent prompt",
+    "sprintNumber": 12,
+    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | PR | Review Result |\n|-------|-------|--------|--------|----|----||\n| #110 | Add caching layer | 3 | ❌ Failed | #111 | Rejected: 'not enough inline comments' |\n| #112 | Fix cache invalidation | 2 | ❌ Failed | #113 | Rejected: 'variable names not descriptive enough' |\n| #114 | Add LRU eviction | 2 | ✅ Done | #115 | Approved |\n| #116 | Fix TTL handling | 1 | ❌ Failed | #117 | Rejected: 'missing JSDoc on private function' |\n| #118 | Add cache metrics | 2 | ✅ Done | #119 | Approved |\n| #120 | Update cache config | 1 | ✅ Done | #121 | Approved |\n\n**Velocity**: 5/11 points completed\n**Duration**: 2h 00m (estimated 1h 10m)\n**Root Cause**: Code review agent prompt requires excessive documentation\n**False Rejections**: 3 PRs rejected for style, not substance\n**Target**: Update code review agent prompt to focus on correctness over style",
+    "velocityData": "Sprint 10: 12/13 | Sprint 11: 13/13 | Sprint 12: 5/11",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent"],
+      "mustNotContain": ["config", "process"]
+    }
+  },
+  {
+    "id": "retro-088",
+    "description": "Missing lint rule — should add skill/QG check",
+    "sprintNumber": 14,
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | Post-Merge Issue |\n|-------|-------|--------|--------|----|----||\n| #130 | Add async handler | 3 | ✅ Done | #131 | Missing await — runtime error |\n| #132 | Add event listener | 2 | ✅ Done | #133 | Missing await — silent failure |\n| #134 | Add stream processor | 2 | ✅ Done | #135 | Missing await — data loss |\n| #136 | Fix callback converter | 2 | ✅ Done | #137 | OK |\n| #138 | Add promise wrapper | 1 | ✅ Done | #139 | OK |\n| #140 | Update async utils | 1 | ✅ Done | #141 | OK |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 15m (estimated 1h 15m)\n**Quality Gate**: All passed (no floating promise check)\n**Post-Merge Bugs**: 3 issues had missing `await` keywords\n**Root Cause**: ESLint rule `@typescript-eslint/no-floating-promises` not enabled\n**Target**: Add lint rule to quality gate configuration",
+    "velocityData": "Sprint 12: 5/11 | Sprint 13: 9/9 | Sprint 14: 11/11",
+    "previousImprovements": "Sprint 13 retro: None",
+    "expected": {
+      "passed": true,
+      "mustContain": ["skill"],
+      "mustNotContain": ["process"]
+    }
+  },
+  {
+    "id": "retro-089",
+    "description": "Sprint planning process selecting wrong issues — process change needed",
+    "sprintNumber": 16,
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Priority | Should Be In Sprint? |\n|-------|-------|--------|--------|----|----|----|\n| #150 | Update button color | 1 | ✅ Done | #151 | P3 | No |\n| #152 | Fix font size | 1 | ✅ Done | #153 | P3 | No |\n| #154 | Add icon pack | 1 | ✅ Done | #155 | P3 | No |\n| #156 | Fix critical auth bypass | 5 | Not planned | — | P0 | YES |\n| #158 | Fix data corruption | 3 | Not planned | — | P0 | YES |\n| #160 | Update hover effect | 1 | ✅ Done | #161 | P3 | No |\n| #162 | Fix tooltip | 1 | ✅ Done | #163 | P3 | No |\n| #164 | Add animation | 1 | ✅ Done | #165 | P3 | No |\n\n**Velocity**: 6/6 points completed\n**Duration**: 35m (estimated 40m)\n**Critical Issue**: Sprint selected P3 cosmetic issues while P0 security issues sat in backlog\n**Root Cause**: Sprint planning sorts by ICE score, not priority\n**Target**: Change sprint planning process to prioritize by severity first\n**Impact**: P0 auth bypass remained unpatched for another sprint",
+    "velocityData": "Sprint 14: 11/11 | Sprint 15: 12/12 | Sprint 16: 6/6",
+    "previousImprovements": "Sprint 15 retro: None — clean sprint",
+    "expected": {
+      "passed": true,
+      "mustContain": ["process"],
+      "mustNotContain": ["config", "agent"]
+    }
+  },
+  {
+    "id": "retro-090",
+    "description": "Quality gate timeout should be config change",
+    "sprintNumber": 10,
+    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | QG Duration | QG Timeout |\n|-------|-------|--------|--------|----|----|----|\n| #90 | Add E2E test suite | 3 | ❌ Failed | #91 | 195s | 180s timeout |\n| #92 | Add integration tests | 3 | ❌ Failed | #93 | 188s | 180s timeout |\n| #94 | Add unit tests | 2 | ✅ Done | #95 | 45s | — |\n| #96 | Fix test helpers | 1 | ✅ Done | #97 | 30s | — |\n| #98 | Add test fixtures | 2 | ✅ Done | #99 | 55s | — |\n| #100 | Update mocks | 1 | ✅ Done | #101 | 25s | — |\n\n**Velocity**: 6/12 points completed\n**Duration**: 1h 45m (estimated 1h 20m)\n**Root Cause**: Quality gate timeout is 180s but E2E/integration tests take ~190s\n**Current Config**: `qualityGate.timeout: 180000` (3 minutes)\n**Needed**: `qualityGate.timeout: 300000` (5 minutes)\n**Tests are passing** — they just take longer than the timeout allows",
+    "velocityData": "Sprint 8: 8/11 | Sprint 9: 12/12 | Sprint 10: 6/12",
+    "previousImprovements": "Sprint 9 retro: Optimized test runner",
+    "expected": {
+      "passed": true,
+      "mustContain": ["config"],
+      "mustNotContain": ["agent", "process"]
+    }
+  },
+  {
+    "id": "retro-091",
+    "description": "Agent generating wrong test framework — prompt update needed",
+    "sprintNumber": 18,
+    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | PR | Test Framework Used |\n|-------|-------|--------|--------|----|----||\n| #170 | Add user service tests | 2 | ❌ Failed | #171 | Jest (project uses Vitest) |\n| #172 | Add auth service tests | 2 | ❌ Failed | #173 | Jest (project uses Vitest) |\n| #174 | Add order tests | 2 | ❌ Failed | #175 | Mocha (project uses Vitest) |\n| #176 | Fix existing tests | 1 | ✅ Done | #177 | Vitest (correct) |\n| #178 | Add test helpers | 1 | ✅ Done | #179 | Vitest (correct) |\n| #180 | Update test config | 1 | ✅ Done | #181 | — |\n\n**Velocity**: 3/9 points completed\n**Duration**: 1h 50m (estimated 1h 00m)\n**Root Cause**: Agent prompt doesn't specify test framework\n**Pattern**: When writing new test files, agent defaults to Jest/Mocha\n**Fix**: When editing existing test files, it uses Vitest (correct)\n**Target**: Update code-worker agent prompt to specify 'use Vitest for all tests'",
+    "velocityData": "Sprint 16: 6/6 | Sprint 17: 8/16 | Sprint 18: 3/9",
+    "previousImprovements": "Sprint 17 retro: Noted agent retry issues",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent"],
+      "mustNotContain": ["config", "process"]
+    }
+  },
+  {
+    "id": "retro-092",
+    "description": "Branch naming convention not enforced — add skill check",
+    "sprintNumber": 20,
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | Branch Name | Correct? |\n|-------|-------|--------|--------|----|----|----|\n| #190 | Add search | 2 | ✅ Done | #191 | search-feature | ❌ |\n| #192 | Fix sorting | 1 | ✅ Done | #193 | fix-sort | ❌ |\n| #194 | Add filters | 2 | ✅ Done | #195 | feat/194-add-filters | ✅ |\n| #196 | Update API | 2 | ✅ Done | #197 | api-update-196 | ❌ |\n| #198 | Fix pagination | 1 | ✅ Done | #199 | feat/198-fix-pagination | ✅ |\n| #200 | Add export | 2 | ✅ Done | #201 | export-feature | ❌ |\n\n**Velocity**: 10/10 points completed\n**Duration**: 1h 05m (estimated 1h 05m)\n**Branch Naming**: Only 2/6 branches follow convention `feat/<issue>-<name>`\n**Convention**: `feat/<issue>-<slug>` or `fix/<issue>-<slug>`\n**Root Cause**: No validation step checks branch naming\n**Target**: Add branch name validation to quality gate skills",
+    "velocityData": "Sprint 18: 3/9 | Sprint 19: 12/12 | Sprint 20: 10/10",
+    "previousImprovements": "Sprint 19 retro: None",
+    "expected": {
+      "passed": true,
+      "mustContain": ["skill"],
+      "mustNotContain": ["process"]
+    }
+  },
+  {
+    "id": "retro-093",
+    "description": "Sprint retrospective itself not producing actionable items — process fix",
+    "sprintNumber": 22,
+    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR |\n|-------|-------|--------|--------|----|\n| #210 | Add dashboard | 3 | ✅ Done | #211 |\n| #212 | Fix chart | 2 | ✅ Done | #213 |\n| #214 | Add widget | 2 | ✅ Done | #215 |\n| #216 | Fix layout | 1 | ✅ Done | #217 |\n| #218 | Add theme | 2 | ✅ Done | #219 |\n| #220 | Update CSS | 1 | ✅ Done | #221 |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 20m (estimated 1h 15m)\n**Previous Retro Outputs** (last 5 sprints):\n- Sprint 17 retro: 'Improve quality' (vague)\n- Sprint 18 retro: 'Things went well' (no action)\n- Sprint 19 retro: 'Good sprint' (no action)\n- Sprint 20 retro: 'Continue current approach' (no action)\n- Sprint 21 retro: 'Everything fine' (no action)\n**Root Cause**: Retro prompt doesn't enforce structured output format\n**Target**: Change retro process to require specific improvement format with target + metric",
+    "velocityData": "Sprint 17: 8/16 | Sprint 18: 3/9 | Sprint 19: 12/12 | Sprint 20: 10/10 | Sprint 21: 11/11 | Sprint 22: 11/11",
+    "previousImprovements": "Sprint 21 retro: 'Everything fine' (no actionable improvement)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["process"],
+      "mustNotContain": ["config", "skill"]
+    }
+  },
+  {
+    "id": "retro-094",
+    "description": "Max retry count too low — should be config change",
+    "sprintNumber": 6,
+    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Points | Status | PR | QG Retries | Final Attempt |\n|-------|-------|--------|--------|----|----|----|\n| #50 | Add auth module | 3 | ❌ Failed | #51 | 3/3 | Almost passed — 1 test flaky |\n| #52 | Add login page | 2 | ❌ Failed | #53 | 3/3 | Almost passed — lint trailing comma |\n| #54 | Fix session | 2 | ✅ Done | #55 | 2/3 | Passed on 2nd try |\n| #56 | Add logout | 1 | ✅ Done | #57 | 1/3 | Passed first try |\n| #58 | Fix redirect | 1 | ✅ Done | #59 | 1/3 | Passed first try |\n| #60 | Update docs | 1 | ✅ Done | #61 | 1/3 | Passed first try |\n\n**Velocity**: 5/10 points completed\n**Duration**: 1h 35m (estimated 1h 10m)\n**Root Cause**: Max retries set to 3, but issues were converging — 4th attempt would likely pass\n**Current Config**: `qualityGate.maxRetries: 3`\n**Recommendation**: Increase to `qualityGate.maxRetries: 5`\n**Evidence**: Both failed issues showed progress on each retry",
+    "velocityData": "Sprint 4: 11/11 | Sprint 5: 13/13 | Sprint 6: 5/10",
+    "previousImprovements": "Sprint 5 retro: None — clean sprint",
+    "expected": {
+      "passed": true,
+      "mustContain": ["config"],
+      "mustNotContain": ["agent", "process"]
+    }
+  },
+  {
+    "id": "retro-095",
+    "description": "Code-worker prompt missing project conventions — agent update",
+    "sprintNumber": 11,
+    "sprintResults": "## Sprint 11 Results\n\n| Issue | Title | Points | Status | PR | Convention Violations |\n|-------|-------|--------|--------|----|----||\n| #100 | Add API endpoint | 2 | ✅ Done | #101 | Used default export (project uses named) |\n| #102 | Add middleware | 2 | ✅ Done | #103 | Used CommonJS require (project uses ESM) |\n| #104 | Add service | 3 | ✅ Done | #105 | Used class (project uses functions) |\n| #106 | Add validator | 1 | ✅ Done | #107 | Used if/else (project uses early return) |\n| #108 | Add helper | 1 | ✅ Done | #109 | Used callback (project uses async/await) |\n| #110 | Fix config | 1 | ✅ Done | #111 | Correct conventions |\n\n**Velocity**: 10/10 points completed\n**Duration**: 1h 25m (estimated 1h 05m)\n**Quality Gate**: All passed (lint rules don't cover all conventions)\n**Convention Violations**: 5/6 PRs violated project coding conventions\n**Root Cause**: Code-worker agent prompt doesn't include project conventions\n**Target**: Add project conventions to code-worker agent prompt",
+    "velocityData": "Sprint 9: 12/12 | Sprint 10: 6/12 | Sprint 11: 10/10",
+    "previousImprovements": "Sprint 10 retro: Fixed QG timeout config",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent"],
+      "mustNotContain": ["config", "process"]
+    }
+  },
+  {
+    "id": "retro-096",
+    "description": "Commit message format should be enforced by skill/QG",
+    "sprintNumber": 13,
+    "sprintResults": "## Sprint 13 Results\n\n| Issue | Title | Points | Status | PR | Commit Message |\n|-------|-------|--------|--------|----|----||\n| #120 | Add API | 2 | ✅ Done | #121 | 'add api' |\n| #122 | Fix bug | 1 | ✅ Done | #123 | 'bugfix' |\n| #124 | Add test | 2 | ✅ Done | #125 | 'tests' |\n| #126 | Update docs | 1 | ✅ Done | #127 | 'feat(docs): update API documentation (#126)' |\n| #128 | Add feature | 3 | ✅ Done | #129 | 'new feature' |\n| #130 | Fix config | 1 | ✅ Done | #131 | 'config' |\n\n**Velocity**: 10/10 points completed\n**Duration**: 1h 00m (estimated 1h 00m)\n**Commit Quality**: Only 1/6 uses conventional commit format\n**Expected Format**: `type(scope): description (#issue)`\n**Root Cause**: No commit message validation in quality gate\n**Target**: Add commitlint check to quality gate skill set",
+    "velocityData": "Sprint 11: 10/10 | Sprint 12: 5/11 | Sprint 13: 10/10",
+    "previousImprovements": "Sprint 12 retro: Fixed review prompt strictness",
+    "expected": {
+      "passed": true,
+      "mustContain": ["skill"],
+      "mustNotContain": ["process"]
+    }
+  },
+  {
+    "id": "retro-097",
+    "description": "Definition of Done not checked — process gap",
+    "sprintNumber": 24,
+    "sprintResults": "## Sprint 24 Results\n\n| Issue | Title | Points | Status | PR | DoD Met? | Missing |\n|-------|-------|--------|--------|----|----|----|\n| #230 | Add user API | 3 | ✅ Done | #231 | Partial | No changelog entry |\n| #232 | Add auth flow | 3 | ✅ Done | #233 | Partial | No docs update |\n| #234 | Add tests | 2 | ✅ Done | #235 | Full | — |\n| #236 | Fix regression | 1 | ✅ Done | #237 | Partial | No regression test |\n| #238 | Add monitoring | 2 | ✅ Done | #239 | Partial | No runbook |\n| #240 | Update config | 1 | ✅ Done | #241 | Full | — |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 18m (estimated 1h 20m)\n**DoD Compliance**: Only 2/6 issues fully meet Definition of Done\n**Missing Items**: changelog, docs, regression tests, runbook\n**Root Cause**: Sprint process doesn't include DoD checklist verification\n**Target**: Add DoD validation step to sprint process before marking 'Done'",
+    "velocityData": "Sprint 22: 11/11 | Sprint 23: 12/12 | Sprint 24: 12/12",
+    "previousImprovements": "Sprint 23 retro: Added edge case testing requirement",
+    "expected": {
+      "passed": true,
+      "mustContain": ["process"],
+      "mustNotContain": ["config"]
+    }
+  },
+  {
+    "id": "retro-098",
+    "description": "Parallel worker count should be increased — config change",
+    "sprintNumber": 19,
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | Worker | Wait Time |\n|-------|-------|--------|--------|--------|----|\n| #180 | Add feature A | 2 | ✅ Done | worker-1 | 0m |\n| #182 | Add feature B | 2 | ✅ Done | worker-1 | 14m (queued) |\n| #184 | Add feature C | 2 | ✅ Done | worker-1 | 28m (queued) |\n| #186 | Add feature D | 2 | ✅ Done | worker-1 | 42m (queued) |\n| #188 | Add feature E | 2 | ✅ Done | worker-1 | 56m (queued) |\n| #190 | Add feature F | 1 | ✅ Done | worker-1 | 68m (queued) |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 50m (estimated 1h 00m)\n**Workers**: 1 (configured) — all issues ran sequentially\n**Queue Wait Time**: 208m total across 5 queued issues\n**Root Cause**: `workers.parallel: 1` — all issues are independent, could run in parallel\n**Recommendation**: Increase to `workers.parallel: 3` (issues don't share files)\n**Estimated Duration with 3 workers**: ~40m",
+    "velocityData": "Sprint 17: 8/16 | Sprint 18: 3/9 | Sprint 19: 11/11",
+    "previousImprovements": "Sprint 18 retro: Fixed agent prompt for test framework",
+    "expected": {
+      "passed": true,
+      "mustContain": ["config"],
+      "mustNotContain": ["agent", "process"]
+    }
+  },
+  {
+    "id": "retro-099",
+    "description": "Security scanning should be added to QG — skill addition",
+    "sprintNumber": 15,
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Security Issue Found Post-Merge |\n|-------|-------|--------|--------|----|----||\n| #140 | Add file upload | 3 | ✅ Done | #141 | Path traversal vulnerability |\n| #142 | Add user input form | 2 | ✅ Done | #143 | XSS vulnerability |\n| #144 | Add SQL query builder | 2 | ✅ Done | #145 | SQL injection risk |\n| #146 | Add URL redirect | 1 | ✅ Done | #147 | Open redirect vulnerability |\n| #148 | Fix auth check | 2 | ✅ Done | #149 | OK |\n| #150 | Add rate limiter | 2 | ✅ Done | #151 | OK |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 15m (estimated 1h 20m)\n**Quality Gate**: All passed (no security scanning)\n**Post-Merge Audit**: 4 security vulnerabilities found\n**Root Cause**: Quality gate has no security scanning skill\n**Target**: Add SAST/security scanning to quality gate skill set\n**Impact**: 4 vulnerabilities shipped to main branch",
+    "velocityData": "Sprint 13: 10/10 | Sprint 14: 11/11 | Sprint 15: 12/12",
+    "previousImprovements": "Sprint 14 retro: Added floating promise lint rule",
+    "expected": {
+      "passed": true,
+      "mustContain": ["skill"],
+      "mustNotContain": ["process", "agent"]
+    }
+  },
+  {
+    "id": "retro-100",
+    "description": "Issue splitting process needed for oversized stories — process change",
+    "sprintNumber": 21,
+    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | Lines Changed | Review Feasible? |\n|-------|-------|--------|--------|----|----|----|\n| #200 | Full database migration | 8 | ❌ Failed | #201 | 3,200 | No — too large |\n| #202 | Complete API rewrite | 8 | ❌ Failed | #203 | 2,800 | No — too large |\n| #204 | Fix small bug | 1 | ✅ Done | #205 | 12 | Yes |\n| #206 | Update config | 1 | ✅ Done | #207 | 8 | Yes |\n| #208 | Add test | 1 | ✅ Done | #209 | 35 | Yes |\n| #210 | Fix typo | 1 | ✅ Done | #211 | 2 | Yes |\n\n**Velocity**: 4/20 points completed (16 points failed)\n**Duration**: 3h 00m (estimated 2h 00m)\n**Root Cause**: Two 8-point issues are too large for single-PR delivery\n**#200**: 3,200 lines changed — exceeds review capability\n**#202**: 2,800 lines changed — exceeds review capability\n**Target**: Add issue splitting step to sprint planning process\n**Rule**: Issues >5 points must be split before entering sprint",
+    "velocityData": "Sprint 19: 11/11 | Sprint 20: 10/10 | Sprint 21: 4/20",
+    "previousImprovements": "Sprint 20 retro: Increased worker concurrency",
+    "expected": {
+      "passed": true,
+      "mustContain": ["process"],
+      "mustNotContain": ["config", "skill"]
+    }
+  }
+]

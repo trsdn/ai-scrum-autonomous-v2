@@ -1,0 +1,262 @@
+[
+  {
+    "id": "refine-026",
+    "description": "Extremely vague improvement request",
+    "issueNumber": 201,
+    "ideaTitle": "Make it better",
+    "ideaBody": "The app just needs to be better overall.",
+    "projectContext": "Generic web application",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": ["ship it"]
+    }
+  },
+  {
+    "id": "refine-027",
+    "description": "Vague user dissatisfaction",
+    "issueNumber": 202,
+    "ideaTitle": "Users don't like it",
+    "ideaBody": "We keep getting complaints but idk what specifically. People just say the app sucks.",
+    "projectContext": "B2C mobile app with React Native",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "user"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-028",
+    "description": "Undefined performance complaint",
+    "issueNumber": 203,
+    "ideaTitle": "It's slow",
+    "ideaBody": "Everything feels sluggish. Can we speed it up?",
+    "projectContext": "React SPA with large bundle size",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "performance"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-029",
+    "description": "Vague AI feature request",
+    "issueNumber": 204,
+    "ideaTitle": "Add AI",
+    "ideaBody": "Everyone's doing AI now. We should add some AI features to stay competitive.",
+    "projectContext": "Project management SaaS tool",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "scope"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-030",
+    "description": "Vague modernization request",
+    "issueNumber": 205,
+    "ideaTitle": "Modernize the UI",
+    "ideaBody": "The UI looks old. Make it modern.",
+    "projectContext": "Legacy jQuery app being migrated to React",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-031",
+    "description": "Undefined security concern",
+    "issueNumber": 206,
+    "ideaTitle": "Improve security",
+    "ideaBody": "Our security is probably not great. We should fix that.",
+    "projectContext": "Node.js REST API with JWT auth",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "security"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-032",
+    "description": "Vague scalability concern",
+    "issueNumber": 207,
+    "ideaTitle": "Make it scale",
+    "ideaBody": "We might get a lot of users soon. Need to make sure the system can handle it.",
+    "projectContext": "Single-server Django app with SQLite",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "scal"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-033",
+    "description": "Undefined competitor feature parity",
+    "issueNumber": 208,
+    "ideaTitle": "Match competitor features",
+    "ideaBody": "Our competitor just launched a bunch of new features. We need to keep up.",
+    "projectContext": "SaaS analytics platform",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-034",
+    "description": "Vague quality request",
+    "issueNumber": 209,
+    "ideaTitle": "Reduce bugs",
+    "ideaBody": "Too many bugs are getting to production. Do something about it.",
+    "projectContext": "Full-stack TypeScript app with minimal test coverage",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "test"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-035",
+    "description": "Vague UX improvement",
+    "issueNumber": 210,
+    "ideaTitle": "Better UX",
+    "ideaBody": "The user experience could be improved. It's not intuitive.",
+    "projectContext": "React e-commerce platform",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "user experience"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-036",
+    "description": "Vague documentation request",
+    "issueNumber": 211,
+    "ideaTitle": "Better docs",
+    "ideaBody": "Our documentation is lacking. Developers complain about it all the time.",
+    "projectContext": "Open-source CLI tool with sparse README",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "documentation"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-037",
+    "description": "Vague integration request",
+    "issueNumber": 212,
+    "ideaTitle": "Add integrations",
+    "ideaBody": "We need more integrations with other tools.",
+    "projectContext": "Workflow automation platform",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "integration"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-038",
+    "description": "Vague mobile request",
+    "issueNumber": 213,
+    "ideaTitle": "Mobile support",
+    "ideaBody": "We need to work on mobile. Lots of users are on phones now.",
+    "projectContext": "Desktop-only web application",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "mobile"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-039",
+    "description": "Vague automation request",
+    "issueNumber": 214,
+    "ideaTitle": "Automate things",
+    "ideaBody": "Too much manual work. We should automate more stuff.",
+    "projectContext": "Internal ops tool with Python scripts",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "automat"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-040",
+    "description": "Vague data request",
+    "issueNumber": 215,
+    "ideaTitle": "Better data",
+    "ideaBody": "We need better data and insights. The current reports are useless.",
+    "projectContext": "Business intelligence dashboard",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "data"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-041",
+    "description": "Vague reliability concern",
+    "issueNumber": 216,
+    "ideaTitle": "More reliable",
+    "ideaBody": "The system goes down too often. Make it more reliable.",
+    "projectContext": "Microservices architecture on AWS",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "reliab"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-042",
+    "description": "Vague onboarding complaint",
+    "issueNumber": 217,
+    "ideaTitle": "Fix onboarding",
+    "ideaBody": "People sign up but then leave. The onboarding must be bad.",
+    "projectContext": "SaaS project management tool",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "onboarding"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-043",
+    "description": "Vague developer experience request",
+    "issueNumber": 218,
+    "ideaTitle": "Improve DX",
+    "ideaBody": "Developer experience is rough. Setup takes forever and the docs are confusing.",
+    "projectContext": "Open-source Node.js framework",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "developer"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-044",
+    "description": "Vague cost reduction request",
+    "issueNumber": 219,
+    "ideaTitle": "Reduce costs",
+    "ideaBody": "Our AWS bill is too high. Need to bring it down.",
+    "projectContext": "Cloud-hosted SaaS on AWS with multiple services",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "cost"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-045",
+    "description": "Vague collaboration feature",
+    "issueNumber": 220,
+    "ideaTitle": "Better collaboration",
+    "ideaBody": "Teams need to collaborate better in the app. It's too siloed right now.",
+    "projectContext": "Document editing platform",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "collaborat"],
+      "mustNotContain": []
+    }
+  }
+]

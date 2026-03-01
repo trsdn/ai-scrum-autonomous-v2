@@ -1,0 +1,327 @@
+[
+  {
+    "id": "refine-001",
+    "description": "Dark mode toggle with persistence",
+    "issueNumber": 101,
+    "ideaTitle": "Add dark mode",
+    "ideaBody": "Would be nice to have a dark mode option for the app. Users have been asking for it.",
+    "projectContext": "React SPA with Tailwind CSS, user preferences stored in localStorage",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "toggle", "persist"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-002",
+    "description": "Search functionality with filtering",
+    "issueNumber": 102,
+    "ideaTitle": "Add search",
+    "ideaBody": "We need search. Users can't find stuff.",
+    "projectContext": "E-commerce Next.js app with PostgreSQL backend",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "search", "results"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-003",
+    "description": "User profile page with editable fields",
+    "issueNumber": 103,
+    "ideaTitle": "Add user profile page",
+    "ideaBody": "Users should be able to see and edit their profile info like name, email, avatar.",
+    "projectContext": "Node.js Express API with React frontend, JWT auth",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "profile", "edit"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-004",
+    "description": "Email notifications for key events",
+    "issueNumber": 104,
+    "ideaTitle": "Add email notifications",
+    "ideaBody": "Send emails when important things happen - like when someone comments on your post or when your order ships.",
+    "projectContext": "SaaS platform with Node.js backend, SendGrid integration available",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "email", "notification"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-005",
+    "description": "Export data to CSV",
+    "issueNumber": 105,
+    "ideaTitle": "CSV export for reports",
+    "ideaBody": "Managers want to download their reports as CSV files so they can open them in Excel.",
+    "projectContext": "Django admin dashboard with reporting module",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "CSV", "download"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-006",
+    "description": "Pagination for list views",
+    "issueNumber": 106,
+    "ideaTitle": "Add pagination",
+    "ideaBody": "The items list loads everything at once and it's getting slow. Need pagination.",
+    "projectContext": "React app with REST API, currently fetching all records",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "page", "items per page"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-007",
+    "description": "Two-factor authentication",
+    "issueNumber": 107,
+    "ideaTitle": "Add 2FA",
+    "ideaBody": "We should support two-factor authentication for better security. Maybe TOTP?",
+    "projectContext": "Node.js auth service with Passport.js",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "two-factor", "TOTP"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-008",
+    "description": "Drag and drop file upload",
+    "issueNumber": 108,
+    "ideaTitle": "Drag and drop uploads",
+    "ideaBody": "Let users drag files into the browser to upload them instead of clicking the upload button.",
+    "projectContext": "Vue.js document management app with S3 storage",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "drag", "upload"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-009",
+    "description": "Keyboard shortcuts for power users",
+    "issueNumber": 109,
+    "ideaTitle": "Add keyboard shortcuts",
+    "ideaBody": "Power users want keyboard shortcuts for common actions like save, new, delete, navigate between items.",
+    "projectContext": "React productivity app similar to Notion",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "keyboard", "shortcut"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-010",
+    "description": "Activity log for audit trail",
+    "issueNumber": 110,
+    "ideaTitle": "Add activity log",
+    "ideaBody": "Need to track who did what and when. Important for compliance.",
+    "projectContext": "Enterprise SaaS with role-based access control, PostgreSQL",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "log", "audit"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-011",
+    "description": "Onboarding wizard for new users",
+    "issueNumber": 111,
+    "ideaTitle": "New user onboarding flow",
+    "ideaBody": "New users are confused when they first sign up. We should guide them through setup.",
+    "projectContext": "React SaaS app with multi-step forms",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "onboarding", "step"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-012",
+    "description": "Webhook support for integrations",
+    "issueNumber": 112,
+    "ideaTitle": "Add webhooks",
+    "ideaBody": "Partners want to receive webhooks when events happen in our system so they can sync data.",
+    "projectContext": "Node.js API platform with event-driven architecture",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "webhook", "event"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-013",
+    "description": "Multi-language support (i18n)",
+    "issueNumber": 113,
+    "ideaTitle": "Internationalization",
+    "ideaBody": "We're expanding to Europe. Need to support French, German, and Spanish at minimum.",
+    "projectContext": "React app with hardcoded English strings",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "i18n", "translation"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-014",
+    "description": "Role-based access control",
+    "issueNumber": 114,
+    "ideaTitle": "Add user roles",
+    "ideaBody": "Not everyone should see everything. Need admin, editor, and viewer roles.",
+    "projectContext": "Express.js API with MongoDB, currently no role system",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "role", "permission"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-015",
+    "description": "Dashboard with analytics widgets",
+    "issueNumber": 115,
+    "ideaTitle": "Analytics dashboard",
+    "ideaBody": "Build a dashboard that shows key metrics - signups, active users, revenue. The usual stuff.",
+    "projectContext": "SaaS platform with existing analytics events tracked via Mixpanel",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "dashboard", "metric"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-016",
+    "description": "Bulk actions on list items",
+    "issueNumber": 116,
+    "ideaTitle": "Bulk operations",
+    "ideaBody": "Users want to select multiple items and perform actions on all of them at once - delete, archive, tag.",
+    "projectContext": "React admin panel with data tables",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "bulk", "select"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-017",
+    "description": "API rate limiting",
+    "issueNumber": 117,
+    "ideaTitle": "Rate limiting for API",
+    "ideaBody": "We're getting hammered by some clients making too many requests. Need rate limiting.",
+    "projectContext": "Express.js REST API serving mobile and web clients",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "rate limit", "request"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-018",
+    "description": "Undo/redo functionality",
+    "issueNumber": 118,
+    "ideaTitle": "Add undo/redo",
+    "ideaBody": "Users accidentally delete things and want to undo. Also redo would be nice.",
+    "projectContext": "React canvas editor app with state management via Zustand",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "undo", "redo"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-019",
+    "description": "Social login options",
+    "issueNumber": 119,
+    "ideaTitle": "Add Google/GitHub login",
+    "ideaBody": "Users don't want to create yet another account. Let them sign in with Google or GitHub.",
+    "projectContext": "Next.js app with NextAuth.js, currently email/password only",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "OAuth", "login"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-020",
+    "description": "Responsive design for mobile",
+    "issueNumber": 120,
+    "ideaTitle": "Make it mobile friendly",
+    "ideaBody": "The app looks terrible on phones. Fix the layout for mobile screens.",
+    "projectContext": "React app with desktop-first CSS, no media queries",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "mobile", "responsive"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-021",
+    "description": "Notification preferences settings",
+    "issueNumber": 121,
+    "ideaTitle": "Notification settings",
+    "ideaBody": "Users get too many notifications and want to control which ones they receive.",
+    "projectContext": "SaaS app with email and in-app notifications",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "notification", "preference"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-022",
+    "description": "Data import from spreadsheet",
+    "issueNumber": 122,
+    "ideaTitle": "Import data from Excel",
+    "ideaBody": "Customers want to upload their existing data from Excel spreadsheets when onboarding.",
+    "projectContext": "CRM application built with Python/Flask and React",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "import", "Excel"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-023",
+    "description": "Comment system on content items",
+    "issueNumber": 123,
+    "ideaTitle": "Add comments",
+    "ideaBody": "Let users comment on articles. Threaded comments would be great.",
+    "projectContext": "Content platform with Next.js and Prisma ORM",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "comment", "thread"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-024",
+    "description": "Scheduled reports via email",
+    "issueNumber": 124,
+    "ideaTitle": "Scheduled report emails",
+    "ideaBody": "Managers want to get weekly summary reports emailed to them every Monday morning.",
+    "projectContext": "Reporting platform with Node.js, Bull queue for background jobs",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "schedule", "report"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-025",
+    "description": "Accessibility improvements (WCAG)",
+    "issueNumber": 125,
+    "ideaTitle": "Improve accessibility",
+    "ideaBody": "We need to meet WCAG 2.1 AA. Screen readers don't work well with our forms. Contrast is bad in some places.",
+    "projectContext": "React app with custom component library",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "WCAG", "accessible"],
+      "mustNotContain": []
+    }
+  }
+]

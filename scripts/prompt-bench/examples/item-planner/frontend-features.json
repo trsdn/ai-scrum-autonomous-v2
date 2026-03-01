@@ -1,0 +1,262 @@
+[
+  {
+    "id": "itemplan-001",
+    "description": "Plan for adding a search bar component with autocomplete in React",
+    "issueNumber": 101,
+    "issueTitle": "Add search bar with autocomplete",
+    "acceptanceCriteria": "- SearchBar component renders in header\n- Debounced input triggers API call\n- Autocomplete dropdown shows top 5 results\n- Keyboard navigation (arrow keys + enter)\n- Tests cover search, debounce, and keyboard nav",
+    "codebaseContext": "React 18 + TypeScript. Files: src/components/Header.tsx, src/hooks/useDebounce.ts, src/api/search.ts. Uses vitest + React Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["SearchBar", "debounce", "test"],
+      "mustNotContain": ["jQuery"]
+    }
+  },
+  {
+    "id": "itemplan-002",
+    "description": "Plan for dark mode toggle using CSS custom properties",
+    "issueNumber": 102,
+    "issueTitle": "Implement dark mode toggle with CSS variables",
+    "acceptanceCriteria": "- Toggle button in settings panel\n- CSS variables switch between light/dark palettes\n- Preference persisted in localStorage\n- Smooth transition between themes\n- No flash of wrong theme on page load",
+    "codebaseContext": "React 18 + Tailwind CSS. Files: src/App.tsx, src/styles/globals.css, src/components/Settings.tsx, src/hooks/useTheme.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["localStorage", "CSS", "toggle", "test"],
+      "mustNotContain": ["Redux"]
+    }
+  },
+  {
+    "id": "itemplan-003",
+    "description": "Plan for responsive hamburger navigation menu",
+    "issueNumber": 103,
+    "issueTitle": "Build responsive navigation menu",
+    "acceptanceCriteria": "- Desktop: horizontal nav links\n- Mobile (<768px): hamburger icon with slide-out menu\n- Menu closes on outside click\n- Accessible: ARIA labels and keyboard support\n- Animated transitions",
+    "codebaseContext": "Next.js 14 + CSS Modules. Files: src/components/Nav.tsx, src/components/Nav.module.css, src/hooks/useMediaQuery.ts. Uses Jest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["breakpoint", "hamburger", "aria", "test"],
+      "mustNotContain": ["Bootstrap"]
+    }
+  },
+  {
+    "id": "itemplan-004",
+    "description": "Plan for form validation with inline error messages",
+    "issueNumber": 104,
+    "issueTitle": "Add client-side form validation with error display",
+    "acceptanceCriteria": "- Email field validates format on blur\n- Password field requires 8+ chars, one uppercase, one number\n- Error messages appear below each field\n- Submit button disabled until form valid\n- Tests cover all validation rules",
+    "codebaseContext": "React 18 + React Hook Form + Zod. Files: src/components/RegisterForm.tsx, src/schemas/user.ts, src/components/FormField.tsx. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["validation", "Zod", "error", "test"],
+      "mustNotContain": ["Formik"]
+    }
+  },
+  {
+    "id": "itemplan-005",
+    "description": "Plan for infinite scroll pagination on product list",
+    "issueNumber": 105,
+    "issueTitle": "Implement infinite scroll for product listing",
+    "acceptanceCriteria": "- Products load in batches of 20\n- IntersectionObserver triggers next page load\n- Loading spinner shown during fetch\n- End-of-list message when no more items\n- Scroll position preserved on back navigation",
+    "codebaseContext": "React 18 + TanStack Query. Files: src/pages/Products.tsx, src/hooks/useInfiniteProducts.ts, src/api/products.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["IntersectionObserver", "pagination", "loading", "test"],
+      "mustNotContain": ["scroll event listener"]
+    }
+  },
+  {
+    "id": "itemplan-006",
+    "description": "Plan for modal dialog component with focus trap",
+    "issueNumber": 106,
+    "issueTitle": "Create reusable modal dialog component",
+    "acceptanceCriteria": "- Modal opens/closes with animation\n- Focus trapped inside modal when open\n- Escape key closes modal\n- Click on backdrop closes modal\n- Body scroll locked when modal open\n- Accessible: role=dialog, aria-modal=true",
+    "codebaseContext": "React 18 + styled-components. Files: src/components/Modal.tsx, src/hooks/useFocusTrap.ts, src/hooks/useScrollLock.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["focus trap", "aria", "Escape", "test"],
+      "mustNotContain": ["window.alert"]
+    }
+  },
+  {
+    "id": "itemplan-007",
+    "description": "Plan for drag-and-drop kanban board columns",
+    "issueNumber": 107,
+    "issueTitle": "Add drag-and-drop reordering to kanban board",
+    "acceptanceCriteria": "- Cards can be dragged between columns\n- Visual placeholder shown during drag\n- Order persisted to backend on drop\n- Optimistic UI update with rollback on error\n- Touch support for mobile devices",
+    "codebaseContext": "React 18 + dnd-kit. Files: src/components/Board.tsx, src/components/Column.tsx, src/components/Card.tsx, src/api/tasks.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["drag", "drop", "optimistic", "test"],
+      "mustNotContain": ["HTML5 drag API"]
+    }
+  },
+  {
+    "id": "itemplan-008",
+    "description": "Plan for toast notification system",
+    "issueNumber": 108,
+    "issueTitle": "Implement toast notification system",
+    "acceptanceCriteria": "- Toast appears on success/error/warning/info events\n- Auto-dismiss after 5 seconds\n- Manual dismiss with close button\n- Stacks multiple toasts vertically\n- Accessible: role=alert for errors, role=status for info",
+    "codebaseContext": "Vue 3 + Composition API. Files: src/components/Toast.vue, src/composables/useToast.ts, src/stores/notifications.ts. Uses Vitest + Vue Test Utils.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["toast", "auto-dismiss", "role", "test"],
+      "mustNotContain": ["jQuery"]
+    }
+  },
+  {
+    "id": "itemplan-009",
+    "description": "Plan for image gallery with lightbox viewer",
+    "issueNumber": 109,
+    "issueTitle": "Build image gallery with lightbox overlay",
+    "acceptanceCriteria": "- Thumbnail grid layout with lazy loading\n- Click opens full-size image in lightbox\n- Arrow keys navigate between images\n- Pinch-to-zoom on mobile\n- Preload adjacent images",
+    "codebaseContext": "React 18 + CSS Grid. Files: src/components/Gallery.tsx, src/components/Lightbox.tsx, src/hooks/useLazyLoad.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["lazy load", "lightbox", "keyboard", "test"],
+      "mustNotContain": ["document.write"]
+    }
+  },
+  {
+    "id": "itemplan-010",
+    "description": "Plan for multi-step wizard form with progress bar",
+    "issueNumber": 110,
+    "issueTitle": "Create multi-step checkout wizard",
+    "acceptanceCriteria": "- 4 steps: Shipping, Payment, Review, Confirm\n- Progress bar shows current step\n- Back/Next navigation with validation per step\n- Form state preserved across steps\n- Final step shows summary before submission",
+    "codebaseContext": "React 18 + Zustand. Files: src/components/Checkout/, src/stores/checkoutStore.ts, src/schemas/checkout.ts. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["step", "validation", "progress", "test"],
+      "mustNotContain": ["Redux"]
+    }
+  },
+  {
+    "id": "itemplan-011",
+    "description": "Plan for data table with sorting, filtering, and pagination",
+    "issueNumber": 111,
+    "issueTitle": "Implement sortable and filterable data table",
+    "acceptanceCriteria": "- Column headers clickable for ascending/descending sort\n- Text filter input above table\n- Client-side pagination with page size selector\n- Loading skeleton during data fetch\n- Empty state message when no results",
+    "codebaseContext": "React 18 + TanStack Table. Files: src/components/DataTable.tsx, src/hooks/useTableData.ts, src/components/Pagination.tsx. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["sort", "filter", "pagination", "test"],
+      "mustNotContain": ["ag-grid"]
+    }
+  },
+  {
+    "id": "itemplan-012",
+    "description": "Plan for adding breadcrumb navigation component",
+    "issueNumber": 112,
+    "issueTitle": "Add breadcrumb navigation to all pages",
+    "acceptanceCriteria": "- Breadcrumbs auto-generated from route hierarchy\n- Current page shown as plain text (not linked)\n- Separator icon between items\n- Accessible: nav with aria-label='Breadcrumb'\n- Truncation for deeply nested paths",
+    "codebaseContext": "Angular 17 + Angular Router. Files: src/app/components/breadcrumb/, src/app/services/breadcrumb.service.ts, src/app/app-routing.module.ts. Uses Jasmine + Karma.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["route", "breadcrumb", "aria", "test"],
+      "mustNotContain": ["React"]
+    }
+  },
+  {
+    "id": "itemplan-013",
+    "description": "Plan for rich text editor integration",
+    "issueNumber": 113,
+    "issueTitle": "Integrate rich text editor for blog posts",
+    "acceptanceCriteria": "- WYSIWYG editor with bold, italic, headings, lists\n- Image upload with drag-and-drop\n- HTML sanitization on save\n- Character count display\n- Preview mode toggle",
+    "codebaseContext": "Vue 3 + Tiptap editor. Files: src/components/Editor.vue, src/composables/useEditor.ts, src/utils/sanitize.ts, src/api/uploads.ts. Uses Vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["sanitiz", "editor", "upload", "test"],
+      "mustNotContain": ["contentEditable directly"]
+    }
+  },
+  {
+    "id": "itemplan-014",
+    "description": "Plan for animated chart dashboard with D3",
+    "issueNumber": 114,
+    "issueTitle": "Build interactive analytics dashboard",
+    "acceptanceCriteria": "- Line chart for time series data\n- Bar chart for category comparison\n- Tooltips on hover with exact values\n- Date range picker to filter data\n- Responsive: charts resize with container",
+    "codebaseContext": "React 18 + D3.js. Files: src/components/Dashboard.tsx, src/components/charts/LineChart.tsx, src/components/charts/BarChart.tsx, src/hooks/useChartData.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["chart", "responsive", "tooltip", "test"],
+      "mustNotContain": ["Chart.js"]
+    }
+  },
+  {
+    "id": "itemplan-015",
+    "description": "Plan for real-time collaborative text cursor indicators",
+    "issueNumber": 115,
+    "issueTitle": "Show collaborator cursors in shared document",
+    "acceptanceCriteria": "- Each collaborator's cursor shown with unique color\n- Name label above cursor\n- Cursors update in real-time via WebSocket\n- Stale cursors removed after 30s idle\n- Performance: handle 10+ simultaneous cursors",
+    "codebaseContext": "React 18 + WebSocket. Files: src/components/Editor.tsx, src/components/CursorOverlay.tsx, src/hooks/useCollaboration.ts, src/ws/cursorChannel.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["WebSocket", "cursor", "real-time", "test"],
+      "mustNotContain": ["polling"]
+    }
+  },
+  {
+    "id": "itemplan-016",
+    "description": "Plan for accessible dropdown select component",
+    "issueNumber": 116,
+    "issueTitle": "Create custom accessible dropdown select",
+    "acceptanceCriteria": "- Custom styled dropdown matching design system\n- Keyboard navigation: arrow keys, enter, escape\n- Type-ahead search by character\n- ARIA: combobox role, listbox, option roles\n- Multi-select variant with checkboxes",
+    "codebaseContext": "React 18 + Radix UI primitives. Files: src/components/Select.tsx, src/components/Select.test.tsx, src/styles/select.css. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["aria", "keyboard", "combobox", "test"],
+      "mustNotContain": ["native select"]
+    }
+  },
+  {
+    "id": "itemplan-017",
+    "description": "Plan for skeleton loading screens across app",
+    "issueNumber": 117,
+    "issueTitle": "Add skeleton loading states to all data-fetching pages",
+    "acceptanceCriteria": "- Skeleton component mimics layout of real content\n- Pulse animation on skeleton elements\n- Shown during initial load and refetch\n- Different skeletons for list, card, and detail views\n- Accessible: aria-busy=true during loading",
+    "codebaseContext": "Next.js 14 + Tailwind CSS. Files: src/components/skeletons/ListSkeleton.tsx, src/components/skeletons/CardSkeleton.tsx, src/components/skeletons/DetailSkeleton.tsx. Uses Jest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["skeleton", "animation", "aria-busy", "test"],
+      "mustNotContain": ["spinner only"]
+    }
+  },
+  {
+    "id": "itemplan-018",
+    "description": "Plan for cookie consent banner with preferences",
+    "issueNumber": 118,
+    "issueTitle": "Implement GDPR cookie consent banner",
+    "acceptanceCriteria": "- Banner shown on first visit\n- Accept All / Reject All / Customize buttons\n- Category toggles: Essential (always on), Analytics, Marketing\n- Preference stored in cookie, not localStorage\n- Banner re-shown if consent expires (365 days)",
+    "codebaseContext": "Svelte + SvelteKit. Files: src/lib/components/CookieBanner.svelte, src/lib/stores/consent.ts, src/lib/utils/cookies.ts. Uses Vitest + Playwright.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["cookie", "consent", "GDPR", "test"],
+      "mustNotContain": ["localStorage"]
+    }
+  },
+  {
+    "id": "itemplan-019",
+    "description": "Plan for virtualized list rendering for large datasets",
+    "issueNumber": 119,
+    "issueTitle": "Implement virtualized list for 10k+ item rendering",
+    "acceptanceCriteria": "- Only visible rows rendered in DOM\n- Smooth scrolling at 60fps\n- Variable row heights supported\n- Scroll-to-index API exposed\n- Memory usage stays constant regardless of list size",
+    "codebaseContext": "React 18 + react-window. Files: src/components/VirtualList.tsx, src/hooks/useVirtualScroll.ts, src/components/VirtualList.test.tsx. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["virtual", "render", "performance", "test"],
+      "mustNotContain": ["render all items"]
+    }
+  },
+  {
+    "id": "itemplan-020",
+    "description": "Plan for internationalization (i18n) setup with language switcher",
+    "issueNumber": 120,
+    "issueTitle": "Add i18n support with language switcher",
+    "acceptanceCriteria": "- English and Spanish translations\n- Language switcher dropdown in header\n- Selected language persisted in cookie\n- Date and number formatting localized\n- Pluralization rules handled correctly\n- Dynamic loading of translation files",
+    "codebaseContext": "React 18 + react-i18next. Files: src/i18n/index.ts, src/i18n/locales/en.json, src/i18n/locales/es.json, src/components/LanguageSwitcher.tsx. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["i18n", "translation", "locale", "test"],
+      "mustNotContain": ["hardcoded strings"]
+    }
+  }
+]
