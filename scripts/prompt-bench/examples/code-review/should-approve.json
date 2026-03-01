@@ -148,7 +148,7 @@
     "description": "Modal with role=dialog, aria-modal, keyboard dismiss \u2014 should be approved",
     "issueTitle": "Add ARIA attributes to Modal component",
     "issueNumber": 61,
-    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-label from title prop (no dangling references)\n- tabIndex={-1} for keyboard focus\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
+    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-label from title prop\n- tabIndex={-1} with auto-focus on mount via useEffect\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -157,7 +157,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/components/Modal.tsx\n+++ b/src/components/Modal.tsx\n@@ -3,8 +3,14 @@\n-export function Modal({ children, onClose }) {\n+export function Modal({ children, onClose, title }: ModalProps) {\n   return (\n-    <div className=\"modal-overlay\" onClick={onClose}>\n-      <div className=\"modal-content\">\n+    <div\n+      className=\"modal-overlay\"\n+      role=\"dialog\"\n+      aria-modal=\"true\"\n+      aria-label={title}\n+      tabIndex={-1}\n+      onClick={onClose}\n+      onKeyDown={(e) => e.key === \"Escape\" && onClose()}\n+    >\n+      <div className=\"modal-content\" onClick={(e) => e.stopPropagation()}>\n         {children}\n-        <button onClick={onClose}>Close</button>\n+        <button onClick={onClose} aria-label=\"Close dialog\">Close</button>\n       </div>\n     </div>\n   );\n }"
+    "codeDiff": "--- a/src/components/Modal.tsx\n+++ b/src/components/Modal.tsx\n@@ -3,8 +3,18 @@\n+import { useEffect, useRef } from \"react\";\n+\n-export function Modal({ children, onClose }) {\n+export function Modal({ children, onClose, title }: ModalProps) {\n+  const dialogRef = useRef<HTMLDivElement>(null);\n+\n+  useEffect(() => {\n+    dialogRef.current?.focus();\n+  }, []);\n+\n   return (\n-    <div className=\"modal-overlay\" onClick={onClose}>\n-      <div className=\"modal-content\">\n+    <div\n+      ref={dialogRef}\n+      className=\"modal-overlay\"\n+      role=\"dialog\"\n+      aria-modal=\"true\"\n+      aria-label={title}\n+      tabIndex={-1}\n+      onClick={onClose}\n+      onKeyDown={(e) => e.key === \"Escape\" && onClose()}\n+    >\n+      <div className=\"modal-content\" onClick={(e) => e.stopPropagation()}>\n         {children}\n-        <button onClick={onClose}>Close</button>\n+        <button onClick={onClose} aria-label=\"Close dialog\">Close</button>\n       </div>\n     </div>\n   );\n }"
   },
   {
     "id": "delete-dead-code-approve",
@@ -388,7 +388,7 @@
     "description": "Debounced search hook with cleanup \u2014 should be approved",
     "issueTitle": "Add debounced search with URL encoding",
     "issueNumber": 76,
-    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Previous in-flight requests aborted via AbortController\n- Timer and fetch cleanup on unmount",
+    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Previous in-flight requests aborted via AbortController\n- AbortError silenced, other errors logged\n- Timer and fetch cleanup on unmount",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 25
@@ -397,7 +397,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/hooks/useSearch.ts\n+++ b/src/hooks/useSearch.ts\n@@ -1,8 +1,18 @@\n+import { useState, useEffect, useRef } from \"react\";\n+\n export function useSearch(query: string, delay = 300) {\n-  const [results, setResults] = useState([]);\n+  const [results, setResults] = useState<SearchResult[]>([]);\n+  const timerRef = useRef<ReturnType<typeof setTimeout>>();\n+  const controllerRef = useRef<AbortController>();\n \n   useEffect(() => {\n-    fetch(`/api/search?q=${query}`).then(r => r.json()).then(setResults);\n+    if (timerRef.current) clearTimeout(timerRef.current);\n+    controllerRef.current?.abort();\n+    timerRef.current = setTimeout(async () => {\n+      if (!query.trim()) { setResults([]); return; }\n+      const controller = new AbortController();\n+      controllerRef.current = controller;\n+      try {\n+        const r = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });\n+        if (r.ok) setResults(await r.json());\n+      } catch (err) {\n+        if (err instanceof Error && err.name !== \"AbortError\") throw err;\n+      }\n+    }, delay);\n+    return () => { clearTimeout(timerRef.current); controllerRef.current?.abort(); };\n   }, [query, delay]);\n \n   return results;\n }"
+    "codeDiff": "--- a/src/hooks/useSearch.ts\n+++ b/src/hooks/useSearch.ts\n@@ -1,8 +1,20 @@\n+import { useState, useEffect, useRef, useCallback } from \"react\";\n+\n export function useSearch(query: string, delay = 300) {\n-  const [results, setResults] = useState([]);\n+  const [results, setResults] = useState<SearchResult[]>([]);\n+  const timerRef = useRef<ReturnType<typeof setTimeout>>();\n+  const controllerRef = useRef<AbortController>();\n \n   useEffect(() => {\n-    fetch(`/api/search?q=${query}`).then(r => r.json()).then(setResults);\n+    if (timerRef.current) clearTimeout(timerRef.current);\n+    controllerRef.current?.abort();\n+    timerRef.current = setTimeout(() => {\n+      if (!query.trim()) { setResults([]); return; }\n+      const controller = new AbortController();\n+      controllerRef.current = controller;\n+      fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal })\n+        .then(r => r.ok ? r.json() : [])\n+        .then(setResults)\n+        .catch(err => { if (err.name !== \"AbortError\") console.error(err); });\n+    }, delay);\n+    return () => { clearTimeout(timerRef.current); controllerRef.current?.abort(); };\n   }, [query, delay]);\n \n   return results;\n }"
   },
   {
     "id": "responsive-layout-approve",
