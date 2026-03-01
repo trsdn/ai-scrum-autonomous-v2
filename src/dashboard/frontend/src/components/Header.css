@@ -1,0 +1,90 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-left h1 { font-size: 16px; font-weight: 600; white-space: nowrap; }
+
+.sprint-badge {
+  background: var(--green);
+  color: #000;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sprint-badge a { color: #000; text-decoration: none; }
+
+.phase-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.phase-init { background: var(--bg-hover); color: var(--text-dim); }
+.phase-refine, .phase-plan { background: var(--blue); color: #000; }
+.phase-execute { background: var(--yellow); color: #000; }
+.phase-review, .phase-retro { background: var(--purple); color: #000; }
+.phase-complete { background: var(--green); color: #000; }
+.phase-failed { background: var(--red); color: #fff; }
+.phase-paused { background: var(--yellow); color: #000; }
+
+.viewing-indicator {
+  background: var(--yellow);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.issue-count { color: var(--text-dim); font-size: 13px; }
+.elapsed { color: var(--text-dim); font-size: 13px; font-family: var(--font-mono); }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-connected { background: var(--green); }
+.status-disconnected { background: var(--red); }
+
+/* Phase stepper */
+.phase-stepper {
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  padding-top: 6px;
+}
+.step {
+  flex: 1;
+  text-align: center;
+  padding: 4px 0;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  background: var(--bg-hover);
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+.step-done { background: var(--green); color: #000; }
+.step-active { background: var(--blue); color: #000; animation: pulse 2s infinite; }
+.step-failed { background: var(--red); color: #fff; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

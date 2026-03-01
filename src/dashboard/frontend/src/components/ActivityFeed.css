@@ -1,0 +1,82 @@
+.activity-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.activity-list {
+  list-style: none;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-left: 2px solid var(--border);
+  padding-left: 12px;
+  margin-left: 4px;
+}
+
+.activity-time {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  min-width: 65px;
+}
+
+.activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.activity-dot-active { background: var(--yellow); }
+.activity-dot-done { background: var(--green); }
+.activity-dot-failed { background: var(--red); }
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.activity-label { font-size: 13px; font-weight: 500; }
+.activity-detail {
+  font-size: 12px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-failed .activity-label { color: var(--red); }
+.activity-failed .activity-detail { color: var(--red); opacity: 0.8; }
+
+/* Log panel */
+.log-panel {
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.log-entry {
+  display: flex;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.log-time {
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.log-msg { word-break: break-all; }
+.log-info .log-msg { color: var(--text-dim); }
+.log-warn .log-msg { color: var(--yellow); }
+.log-error .log-msg { color: var(--red); }

@@ -1,0 +1,82 @@
+.session-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.session-group {
+  margin-bottom: 12px;
+}
+
+.session-group-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.session-item:hover { background: var(--bg-hover); }
+
+.session-icon { flex-shrink: 0; font-size: 14px; }
+.session-role { font-weight: 500; }
+.session-model {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-hover);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.session-elapsed {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-left: auto;
+}
+
+.session-ended { opacity: 0.5; }
+
+/* Session viewer */
+.session-viewer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-viewer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.session-viewer-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.session-output {
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  padding: 8px;
+  background: var(--bg-main);
+  border-radius: 6px;
+}
