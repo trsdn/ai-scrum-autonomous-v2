@@ -1,0 +1,93 @@
+[
+  {
+    "id": "sql-injection-reject",
+    "description": "Code with SQL injection vulnerability — should be rejected",
+    "issueTitle": "Add user search feature",
+    "issueNumber": 101,
+    "acceptanceCriteria": "- Users can search by name\n- Results displayed in table",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/101-user-search",
+    "expected": {
+      "approved": false,
+      "mustContain": ["sql", "injection"]
+    }
+  },
+  {
+    "id": "missing-error-handling-reject",
+    "description": "API call without error handling — should be rejected",
+    "issueTitle": "Fetch user profile from API",
+    "issueNumber": 102,
+    "acceptanceCriteria": "- Profile data fetched from /api/users/:id\n- Profile displayed on page",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/102-profile-fetch",
+    "expected": {
+      "approved": false,
+      "mustContain": ["error"]
+    }
+  },
+  {
+    "id": "no-tests-reject",
+    "description": "New logic with zero test coverage — should be rejected",
+    "issueTitle": "Add shopping cart calculation",
+    "issueNumber": 103,
+    "acceptanceCriteria": "- Cart total calculated with tax\n- Discount codes supported\n- Tests added for all cases",
+    "diffStats": { "filesChanged": 1, "linesChanged": 50 },
+    "branch": "feat/103-cart-calc",
+    "expected": {
+      "approved": false,
+      "mustContain": ["test"]
+    }
+  },
+  {
+    "id": "breaking-api-reject",
+    "description": "Breaking API change without migration — should be rejected",
+    "issueTitle": "Rename getUserById to fetchUser",
+    "issueNumber": 104,
+    "acceptanceCriteria": "- Function renamed\n- All callers updated",
+    "diffStats": { "filesChanged": 5, "linesChanged": 25 },
+    "branch": "refactor/104-rename-api",
+    "expected": {
+      "approved": false,
+      "mustContain": ["breaking"]
+    }
+  },
+  {
+    "id": "hardcoded-secret-reject",
+    "description": "Hardcoded API key in source — should be rejected",
+    "issueTitle": "Add weather API integration",
+    "issueNumber": 105,
+    "acceptanceCriteria": "- Weather data fetched from OpenWeather API\n- Current temperature displayed",
+    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "branch": "feat/105-weather",
+    "expected": {
+      "approved": false,
+      "mustContain": ["secret", "key", "credential", "hardcoded", "environment"]
+    }
+  },
+  {
+    "id": "unchecked-null-reject",
+    "description": "Accessing property on potentially null value — should be rejected",
+    "issueTitle": "Display user email in header",
+    "issueNumber": 106,
+    "acceptanceCriteria": "- Logged-in user email shown in header\n- Falls back to 'Guest' if not logged in",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/106-user-email",
+    "expected": {
+      "approved": false,
+      "mustContain": ["null"]
+    }
+  },
+  {
+    "id": "infinite-loop-reject",
+    "description": "Logic error creating potential infinite loop — should be rejected",
+    "issueTitle": "Add retry logic for failed requests",
+    "issueNumber": 107,
+    "acceptanceCriteria": "- Failed requests retried up to 3 times\n- Exponential backoff between retries",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/107-retry",
+    "expected": {
+      "approved": false,
+      "mustContain": ["loop", "infinite", "retry", "limit", "max"]
+    }
+  }
+]
