@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useDashboardStore } from "../store";
 import { Markdown } from "./Markdown";
 import "./SessionPanel.css";
@@ -9,10 +10,17 @@ export function SessionPanel() {
   const openSession = useDashboardStore((s) => s.openSession);
   const closeSession = useDashboardStore((s) => s.closeSession);
   const send = useDashboardStore((s) => s.send);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const output = viewingSessionId ? (sessionOutput.get(viewingSessionId) ?? "") : "";
+
+  // Auto-scroll to bottom when output updates
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [output]);
 
   if (viewingSessionId) {
     const session = sessions.find((s) => s.sessionId === viewingSessionId);
-    const output = sessionOutput.get(viewingSessionId) ?? "";
 
     return (
       <div className="session-viewer">
@@ -36,6 +44,7 @@ export function SessionPanel() {
         </div>
         <div className="session-output">
           <Markdown text={output || "Waiting for output..."} />
+          <div ref={bottomRef} />
         </div>
       </div>
     );

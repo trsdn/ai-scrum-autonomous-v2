@@ -192,6 +192,25 @@ export class DashboardWebServer {
           outputLength: s.output.length,
         }));
         this.sendTo(ws, { type: "session:list", payload: sessions });
+
+        // Auto-subscribe to all active sessions so output streams immediately
+        for (const s of this.sessions.values()) {
+          if (!s.endedAt) {
+            let subs = this.sessionSubscribers.get(s.sessionId);
+            if (!subs) {
+              subs = new Set();
+              this.sessionSubscribers.set(s.sessionId, subs);
+            }
+            subs.add(ws);
+            // Send buffered output history
+            if (s.output.length > 0) {
+              this.sendTo(ws, {
+                type: "session:output",
+                payload: { sessionId: s.sessionId, text: s.output.join(""), isHistory: true },
+              });
+            }
+          }
+        }
       }
 
       // Replay buffered events so new clients see activity history
@@ -374,6 +393,14 @@ export class DashboardWebServer {
         output: [],
       });
       this.broadcastSessionList();
+      // Auto-subscribe all connected clients to the new session
+      if (this.wss) {
+        const subs = new Set<WebSocket>();
+        for (const ws of this.wss.clients) {
+          if (ws.readyState === ws.OPEN) subs.add(ws);
+        }
+        if (subs.size > 0) this.sessionSubscribers.set(payload.sessionId, subs);
+      }
     });
 
     bus.onTyped("session:end", (payload) => {
@@ -390,9 +417,9 @@ export class DashboardWebServer {
       const session = this.sessions.get(payload.sessionId);
       if (session) {
         session.output.push(payload.text);
-        // Cap stored output to prevent memory bloat (keep last 500 chunks)
-        if (session.output.length > 500) {
-          session.output = session.output.slice(-400);
+        // Cap stored output to prevent memory bloat (keep last 2000 chunks)
+        if (session.output.length > 2000) {
+          session.output = session.output.slice(-1800);
         }
       }
       // Send to subscribers of this session
