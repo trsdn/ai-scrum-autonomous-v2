@@ -310,9 +310,20 @@ function handleSprintEvent(
       break;
     }
 
-    case "issue:start":
-      addActivity(set, get(), "issue", `#${p?.issueNumber} started`, (p?.model as string) ?? null, "active");
+    case "issue:start": {
+      const issue = p?.issue as Record<string, unknown> | undefined;
+      const num = issue?.number ?? p?.issueNumber;
+      const model = (p?.model as string) ?? null;
+      if (num != null) {
+        // Update issue status to in-progress
+        const issues = get().issues.map((i) =>
+          i.number === Number(num) ? { ...i, status: "in-progress" } : i,
+        );
+        set({ issues });
+      }
+      addActivity(set, get(), "issue", `#${num} started`, model, "active");
       break;
+    }
 
     case "issue:progress": {
       const issues = get().issues.map((i) =>
@@ -322,13 +333,33 @@ function handleSprintEvent(
       break;
     }
 
-    case "issue:done":
-      addActivity(set, get(), "issue", `#${p?.issueNumber} done`, null, "done");
+    case "issue:done": {
+      const doneNum = p?.issueNumber as number | undefined;
+      if (doneNum != null) {
+        const issues = get().issues.map((i) =>
+          i.number === doneNum
+            ? { ...i, status: "done", duration_ms: p?.duration_ms as number }
+            : i,
+        );
+        set({ issues });
+      }
+      addActivity(set, get(), "issue", `#${doneNum} done`, null, "done");
       break;
+    }
 
-    case "issue:fail":
-      addActivity(set, get(), "issue", `#${p?.issueNumber} failed`, p?.reason as string, "failed");
+    case "issue:fail": {
+      const failNum = p?.issueNumber as number | undefined;
+      if (failNum != null) {
+        const issues = get().issues.map((i) =>
+          i.number === failNum
+            ? { ...i, status: "failed", failReason: p?.reason as string }
+            : i,
+        );
+        set({ issues });
+      }
+      addActivity(set, get(), "issue", `#${failNum} failed`, p?.reason as string, "failed");
       break;
+    }
 
     case "sprint:complete":
       set((prev) => ({ ...prev, state: { ...prev.state, phase: "complete" } }));
