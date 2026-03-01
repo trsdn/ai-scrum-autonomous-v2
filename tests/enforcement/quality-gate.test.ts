@@ -277,7 +277,7 @@ describe("runQualityGate", () => {
     expect(scopeDrift?.detail).toContain("within expected scope");
   });
 
-  it("should fail scope-drift when unplanned files exist", async () => {
+  it("should warn but not block on scope-drift when unplanned files exist", async () => {
     mockGlob.mockResolvedValue(["foo.test.ts"] as never);
     mockExecSuccess();
 
@@ -288,11 +288,12 @@ describe("runQualityGate", () => {
       "main",
     );
 
-    expect(result.passed).toBe(false);
+    // Scope drift is non-blocking — the overall gate should still pass
+    expect(result.passed).toBe(true);
     const scopeDrift = result.checks.find((c) => c.name === "scope-drift");
     expect(scopeDrift).toBeDefined();
-    expect(scopeDrift?.passed).toBe(false);
-    expect(scopeDrift?.detail).toContain("out-of-scope");
+    expect(scopeDrift?.passed).toBe(true);
+    expect(scopeDrift?.detail).toContain("unplanned files");
   });
 
   it("should not add scope-drift check when expectedFiles is not set", async () => {
