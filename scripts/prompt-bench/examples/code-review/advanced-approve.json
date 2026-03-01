@@ -4,7 +4,7 @@
     "description": "Refactor to TypedEmitter extending EventEmitter \u2014 should approve",
     "issueTitle": "Replace custom events with Node EventEmitter",
     "issueNumber": 301,
-    "acceptanceCriteria": "- Custom event handlers replaced with EventEmitter subclass\n- TypedEmitter provides typed emit and on methods\n- Max listeners set to 20\n- Singleton appEvents exported",
+    "acceptanceCriteria": "- Custom event handlers replaced with EventEmitter subclass\n- TypedEmitter provides typed emit and on methods\n- Max listeners set to 20\n- Error event handler registered to prevent crashes\n- Backward-compatible named exports preserved",
     "diffStats": {
       "filesChanged": 8,
       "linesChanged": 150
@@ -13,7 +13,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/events/emitter.ts\n+++ b/src/events/emitter.ts\n@@ -1,15 +1,20 @@\n-const handlers: Record<string, Function[]> = {};\n-export function on(event: string, handler: Function) { handlers[event] = [...(handlers[event] ?? []), handler]; }\n-export function emit(event: string, data: unknown) { (handlers[event] ?? []).forEach(h => h(data)); }\n+import { EventEmitter } from \"node:events\";\n+\n+class TypedEmitter extends EventEmitter {\n+  emit(event: string, ...args: unknown[]): boolean {\n+    return super.emit(event, ...args);\n+  }\n+  on(event: string, listener: (...args: unknown[]) => void): this {\n+    return super.on(event, listener);\n+  }\n+}\n+\n+export const appEvents = new TypedEmitter();\n+appEvents.setMaxListeners(20);"
+    "codeDiff": "--- a/src/events/emitter.ts\n+++ b/src/events/emitter.ts\n@@ -1,15 +1,22 @@\n-const handlers: Record<string, Function[]> = {};\n-export function on(event: string, handler: Function) { handlers[event] = [...(handlers[event] ?? []), handler]; }\n-export function emit(event: string, data: unknown) { (handlers[event] ?? []).forEach(h => h(data)); }\n+import { EventEmitter } from \"node:events\";\n+\n+class TypedEmitter extends EventEmitter {\n+  emit(event: string, ...args: unknown[]): boolean {\n+    return super.emit(event, ...args);\n+  }\n+  on(event: string, listener: (...args: unknown[]) => void): this {\n+    return super.on(event, listener);\n+  }\n+}\n+\n+export const appEvents = new TypedEmitter();\n+appEvents.setMaxListeners(20);\n+appEvents.on(\"error\", (err) => {\n+  console.error(\"Unhandled event error:\", err);\n+});\n+\n+// Re-export for backward compatibility\n+export const on = appEvents.on.bind(appEvents);\n+export const emit = appEvents.emit.bind(appEvents);"
   },
   {
     "id": "error-code-mapping-approve",
@@ -36,7 +36,7 @@
     "description": "Pipeline class with middleware chaining \u2014 should approve",
     "issueTitle": "Add middleware pipeline with composable use()",
     "issueNumber": 303,
-    "acceptanceCriteria": "- Pipeline class with use() method for adding middleware\n- execute() runs middleware in sequence\n- Each middleware receives context and next function\n- Fluent API (use returns this)",
+    "acceptanceCriteria": "- RequestContext interface defined with req, res, state\n- Pipeline class with use() method for adding middleware\n- execute() runs middleware in sequence\n- Each middleware receives context and next function\n- Fluent API (use returns this)",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 60
@@ -45,14 +45,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/middleware/pipeline.ts\n+++ b/src/middleware/pipeline.ts\n@@ -0,0 +1,15 @@\n+type Middleware = (ctx: RequestContext, next: () => Promise<void>) => Promise<void>;\n+\n+export class Pipeline {\n+  private middlewares: Middleware[] = [];\n+\n+  use(mw: Middleware): this { this.middlewares.push(mw); return this; }\n+\n+  async execute(ctx: RequestContext): Promise<void> {\n+    let index = 0;\n+    const next = async (): Promise<void> => {\n+      if (index < this.middlewares.length) await this.middlewares[index++](ctx, next);\n+    };\n+    await next();\n+  }\n+}"
+    "codeDiff": "--- a/src/middleware/pipeline.ts\n+++ b/src/middleware/pipeline.ts\n@@ -0,0 +1,20 @@\n+export interface RequestContext {\n+  req: unknown;\n+  res: unknown;\n+  state: Record<string, unknown>;\n+}\n+\n+type Middleware = (ctx: RequestContext, next: () => Promise<void>) => Promise<void>;\n+\n+export class Pipeline {\n+  private middlewares: Middleware[] = [];\n+\n+  use(mw: Middleware): this { this.middlewares.push(mw); return this; }\n+\n+  async execute(ctx: RequestContext): Promise<void> {\n+    let index = 0;\n+    const next = async (): Promise<void> => {\n+      if (index < this.middlewares.length) await this.middlewares[index++](ctx, next);\n+    };\n+    await next();\n+  }\n+}"
   },
   {
     "id": "connection-pool-approve",
     "description": "pg Pool with configurable size and error handling \u2014 should approve",
     "issueTitle": "Add PostgreSQL connection pool",
     "issueNumber": 304,
-    "acceptanceCriteria": "- Pool uses DATABASE_URL from env\n- Max connections configurable via DB_POOL_SIZE (default 10)\n- Idle timeout 30s, connection timeout 5s\n- Pool error handler logs unexpected errors\n- drain() function for clean shutdown",
+    "acceptanceCriteria": "- Pool uses DATABASE_URL from env (required, throws if missing)\n- Max connections configurable via DB_POOL_SIZE (default 10, validated)\n- Idle timeout 30s, connection timeout 5s\n- Pool error handler logs unexpected errors\n- drain() function for clean shutdown",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 50
@@ -61,7 +61,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/db/pool.ts\n+++ b/src/db/pool.ts\n@@ -0,0 +1,20 @@\n+import { Pool } from \"pg\";\n+\n+const pool = new Pool({\n+  connectionString: process.env.DATABASE_URL,\n+  max: parseInt(process.env.DB_POOL_SIZE ?? \"10\", 10),\n+  idleTimeoutMillis: 30_000,\n+  connectionTimeoutMillis: 5_000,\n+});\n+\n+pool.on(\"error\", (err) => {\n+  console.error(\"Unexpected pool error:\", err);\n+});\n+\n+export async function query<T>(text: string, params?: unknown[]): Promise<T[]> {\n+  const result = await pool.query(text, params);\n+  return result.rows;\n+}\n+\n+export async function drain(): Promise<void> { await pool.end(); }"
+    "codeDiff": "--- a/src/db/pool.ts\n+++ b/src/db/pool.ts\n@@ -0,0 +1,25 @@\n+import { Pool } from \"pg\";\n+\n+const dbUrl = process.env.DATABASE_URL;\n+if (!dbUrl) throw new Error(\"DATABASE_URL environment variable is required\");\n+\n+const poolSize = parseInt(process.env.DB_POOL_SIZE ?? \"10\", 10);\n+if (!Number.isFinite(poolSize) || poolSize < 1) {\n+  throw new Error(\"DB_POOL_SIZE must be a positive integer\");\n+}\n+\n+const pool = new Pool({\n+  connectionString: dbUrl,\n+  max: poolSize,\n+  idleTimeoutMillis: 30_000,\n+  connectionTimeoutMillis: 5_000,\n+});\n+\n+pool.on(\"error\", (err) => {\n+  console.error(\"Unexpected pool error:\", err);\n+});\n+\n+export async function query<T>(text: string, params?: unknown[]): Promise<T[]> {\n+  const result = await pool.query(text, params);\n+  return result.rows;\n+}\n+\n+export async function drain(): Promise<void> { await pool.end(); }"
   },
   {
     "id": "structured-logging-approve",
@@ -84,7 +84,7 @@
     "description": "Mount router at /api/v1 with redirect from /api/users \u2014 should approve",
     "issueTitle": "Add v1 prefix to API routes",
     "issueNumber": 306,
-    "acceptanceCriteria": "- API router mounted at /api/v1 instead of /api\n- /api/users redirects (301) to /api/v1/users",
+    "acceptanceCriteria": "- API router mounted at /api/v1 instead of /api\n- No legacy redirects (clients expected to update)",
     "diffStats": {
       "filesChanged": 5,
       "linesChanged": 30
@@ -93,7 +93,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/app.ts\n+++ b/src/app.ts\n@@ -5,6 +5,8 @@\n const app = express();\n app.use(express.json());\n-app.use(\"/api\", apiRouter);\n+app.use(\"/api/v1\", apiRouter);\n+// Redirect old paths\n+app.use(\"/api/users\", (req, res) => res.redirect(301, `/api/v1/users${req.url}`));"
+    "codeDiff": "--- a/src/app.ts\n+++ b/src/app.ts\n@@ -5,6 +5,8 @@\n const app = express();\n app.use(express.json());\n-app.use(\"/api\", apiRouter);\n+app.use(\"/api/v1\", apiRouter);"
   },
   {
     "id": "retry-circuit-breaker-approve",
@@ -116,7 +116,7 @@
     "description": "Migrate from class mocks to vi.fn() \u2014 should approve",
     "issueTitle": "Replace hand-rolled mocks with vitest mocks",
     "issueNumber": 308,
-    "acceptanceCriteria": "- Hand-rolled MockDb/MockLogger classes replaced with vi.fn()\n- vi.clearAllMocks() in beforeEach\n- mockResolvedValue for async methods",
+    "acceptanceCriteria": "- Hand-rolled MockDb/MockLogger classes replaced with vi.fn()\n- vi.clearAllMocks() in beforeEach\n- mockReturnValue for sync methods, insert returns input\n- Same return value behavior preserved",
     "diffStats": {
       "filesChanged": 6,
       "linesChanged": 100
@@ -125,14 +125,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/tests/services/order.test.ts\n+++ b/tests/services/order.test.ts\n@@ -1,15 +1,12 @@\n-class MockDb { findById = (id) => ({ id, name: \"test\" }); insert = (d) => d; }\n-class MockLogger { info() {} error() {} }\n+import { describe, it, expect, vi, beforeEach } from \"vitest\";\n+import { OrderService } from \"../../src/services/order\";\n \n describe(\"OrderService\", () => {\n+  const mockDb = { findById: vi.fn(), insert: vi.fn() };\n+  const mockLogger = { info: vi.fn(), error: vi.fn() };\n+\n   beforeEach(() => {\n-    db = new MockDb();\n-    logger = new MockLogger();\n+    vi.clearAllMocks();\n+    mockDb.findById.mockResolvedValue({ id: \"1\", name: \"test\" });\n   });"
+    "codeDiff": "--- a/tests/services/order.test.ts\n+++ b/tests/services/order.test.ts\n@@ -1,15 +1,12 @@\n-class MockDb { findById = (id) => ({ id, name: \"test\" }); insert = (d) => d; }\n-class MockLogger { info() {} error() {} }\n+import { describe, it, expect, vi, beforeEach } from \"vitest\";\n+import { OrderService } from \"../../src/services/order\";\n \n describe(\"OrderService\", () => {\n+  const mockDb = { findById: vi.fn(), insert: vi.fn((d) => d) };\n+  const mockLogger = { info: vi.fn(), error: vi.fn() };\n+\n   beforeEach(() => {\n-    db = new MockDb();\n-    logger = new MockLogger();\n+    vi.clearAllMocks();\n+    mockDb.findById.mockReturnValue({ id: \"1\", name: \"test\" });\n   });"
   },
   {
     "id": "docker-compose-approve",
     "description": "App + PostgreSQL services with volume mounts \u2014 should approve",
     "issueTitle": "Add docker-compose for local dev",
     "issueNumber": 309,
-    "acceptanceCriteria": "- App service with build context and port 3000\n- Volume mounts for hot reload (excluding node_modules)\n- PostgreSQL 16 service\n- DATABASE_URL configured",
+    "acceptanceCriteria": "- App service with build context and port 3000\n- Volume mounts for hot reload (excluding node_modules)\n- PostgreSQL 16 with health check (pg_isready)\n- App waits for DB health before starting\n- Named volume for persistent database data\n- DATABASE_URL configured",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 50
@@ -141,17 +141,17 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/docker-compose.yml\n+++ b/docker-compose.yml\n@@ -0,0 +1,18 @@\n+version: \"3.8\"\n+services:\n+  app:\n+    build: .\n+    ports:\n+      - \"3000:3000\"\n+    volumes:\n+      - .:/app\n+      - /app/node_modules\n+    environment:\n+      - DATABASE_URL=postgres://postgres:postgres@db:5432/myapp\n+    depends_on:\n+      - db\n+  db:\n+    image: postgres:16-alpine\n+    environment:\n+      POSTGRES_PASSWORD: postgres\n+      POSTGRES_DB: myapp"
+    "codeDiff": "--- a/docker-compose.yml\n+++ b/docker-compose.yml\n@@ -0,0 +1,23 @@\n+version: \"3.8\"\n+services:\n+  app:\n+    build: .\n+    ports:\n+      - \"3000:3000\"\n+    volumes:\n+      - .:/app\n+      - /app/node_modules\n+    environment:\n+      - DATABASE_URL=postgres://postgres:postgres@db:5432/myapp\n+    depends_on:\n+      db:\n+        condition: service_healthy\n+  db:\n+    image: postgres:16-alpine\n+    environment:\n+      POSTGRES_PASSWORD: postgres\n+      POSTGRES_DB: myapp\n+    healthcheck:\n+      test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n+      interval: 5s\n+      timeout: 3s\n+      retries: 5\n+    volumes:\n+      - pgdata:/var/lib/postgresql/data\n+\n+volumes:\n+  pgdata:"
   },
   {
     "id": "openapi-spec-approve",
     "description": "GET /api/docs returns OpenAPI 3.0 spec \u2014 should approve",
     "issueTitle": "Add static OpenAPI spec endpoint",
     "issueNumber": 310,
-    "acceptanceCriteria": "- OpenAPI 3.0 spec object with title and version\n- /api/v1/users GET endpoint documented\n- Served as JSON at /api/docs",
+    "acceptanceCriteria": "- Static OpenAPI 3.0 spec with title and version\n- /api/v1/users GET endpoint documented\n- Served as JSON at /api/docs",
     "diffStats": {
-      "filesChanged": 3,
-      "linesChanged": 120
+      "filesChanged": 1,
+      "linesChanged": 20
     },
     "branch": "docs/310-openapi",
     "expected": {

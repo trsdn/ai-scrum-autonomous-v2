@@ -1,7 +1,7 @@
 [
   {
     "id": "sql-injection-reject",
-    "description": "Code with SQL injection vulnerability — should be rejected",
+    "description": "Code with SQL injection vulnerability \u2014 should be rejected",
     "issueTitle": "Add user search feature",
     "issueNumber": 101,
     "acceptanceCriteria": "- Users can search by name\n- Results displayed in a table\n- Search input properly sanitized",
@@ -21,7 +21,7 @@
   },
   {
     "id": "missing-error-handling-reject",
-    "description": "Data import endpoint without error handling — should be rejected",
+    "description": "Data import endpoint without error handling \u2014 should be rejected",
     "issueTitle": "Add data import endpoint",
     "issueNumber": 102,
     "acceptanceCriteria": "- POST /data imports records from a file path\n- Imported data stored in database\n- Graceful error responses for missing files or malformed data",
@@ -40,7 +40,7 @@
   },
   {
     "id": "no-tests-reject",
-    "description": "Payment processor with no test coverage — should be rejected",
+    "description": "Payment processor with no test coverage \u2014 should be rejected",
     "issueTitle": "Add payment processing service",
     "issueNumber": 103,
     "acceptanceCriteria": "- Payment processor charges user account via gateway\n- Insufficient funds handled gracefully\n- Unit tests cover charge success, failure, and edge cases",
@@ -52,14 +52,18 @@
     "expected": {
       "approved": false,
       "mustContain": [
-        "test"
+        "test",
+        "coverage",
+        "race",
+        "locking",
+        "concurrent"
       ]
     },
     "codeDiff": "--- a/src/services/payment.ts\n+++ b/src/services/payment.ts\n@@ -1,4 +1,25 @@\n+export class PaymentProcessor {\n+  private gateway: PaymentGateway;\n+\n+  constructor(gateway: PaymentGateway) {\n+    this.gateway = gateway;\n+  }\n+\n+  async charge(userId: string, amount: number): Promise<ChargeResult> {\n+    const user = await this.getUser(userId);\n+    if (user.balance < amount) {\n+      return { success: false, error: \"Insufficient funds\" };\n+    }\n+    const result = await this.gateway.process(amount, user.paymentMethod);\n+    if (result.success) {\n+      await this.updateBalance(userId, user.balance - amount);\n+    }\n+    return result;\n+  }\n+\n+  private async getUser(id: string) { return db.users.findById(id); }\n+  private async updateBalance(id: string, balance: number) { await db.users.update(id, { balance }); }\n+}"
   },
   {
     "id": "breaking-api-reject",
-    "description": "Breaking product API response change without migration — should be rejected",
+    "description": "Breaking product API response change without migration \u2014 should be rejected",
     "issueTitle": "Enrich product API response",
     "issueNumber": 104,
     "acceptanceCriteria": "- Product endpoint returns enriched data including currency\n- Backward compatible with existing API consumers\n- Response format changes documented",
@@ -78,7 +82,7 @@
   },
   {
     "id": "hardcoded-secret-reject",
-    "description": "Hardcoded secrets in source code — should be rejected",
+    "description": "Hardcoded secrets in source code \u2014 should be rejected",
     "issueTitle": "Configure API credentials for external services",
     "issueNumber": 105,
     "acceptanceCriteria": "- API keys and secrets configured for external services\n- Credentials loaded from environment variables\n- No secrets committed to version control",
@@ -101,7 +105,7 @@
   },
   {
     "id": "unchecked-null-reject",
-    "description": "Order details accessed without null checks — should be rejected",
+    "description": "Order details accessed without null checks \u2014 should be rejected",
     "issueTitle": "Add order details endpoint",
     "issueNumber": 106,
     "acceptanceCriteria": "- Order details include customer name and shipping address\n- Order total calculated from line items\n- Handles cases where order or customer data is incomplete",
@@ -120,7 +124,7 @@
   },
   {
     "id": "infinite-loop-reject",
-    "description": "Logic error creating potential infinite loop — should be rejected",
+    "description": "Logic error creating potential infinite loop \u2014 should be rejected",
     "issueTitle": "Add retry logic for failed requests",
     "issueNumber": 107,
     "acceptanceCriteria": "- Failed requests retried up to 3 times\n- Exponential backoff between retries",
@@ -143,7 +147,7 @@
   },
   {
     "id": "xss-vulnerability-reject",
-    "description": "Inserting user input into innerHTML without sanitization — should be rejected",
+    "description": "Inserting user input into innerHTML without sanitization \u2014 should be rejected",
     "issueTitle": "Display user comments on page",
     "issueNumber": 108,
     "acceptanceCriteria": "- User comments rendered in comment section\n- Comments support basic formatting (bold, italic)\n- User-generated content sanitized before rendering",
@@ -165,7 +169,7 @@
   },
   {
     "id": "race-condition-reject",
-    "description": "Counter increment with race condition — should be rejected",
+    "description": "Counter increment with race condition \u2014 should be rejected",
     "issueTitle": "Add atomic request counter",
     "issueNumber": 109,
     "acceptanceCriteria": "- Request counter tracks total API calls\n- Counter remains accurate under concurrent requests\n- Counter value retrievable via API",
@@ -187,7 +191,7 @@
   },
   {
     "id": "memory-leak-reject",
-    "description": "Event system without unsubscribe capability — should be rejected",
+    "description": "Event system without unsubscribe capability \u2014 should be rejected",
     "issueTitle": "Add event pub/sub system",
     "issueNumber": 110,
     "acceptanceCriteria": "- Components can subscribe to named events\n- Events emitted to all active subscribers\n- Subscribers can unsubscribe to prevent resource leaks",
@@ -210,7 +214,7 @@
   },
   {
     "id": "eval-usage-reject",
-    "description": "Using eval() for dynamic code execution — should be rejected",
+    "description": "Using eval() for dynamic code execution \u2014 should be rejected",
     "issueTitle": "Add dynamic formula calculator",
     "issueNumber": 111,
     "acceptanceCriteria": "- Users can enter arithmetic formulas (e.g., 2+3*4)\n- Results calculated and displayed\n- Only safe mathematical expressions supported",
@@ -230,7 +234,7 @@
   },
   {
     "id": "password-plaintext-reject",
-    "description": "Storing password in plaintext — should be rejected",
+    "description": "Storing password in plaintext \u2014 should be rejected",
     "issueTitle": "Add user registration",
     "issueNumber": 112,
     "acceptanceCriteria": "- User can register with email and password\n- Password stored securely using industry-standard hashing\n- Validation on all input fields\n- Registration returns user ID and email",
@@ -252,7 +256,7 @@
   },
   {
     "id": "unvalidated-redirect-reject",
-    "description": "Redirect endpoint without URL validation — should be rejected",
+    "description": "Redirect endpoint without URL validation \u2014 should be rejected",
     "issueTitle": "Add post-login redirect",
     "issueNumber": 113,
     "acceptanceCriteria": "- After login, user redirected to returnUrl query parameter\n- Defaults to homepage if no returnUrl provided\n- Only redirects to trusted internal URLs",
@@ -274,7 +278,7 @@
   },
   {
     "id": "large-unscoped-diff-reject",
-    "description": "Massive diff touching unrelated files — should be rejected",
+    "description": "Massive diff touching unrelated files \u2014 should be rejected",
     "issueTitle": "Fix typo in footer",
     "issueNumber": 114,
     "acceptanceCriteria": "- Fix 'Copyrihgt' typo to 'Copyright' in footer",
@@ -295,7 +299,7 @@
   },
   {
     "id": "console-log-production-reject",
-    "description": "Auth middleware with debug console.log statements — should be rejected",
+    "description": "Auth middleware with debug console.log statements \u2014 should be rejected",
     "issueTitle": "Add authentication middleware",
     "issueNumber": 115,
     "acceptanceCriteria": "- Authentication middleware validates JWT tokens on requests\n- Unauthorized requests return 401\n- Use structured logger (pino) for request diagnostics",
@@ -316,7 +320,7 @@
   },
   {
     "id": "sync-fs-in-server-reject",
-    "description": "Synchronous file read in request handler — should be rejected",
+    "description": "Synchronous file read in request handler \u2014 should be rejected",
     "issueTitle": "Add configuration endpoint",
     "issueNumber": 116,
     "acceptanceCriteria": "- GET /config returns application configuration\n- Configuration loaded from config.json file\n- Endpoint handles concurrent requests without blocking",
@@ -337,7 +341,7 @@
   },
   {
     "id": "missing-input-validation-reject",
-    "description": "User creation without input validation — should be rejected",
+    "description": "User creation without input validation \u2014 should be rejected",
     "issueTitle": "Add user creation endpoint",
     "issueNumber": 117,
     "acceptanceCriteria": "- POST /users creates a new user account\n- Input fields validated (name required, valid email, age numeric)\n- Role field restricted to allowed values\n- Returns created user with 201 status",
@@ -358,7 +362,7 @@
   },
   {
     "id": "swallowed-error-reject",
-    "description": "Data sync with swallowed errors — should be rejected",
+    "description": "Data sync with swallowed errors \u2014 should be rejected",
     "issueTitle": "Add remote data sync",
     "issueNumber": 118,
     "acceptanceCriteria": "- Remote data fetched and synced to local database\n- Sync errors logged and reported to monitoring\n- Failed syncs retried on next cycle",
@@ -380,7 +384,7 @@
   },
   {
     "id": "hardcoded-timeout-reject",
-    "description": "API fetch with hardcoded magic number delay — should be rejected",
+    "description": "API fetch with hardcoded magic number delay \u2014 should be rejected",
     "issueTitle": "Add request rate-limit delay",
     "issueNumber": 119,
     "acceptanceCriteria": "- API requests include delay to avoid upstream throttling\n- Delay duration is configurable via settings\n- Delay value defined as a named constant",
@@ -402,7 +406,7 @@
   },
   {
     "id": "missing-auth-check-reject",
-    "description": "Admin delete endpoint without authentication — should be rejected",
+    "description": "Admin delete endpoint without authentication \u2014 should be rejected",
     "issueTitle": "Add admin user management endpoint",
     "issueNumber": 120,
     "acceptanceCriteria": "- Admin can delete user accounts via DELETE endpoint\n- Endpoint requires admin authentication and role check\n- Unauthorized requests return 403",

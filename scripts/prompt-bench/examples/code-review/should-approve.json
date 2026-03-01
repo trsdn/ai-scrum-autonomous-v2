@@ -148,7 +148,7 @@
     "description": "Modal with role=dialog, aria-modal, keyboard dismiss \u2014 should be approved",
     "issueTitle": "Add ARIA attributes to Modal component",
     "issueNumber": 61,
-    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-labelledby references modal-title\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
+    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-label from title prop (no dangling references)\n- tabIndex={-1} for keyboard focus\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -157,7 +157,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/components/Modal.tsx\n+++ b/src/components/Modal.tsx\n@@ -3,8 +3,12 @@\n-export function Modal({ children, onClose }) {\n+export function Modal({ children, onClose }: ModalProps) {\n   return (\n-    <div className=\"modal-overlay\" onClick={onClose}>\n-      <div className=\"modal-content\">\n+    <div\n+      className=\"modal-overlay\"\n+      role=\"dialog\"\n+      aria-modal=\"true\"\n+      aria-labelledby=\"modal-title\"\n+      onClick={onClose}\n+      onKeyDown={(e) => e.key === \"Escape\" && onClose()}\n+    >\n+      <div className=\"modal-content\" onClick={(e) => e.stopPropagation()}>\n         {children}\n-        <button onClick={onClose}>Close</button>\n+        <button onClick={onClose} aria-label=\"Close dialog\">Close</button>\n       </div>\n     </div>\n   );\n }"
+    "codeDiff": "--- a/src/components/Modal.tsx\n+++ b/src/components/Modal.tsx\n@@ -3,8 +3,14 @@\n-export function Modal({ children, onClose }) {\n+export function Modal({ children, onClose, title }: ModalProps) {\n   return (\n-    <div className=\"modal-overlay\" onClick={onClose}>\n-      <div className=\"modal-content\">\n+    <div\n+      className=\"modal-overlay\"\n+      role=\"dialog\"\n+      aria-modal=\"true\"\n+      aria-label={title}\n+      tabIndex={-1}\n+      onClick={onClose}\n+      onKeyDown={(e) => e.key === \"Escape\" && onClose()}\n+    >\n+      <div className=\"modal-content\" onClick={(e) => e.stopPropagation()}>\n         {children}\n-        <button onClick={onClose}>Close</button>\n+        <button onClick={onClose} aria-label=\"Close dialog\">Close</button>\n       </div>\n     </div>\n   );\n }"
   },
   {
     "id": "delete-dead-code-approve",
@@ -180,7 +180,7 @@
     "description": "Replace hardcoded values with env vars and defaults \u2014 should be approved",
     "issueTitle": "Make config values environment-configurable",
     "issueNumber": 63,
-    "acceptanceCriteria": "- PORT, HOST, LOG_LEVEL, DATABASE_URL read from environment\n- Sensible defaults for all values\n- Port parsed as integer",
+    "acceptanceCriteria": "- PORT, HOST, LOG_LEVEL, DATABASE_URL read from environment\n- Sensible defaults for all values\n- Port parsed as integer with NaN fallback to default",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 20
@@ -189,7 +189,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,8 +2,10 @@\n export const config = {\n-  port: 3000,\n-  host: \"localhost\",\n+  port: parseInt(process.env.PORT ?? \"3000\", 10),\n+  host: process.env.HOST ?? \"localhost\",\n+  logLevel: process.env.LOG_LEVEL ?? \"info\",\n   database: {\n-    url: \"postgres://localhost:5432/mydb\",\n+    url: process.env.DATABASE_URL ?? \"postgres://localhost:5432/mydb\",\n   },\n };"
+    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,8 +2,14 @@\n export const config = {\n-  port: 3000,\n-  host: \"localhost\",\n+  port: parsePort(process.env.PORT, 3000),\n+  host: process.env.HOST ?? \"localhost\",\n+  logLevel: process.env.LOG_LEVEL ?? \"info\",\n   database: {\n-    url: \"postgres://localhost:5432/mydb\",\n+    url: process.env.DATABASE_URL ?? \"postgres://localhost:5432/mydb\",\n   },\n };\n+\n+function parsePort(value: string | undefined, fallback: number): number {\n+  if (!value) return fallback;\n+  const parsed = parseInt(value, 10);\n+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;\n+}"
   },
   {
     "id": "rename-variable-approve",
@@ -292,7 +292,7 @@
     "description": "Input validation with Zod \u2014 should be approved",
     "issueTitle": "Add Zod schema for user creation input",
     "issueNumber": 70,
-    "acceptanceCriteria": "- Email validated as proper format\n- Name required with min 1, max 100 chars\n- Age validated as integer, min 13, max 120\n- Role defaults to 'user', only allows 'user' or 'admin'",
+    "acceptanceCriteria": "- Email validated as proper format\n- Name required (min 1 char), max 100 chars\n- Age validated as integer, min 13, max 120\n- Role defaults to 'user', only allows 'user' or 'admin'",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 40
@@ -308,7 +308,7 @@
     "description": "Express rate limiter for API and auth endpoints \u2014 should be approved",
     "issueTitle": "Add rate limiting middleware",
     "issueNumber": 71,
-    "acceptanceCriteria": "- API limiter: 100 requests per 15 minutes per IP\n- Auth limiter: 5 login attempts per hour\n- Standard headers, no legacy headers\n- JSON error messages",
+    "acceptanceCriteria": "- API limiter: 100 requests per 15-minute window per IP\n- Auth limiter: 5 login attempts per hour\n- Standard headers enabled, legacy headers disabled\n- JSON error messages",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 35
@@ -317,14 +317,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/middleware/rate-limit.ts\n+++ b/src/middleware/rate-limit.ts\n@@ -1,4 +1,20 @@\n+import rateLimit from \"express-rate-limit\";\n+\n+export const apiLimiter = rateLimit({\n+  windowMs: 15 * 60 * 1000, // 15 minutes\n+  max: 100, // limit each IP to 100 requests per window\n+  standardHeaders: true,\n+  legacyHeaders: false,\n+  message: { error: \"Too many requests, please try again later\" },\n+});\n+\n+export const authLimiter = rateLimit({\n+  windowMs: 60 * 60 * 1000, // 1 hour\n+  max: 5, // limit login attempts\n+  message: { error: \"Too many login attempts\" },\n+});"
+    "codeDiff": "--- a/src/middleware/rate-limit.ts\n+++ b/src/middleware/rate-limit.ts\n@@ -1,4 +1,20 @@\n+import rateLimit from \"express-rate-limit\";\n+\n+export const apiLimiter = rateLimit({\n+  windowMs: 15 * 60 * 1000, // 15 minutes\n+  max: 100, // limit each IP to 100 requests per 15-min window\n+  standardHeaders: true,\n+  legacyHeaders: false,\n+  message: { error: \"Too many requests, please try again later\" },\n+});\n+\n+export const authLimiter = rateLimit({\n+  windowMs: 60 * 60 * 1000, // 1 hour\n+  max: 5, // limit login attempts\n+  message: { error: \"Too many login attempts\" },\n+});"
   },
   {
     "id": "cache-impl-approve",
     "description": "Generic TTL cache with Map storage \u2014 should be approved",
     "issueTitle": "Add TTL cache implementation",
     "issueNumber": 72,
-    "acceptanceCriteria": "- Generic TTLCache class with get/set methods\n- Entries expire after configurable TTL\n- Expired entries cleaned up on access",
+    "acceptanceCriteria": "- Generic TTLCache class with get/set/delete methods\n- Entries expire after configurable TTL\n- Expired entries cleaned up on access",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 55
@@ -333,7 +333,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/cache.ts\n+++ b/src/cache.ts\n@@ -1,4 +1,22 @@\n+interface CacheEntry<T> {\n+  value: T;\n+  expiresAt: number;\n+}\n+\n+export class TTLCache<T> {\n+  private store = new Map<string, CacheEntry<T>>();\n+\n+  get(key: string): T | undefined {\n+    const entry = this.store.get(key);\n+    if (!entry) return undefined;\n+    if (Date.now() > entry.expiresAt) {\n+      this.store.delete(key);\n+      return undefined;\n+    }\n+    return entry.value;\n+  }\n+\n+  set(key: string, value: T, ttlMs: number): void {\n+    this.store.set(key, { value, expiresAt: Date.now() + ttlMs });\n+  }\n+}"
+    "codeDiff": "--- a/src/cache.ts\n+++ b/src/cache.ts\n@@ -1,4 +1,27 @@\n+interface CacheEntry<T> {\n+  value: T;\n+  expiresAt: number;\n+}\n+\n+export class TTLCache<T> {\n+  private store = new Map<string, CacheEntry<T>>();\n+\n+  get(key: string): T | undefined {\n+    const entry = this.store.get(key);\n+    if (!entry) return undefined;\n+    if (Date.now() > entry.expiresAt) {\n+      this.store.delete(key);\n+      return undefined;\n+    }\n+    return entry.value;\n+  }\n+\n+  set(key: string, value: T, ttlMs: number): void {\n+    this.store.set(key, { value, expiresAt: Date.now() + ttlMs });\n+  }\n+\n+  delete(key: string): void {\n+    this.store.delete(key);\n+  }\n+}"
   },
   {
     "id": "pagination-approve",
@@ -356,7 +356,7 @@
     "description": "AbortController-based fetch timeout \u2014 should be approved",
     "issueTitle": "Add timeout to external API calls",
     "issueNumber": 74,
-    "acceptanceCriteria": "- Configurable timeout (default 5000ms)\n- Uses AbortController to cancel fetch\n- Timer cleared after successful response\n- Non-OK responses throw Error",
+    "acceptanceCriteria": "- Configurable timeout (default 5000ms)\n- Uses AbortController to cancel fetch\n- Timer always cleared via try/finally\n- Non-OK responses throw Error",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 25
@@ -365,14 +365,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/api/external.ts\n+++ b/src/api/external.ts\n@@ -3,7 +3,10 @@\n-export async function callExternalApi(url: string): Promise<unknown> {\n-  const response = await fetch(url);\n+export async function callExternalApi(url: string, timeoutMs = 5000): Promise<unknown> {\n+  const controller = new AbortController();\n+  const timer = setTimeout(() => controller.abort(), timeoutMs);\n+  const response = await fetch(url, { signal: controller.signal });\n+  clearTimeout(timer);\n+  if (!response.ok) {\n+    throw new Error(`API call failed: ${response.status}`);\n+  }\n   return response.json();\n }"
+    "codeDiff": "--- a/src/api/external.ts\n+++ b/src/api/external.ts\n@@ -3,7 +3,13 @@\n-export async function callExternalApi(url: string): Promise<unknown> {\n-  const response = await fetch(url);\n+export async function callExternalApi(url: string, timeoutMs = 5000): Promise<unknown> {\n+  const controller = new AbortController();\n+  const timer = setTimeout(() => controller.abort(), timeoutMs);\n+  try {\n+    const response = await fetch(url, { signal: controller.signal });\n+    if (!response.ok) {\n+      throw new Error(`API call failed: ${response.status}`);\n+    }\n+    return response.json();\n+  } finally {\n+    clearTimeout(timer);\n+  }\n }"
   },
   {
     "id": "loading-state-approve",
     "description": "Loading/error state management in data fetch \u2014 should be approved",
     "issueTitle": "Add loading and error states to DataTable",
     "issueNumber": 75,
-    "acceptanceCriteria": "- Loading state shown while fetching\n- Error state shown on fetch failure\n- Data typed as Item[]\n- Loading div has role=status, error div has role=alert",
+    "acceptanceCriteria": "- Loading state shown while fetching\n- Error state reset on re-fetch\n- Error state shown on fetch failure\n- Data typed as Item[]\n- Loading div has role=status, error div has role=alert",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 20
@@ -381,14 +381,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/components/DataTable.tsx\n+++ b/src/components/DataTable.tsx\n@@ -5,7 +5,12 @@\n export function DataTable({ endpoint }: DataTableProps) {\n-  const [data, setData] = useState([]);\n+  const [data, setData] = useState<Item[]>([]);\n+  const [loading, setLoading] = useState(true);\n+  const [error, setError] = useState<string | null>(null);\n \n   useEffect(() => {\n-    fetch(endpoint).then(r => r.json()).then(setData);\n+    setLoading(true);\n+    fetch(endpoint)\n+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })\n+      .then(setData)\n+      .catch(err => setError(err.message))\n+      .finally(() => setLoading(false));\n   }, [endpoint]);\n+\n+  if (loading) return <div role=\"status\">Loading...</div>;\n+  if (error) return <div role=\"alert\">{error}</div>;"
+    "codeDiff": "--- a/src/components/DataTable.tsx\n+++ b/src/components/DataTable.tsx\n@@ -5,7 +5,14 @@\n export function DataTable({ endpoint }: DataTableProps) {\n-  const [data, setData] = useState([]);\n+  const [data, setData] = useState<Item[]>([]);\n+  const [loading, setLoading] = useState(true);\n+  const [error, setError] = useState<string | null>(null);\n \n   useEffect(() => {\n-    fetch(endpoint).then(r => r.json()).then(setData);\n+    setLoading(true);\n+    setError(null);\n+    fetch(endpoint)\n+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })\n+      .then(setData)\n+      .catch(err => setError(err.message))\n+      .finally(() => setLoading(false));\n   }, [endpoint]);\n+\n+  if (loading) return <div role=\"status\">Loading...</div>;\n+  if (error) return <div role=\"alert\">{error}</div>;"
   },
   {
     "id": "debounce-search-approve",
     "description": "Debounced search hook with cleanup \u2014 should be approved",
     "issueTitle": "Add debounced search with URL encoding",
     "issueNumber": 76,
-    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Timer cleanup on unmount",
+    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Previous in-flight requests aborted via AbortController\n- Timer and fetch cleanup on unmount",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 25
@@ -397,7 +397,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/hooks/useSearch.ts\n+++ b/src/hooks/useSearch.ts\n@@ -1,8 +1,15 @@\n+import { useState, useEffect, useRef } from \"react\";\n+\n export function useSearch(query: string, delay = 300) {\n-  const [results, setResults] = useState([]);\n+  const [results, setResults] = useState<SearchResult[]>([]);\n+  const timerRef = useRef<ReturnType<typeof setTimeout>>();\n \n   useEffect(() => {\n-    fetch(`/api/search?q=${query}`).then(r => r.json()).then(setResults);\n+    if (timerRef.current) clearTimeout(timerRef.current);\n+    timerRef.current = setTimeout(async () => {\n+      if (!query.trim()) { setResults([]); return; }\n+      const r = await fetch(`/api/search?q=${encodeURIComponent(query)}`);\n+      if (r.ok) setResults(await r.json());\n+    }, delay);\n+    return () => clearTimeout(timerRef.current);\n   }, [query, delay]);\n \n   return results;\n }"
+    "codeDiff": "--- a/src/hooks/useSearch.ts\n+++ b/src/hooks/useSearch.ts\n@@ -1,8 +1,18 @@\n+import { useState, useEffect, useRef } from \"react\";\n+\n export function useSearch(query: string, delay = 300) {\n-  const [results, setResults] = useState([]);\n+  const [results, setResults] = useState<SearchResult[]>([]);\n+  const timerRef = useRef<ReturnType<typeof setTimeout>>();\n+  const controllerRef = useRef<AbortController>();\n \n   useEffect(() => {\n-    fetch(`/api/search?q=${query}`).then(r => r.json()).then(setResults);\n+    if (timerRef.current) clearTimeout(timerRef.current);\n+    controllerRef.current?.abort();\n+    timerRef.current = setTimeout(async () => {\n+      if (!query.trim()) { setResults([]); return; }\n+      const controller = new AbortController();\n+      controllerRef.current = controller;\n+      try {\n+        const r = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });\n+        if (r.ok) setResults(await r.json());\n+      } catch (err) {\n+        if (err instanceof Error && err.name !== \"AbortError\") throw err;\n+      }\n+    }, delay);\n+    return () => { clearTimeout(timerRef.current); controllerRef.current?.abort(); };\n   }, [query, delay]);\n \n   return results;\n }"
   },
   {
     "id": "responsive-layout-approve",
@@ -429,14 +429,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/components/ErrorBoundary.tsx\n+++ b/src/components/ErrorBoundary.tsx\n@@ -1,4 +1,28 @@\n+import { Component, type ReactNode, type ErrorInfo } from \"react\";\n+\n+interface Props { children: ReactNode; fallback?: ReactNode; }\n+interface State { hasError: boolean; error: Error | null; }\n+\n+export class ErrorBoundary extends Component<Props, State> {\n+  state: State = { hasError: false, error: null };\n+\n+  static getDerivedStateFromError(error: Error): State {\n+    return { hasError: true, error };\n+  }\n+\n+  componentDidCatch(error: Error, info: ErrorInfo) {\n+    console.error(\"ErrorBoundary caught:\", error, info.componentStack);\n+  }\n+\n+  render() {\n+    if (this.state.hasError) {\n+      return this.props.fallback ?? (\n+        <div role=\"alert\">\n+          <h2>Something went wrong</h2>\n+          <p>{this.state.error?.message}</p>\n+        </div>\n+      );\n+    }\n+    return this.props.children;\n+  }\n+}"
+    "codeDiff": "--- a/src/components/ErrorBoundary.tsx\n+++ b/src/components/ErrorBoundary.tsx\n@@ -1,4 +1,32 @@\n+import { Component, type ReactNode, type ErrorInfo } from \"react\";\n+\n+interface Props { children: ReactNode; fallback?: ReactNode; }\n+interface State { hasError: boolean; error: Error | null; }\n+\n+export class ErrorBoundary extends Component<Props, State> {\n+  state: State = { hasError: false, error: null };\n+\n+  static getDerivedStateFromError(error: Error): State {\n+    return { hasError: true, error };\n+  }\n+\n+  componentDidCatch(error: Error, info: ErrorInfo) {\n+    console.error(\"ErrorBoundary caught:\", error, info.componentStack);\n+  }\n+\n+  render() {\n+    if (this.state.hasError) {\n+      return this.props.fallback ?? (\n+        <div role=\"alert\">\n+          <h2>Something went wrong</h2>\n+          <p>{this.state.error?.message}</p>\n+        </div>\n+      );\n+    }\n+    return this.props.children;\n+  }\n+}"
   },
   {
     "id": "date-format-approve",
     "description": "Locale-aware date format and relative time \u2014 should be approved",
     "issueTitle": "Add date formatting utilities",
     "issueNumber": 80,
-    "acceptanceCriteria": "- formatDate uses Intl.DateTimeFormat with configurable locale\n- formatRelative shows 'just now', minutes, hours, then falls back to absolute\n- Default locale is en-US",
+    "acceptanceCriteria": "- formatDate uses Intl.DateTimeFormat with configurable locale\n- formatRelative shows 'just now', minutes, hours, days, then falls back to absolute\n- Future dates fall back to absolute format\n- Default locale is en-US",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -445,7 +445,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/utils/date.ts\n+++ b/src/utils/date.ts\n@@ -1,5 +1,10 @@\n-export function formatDate(d: Date): string {\n-  return d.toLocaleDateString();\n+export function formatDate(d: Date, locale = \"en-US\"): string {\n+  return new Intl.DateTimeFormat(locale, {\n+    year: \"numeric\",\n+    month: \"short\",\n+    day: \"numeric\",\n+  }).format(d);\n }\n+\n+export function formatRelative(d: Date): string {\n+  const diff = Date.now() - d.getTime();\n+  const minutes = Math.floor(diff / 60_000);\n+  if (minutes < 1) return \"just now\";\n+  if (minutes < 60) return `${minutes}m ago`;\n+  const hours = Math.floor(minutes / 60);\n+  if (hours < 24) return `${hours}h ago`;\n+  return formatDate(d);\n+}"
+    "codeDiff": "--- a/src/utils/date.ts\n+++ b/src/utils/date.ts\n@@ -1,5 +1,12 @@\n-export function formatDate(d: Date): string {\n-  return d.toLocaleDateString();\n+export function formatDate(d: Date, locale = \"en-US\"): string {\n+  return new Intl.DateTimeFormat(locale, {\n+    year: \"numeric\",\n+    month: \"short\",\n+    day: \"numeric\",\n+  }).format(d);\n }\n+\n+export function formatRelative(d: Date): string {\n+  const diff = Date.now() - d.getTime();\n+  if (diff < 0) return formatDate(d);\n+  const minutes = Math.floor(diff / 60_000);\n+  if (minutes < 1) return \"just now\";\n+  if (minutes < 60) return `${minutes}m ago`;\n+  const hours = Math.floor(minutes / 60);\n+  if (hours < 24) return `${hours}h ago`;\n+  const days = Math.floor(hours / 24);\n+  if (days < 7) return `${days}d ago`;\n+  return formatDate(d);\n+}"
   },
   {
     "id": "cleanup-imports-approve",
@@ -468,7 +468,7 @@
     "description": "Generic async retry with exponential delay \u2014 should be approved",
     "issueTitle": "Add retry utility with exponential backoff",
     "issueNumber": 82,
-    "acceptanceCriteria": "- Configurable max attempts (default 3)\n- Exponential backoff with configurable base delay (default 1000ms)\n- Last error thrown after all retries exhausted\n- Generic return type preserved",
+    "acceptanceCriteria": "- Configurable max attempts (default 3, validated \u2265 1)\n- Exponential backoff with configurable base delay (default 1000ms)\n- Last error thrown after all retries exhausted\n- Generic return type preserved",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 40
@@ -477,6 +477,6 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/utils/retry.ts\n+++ b/src/utils/retry.ts\n@@ -1,4 +1,18 @@\n+export async function withRetry<T>(\n+  fn: () => Promise<T>,\n+  maxAttempts = 3,\n+  baseDelayMs = 1000,\n+): Promise<T> {\n+  let lastError: Error | undefined;\n+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {\n+    try {\n+      return await fn();\n+    } catch (err) {\n+      lastError = err instanceof Error ? err : new Error(String(err));\n+      if (attempt < maxAttempts) {\n+        const delay = baseDelayMs * Math.pow(2, attempt - 1);\n+        await new Promise((r) => setTimeout(r, delay));\n+      }\n+    }\n+  }\n+  throw lastError;\n+}"
+    "codeDiff": "--- a/src/utils/retry.ts\n+++ b/src/utils/retry.ts\n@@ -1,4 +1,19 @@\n+export async function withRetry<T>(\n+  fn: () => Promise<T>,\n+  maxAttempts = 3,\n+  baseDelayMs = 1000,\n+): Promise<T> {\n+  if (maxAttempts < 1) throw new Error(\"maxAttempts must be >= 1\");\n+  let lastError: Error | undefined;\n+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {\n+    try {\n+      return await fn();\n+    } catch (err) {\n+      lastError = err instanceof Error ? err : new Error(String(err));\n+      if (attempt < maxAttempts) {\n+        const delay = baseDelayMs * Math.pow(2, attempt - 1);\n+        await new Promise((r) => setTimeout(r, delay));\n+      }\n+    }\n+  }\n+  throw lastError;\n+}"
   }
 ]
