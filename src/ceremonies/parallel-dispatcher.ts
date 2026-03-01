@@ -140,6 +140,17 @@ export async function runParallelExecution(
 
         // Merge successful branches back to base via GitHub PR
         if (config.autoMerge && result.status === "completed") {
+          // Rebase branch on latest main before pre-merge (main may have changed from earlier merges)
+          try {
+            await execFile("git", ["fetch", "origin", config.baseBranch], { cwd: config.projectPath });
+            await execFile("git", ["rebase", `origin/${config.baseBranch}`, result.branch], { cwd: config.projectPath });
+            await execFile("git", ["push", "origin", result.branch, "--force-with-lease"], { cwd: config.projectPath });
+          } catch (rebaseErr) {
+            // Rebase failed (conflicts) — abort and let pre-merge catch it
+            try { await execFile("git", ["rebase", "--abort"], { cwd: config.projectPath }); } catch { /* ignore */ }
+            log.warn({ issue: result.issueNumber, err: String(rebaseErr) }, "rebase on latest main failed — proceeding to pre-merge");
+          }
+
           // Pre-merge verification: test feature branch with main merged in
           const premerge = await runPreMergeVerification(result.branch, config);
           if (!premerge.passed) {
