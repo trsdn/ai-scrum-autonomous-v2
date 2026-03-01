@@ -93,6 +93,9 @@
       // Hide disconnect banner if shown
       const banner = document.getElementById("disconnect-banner");
       if (banner) banner.remove();
+
+      // Refresh decisions badge
+      refreshDecisionsBadge();
     };
 
     ws.onclose = () => {
@@ -321,6 +324,15 @@
         if (payload.mode === "autonomous" || payload.mode === "hitl") {
           executionMode = payload.mode;
           modeToggle.value = payload.mode;
+        }
+        break;
+
+      case "decisions:approved":
+      case "decisions:rejected":
+      case "decisions:commented":
+        refreshDecisionsBadge();
+        if (document.querySelector('[data-tab="decisions"]')?.classList.contains("active")) {
+          loadDecisions();
         }
         break;
     }
@@ -966,6 +978,7 @@
       }
       if (tab === "backlog") loadBacklog();
       if (tab === "blocked") loadBlocked();
+      if (tab === "decisions") loadDecisions();
       if (tab === "ideas") loadIdeas();
     });
   });
@@ -1159,6 +1172,7 @@
   $("btn-refresh-backlog")?.addEventListener("click", loadBacklog);
   $("btn-refresh-ideas")?.addEventListener("click", loadIdeas);
   $("btn-refresh-blocked")?.addEventListener("click", loadBlocked);
+  $("btn-refresh-decisions")?.addEventListener("click", loadDecisions);
 
   async function loadBlocked() {
     try {
@@ -1218,6 +1232,116 @@
     } catch {
       addLog("error", "Failed to load blocked issues");
     }
+  }
+
+  async function loadDecisions() {
+    try {
+      const res = await fetch("/api/decisions");
+      if (!res.ok) return;
+      const items = await res.json();
+      const list = $("decisions-list");
+      const empty = $("decisions-empty");
+      const count = $("decisions-count");
+      const badge = $("decisions-badge");
+      list.innerHTML = "";
+      count.textContent = `${items.length} pending`;
+      if (badge) {
+        if (items.length > 0) {
+          badge.textContent = items.length;
+          badge.style.display = "";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+      if (items.length === 0) {
+        empty.style.display = "";
+        return;
+      }
+      empty.style.display = "none";
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.className = "backlog-item decision-item";
+        const issueLink = repoUrl
+          ? `<a href="${repoUrl}/issues/${item.number}" target="_blank" rel="noopener" class="gh-link">#${item.number}</a>`
+          : `#${item.number}`;
+        const labels = (item.labels || [])
+          .filter((l) => l !== "human-decision-needed")
+          .map((l) => `<span class="label-tag">${escapeHtml(l)}</span>`)
+          .join(" ");
+        li.innerHTML = `
+          <span class="backlog-number">${issueLink}</span>
+          <span class="backlog-title">${escapeHtml(item.title)}</span>
+          ${labels ? `<span class="decision-labels">${labels}</span>` : ""}
+          ${item.body ? `<span class="idea-body">${escapeHtml(item.body.slice(0, 300))}</span>` : ""}
+        `;
+        const approveBtn = document.createElement("button");
+        approveBtn.className = "btn btn-small btn-primary";
+        approveBtn.textContent = "✅ Approve";
+        approveBtn.onclick = () => {
+          send({ type: "decisions:approve", issueNumber: item.number });
+          li.remove();
+          updateDecisionCount(list, count, empty, badge);
+        };
+        li.appendChild(approveBtn);
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.className = "btn btn-small btn-danger";
+        rejectBtn.textContent = "❌ Reject";
+        rejectBtn.onclick = () => {
+          if (confirm("Reject and close #" + item.number + "?")) {
+            send({ type: "decisions:reject", issueNumber: item.number });
+            li.remove();
+            updateDecisionCount(list, count, empty, badge);
+          }
+        };
+        li.appendChild(rejectBtn);
+
+        const commentBtn = document.createElement("button");
+        commentBtn.className = "btn btn-small";
+        commentBtn.textContent = "💬 Comment";
+        commentBtn.onclick = () => {
+          const text = prompt("Add comment to #" + item.number + ":");
+          if (text) send({ type: "decisions:comment", issueNumber: item.number, body: text });
+        };
+        li.appendChild(commentBtn);
+
+        list.appendChild(li);
+      }
+    } catch {
+      addLog("error", "Failed to load decisions");
+    }
+  }
+
+  function updateDecisionCount(list, count, empty, badge) {
+    const remaining = list.children.length;
+    count.textContent = `${remaining} pending`;
+    if (badge) {
+      if (remaining > 0) {
+        badge.textContent = remaining;
+        badge.style.display = "";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+    if (remaining === 0) empty.style.display = "";
+  }
+
+  // Load decisions count on connect for badge
+  async function refreshDecisionsBadge() {
+    try {
+      const res = await fetch("/api/decisions");
+      if (!res.ok) return;
+      const items = await res.json();
+      const badge = $("decisions-badge");
+      if (badge) {
+        if (items.length > 0) {
+          badge.textContent = items.length;
+          badge.style.display = "";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+    } catch { /* ignore */ }
   }
 
   btnPrev.addEventListener("click", () => {

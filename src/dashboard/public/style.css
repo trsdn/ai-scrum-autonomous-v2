@@ -832,6 +832,15 @@ main.chat-open {
   border-radius: 10px;
   font-size: 12px;
 }
+.tab-badge {
+  background: var(--accent);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
 .tab-description {
   color: var(--text-dim);
   font-size: 13px;
@@ -925,6 +934,23 @@ main.chat-open {
   border-left: 3px solid var(--red, #e74c3c);
 }
 .blocked-item .btn { margin-left: 4px; }
+.decision-item {
+  border-left: 3px solid var(--accent, #3498db);
+}
+.decision-item .btn { margin-left: 4px; }
+.decision-labels { display: inline-flex; gap: 4px; margin-left: 8px; }
+.label-tag {
+  background: var(--bg-hover);
+  color: var(--text-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.decision-date {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-left: 8px;
+}
 
 /* Backlog action buttons */
 .backlog-actions {

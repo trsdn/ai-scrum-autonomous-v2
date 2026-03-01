@@ -39,7 +39,7 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "blocked:comment" | "blocked:unblock" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "blocked:comment" | "blocked:unblock" | "decisions:approve" | "decisions:reject" | "decisions:comment" | "ping";
   sprintNumber?: number;
   issueNumber?: number;
   sessionId?: string;
@@ -524,6 +524,21 @@ export class DashboardWebServer {
           this.handleBlockedUnblock(msg.issueNumber, ws);
         }
         break;
+      case "decisions:approve":
+        if (msg.issueNumber) {
+          this.handleDecisionApprove(msg.issueNumber, ws);
+        }
+        break;
+      case "decisions:reject":
+        if (msg.issueNumber) {
+          this.handleDecisionReject(msg.issueNumber, ws);
+        }
+        break;
+      case "decisions:comment":
+        if (msg.issueNumber && msg.body) {
+          this.handleDecisionComment(msg.issueNumber, msg.body, ws);
+        }
+        break;
     }
   }
 
@@ -713,6 +728,12 @@ export class DashboardWebServer {
       return;
     }
 
+    // /api/decisions — issues with human-decision-needed label
+    if (pathname === "/api/decisions") {
+      this.handleDecisionsRequest(res);
+      return;
+    }
+
     // /api/sprint-capacity — current sprint capacity info
     if (pathname === "/api/sprint-capacity") {
       const sprintNum = this.options.activeSprintNumber ?? 1;
@@ -861,6 +882,63 @@ export class DashboardWebServer {
       this.sendTo(ws, { type: "sprint:event", eventName: "blocked:unblocked", payload: { issueNumber } });
     } catch (err: unknown) {
       log.error({ err: String(err), issueNumber }, "Failed to unblock issue");
+    }
+  }
+
+  /** Return issues with human-decision-needed label. */
+  private handleDecisionsRequest(res: http.ServerResponse): void {
+    import("../github/issues.js").then(async ({ listIssues }) => {
+      try {
+        const ghIssues = await listIssues({ state: "open", labels: ["human-decision-needed"] });
+        const decisions = ghIssues.map((i) => ({
+          number: i.number,
+          title: i.title,
+          body: (i.body ?? "").slice(0, 500),
+          labels: i.labels.map((l) => l.name),
+        }));
+        res.writeHead(200);
+        res.end(JSON.stringify(decisions));
+      } catch {
+        res.writeHead(200);
+        res.end(JSON.stringify([]));
+      }
+    }).catch(() => {
+      res.writeHead(200);
+      res.end(JSON.stringify([]));
+    });
+  }
+
+  /** Approve a decision: remove human-decision-needed label, add status:refined. */
+  private async handleDecisionApprove(issueNumber: number, _ws: WebSocket): Promise<void> {
+    try {
+      const { removeLabel, setLabel } = await import("../github/labels.js");
+      await removeLabel(issueNumber, "human-decision-needed");
+      await setLabel(issueNumber, "status:refined");
+      this.broadcast({ type: "sprint:event", eventName: "decisions:approved", payload: { issueNumber } });
+    } catch (err: unknown) {
+      log.error({ err: String(err), issueNumber }, "Failed to approve decision");
+    }
+  }
+
+  /** Reject a decision: close the issue. */
+  private async handleDecisionReject(issueNumber: number, _ws: WebSocket): Promise<void> {
+    try {
+      const { closeIssue } = await import("../github/issues.js");
+      await closeIssue(issueNumber);
+      this.broadcast({ type: "sprint:event", eventName: "decisions:rejected", payload: { issueNumber } });
+    } catch (err: unknown) {
+      log.error({ err: String(err), issueNumber }, "Failed to reject decision");
+    }
+  }
+
+  /** Add a comment to a decision issue. */
+  private async handleDecisionComment(issueNumber: number, body: string, _ws: WebSocket): Promise<void> {
+    try {
+      const { addComment } = await import("../github/issues.js");
+      await addComment(issueNumber, body);
+      this.broadcast({ type: "sprint:event", eventName: "decisions:commented", payload: { issueNumber } });
+    } catch (err: unknown) {
+      log.error({ err: String(err), issueNumber }, "Failed to comment on decision");
     }
   }
 

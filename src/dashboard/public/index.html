@@ -54,6 +54,7 @@
     <button class="tab-btn tab-active" data-tab="sprint">🏃 Sprint</button>
     <button class="tab-btn" data-tab="backlog">📋 Backlog</button>
     <button class="tab-btn" data-tab="blocked">🚫 Blocked</button>
+    <button class="tab-btn" data-tab="decisions">⚖️ Decisions <span id="decisions-badge" class="tab-badge" style="display:none">0</span></button>
     <button class="tab-btn" data-tab="ideas">💡 Ideas</button>
   </nav>
 
@@ -102,6 +103,20 @@
         <p class="tab-description">Issues blocked during execution. Add comments to provide guidance, then unblock to retry.</p>
         <ul id="blocked-list" class="backlog-list"></ul>
         <div id="blocked-empty" class="empty-state" style="display:none">No blocked issues. 🎉</div>
+      </section>
+    </div>
+
+    <!-- Decisions Tab -->
+    <div id="tab-decisions" class="tab-content" style="display:none">
+      <section class="panel panel-full">
+        <div class="backlog-header">
+          <h2>⚖️ Human Decisions Needed</h2>
+          <span id="decisions-count" class="badge">0 pending</span>
+          <button id="btn-refresh-decisions" class="btn btn-small">🔄 Refresh</button>
+        </div>
+        <p class="tab-description">Issues requiring stakeholder input. Review each item and <strong>Approve</strong>, <strong>Reject</strong>, or <strong>Comment</strong>.</p>
+        <ul id="decisions-list" class="backlog-list"></ul>
+        <div id="decisions-empty" class="empty-state" style="display:none">No pending decisions. 🎉</div>
       </section>
     </div>
 
