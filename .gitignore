@@ -37,3 +37,5 @@ sprint-worktrees/
 
 # Dashboard log
 sprint-runner.log
+scripts/e2e/results/*.json
+scripts/e2e/results/*.log

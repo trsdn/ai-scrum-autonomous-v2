@@ -53,7 +53,7 @@ for i in $(seq 1 "$ITERATIONS"); do
   echo ""
   echo "── Step 4/4: Verify ──"
   verify_exit=0
-  bash "$SCRIPT_DIR/verify.sh" "$PROJECT_DIR" 2>&1 | tee "$VERIFY_LOG" || verify_exit=$?
+  bash "$SCRIPT_DIR/verify.sh" "$PROJECT_DIR" "run-$i" 2>&1 | tee "$VERIFY_LOG" || verify_exit=$?
 
   END=$(date +%s)
   DURATION=$((END - START))
