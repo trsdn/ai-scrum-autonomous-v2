@@ -127,6 +127,7 @@ Before finalizing:
 ## Constraints
 
 - **Do NOT create GitHub issues for improvements** — all improvements are auto-applied by the system
+- **Config changes are encouraged** — quality gate commands (`test_command`, `lint_command`, `typecheck_command`), parallel session limits, timeouts, and other settings in `sprint-runner.config.yaml` can and should be tuned based on sprint data
 - **Do NOT modify ADRs or the constitution** — those require stakeholder confirmation
 - **Data-driven only** — every insight must reference specific sprint metrics or incidents. No "we should probably..." without evidence
 - **Stakeholder Authority (Constitution §0)**: Process changes that affect what gets built require stakeholder approval
@@ -154,8 +155,7 @@ Reply with a JSON summary:
       "root_cause": "Refinement did not validate criteria with codebase search",
       "action": "Add codebase feasibility check to refinement prompt",
       "expected_outcome": "Zero blocked issues due to unclear criteria next sprint",
-      "category": "agent",
-      "issue_created": 55
+      "category": "agent"
     }
   ],
   "metrics": {

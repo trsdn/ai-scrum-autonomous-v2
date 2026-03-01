@@ -90,14 +90,15 @@ Per Constitution §4, every retro MUST evaluate:
 - **Process friction**: Where did the autonomous process slow down or fail?
 - **Tooling gaps**: What manual steps could be automated?
 
-### 7. Create Improvement Issues
+### 7. Improvement Actions
 
-For each approved improvement, create a GitHub issue:
+For each improvement, provide the specific change to be auto-applied:
 
-- Title: `chore(process): <improvement description>`
-- Label: `type:chore`, `scope:process`
-- Body: Problem, root cause, action, expected outcome
-- These go to backlog for next sprint planning
+- **Config changes**: e.g., adjust `quality_gates.test_command`, add stricter lint rules, change timeouts
+- **Agent/Skill changes**: e.g., update prompt templates, add new checks to quality reviewer
+- **Process changes**: e.g., adjust ceremony code, improve escalation rules
+
+Each improvement in the JSON output will be directly applied by an ACP session.
 
 ### 8. Quality Checks
 
@@ -111,9 +112,9 @@ Before finalizing:
 
 ## Constraints
 
-- **Do NOT implement improvements** — retro creates issues; implementation happens in the next sprint
+- **DO directly apply improvements** — the retro auto-applies all improvements via ACP sessions. Make each improvement specific enough to be applied as a code/config edit.
+- **Config changes are encouraged** — quality gate commands, parallel session limits, timeouts, and other settings in `sprint-runner.config.yaml` can and should be tuned based on sprint data.
 - **Do NOT modify ADRs or the constitution** — those require stakeholder confirmation
-- **Do NOT modify sprint-runner.config.yaml directly** — create an issue for config changes
 - **Data-driven only** — every insight must reference specific sprint metrics or incidents. No "we should probably..." without evidence
 - **Stakeholder Authority (Constitution §0)**: Process changes that affect what gets built require stakeholder approval
 
@@ -140,8 +141,7 @@ Reply with a JSON summary:
       "root_cause": "Refinement did not validate criteria with codebase search",
       "action": "Add codebase feasibility check to refinement prompt",
       "expected_outcome": "Zero blocked issues due to unclear criteria next sprint",
-      "category": "agent",
-      "issue_created": 55
+      "category": "agent"
     }
   ],
   "metrics": {
