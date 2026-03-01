@@ -1,10 +1,10 @@
 [
   {
     "id": "complex-refactor-with-tests-approve",
-    "description": "Complex multi-file refactor with full test coverage \u2014 should be approved",
-    "issueTitle": "Refactor event system to use EventEmitter pattern",
+    "description": "Refactor to TypedEmitter extending EventEmitter \u2014 should approve",
+    "issueTitle": "Replace custom events with Node EventEmitter",
     "issueNumber": 301,
-    "acceptanceCriteria": "- Custom event system replaced with EventEmitter\n- All event handlers migrated\n- Tests for emit, on, off, once\n- No behavior change for consumers",
+    "acceptanceCriteria": "- Custom event handlers replaced with EventEmitter subclass\n- TypedEmitter provides typed emit and on methods\n- Max listeners set to 20\n- Singleton appEvents exported",
     "diffStats": {
       "filesChanged": 8,
       "linesChanged": 150
@@ -17,10 +17,10 @@
   },
   {
     "id": "error-code-mapping-approve",
-    "description": "Adding error code to HTTP status mapping \u2014 should be approved",
-    "issueTitle": "Map internal error codes to HTTP status codes",
+    "description": "Lookup for error codes and user messages \u2014 should approve",
+    "issueTitle": "Add error code to HTTP status mapping",
     "issueNumber": 302,
-    "acceptanceCriteria": "- Error codes mapped to appropriate HTTP statuses\n- User-friendly messages per code\n- Test for each error code mapping",
+    "acceptanceCriteria": "- Error codes mapped: NOT_FOUND\u2192404, UNAUTHORIZED\u2192401, FORBIDDEN\u2192403, VALIDATION\u2192422, CONFLICT\u2192409, RATE_LIMITED\u2192429, INTERNAL\u2192500\n- Default status 500 for unknown codes\n- User messages for NOT_FOUND and UNAUTHORIZED",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 40
@@ -33,10 +33,10 @@
   },
   {
     "id": "middleware-chain-approve",
-    "description": "Adding middleware chain for request processing \u2014 should be approved",
-    "issueTitle": "Add middleware pipeline for API requests",
+    "description": "Pipeline class with middleware chaining \u2014 should approve",
+    "issueTitle": "Add middleware pipeline with composable use()",
     "issueNumber": 303,
-    "acceptanceCriteria": "- Middleware chain: auth \u2192 validate \u2192 handler \u2192 response\n- Middleware composable via use()\n- Tests for chain execution order",
+    "acceptanceCriteria": "- Pipeline class with use() method for adding middleware\n- execute() runs middleware in sequence\n- Each middleware receives context and next function\n- Fluent API (use returns this)",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 60
@@ -49,10 +49,10 @@
   },
   {
     "id": "connection-pool-approve",
-    "description": "Adding database connection pooling \u2014 should be approved",
-    "issueTitle": "Add connection pool for database",
+    "description": "pg Pool with configurable size and error handling \u2014 should approve",
+    "issueTitle": "Add PostgreSQL connection pool",
     "issueNumber": 304,
-    "acceptanceCriteria": "- Pool size configurable (default 10)\n- Connections reused across requests\n- Pool drain on shutdown\n- Tests for pool lifecycle",
+    "acceptanceCriteria": "- Pool uses DATABASE_URL from env\n- Max connections configurable via DB_POOL_SIZE (default 10)\n- Idle timeout 30s, connection timeout 5s\n- Pool error handler logs unexpected errors\n- drain() function for clean shutdown",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 50
@@ -65,10 +65,10 @@
   },
   {
     "id": "structured-logging-approve",
-    "description": "Replacing console.log with structured logger \u2014 should be approved",
-    "issueTitle": "Replace console.log with pino logger",
+    "description": "Replace console.log with pino \u2014 should approve",
+    "issueTitle": "Add pino structured logger",
     "issueNumber": 305,
-    "acceptanceCriteria": "- All console.log replaced with pino logger\n- Log levels: debug, info, warn, error\n- JSON output in production, pretty in dev",
+    "acceptanceCriteria": "- Pino logger with configurable level from LOG_LEVEL env\n- Pretty printing in development\n- JSON output in production\n- Logger type exported",
     "diffStats": {
       "filesChanged": 10,
       "linesChanged": 80
@@ -81,10 +81,10 @@
   },
   {
     "id": "api-versioning-approve",
-    "description": "Adding API versioning \u2014 should be approved",
+    "description": "Mount router at /api/v1 with redirect from /api/users \u2014 should approve",
     "issueTitle": "Add v1 prefix to API routes",
     "issueNumber": 306,
-    "acceptanceCriteria": "- All routes prefixed with /api/v1/\n- Old routes redirect to v1\n- Tests updated for new paths",
+    "acceptanceCriteria": "- API router mounted at /api/v1 instead of /api\n- /api/users redirects (301) to /api/v1/users",
     "diffStats": {
       "filesChanged": 5,
       "linesChanged": 30
@@ -97,10 +97,10 @@
   },
   {
     "id": "retry-circuit-breaker-approve",
-    "description": "Adding circuit breaker pattern \u2014 should be approved",
-    "issueTitle": "Add circuit breaker for external service calls",
+    "description": "Circuit breaker with closed/open/half-open states \u2014 should approve",
+    "issueTitle": "Add circuit breaker for external calls",
     "issueNumber": 307,
-    "acceptanceCriteria": "- Circuit opens after 3 consecutive failures\n- Half-open state after 30s cooldown\n- Tests for all states: closed, open, half-open",
+    "acceptanceCriteria": "- Circuit opens after configurable consecutive failures (default 3)\n- Half-open state after cooldown period (default 30s)\n- Successful call in half-open resets to closed\n- Throws when circuit is open",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 70
@@ -113,10 +113,10 @@
   },
   {
     "id": "cleanup-test-doubles-approve",
-    "description": "Replacing hand-rolled mocks with vitest mocks \u2014 should be approved",
-    "issueTitle": "Migrate test doubles to vitest mocks",
+    "description": "Migrate from class mocks to vi.fn() \u2014 should approve",
+    "issueTitle": "Replace hand-rolled mocks with vitest mocks",
     "issueNumber": 308,
-    "acceptanceCriteria": "- Hand-rolled mock classes replaced with vi.fn()\n- vi.mock() used for module mocking\n- No test behavior change",
+    "acceptanceCriteria": "- Hand-rolled MockDb/MockLogger classes replaced with vi.fn()\n- vi.clearAllMocks() in beforeEach\n- mockResolvedValue for async methods",
     "diffStats": {
       "filesChanged": 6,
       "linesChanged": 100
@@ -129,10 +129,10 @@
   },
   {
     "id": "docker-compose-approve",
-    "description": "Adding Docker Compose for local development \u2014 should be approved",
-    "issueTitle": "Add docker-compose.yml for local dev",
+    "description": "App + PostgreSQL services with volume mounts \u2014 should approve",
+    "issueTitle": "Add docker-compose for local dev",
     "issueNumber": 309,
-    "acceptanceCriteria": "- docker-compose.yml with app + db services\n- Volume mounts for hot reload\n- README updated with Docker instructions",
+    "acceptanceCriteria": "- App service with build context and port 3000\n- Volume mounts for hot reload (excluding node_modules)\n- PostgreSQL 16 service\n- DATABASE_URL configured",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 50
@@ -145,10 +145,10 @@
   },
   {
     "id": "openapi-spec-approve",
-    "description": "Adding OpenAPI specification \u2014 should be approved",
-    "issueTitle": "Generate OpenAPI spec from route definitions",
+    "description": "GET /api/docs returns OpenAPI 3.0 spec \u2014 should approve",
+    "issueTitle": "Add static OpenAPI spec endpoint",
     "issueNumber": 310,
-    "acceptanceCriteria": "- OpenAPI 3.0 spec generated\n- All endpoints documented\n- Served at /api/docs\n- Test validates spec is valid JSON",
+    "acceptanceCriteria": "- OpenAPI 3.0 spec object with title and version\n- /api/v1/users GET endpoint documented\n- Served as JSON at /api/docs",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 120

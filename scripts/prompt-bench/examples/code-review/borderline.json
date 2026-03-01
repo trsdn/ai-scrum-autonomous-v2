@@ -1,10 +1,10 @@
 [
   {
     "id": "approve-good-error-boundary",
-    "description": "Proper React error boundary with fallback UI \u2014 should approve",
+    "description": "WidgetBoundary component with error monitoring \u2014 should approve",
     "issueTitle": "Add error boundary for dashboard widgets",
     "issueNumber": 401,
-    "acceptanceCriteria": "- Dashboard widgets wrapped in error boundary\n- Fallback shows friendly message\n- Error logged to monitoring service\n- Test for error state",
+    "acceptanceCriteria": "- Error boundary wraps widget children\n- Shows 'Widget unavailable' on error\n- Reports error to monitoring service with componentStack",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 45
@@ -17,10 +17,10 @@
   },
   {
     "id": "approve-proper-input-sanitization",
-    "description": "Input sanitization done correctly \u2014 should approve",
-    "issueTitle": "Sanitize user input in comment form",
+    "description": "DOMPurify-based sanitizer with allowed tags \u2014 should approve",
+    "issueTitle": "Add HTML sanitization for user comments",
     "issueNumber": 402,
-    "acceptanceCriteria": "- HTML tags stripped from comments\n- XSS vectors neutralized\n- Valid markdown preserved\n- Tests for common XSS payloads",
+    "acceptanceCriteria": "- Uses DOMPurify for HTML sanitization\n- Allows safe formatting tags (b, i, em, strong, a, p, br)\n- Only href attribute allowed on links",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 35
@@ -77,10 +77,10 @@
   },
   {
     "id": "approve-proper-caching",
-    "description": "Proper caching with TTL and invalidation \u2014 should approve",
-    "issueTitle": "Add caching layer for product catalog",
+    "description": "TTLCache wrapper with write-through invalidation \u2014 should approve",
+    "issueTitle": "Add caching layer for products with invalidation",
     "issueNumber": 405,
-    "acceptanceCriteria": "- Products cached with 5min TTL\n- Cache invalidated on product update\n- Cache miss falls through to DB\n- Tests for hit, miss, invalidation",
+    "acceptanceCriteria": "- Products cached with 5 minute TTL\n- Cache miss fetches from database\n- Cache invalidated on product update",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 55
@@ -115,10 +115,10 @@
   },
   {
     "id": "approve-idempotent-migration",
-    "description": "Idempotent database migration \u2014 should approve",
-    "issueTitle": "Add index on users.email column",
+    "description": "Idempotent migration for email uniqueness \u2014 should approve",
+    "issueTitle": "Add unique index on users.email",
     "issueNumber": 407,
-    "acceptanceCriteria": "- Unique index added on users.email\n- Migration is idempotent (safe to rerun)\n- Rollback drops the index",
+    "acceptanceCriteria": "- Creates unique index on users.email\n- Uses IF NOT EXISTS for idempotency\n- Rollback drops index with IF EXISTS",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -153,10 +153,10 @@
   },
   {
     "id": "approve-comprehensive-types",
-    "description": "Adding TypeScript types with proper generics \u2014 should approve",
+    "description": "Generic paginated response and discriminated unions \u2014 should approve",
     "issueTitle": "Add TypeScript types for API responses",
     "issueNumber": 409,
-    "acceptanceCriteria": "- All API responses typed\n- Generic wrapper for paginated responses\n- Discriminated unions for error types\n- No any types",
+    "acceptanceCriteria": "- PaginatedResponse<T> with data array and meta\n- ApiResult<T> discriminated union (success/failure)\n- ApiError with code, message, optional details\n- UserResponse interface with role union type",
     "diffStats": {
       "filesChanged": 4,
       "linesChanged": 80

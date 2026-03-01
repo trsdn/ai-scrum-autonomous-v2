@@ -1,10 +1,10 @@
 [
   {
     "id": "large-test-file-approve",
-    "description": "Large diff but all test code \u2014 should be approved",
-    "issueTitle": "Add comprehensive test suite for auth module",
+    "description": "Tests for authenticate, validateToken, refreshToken \u2014 should approve",
+    "issueTitle": "Add auth module test suite",
     "issueNumber": 201,
-    "acceptanceCriteria": "- Tests for login, logout, token refresh\n- Edge cases: expired tokens, invalid credentials\n- At least 90% coverage for auth module",
+    "acceptanceCriteria": "- Tests for authenticate: valid credentials, invalid password, unknown email\n- Tests for validateToken: valid, expired, malformed\n- Tests for refreshToken: valid, expired",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 300
@@ -17,10 +17,10 @@
   },
   {
     "id": "lock-file-only-approve",
-    "description": "Only package-lock.json changed \u2014 should be approved",
-    "issueTitle": "Regenerate lock file after dependency update",
+    "description": "package-lock.json updated for express 4.19.2 \u2014 should approve",
+    "issueTitle": "Update express version in lock file",
     "issueNumber": 202,
-    "acceptanceCriteria": "- package-lock.json regenerated\n- No security vulnerabilities introduced",
+    "acceptanceCriteria": "- Express version bumped from 4.18.2 to 4.19.2\n- Lock file integrity hashes updated",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 500
@@ -33,10 +33,10 @@
   },
   {
     "id": "migration-file-approve",
-    "description": "Database migration file \u2014 should be approved",
-    "issueTitle": "Add migration for user preferences table",
+    "description": "SQL migration with up/down for preferences \u2014 should approve",
+    "issueTitle": "Add user_preferences table migration",
     "issueNumber": 203,
-    "acceptanceCriteria": "- Migration creates user_preferences table\n- Columns: user_id, theme, language, notifications\n- Rollback drops the table",
+    "acceptanceCriteria": "- Creates user_preferences table with user_id, theme, language, notifications\n- Uses IF NOT EXISTS for idempotency\n- Rollback drops table with IF EXISTS",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 30
@@ -49,10 +49,10 @@
   },
   {
     "id": "i18n-strings-approve",
-    "description": "Adding internationalization strings \u2014 should be approved",
+    "description": "German i18n JSON with common, auth, dashboard, error keys \u2014 should approve",
     "issueTitle": "Add German translation strings",
     "issueNumber": 204,
-    "acceptanceCriteria": "- All UI strings have German translations\n- Fallback to English if translation missing",
+    "acceptanceCriteria": "- German translations for common actions (save, cancel, delete, edit)\n- Auth translations (login, logout, register)\n- Dashboard and error translations",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 150
@@ -65,10 +65,10 @@
   },
   {
     "id": "snapshot-update-approve",
-    "description": "Updating test snapshots after intentional change \u2014 should be approved",
-    "issueTitle": "Update snapshots after header redesign",
+    "description": "Snapshot reflects new header with logo and nav \u2014 should approve",
+    "issueTitle": "Update header snapshot after redesign",
     "issueNumber": 205,
-    "acceptanceCriteria": "- Snapshots updated to match new header\n- Visual regression confirmed intentional",
+    "acceptanceCriteria": "- Snapshot updated from plain div to semantic header element\n- Logo image added\n- Navigation links use nav-link class",
     "diffStats": {
       "filesChanged": 5,
       "linesChanged": 200
@@ -81,10 +81,10 @@
   },
   {
     "id": "env-example-approve",
-    "description": "Adding .env.example with placeholder values \u2014 should be approved",
-    "issueTitle": "Document required environment variables",
+    "description": "Environment variable template with placeholders \u2014 should approve",
+    "issueTitle": "Add .env.example file",
     "issueNumber": 206,
-    "acceptanceCriteria": "- .env.example lists all required variables\n- Placeholder values, no real secrets\n- README references .env.example",
+    "acceptanceCriteria": "- DATABASE_URL, JWT_SECRET, PORT, LOG_LEVEL documented\n- Placeholder values only, no real secrets\n- Grouped by category with comments",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 15
@@ -97,10 +97,10 @@
   },
   {
     "id": "multi-file-rename-approve",
-    "description": "Consistent file renaming \u2014 should be approved",
-    "issueTitle": "Rename utils/ to lib/ for consistency",
+    "description": "Move format.ts from utils to lib, update imports \u2014 should approve",
+    "issueTitle": "Rename utils/ to lib/",
     "issueNumber": 207,
-    "acceptanceCriteria": "- All files in utils/ moved to lib/\n- All imports updated\n- No behavior change",
+    "acceptanceCriteria": "- format.ts moved from src/utils/ to src/lib/\n- Import paths updated in dependent files\n- No behavior change",
     "diffStats": {
       "filesChanged": 12,
       "linesChanged": 40
@@ -113,10 +113,10 @@
   },
   {
     "id": "perf-optimization-approve",
-    "description": "Performance optimization with benchmarks \u2014 should be approved",
-    "issueTitle": "Optimize list rendering with virtual scrolling",
+    "description": "VirtualList renders only visible items \u2014 should approve",
+    "issueTitle": "Add virtual scrolling list component",
     "issueNumber": 208,
-    "acceptanceCriteria": "- Virtual scrolling for lists > 100 items\n- Benchmark: 10x faster render for 1000 items\n- Tests verify correct rendering",
+    "acceptanceCriteria": "- Renders only visible items based on scroll position\n- Uses useMemo for performance\n- Configurable item height and container height",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 80
@@ -129,10 +129,10 @@
   },
   {
     "id": "ci-config-approve",
-    "description": "CI/CD configuration change \u2014 should be approved",
+    "description": "CI with install, lint, test, build steps \u2014 should approve",
     "issueTitle": "Add GitHub Actions CI workflow",
     "issueNumber": 209,
-    "acceptanceCriteria": "- CI runs on push and PR\n- Steps: install, lint, test, build\n- Fails on any step failure",
+    "acceptanceCriteria": "- Runs on push and pull_request\n- Uses Node.js 20 with npm cache\n- Steps: npm ci, lint, test, build",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 40
@@ -145,10 +145,10 @@
   },
   {
     "id": "feature-flag-approve",
-    "description": "Adding feature flag for gradual rollout \u2014 should be approved",
+    "description": "Env-driven feature flag with checkout fallback \u2014 should approve",
     "issueTitle": "Add feature flag for new checkout flow",
     "issueNumber": 210,
-    "acceptanceCriteria": "- Feature flag: NEW_CHECKOUT_ENABLED\n- Falls back to old flow when disabled\n- Tests for both paths",
+    "acceptanceCriteria": "- newCheckout flag controlled by NEW_CHECKOUT_ENABLED env var\n- New checkout flow used when enabled\n- Falls back to legacy flow when disabled",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 35
@@ -161,10 +161,10 @@
   },
   {
     "id": "deprecation-warning-approve",
-    "description": "Adding deprecation warnings before removal \u2014 should be approved",
-    "issueTitle": "Deprecate legacy API endpoints",
+    "description": "Sunset and Deprecation headers on v1 endpoint \u2014 should approve",
+    "issueTitle": "Add deprecation headers to legacy endpoint",
     "issueNumber": 211,
-    "acceptanceCriteria": "- Deprecated endpoints log warning\n- Sunset header added to response\n- Documentation updated",
+    "acceptanceCriteria": "- Deprecated endpoint logs warning\n- Sunset header with RFC 7231 date\n- Deprecation: true header\n- Link header points to successor version",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 25
@@ -177,10 +177,10 @@
   },
   {
     "id": "webhook-handler-approve",
-    "description": "Adding webhook handler with signature verification \u2014 should be approved",
-    "issueTitle": "Add Stripe webhook handler",
+    "description": "Stripe webhook with constructEvent validation \u2014 should approve",
+    "issueTitle": "Add Stripe webhook handler with signature verification",
     "issueNumber": 212,
-    "acceptanceCriteria": "- Webhook signature verified\n- Payment events processed\n- Idempotent: duplicate events handled\n- Tests with mock events",
+    "acceptanceCriteria": "- Stripe signature verified via constructEvent\n- Invalid signatures return 400\n- payment_intent.succeeded events processed\n- Returns { received: true }",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 55
@@ -193,10 +193,10 @@
   },
   {
     "id": "graceful-shutdown-approve",
-    "description": "Adding graceful shutdown handling \u2014 should be approved",
-    "issueTitle": "Handle SIGTERM for graceful shutdown",
+    "description": "Signal handlers for clean server shutdown \u2014 should approve",
+    "issueTitle": "Add graceful shutdown on SIGTERM/SIGINT",
     "issueNumber": 213,
-    "acceptanceCriteria": "- SIGTERM/SIGINT handlers registered\n- In-flight requests completed before exit\n- Connections closed cleanly\n- Test verifies shutdown sequence",
+    "acceptanceCriteria": "- SIGTERM and SIGINT handlers registered\n- Server closes accepting new connections\n- Database pool drained after connections close\n- Force exit after 10s timeout",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -209,10 +209,10 @@
   },
   {
     "id": "health-check-approve",
-    "description": "Adding health check endpoint \u2014 should be approved",
-    "issueTitle": "Add /health endpoint for monitoring",
+    "description": "GET /health returns status, uptime, version \u2014 should approve",
+    "issueTitle": "Add health check endpoint",
     "issueNumber": 214,
-    "acceptanceCriteria": "- GET /health returns 200 with status: ok\n- Includes uptime and version\n- Test verifies response format",
+    "acceptanceCriteria": "- GET /health returns JSON with status, uptime, version\n- Version from npm_package_version env var\n- Returns 200",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 20
@@ -225,10 +225,10 @@
   },
   {
     "id": "cors-config-approve",
-    "description": "Adding CORS configuration \u2014 should be approved",
-    "issueTitle": "Configure CORS for API endpoints",
+    "description": "CORS with configurable allowed origins \u2014 should approve",
+    "issueTitle": "Add CORS middleware with origin whitelist",
     "issueNumber": 215,
-    "acceptanceCriteria": "- CORS enabled for configured origins\n- Credentials allowed\n- Preflight requests handled\n- Origin whitelist configurable",
+    "acceptanceCriteria": "- Allowed origins read from CORS_ORIGINS env var (comma-separated)\n- Requests without origin allowed (e.g., server-to-server)\n- Non-allowed origins rejected\n- Credentials enabled",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 20

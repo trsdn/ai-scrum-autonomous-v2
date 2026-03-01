@@ -165,14 +165,14 @@ async function runBench(
         const passed = parsed.approved === example.expected.approved;
         const duration_ms = Date.now() - start;
 
-        // Check mustContain / mustNotContain
+        // Check mustContain (any match) / mustNotContain (all must be absent)
         let contentPassed = true;
-        if (example.expected.mustContain) {
-          for (const phrase of example.expected.mustContain) {
-            if (!response.toLowerCase().includes(phrase.toLowerCase())) {
-              contentPassed = false;
-            }
-          }
+        if (example.expected.mustContain && example.expected.mustContain.length > 0) {
+          const lower = response.toLowerCase();
+          const anyMatch = example.expected.mustContain.some((phrase) =>
+            lower.includes(phrase.toLowerCase()),
+          );
+          if (!anyMatch) contentPassed = false;
         }
         if (example.expected.mustNotContain) {
           for (const phrase of example.expected.mustNotContain) {

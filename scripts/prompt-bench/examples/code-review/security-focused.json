@@ -1,10 +1,10 @@
 [
   {
     "id": "prototype-pollution-reject",
-    "description": "Object merge without prototype pollution protection \u2014 should be rejected",
+    "description": "Object merge without prototype pollution protection — should be rejected",
     "issueTitle": "Add settings merge utility",
     "issueNumber": 121,
-    "acceptanceCriteria": "- User settings merged with defaults\n- Nested objects merged recursively",
+    "acceptanceCriteria": "- User settings merged with default configuration\n- Nested objects merged recursively\n- Only valid setting keys accepted (no unsafe properties)",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 20
@@ -23,10 +23,10 @@
   },
   {
     "id": "path-traversal-reject",
-    "description": "File path constructed from user input without sanitization \u2014 should be rejected",
+    "description": "File path constructed from user input without sanitization — should be rejected",
     "issueTitle": "Add file download endpoint",
     "issueNumber": 122,
-    "acceptanceCriteria": "- Users can download files by name\n- Files served from uploads directory",
+    "acceptanceCriteria": "- Users can download previously uploaded files by filename\n- Files served exclusively from the uploads directory\n- Invalid or unauthorized file requests return 404",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -45,10 +45,10 @@
   },
   {
     "id": "regex-dos-reject",
-    "description": "Regex vulnerable to ReDoS \u2014 should be rejected",
+    "description": "Regex vulnerable to ReDoS — should be rejected",
     "issueTitle": "Add email validation with regex",
     "issueNumber": 123,
-    "acceptanceCriteria": "- Email format validated before submission\n- Clear error message for invalid emails",
+    "acceptanceCriteria": "- Email format validated on form submission\n- Clear error message for invalid emails\n- Validation completes efficiently even with long input strings",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -67,10 +67,10 @@
   },
   {
     "id": "timing-attack-reject",
-    "description": "String comparison vulnerable to timing attack \u2014 should be rejected",
+    "description": "String comparison vulnerable to timing attack — should be rejected",
     "issueTitle": "Add API key verification",
     "issueNumber": 124,
-    "acceptanceCriteria": "- API key checked against stored key\n- Unauthorized requests return 401",
+    "acceptanceCriteria": "- API key validated against stored key on each request\n- Unauthorized requests return 401\n- Key comparison resistant to side-channel attacks",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -89,10 +89,10 @@
   },
   {
     "id": "cors-wildcard-reject",
-    "description": "CORS configured with wildcard origin on authenticated endpoint \u2014 should be rejected",
+    "description": "CORS configured with wildcard origin on authenticated endpoint — should be rejected",
     "issueTitle": "Enable CORS for API",
     "issueNumber": 125,
-    "acceptanceCriteria": "- CORS enabled for all endpoints\n- Credentials included in requests",
+    "acceptanceCriteria": "- Frontend application can make cross-origin API requests\n- Session cookies included with requests for authentication\n- CORS policy restricts access to trusted origins only",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 5
@@ -111,10 +111,10 @@
   },
   {
     "id": "type-confusion-reject",
-    "description": "Loose equality causing type confusion \u2014 should be rejected",
+    "description": "Loose equality causing type confusion — should be rejected",
     "issueTitle": "Add admin role check",
     "issueNumber": 126,
-    "acceptanceCriteria": "- Admin users identified by role field\n- Non-admin users see restricted view",
+    "acceptanceCriteria": "- Middleware checks user role before granting admin access\n- Non-admin users receive 403 Forbidden\n- Role comparison is strict and type-safe",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -133,10 +133,10 @@
   },
   {
     "id": "unsafe-deserialization-reject",
-    "description": "Deserializing untrusted data without validation \u2014 should be rejected",
+    "description": "Deserializing untrusted data without validation — should be rejected",
     "issueTitle": "Add import from JSON file",
     "issueNumber": 127,
-    "acceptanceCriteria": "- Users can import data from JSON file\n- Data displayed in table",
+    "acceptanceCriteria": "- Users can upload a JSON file to import records\n- Each record validated against expected schema before insert\n- Import count returned in response",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 20
@@ -155,10 +155,10 @@
   },
   {
     "id": "unhandled-promise-reject",
-    "description": "Promise without catch handler \u2014 should be rejected",
+    "description": "Promise without catch handler — should be rejected",
     "issueTitle": "Add background data sync",
     "issueNumber": 128,
-    "acceptanceCriteria": "- Data syncs every 5 minutes in background\n- Sync status shown in UI",
+    "acceptanceCriteria": "- Data syncs with server every 5 minutes in background\n- Sync errors handled gracefully without crashing the app\n- Sync status (success/failure) reported to UI",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -177,10 +177,10 @@
   },
   {
     "id": "missing-csrf-reject",
-    "description": "State-changing endpoint without CSRF protection \u2014 should be rejected",
+    "description": "State-changing endpoint without CSRF protection — should be rejected",
     "issueTitle": "Add account deletion endpoint",
     "issueNumber": 129,
-    "acceptanceCriteria": "- POST /api/account/delete removes user account\n- Confirmation required",
+    "acceptanceCriteria": "- POST /api/account/delete removes user account and session data\n- Endpoint protected against cross-site request forgery\n- Session cookie cleared after deletion",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -199,10 +199,10 @@
   },
   {
     "id": "insecure-random-reject",
-    "description": "Using Math.random for security-sensitive operation \u2014 should be rejected",
+    "description": "Using Math.random for security-sensitive operation — should be rejected",
     "issueTitle": "Generate password reset tokens",
     "issueNumber": 130,
-    "acceptanceCriteria": "- Unique token generated for password reset\n- Token expires after 1 hour",
+    "acceptanceCriteria": "- Cryptographically secure token generated for password reset\n- Token expires after 1 hour\n- Token stored in database with user association",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -221,10 +221,10 @@
   },
   {
     "id": "sensitive-data-log-reject",
-    "description": "Logging sensitive user data \u2014 should be rejected",
+    "description": "Logging sensitive user data — should be rejected",
     "issueTitle": "Add request logging middleware",
     "issueNumber": 131,
-    "acceptanceCriteria": "- All requests logged with method, path, status\n- Request body logged for debugging",
+    "acceptanceCriteria": "- All API requests logged with method, path, and status code\n- Sensitive fields (passwords, tokens) excluded from logs\n- Log format suitable for production monitoring",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 20
@@ -243,10 +243,10 @@
   },
   {
     "id": "no-rate-limit-reject",
-    "description": "Authentication endpoint without rate limiting \u2014 should be rejected",
+    "description": "Authentication endpoint without rate limiting — should be rejected",
     "issueTitle": "Add login endpoint",
     "issueNumber": 132,
-    "acceptanceCriteria": "- POST /api/login authenticates user\n- Returns JWT token on success",
+    "acceptanceCriteria": "- POST /api/login authenticates user with email and password\n- Returns JWT token on success (1 hour expiry)\n- Rate limiting prevents brute-force login attempts\n- Failed attempts return 401",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 25
@@ -265,10 +265,10 @@
   },
   {
     "id": "http-no-https-reject",
-    "description": "Making HTTP request instead of HTTPS to external API \u2014 should be rejected",
+    "description": "Making HTTP request instead of HTTPS to external API — should be rejected",
     "issueTitle": "Add payment processing integration",
     "issueNumber": 133,
-    "acceptanceCriteria": "- Payments processed via external API\n- Transaction status tracked",
+    "acceptanceCriteria": "- Payments processed via external API over secure connection\n- Card token and amount sent to payment provider\n- Transaction result returned to caller",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -287,10 +287,10 @@
   },
   {
     "id": "unbounded-query-reject",
-    "description": "Database query without limit clause \u2014 should be rejected",
+    "description": "Database query without limit clause — should be rejected",
     "issueTitle": "Add 'all users' admin endpoint",
     "issueNumber": 134,
-    "acceptanceCriteria": "- GET /api/admin/users returns all users\n- Response includes user count",
+    "acceptanceCriteria": "- GET /api/admin/users returns paginated user list\n- Response includes total user count\n- Supports page and pageSize query parameters",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 15
@@ -309,10 +309,10 @@
   },
   {
     "id": "missing-timeout-reject",
-    "description": "External HTTP call without timeout \u2014 should be rejected",
+    "description": "External HTTP call without timeout — should be rejected",
     "issueTitle": "Add geocoding service integration",
     "issueNumber": 135,
-    "acceptanceCriteria": "- Address converted to coordinates via external API\n- Results cached for 24 hours",
+    "acceptanceCriteria": "- Address converted to lat/lng coordinates via external API\n- Request completes or fails within a reasonable time limit\n- Results cached for 24 hours to reduce API calls",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 20

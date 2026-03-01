@@ -1,10 +1,10 @@
 [
   {
     "id": "simple-bugfix-approve",
-    "description": "Simple null check bugfix \u2014 should be approved",
-    "issueTitle": "Fix null pointer in user lookup",
+    "description": "Bugfix: multiply price by quantity \u2014 should be approved",
+    "issueTitle": "Fix quantity calculation in total",
     "issueNumber": 42,
-    "acceptanceCriteria": "- User lookup returns null instead of throwing when user not found\n- Test added for null case",
+    "acceptanceCriteria": "- calculateTotal multiplies item.price by item.quantity\n- Existing tests still pass",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 12
@@ -17,10 +17,10 @@
   },
   {
     "id": "test-only-approve",
-    "description": "Adding tests for existing code \u2014 should be approved",
-    "issueTitle": "Add tests for formatBytes utility",
+    "description": "Adding unit tests for currency utilities \u2014 should be approved",
+    "issueTitle": "Add tests for formatCurrency and parseAmount",
     "issueNumber": 55,
-    "acceptanceCriteria": "- Unit tests cover 0, bytes, KB, MB, GB ranges\n- Edge case: negative numbers handled",
+    "acceptanceCriteria": "- Tests for formatCurrency: positive, zero, negative amounts\n- Tests for parseAmount: valid strings, invalid input throws",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 45
@@ -33,10 +33,10 @@
   },
   {
     "id": "css-only-approve",
-    "description": "CSS-only styling change \u2014 should be approved",
-    "issueTitle": "Add hover effects to navigation links",
+    "description": "CSS update for .btn-primary with hover state \u2014 should be approved",
+    "issueTitle": "Update primary button styles",
     "issueNumber": 10,
-    "acceptanceCriteria": "- Nav links change color on hover\n- Transition is smooth (0.3s)",
+    "acceptanceCriteria": "- Primary button uses brand colors (#0366d6)\n- Smooth hover transition (0.2s ease)\n- Darker shade on hover (#0255b3)",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 8
@@ -49,10 +49,10 @@
   },
   {
     "id": "config-change-approve",
-    "description": "Config file edit \u2014 should be approved",
-    "issueTitle": "Add build script to package.json",
+    "description": "ESLint config change to disallow console.log \u2014 should be approved",
+    "issueTitle": "Add no-console ESLint rule",
     "issueNumber": 77,
-    "acceptanceCriteria": "- package.json has 'build' script\n- Script runs tsc",
+    "acceptanceCriteria": "- no-console rule added as error\n- console.warn and console.error still allowed",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 3
@@ -65,10 +65,10 @@
   },
   {
     "id": "docs-only-approve",
-    "description": "Documentation-only change \u2014 should be approved",
-    "issueTitle": "Update README with installation instructions",
+    "description": "API docs with query parameters and response format \u2014 should be approved",
+    "issueTitle": "Add API documentation for GET /api/users",
     "issueNumber": 88,
-    "acceptanceCriteria": "- README has install section\n- npm install command documented",
+    "acceptanceCriteria": "- Query parameters documented (page, limit, sort)\n- Response example with data, total, page, totalPages",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 20
@@ -81,10 +81,10 @@
   },
   {
     "id": "refactor-clean-approve",
-    "description": "Clean refactor with tests passing \u2014 should be approved",
-    "issueTitle": "Extract validation logic into helper",
+    "description": "Replace if-else chain with channel lookup map \u2014 should be approved",
+    "issueTitle": "Refactor notification dispatch to use lookup table",
     "issueNumber": 33,
-    "acceptanceCriteria": "- Validation logic extracted to validateInput()\n- Existing tests still pass\n- No behavior change",
+    "acceptanceCriteria": "- Notification channels (email, sms, push) registered in lookup table\n- Unknown channel type throws descriptive error\n- Same external behavior for known channels",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 40
@@ -97,10 +97,10 @@
   },
   {
     "id": "error-handling-approve",
-    "description": "Adding proper error handling \u2014 should be approved",
-    "issueTitle": "Add error handling to API fetch calls",
+    "description": "Proper HTTP error handling with typed errors \u2014 should be approved",
+    "issueTitle": "Add error handling and validation to fetchUser",
     "issueNumber": 44,
-    "acceptanceCriteria": "- fetch() calls wrapped in try/catch\n- User-friendly error messages displayed\n- Tests for error cases",
+    "acceptanceCriteria": "- 404 responses throw NotFoundError\n- Other error responses throw ApiError with status\n- Response body validated with UserSchema.parse",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 35
@@ -113,10 +113,10 @@
   },
   {
     "id": "small-feature-approve",
-    "description": "Small well-scoped feature \u2014 should be approved",
-    "issueTitle": "Add dark mode toggle button",
+    "description": "Simple GET /health endpoint \u2014 should be approved",
+    "issueTitle": "Add health check endpoint",
     "issueNumber": 22,
-    "acceptanceCriteria": "- Button toggles dark-mode class on body\n- Preference saved to localStorage\n- Test verifies toggle behavior",
+    "acceptanceCriteria": "- GET /health returns JSON with status, uptime, timestamp\n- Returns 200 status",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 25
@@ -129,10 +129,10 @@
   },
   {
     "id": "type-annotation-approve",
-    "description": "Adding TypeScript type annotations \u2014 should be approved",
-    "issueTitle": "Add types to utility functions",
+    "description": "Adding type safety to mergeObjects and groupBy \u2014 should be approved",
+    "issueTitle": "Add TypeScript generics to utility functions",
     "issueNumber": 60,
-    "acceptanceCriteria": "- All exported functions have return type annotations\n- Parameter types specified\n- No any types",
+    "acceptanceCriteria": "- mergeObjects uses generic constraints\n- groupBy returns properly typed Record\n- String conversion for group keys",
     "diffStats": {
       "filesChanged": 4,
       "linesChanged": 30
@@ -145,10 +145,10 @@
   },
   {
     "id": "accessibility-approve",
-    "description": "Adding ARIA labels for accessibility \u2014 should be approved",
-    "issueTitle": "Add ARIA labels to navigation",
+    "description": "Modal with role=dialog, aria-modal, keyboard dismiss \u2014 should be approved",
+    "issueTitle": "Add ARIA attributes to Modal component",
     "issueNumber": 61,
-    "acceptanceCriteria": "- nav element has aria-label\n- Links have descriptive aria-labels\n- Skip-to-content link added",
+    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-labelledby references modal-title\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 10
@@ -161,10 +161,10 @@
   },
   {
     "id": "delete-dead-code-approve",
-    "description": "Removing unused/dead code \u2014 should be approved",
-    "issueTitle": "Remove deprecated helper functions",
+    "description": "Removing dead code marked for removal \u2014 should be approved",
+    "issueTitle": "Remove deprecated legacyTransform and helpers",
     "issueNumber": 62,
-    "acceptanceCriteria": "- Remove formatLegacyDate()\n- Remove parseOldConfig()\n- No callers exist (verified by grep)",
+    "acceptanceCriteria": "- legacyTransform function removed\n- normalizeItem helper removed\n- currentParser preserved unchanged",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 45
@@ -177,10 +177,10 @@
   },
   {
     "id": "env-config-approve",
-    "description": "Moving hardcoded values to env config \u2014 should be approved",
-    "issueTitle": "Use environment variables for API URLs",
+    "description": "Replace hardcoded values with env vars and defaults \u2014 should be approved",
+    "issueTitle": "Make config values environment-configurable",
     "issueNumber": 63,
-    "acceptanceCriteria": "- API base URL read from process.env.API_URL\n- Fallback to default if not set\n- .env.example updated",
+    "acceptanceCriteria": "- PORT, HOST, LOG_LEVEL, DATABASE_URL read from environment\n- Sensible defaults for all values\n- Port parsed as integer",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 20
@@ -193,10 +193,10 @@
   },
   {
     "id": "rename-variable-approve",
-    "description": "Renaming variable for clarity \u2014 should be approved",
-    "issueTitle": "Rename 'data' to 'userProfile' for clarity",
+    "description": "Rename abbreviated vars to descriptive names \u2014 should be approved",
+    "issueTitle": "Rename billing variables for clarity",
     "issueNumber": 64,
-    "acceptanceCriteria": "- All references to 'data' renamed to 'userProfile'\n- Tests updated\n- No behavior change",
+    "acceptanceCriteria": "- amt renamed to subtotal\n- tx renamed to taxRate\n- d renamed to discount\n- fn renamed to finalAmount\n- No behavior change",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 15
@@ -209,10 +209,10 @@
   },
   {
     "id": "add-logging-approve",
-    "description": "Adding structured logging \u2014 should be approved",
-    "issueTitle": "Add logging to payment processing",
+    "description": "Adding pino logger calls with context \u2014 should be approved",
+    "issueTitle": "Add structured logging to payment processing",
     "issueNumber": 65,
-    "acceptanceCriteria": "- Log payment start/end/failure\n- Use structured logger (not console.log)\n- No sensitive data logged",
+    "acceptanceCriteria": "- Log payment start with orderId and amount\n- Log success with transactionId\n- Log failure with error details",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 18
@@ -225,10 +225,10 @@
   },
   {
     "id": "html-semantic-approve",
-    "description": "Converting divs to semantic HTML \u2014 should be approved",
-    "issueTitle": "Use semantic HTML elements",
+    "description": "Replace divs with article, header, section \u2014 should be approved",
+    "issueTitle": "Convert divs to semantic HTML elements",
     "issueNumber": 66,
-    "acceptanceCriteria": "- Replace div.header with <header>\n- Replace div.nav with <nav>\n- Replace div.footer with <footer>",
+    "acceptanceCriteria": "- div.page-header replaced with header element\n- div.content replaced with section element\n- Outer div replaced with article element",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 12
@@ -241,10 +241,10 @@
   },
   {
     "id": "test-fixture-approve",
-    "description": "Adding test fixtures/helpers \u2014 should be approved",
-    "issueTitle": "Create shared test fixtures for user data",
+    "description": "In-memory Map-based mock DB with vitest spies \u2014 should be approved",
+    "issueTitle": "Add mock database helper for tests",
     "issueNumber": 67,
-    "acceptanceCriteria": "- Test fixture file with mock user data\n- Used by at least 2 test files\n- Replaces inline mock objects",
+    "acceptanceCriteria": "- Mock DB supports get, set, delete, clear, has\n- All methods are vitest spies (vi.fn)\n- Uses Map internally for state",
     "diffStats": {
       "filesChanged": 4,
       "linesChanged": 50
@@ -257,10 +257,10 @@
   },
   {
     "id": "dependency-update-approve",
-    "description": "Updating a dependency version \u2014 should be approved",
-    "issueTitle": "Update vitest to latest version",
+    "description": "Bump express 4.18\u21924.19.2, vitest 1.0\u21921.6 \u2014 should be approved",
+    "issueTitle": "Update express and vitest dependencies",
     "issueNumber": 68,
-    "acceptanceCriteria": "- vitest updated in package.json\n- package-lock.json regenerated\n- All tests still pass",
+    "acceptanceCriteria": "- express updated to ^4.19.2\n- vitest updated to ^1.6.0\n- No other dependency changes",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 200
@@ -273,10 +273,10 @@
   },
   {
     "id": "gitignore-approve",
-    "description": "Updating .gitignore \u2014 should be approved",
-    "issueTitle": "Add coverage directory to gitignore",
+    "description": "Exclude env files and OS files from git \u2014 should be approved",
+    "issueTitle": "Add .env and .DS_Store to gitignore",
     "issueNumber": 69,
-    "acceptanceCriteria": "- coverage/ added to .gitignore\n- .env files ignored",
+    "acceptanceCriteria": "- .env added to gitignore\n- .env.local added to gitignore\n- .env.*.local pattern added\n- *.tsbuildinfo added",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 3
@@ -289,10 +289,10 @@
   },
   {
     "id": "input-validation-approve",
-    "description": "Adding input validation with Zod \u2014 should be approved",
-    "issueTitle": "Validate contact form inputs",
+    "description": "Input validation with Zod \u2014 should be approved",
+    "issueTitle": "Add Zod schema for user creation input",
     "issueNumber": 70,
-    "acceptanceCriteria": "- Email validated with Zod schema\n- Name required, min 2 chars\n- Error messages shown inline\n- Tests for valid/invalid inputs",
+    "acceptanceCriteria": "- Email validated as proper format\n- Name required with min 1, max 100 chars\n- Age validated as integer, min 13, max 120\n- Role defaults to 'user', only allows 'user' or 'admin'",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 40
@@ -305,10 +305,10 @@
   },
   {
     "id": "rate-limit-approve",
-    "description": "Adding rate limiting to API \u2014 should be approved",
-    "issueTitle": "Add rate limiting to API endpoints",
+    "description": "Express rate limiter for API and auth endpoints \u2014 should be approved",
+    "issueTitle": "Add rate limiting middleware",
     "issueNumber": 71,
-    "acceptanceCriteria": "- Max 100 requests per minute per IP\n- 429 status returned when exceeded\n- Test covers rate limit trigger",
+    "acceptanceCriteria": "- API limiter: 100 requests per 15 minutes per IP\n- Auth limiter: 5 login attempts per hour\n- Standard headers, no legacy headers\n- JSON error messages",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 35
@@ -321,10 +321,10 @@
   },
   {
     "id": "cache-impl-approve",
-    "description": "Adding caching layer \u2014 should be approved",
-    "issueTitle": "Cache API responses with TTL",
+    "description": "Generic TTL cache with Map storage \u2014 should be approved",
+    "issueTitle": "Add TTL cache implementation",
     "issueNumber": 72,
-    "acceptanceCriteria": "- In-memory cache with configurable TTL\n- Cache invalidation on mutation\n- Tests for cache hit/miss/expiry",
+    "acceptanceCriteria": "- Generic TTLCache class with get/set methods\n- Entries expire after configurable TTL\n- Expired entries cleaned up on access",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 55
@@ -337,10 +337,10 @@
   },
   {
     "id": "pagination-approve",
-    "description": "Adding pagination to list endpoint \u2014 should be approved",
-    "issueTitle": "Add pagination to user list",
+    "description": "Paginated API with page/limit params \u2014 should be approved",
+    "issueTitle": "Add pagination to listItems endpoint",
     "issueNumber": 73,
-    "acceptanceCriteria": "- Page size configurable (default 20)\n- Response includes totalCount, page, pageSize\n- Tests for boundary pages",
+    "acceptanceCriteria": "- Page and limit parsed from query params\n- Default page=1, default limit=20, max limit=100\n- Response includes items, page, limit, total, totalPages",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -353,10 +353,10 @@
   },
   {
     "id": "timeout-handling-approve",
-    "description": "Adding request timeout handling \u2014 should be approved",
+    "description": "AbortController-based fetch timeout \u2014 should be approved",
     "issueTitle": "Add timeout to external API calls",
     "issueNumber": 74,
-    "acceptanceCriteria": "- AbortController with 5s timeout\n- Timeout error shown to user\n- Test with mocked timeout",
+    "acceptanceCriteria": "- Configurable timeout (default 5000ms)\n- Uses AbortController to cancel fetch\n- Timer cleared after successful response\n- Non-OK responses throw Error",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 25
@@ -369,10 +369,10 @@
   },
   {
     "id": "loading-state-approve",
-    "description": "Adding loading state to UI \u2014 should be approved",
-    "issueTitle": "Show loading spinner during data fetch",
+    "description": "Loading/error state management in data fetch \u2014 should be approved",
+    "issueTitle": "Add loading and error states to DataTable",
     "issueNumber": 75,
-    "acceptanceCriteria": "- Spinner shown while fetch is pending\n- Spinner hidden on success or error\n- Accessible: aria-busy attribute set",
+    "acceptanceCriteria": "- Loading state shown while fetching\n- Error state shown on fetch failure\n- Data typed as Item[]\n- Loading div has role=status, error div has role=alert",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 20
@@ -385,10 +385,10 @@
   },
   {
     "id": "debounce-search-approve",
-    "description": "Adding debounce to search input \u2014 should be approved",
-    "issueTitle": "Debounce search input to reduce API calls",
+    "description": "Debounced search hook with cleanup \u2014 should be approved",
+    "issueTitle": "Add debounced search with URL encoding",
     "issueNumber": 76,
-    "acceptanceCriteria": "- Search input debounced at 300ms\n- Previous pending request cancelled\n- Test verifies debounce behavior",
+    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Timer cleanup on unmount",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 25
@@ -401,10 +401,10 @@
   },
   {
     "id": "responsive-layout-approve",
-    "description": "Making layout responsive \u2014 should be approved",
-    "issueTitle": "Add responsive breakpoints for mobile",
+    "description": "CSS grid with mobile-first responsive breakpoint \u2014 should be approved",
+    "issueTitle": "Add responsive grid layout",
     "issueNumber": 78,
-    "acceptanceCriteria": "- Layout stacks vertically below 768px\n- Navigation collapses to hamburger\n- Font sizes adjust for readability",
+    "acceptanceCriteria": "- Single column on mobile\n- Two-column layout (250px sidebar + 1fr) at 768px breakpoint\n- Grid gap of 16px",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 40
@@ -417,10 +417,10 @@
   },
   {
     "id": "error-boundary-approve",
-    "description": "Adding error boundary component \u2014 should be approved",
-    "issueTitle": "Add error boundary for graceful error handling",
+    "description": "Error boundary with fallback UI and error logging \u2014 should be approved",
+    "issueTitle": "Add React error boundary component",
     "issueNumber": 79,
-    "acceptanceCriteria": "- Error boundary catches render errors\n- Fallback UI shown with retry button\n- Error logged to console",
+    "acceptanceCriteria": "- Catches errors in child components\n- Shows fallback UI with error message\n- Accepts optional custom fallback prop\n- Logs error and componentStack to console",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 35
@@ -433,10 +433,10 @@
   },
   {
     "id": "date-format-approve",
-    "description": "Adding date formatting utility \u2014 should be approved",
-    "issueTitle": "Add relative date formatting (e.g., '2 hours ago')",
+    "description": "Locale-aware date format and relative time \u2014 should be approved",
+    "issueTitle": "Add date formatting utilities",
     "issueNumber": 80,
-    "acceptanceCriteria": "- Formats dates as relative time strings\n- Falls back to absolute date beyond 7 days\n- Tests for various time ranges",
+    "acceptanceCriteria": "- formatDate uses Intl.DateTimeFormat with configurable locale\n- formatRelative shows 'just now', minutes, hours, then falls back to absolute\n- Default locale is en-US",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -449,10 +449,10 @@
   },
   {
     "id": "cleanup-imports-approve",
-    "description": "Cleaning up unused imports \u2014 should be approved",
-    "issueTitle": "Remove unused imports across codebase",
+    "description": "Clean up unused import statements \u2014 should be approved",
+    "issueTitle": "Remove unused imports from order service",
     "issueNumber": 81,
-    "acceptanceCriteria": "- All unused imports removed\n- No behavior change\n- ESLint no-unused-vars passes",
+    "acceptanceCriteria": "- Unused imports removed (UserService, EmailService, MetricsCollector)\n- Used imports preserved (OrderRepository, validateOrder, Logger)\n- Import order cleaned up",
     "diffStats": {
       "filesChanged": 8,
       "linesChanged": 20
@@ -465,10 +465,10 @@
   },
   {
     "id": "retry-with-backoff-approve",
-    "description": "Adding retry with exponential backoff \u2014 should be approved",
-    "issueTitle": "Add retry with backoff for flaky API",
+    "description": "Generic async retry with exponential delay \u2014 should be approved",
+    "issueTitle": "Add retry utility with exponential backoff",
     "issueNumber": 82,
-    "acceptanceCriteria": "- Max 3 retries with exponential backoff\n- Jitter added to prevent thundering herd\n- Test mocks failures then success",
+    "acceptanceCriteria": "- Configurable max attempts (default 3)\n- Exponential backoff with configurable base delay (default 1000ms)\n- Last error thrown after all retries exhausted\n- Generic return type preserved",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 40
