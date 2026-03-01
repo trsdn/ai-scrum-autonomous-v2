@@ -4,7 +4,7 @@
     "description": "Tests for authenticate, validateToken, refreshToken \u2014 should approve",
     "issueTitle": "Add auth module test suite",
     "issueNumber": 201,
-    "acceptanceCriteria": "- Tests for authenticate: valid credentials, invalid password, unknown email\n- Tests for validateToken: valid, expired, malformed\n- Tests for refreshToken: valid, expired",
+    "acceptanceCriteria": "- Tests for authenticate: valid credentials, invalid password, unknown email\n- Tests for validateToken: valid, expired, malformed tokens\n- Tests for refreshToken: valid, expired\n- Token fixtures imported from test helpers",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 300
@@ -13,7 +13,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/tests/auth/login.test.ts\n+++ b/tests/auth/login.test.ts\n@@ -0,0 +1,45 @@\n+import { describe, it, expect, vi, beforeEach } from \"vitest\";\n+import { authenticate, validateToken, refreshToken } from \"../../src/auth\";\n+\n+describe(\"authenticate\", () => {\n+  it(\"returns token for valid credentials\", async () => {\n+    const result = await authenticate(\"user@test.com\", \"validPass123!\");\n+    expect(result.token).toBeDefined();\n+    expect(result.expiresIn).toBe(3600);\n+  });\n+  it(\"rejects invalid password\", async () => {\n+    await expect(authenticate(\"user@test.com\", \"wrong\")).rejects.toThrow();\n+  });\n+  it(\"rejects unknown email\", async () => {\n+    await expect(authenticate(\"nobody@test.com\", \"pass\")).rejects.toThrow();\n+  });\n+});\n+\n+describe(\"validateToken\", () => {\n+  it(\"validates unexpired token\", () => {\n+    expect(validateToken(createValidToken())).toBe(true);\n+  });\n+  it(\"rejects expired token\", () => {\n+    expect(validateToken(createExpiredToken())).toBe(false);\n+  });\n+  it(\"rejects malformed token\", () => {\n+    expect(validateToken(\"not-a-token\")).toBe(false);\n+  });\n+});\n+\n+describe(\"refreshToken\", () => {\n+  it(\"returns new token for valid refresh token\", async () => {\n+    const result = await refreshToken(createValidRefreshToken());\n+    expect(result.token).toBeDefined();\n+  });\n+  it(\"rejects expired refresh token\", async () => {\n+    await expect(refreshToken(createExpiredRefreshToken())).rejects.toThrow();\n+  });\n+});"
+    "codeDiff": "--- a/tests/auth/login.test.ts\n+++ b/tests/auth/login.test.ts\n@@ -0,0 +1,40 @@\n+import { describe, it, expect } from \"vitest\";\n+import { authenticate, validateToken, refreshToken } from \"../../src/auth\";\n+import { createValidToken, createExpiredToken, createValidRefreshToken, createExpiredRefreshToken } from \"../fixtures/tokens\";\n+\n+describe(\"authenticate\", () => {\n+  it(\"returns token for valid credentials\", async () => {\n+    const result = await authenticate(\"user@test.com\", \"validPass123!\");\n+    expect(result.token).toBeDefined();\n+    expect(result.expiresIn).toBe(3600);\n+  });\n+  it(\"rejects invalid password\", async () => {\n+    await expect(authenticate(\"user@test.com\", \"wrong\")).rejects.toThrow();\n+  });\n+  it(\"rejects unknown email\", async () => {\n+    await expect(authenticate(\"nobody@test.com\", \"pass\")).rejects.toThrow();\n+  });\n+});\n+\n+describe(\"validateToken\", () => {\n+  it(\"validates unexpired token\", () => {\n+    expect(validateToken(createValidToken())).toBe(true);\n+  });\n+  it(\"rejects expired token\", () => {\n+    expect(validateToken(createExpiredToken())).toBe(false);\n+  });\n+  it(\"rejects malformed token\", () => {\n+    expect(validateToken(\"not-a-token\")).toBe(false);\n+  });\n+});\n+\n+describe(\"refreshToken\", () => {\n+  it(\"returns new token for valid refresh token\", async () => {\n+    const result = await refreshToken(createValidRefreshToken());\n+    expect(result.token).toBeDefined();\n+  });\n+  it(\"rejects expired refresh token\", async () => {\n+    await expect(refreshToken(createExpiredRefreshToken())).rejects.toThrow();\n+  });\n+});"
   },
   {
     "id": "lock-file-only-approve",
@@ -36,7 +36,7 @@
     "description": "SQL migration with up/down for preferences \u2014 should approve",
     "issueTitle": "Add user_preferences table migration",
     "issueNumber": 203,
-    "acceptanceCriteria": "- Creates user_preferences table with user_id, theme, language, notifications\n- Uses IF NOT EXISTS for idempotency\n- Rollback drops table with IF EXISTS",
+    "acceptanceCriteria": "- Creates user_preferences table with user_id (unique), theme, language, notifications\n- user_id has UNIQUE constraint and ON DELETE CASCADE\n- Uses IF NOT EXISTS/IF EXISTS for idempotency\n- Rollback drops table",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 30
@@ -45,7 +45,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/migrations/20240315_add_preferences.sql\n+++ b/migrations/20240315_add_preferences.sql\n@@ -0,0 +1,12 @@\n+-- Up\n+CREATE TABLE IF NOT EXISTS user_preferences (\n+  id INTEGER PRIMARY KEY AUTOINCREMENT,\n+  user_id INTEGER NOT NULL REFERENCES users(id),\n+  theme VARCHAR(20) DEFAULT 'light',\n+  language VARCHAR(10) DEFAULT 'en',\n+  notifications BOOLEAN DEFAULT true,\n+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n+);\n+\n+-- Down\n+DROP TABLE IF EXISTS user_preferences;"
+    "codeDiff": "--- a/migrations/20240315_add_preferences.sql\n+++ b/migrations/20240315_add_preferences.sql\n@@ -0,0 +1,13 @@\n+-- Up\n+CREATE TABLE IF NOT EXISTS user_preferences (\n+  id INTEGER PRIMARY KEY AUTOINCREMENT,\n+  user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,\n+  theme VARCHAR(20) DEFAULT 'light',\n+  language VARCHAR(10) DEFAULT 'en',\n+  notifications BOOLEAN DEFAULT true,\n+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n+);\n+\n+-- Down\n+DROP TABLE IF EXISTS user_preferences;"
   },
   {
     "id": "i18n-strings-approve",
@@ -116,7 +116,7 @@
     "description": "VirtualList renders only visible items \u2014 should approve",
     "issueTitle": "Add virtual scrolling list component",
     "issueNumber": 208,
-    "acceptanceCriteria": "- Renders only visible items based on scroll position\n- Uses useMemo for performance\n- Configurable item height and container height",
+    "acceptanceCriteria": "- Renders only visible items based on scroll position\n- Uses useMemo for performance\n- VirtualListProps interface with generics\n- All React hooks properly imported\n- Stable keys based on offset position",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 80
@@ -125,7 +125,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/components/VirtualList.tsx\n+++ b/src/components/VirtualList.tsx\n@@ -0,0 +1,25 @@\n+import { useMemo, useRef } from \"react\";\n+\n+export function VirtualList<T>({ items, itemHeight, renderItem }: VirtualListProps<T>) {\n+  const containerRef = useRef<HTMLDivElement>(null);\n+  const [scrollTop, setScrollTop] = useState(0);\n+  const containerHeight = 400;\n+\n+  const visibleItems = useMemo(() => {\n+    const startIndex = Math.floor(scrollTop / itemHeight);\n+    const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + 1, items.length);\n+    return items.slice(startIndex, endIndex).map((item, i) => ({\n+      item,\n+      style: { position: \"absolute\" as const, top: (startIndex + i) * itemHeight, height: itemHeight },\n+    }));\n+  }, [items, scrollTop, itemHeight, containerHeight]);\n+\n+  return (\n+    <div ref={containerRef} style={{ height: containerHeight, overflow: \"auto\", position: \"relative\" }}\n+      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>\n+      <div style={{ height: items.length * itemHeight }}>\n+        {visibleItems.map(({ item, style }, i) => (\n+          <div key={i} style={style}>{renderItem(item)}</div>\n+        ))}\n+      </div>\n+    </div>\n+  );\n+}"
+    "codeDiff": "--- a/src/components/VirtualList.tsx\n+++ b/src/components/VirtualList.tsx\n@@ -0,0 +1,30 @@\n+import React, { useMemo, useRef, useState } from \"react\";\n+\n+interface VirtualListProps<T> {\n+  items: T[];\n+  itemHeight: number;\n+  renderItem: (item: T) => React.ReactNode;\n+  containerHeight?: number;\n+}\n+\n+export function VirtualList<T>({ items, itemHeight, renderItem, containerHeight = 400 }: VirtualListProps<T>) {\n+  const containerRef = useRef<HTMLDivElement>(null);\n+  const [scrollTop, setScrollTop] = useState(0);\n+\n+  const visibleItems = useMemo(() => {\n+    const startIndex = Math.floor(scrollTop / itemHeight);\n+    const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + 1, items.length);\n+    return items.slice(startIndex, endIndex).map((item, i) => ({\n+      item,\n+      offset: (startIndex + i) * itemHeight,\n+    }));\n+  }, [items, scrollTop, itemHeight, containerHeight]);\n+\n+  return (\n+    <div ref={containerRef} style={{ height: containerHeight, overflow: \"auto\", position: \"relative\" }}\n+      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>\n+      <div style={{ height: items.length * itemHeight }}>\n+        {visibleItems.map(({ item, offset }) => (\n+          <div key={offset} style={{ position: \"absolute\", top: offset, height: itemHeight }}>{renderItem(item)}</div>\n+        ))}\n+      </div>\n+    </div>\n+  );\n+}"
   },
   {
     "id": "ci-config-approve",
@@ -148,7 +148,7 @@
     "description": "Env-driven feature flag with checkout fallback \u2014 should approve",
     "issueTitle": "Add feature flag for new checkout flow",
     "issueNumber": 210,
-    "acceptanceCriteria": "- newCheckout flag controlled by NEW_CHECKOUT_ENABLED env var\n- New checkout flow used when enabled\n- Falls back to legacy flow when disabled",
+    "acceptanceCriteria": "- Feature flags with runtime env override via FEATURE_<NAME> pattern\n- newCheckout flag defaults to false\n- isFeatureEnabled function checks env then defaults\n- NewCheckoutFlow properly imported\n- Falls back to legacy flow when disabled",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 35
@@ -157,14 +157,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/features/flags.ts\n+++ b/src/features/flags.ts\n@@ -3,6 +3,7 @@\n export const featureFlags = {\n   darkMode: true,\n   betaSearch: false,\n+  newCheckout: process.env.NEW_CHECKOUT_ENABLED === \"true\",\n } as const;\n \n--- a/src/checkout/index.ts\n+++ b/src/checkout/index.ts\n@@ -1,5 +1,9 @@\n+import { featureFlags } from \"../features/flags\";\n+\n export function getCheckoutFlow() {\n+  if (featureFlags.newCheckout) {\n+    return new NewCheckoutFlow();\n+  }\n   return new LegacyCheckoutFlow();\n }"
+    "codeDiff": "--- a/src/features/flags.ts\n+++ b/src/features/flags.ts\n@@ -3,6 +3,11 @@\n-export const featureFlags = {\n+export const featureFlags = Object.freeze({\n   darkMode: true,\n   betaSearch: false,\n-} as const;\n+  newCheckout: false,\n+});\n+\n+export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {\n+  const envKey = `FEATURE_${flag.toUpperCase()}`;\n+  const envVal = process.env[envKey];\n+  if (envVal !== undefined) return envVal === \"true\";\n+  return featureFlags[flag];\n+}\n--- a/src/checkout/index.ts\n+++ b/src/checkout/index.ts\n@@ -1,5 +1,9 @@\n+import { isFeatureEnabled } from \"../features/flags\";\n+import { NewCheckoutFlow } from \"./new-checkout\";\n import { LegacyCheckoutFlow } from \"./legacy-checkout\";\n \n export function getCheckoutFlow() {\n+  if (isFeatureEnabled(\"newCheckout\")) {\n+    return new NewCheckoutFlow();\n+  }\n   return new LegacyCheckoutFlow();\n }"
   },
   {
     "id": "deprecation-warning-approve",
     "description": "Sunset and Deprecation headers on v1 endpoint \u2014 should approve",
     "issueTitle": "Add deprecation headers to legacy endpoint",
     "issueNumber": 211,
-    "acceptanceCriteria": "- Deprecated endpoint logs warning\n- Sunset header with RFC 7231 date\n- Deprecation: true header\n- Link header points to successor version",
+    "acceptanceCriteria": "- Deprecated endpoint logs warning with endpoint context\n- Sunset header with future date (March 2027)\n- Deprecation: true header set\n- Link header points to successor version",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 25
@@ -173,14 +173,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/api/legacy.ts\n+++ b/src/api/legacy.ts\n@@ -3,6 +3,12 @@\n router.get(\"/api/v1/items\", (req, res, next) => {\n+  logger.warn({ endpoint: \"/api/v1/items\" }, \"deprecated endpoint accessed\");\n+  res.set(\"Sunset\", \"Sat, 01 Jun 2025 00:00:00 GMT\");\n+  res.set(\"Deprecation\", \"true\");\n+  res.set(\"Link\", '</api/v2/items>; rel=\"successor-version\"');\n   next();\n });"
+    "codeDiff": "--- a/src/api/legacy.ts\n+++ b/src/api/legacy.ts\n@@ -3,6 +3,13 @@\n+const SUNSET_DATE = \"Sat, 01 Mar 2027 00:00:00 GMT\";\n+\n router.get(\"/api/v1/items\", (req, res, next) => {\n+  logger.warn({ endpoint: \"/api/v1/items\" }, \"deprecated endpoint accessed\");\n+  res.set(\"Sunset\", SUNSET_DATE);\n+  res.set(\"Deprecation\", \"true\");\n+  res.set(\"Link\", '</api/v2/items>; rel=\"successor-version\"');\n   next();\n });"
   },
   {
     "id": "webhook-handler-approve",
     "description": "Stripe webhook with constructEvent validation \u2014 should approve",
     "issueTitle": "Add Stripe webhook handler with signature verification",
     "issueNumber": 212,
-    "acceptanceCriteria": "- Stripe signature verified via constructEvent\n- Invalid signatures return 400\n- payment_intent.succeeded events processed\n- Returns { received: true }",
+    "acceptanceCriteria": "- Stripe env vars validated at startup (throws if missing)\n- Raw body middleware for signature verification\n- Signature verified via constructEvent\n- Invalid signatures return 400 with warning log\n- processPayment properly imported\n- Error handling around event processing",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 55
@@ -189,14 +189,14 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/api/webhooks/stripe.ts\n+++ b/src/api/webhooks/stripe.ts\n@@ -0,0 +1,22 @@\n+import { Router } from \"express\";\n+import Stripe from \"stripe\";\n+\n+const router = Router();\n+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);\n+\n+router.post(\"/webhooks/stripe\", async (req, res) => {\n+  const sig = req.headers[\"stripe-signature\"] as string;\n+  let event: Stripe.Event;\n+  try {\n+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);\n+  } catch (err) {\n+    return res.status(400).json({ error: \"Invalid signature\" });\n+  }\n+\n+  if (event.type === \"payment_intent.succeeded\") {\n+    const payment = event.data.object as Stripe.PaymentIntent;\n+    await processPayment(payment.id, payment.amount);\n+  }\n+\n+  res.json({ received: true });\n+});"
+    "codeDiff": "--- a/src/api/webhooks/stripe.ts\n+++ b/src/api/webhooks/stripe.ts\n@@ -0,0 +1,32 @@\n+import { Router, raw } from \"express\";\n+import Stripe from \"stripe\";\n+import { processPayment } from \"../services/payment\";\n+import { logger } from \"../logger\";\n+\n+const stripeKey = process.env.STRIPE_SECRET_KEY;\n+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;\n+if (!stripeKey || !webhookSecret) throw new Error(\"STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET required\");\n+\n+const stripe = new Stripe(stripeKey);\n+const router = Router();\n+\n+router.post(\"/webhooks/stripe\", raw({ type: \"application/json\" }), async (req, res) => {\n+  const sig = req.headers[\"stripe-signature\"] as string;\n+  let event: Stripe.Event;\n+  try {\n+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);\n+  } catch (err) {\n+    logger.warn({ err }, \"invalid stripe signature\");\n+    return res.status(400).json({ error: \"Invalid signature\" });\n+  }\n+\n+  try {\n+    if (event.type === \"payment_intent.succeeded\") {\n+      const payment = event.data.object as Stripe.PaymentIntent;\n+      await processPayment(payment.id, payment.amount);\n+    }\n+    res.json({ received: true });\n+  } catch (err) {\n+    logger.error({ err, eventType: event.type }, \"webhook processing failed\");\n+    res.status(500).json({ error: \"Processing failed\" });\n+  }\n+});\n+\n+export default router;"
   },
   {
     "id": "graceful-shutdown-approve",
     "description": "Signal handlers for clean server shutdown \u2014 should approve",
     "issueTitle": "Add graceful shutdown on SIGTERM/SIGINT",
     "issueNumber": 213,
-    "acceptanceCriteria": "- SIGTERM and SIGINT handlers registered\n- Server closes accepting new connections\n- Database pool drained after connections close\n- Force exit after 10s timeout",
+    "acceptanceCriteria": "- SIGTERM and SIGINT handlers registered\n- Guard against duplicate shutdown calls\n- Server closes accepting new connections\n- Database pool drained with error handling\n- Force exit after 10s timeout",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 30
@@ -205,7 +205,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/server.ts\n+++ b/src/server.ts\n@@ -10,6 +10,18 @@\n const server = app.listen(config.port, () => {\n   logger.info({ port: config.port }, \"server started\");\n });\n+\n+function gracefulShutdown(signal: string) {\n+  logger.info({ signal }, \"shutdown signal received\");\n+  server.close(() => {\n+    logger.info(\"all connections closed\");\n+    db.end().then(() => {\n+      logger.info(\"database pool closed\");\n+      process.exit(0);\n+    });\n+  });\n+  setTimeout(() => { logger.error(\"forced shutdown\"); process.exit(1); }, 10_000);\n+}\n+\n+process.on(\"SIGTERM\", () => gracefulShutdown(\"SIGTERM\"));\n+process.on(\"SIGINT\", () => gracefulShutdown(\"SIGINT\"));"
+    "codeDiff": "--- a/src/server.ts\n+++ b/src/server.ts\n@@ -10,6 +10,22 @@\n const server = app.listen(config.port, () => {\n   logger.info({ port: config.port }, \"server started\");\n });\n+\n+let shuttingDown = false;\n+\n+function gracefulShutdown(signal: string) {\n+  if (shuttingDown) return;\n+  shuttingDown = true;\n+  logger.info({ signal }, \"shutdown signal received\");\n+  server.close(() => {\n+    logger.info(\"all connections closed\");\n+    db.end()\n+      .then(() => { logger.info(\"database pool closed\"); process.exit(0); })\n+      .catch((err) => { logger.error({ err }, \"error closing database\"); process.exit(1); });\n+  });\n+  setTimeout(() => { logger.error(\"forced shutdown\"); process.exit(1); }, 10_000);\n+}\n+\n+process.on(\"SIGTERM\", () => gracefulShutdown(\"SIGTERM\"));\n+process.on(\"SIGINT\", () => gracefulShutdown(\"SIGINT\"));"
   },
   {
     "id": "health-check-approve",
@@ -228,7 +228,7 @@
     "description": "CORS with configurable allowed origins \u2014 should approve",
     "issueTitle": "Add CORS middleware with origin whitelist",
     "issueNumber": 215,
-    "acceptanceCriteria": "- Allowed origins read from CORS_ORIGINS env var (comma-separated)\n- Requests without origin allowed (e.g., server-to-server)\n- Non-allowed origins rejected\n- Credentials enabled",
+    "acceptanceCriteria": "- Allowed origins from CORS_ORIGINS env var (comma-separated, trimmed)\n- Requests without origin allowed (server-to-server)\n- Non-allowed origins rejected with false (not error)\n- Credentials enabled",
     "diffStats": {
       "filesChanged": 2,
       "linesChanged": 20
@@ -237,6 +237,6 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/middleware/cors.ts\n+++ b/src/middleware/cors.ts\n@@ -0,0 +1,12 @@\n+import cors from \"cors\";\n+\n+const allowedOrigins = (process.env.CORS_ORIGINS ?? \"\").split(\",\").filter(Boolean);\n+\n+export const corsMiddleware = cors({\n+  origin: (origin, callback) => {\n+    if (!origin || allowedOrigins.includes(origin)) {\n+      callback(null, true);\n+    } else {\n+      callback(new Error(\"Not allowed by CORS\"));\n+    }\n+  },\n+  credentials: true,\n+});"
+    "codeDiff": "--- a/src/middleware/cors.ts\n+++ b/src/middleware/cors.ts\n@@ -0,0 +1,14 @@\n+import cors from \"cors\";\n+\n+const allowedOrigins = (process.env.CORS_ORIGINS ?? \"\")\n+  .split(\",\")\n+  .map((s) => s.trim())\n+  .filter(Boolean);\n+\n+export const corsMiddleware = cors({\n+  origin: (origin, callback) => {\n+    if (!origin || allowedOrigins.includes(origin)) {\n+      callback(null, true);\n+    } else {\n+      callback(null, false);\n+    }\n+  },\n+  credentials: true,\n+});"
   }
 ]

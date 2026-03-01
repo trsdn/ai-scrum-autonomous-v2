@@ -80,7 +80,7 @@
     "description": "TTLCache wrapper with write-through invalidation \u2014 should approve",
     "issueTitle": "Add caching layer for products with invalidation",
     "issueNumber": 405,
-    "acceptanceCriteria": "- Products cached with 5 minute TTL\n- Cache miss fetches from database\n- Cache invalidated on product update",
+    "acceptanceCriteria": "- Products cached with 5 minute TTL\n- Cache miss fetches from database\n- Cache invalidated on product update\n- All imports present (TTLCache, db, Product type)",
     "diffStats": {
       "filesChanged": 3,
       "linesChanged": 55
@@ -89,7 +89,7 @@
     "expected": {
       "approved": true
     },
-    "codeDiff": "--- a/src/cache/products.ts\n+++ b/src/cache/products.ts\n@@ -0,0 +1,18 @@\n+import { TTLCache } from \"../utils/cache\";\n+\n+const cache = new TTLCache<Product[]>(5 * 60 * 1000); // 5 min TTL\n+\n+export async function getProducts(): Promise<Product[]> {\n+  const cached = cache.get(\"products\");\n+  if (cached) return cached;\n+  const products = await db.products.findAll();\n+  cache.set(\"products\", products);\n+  return products;\n+}\n+\n+export async function updateProduct(id: string, data: Partial<Product>): Promise<void> {\n+  await db.products.update(id, data);\n+  cache.invalidate(\"products\"); // Invalidate on write\n+}"
+    "codeDiff": "--- a/src/cache/products.ts\n+++ b/src/cache/products.ts\n@@ -0,0 +1,18 @@\n+import { TTLCache } from \"../utils/cache\";\n+import { db } from \"../db\";\n+import type { Product } from \"../types\";\n+\n+const cache = new TTLCache<Product[]>(5 * 60 * 1000); // 5 min TTL\n+\n+export async function getProducts(): Promise<Product[]> {\n+  const cached = cache.get(\"products\");\n+  if (cached) return cached;\n+  const products = await db.products.findAll();\n+  cache.set(\"products\", products);\n+  return products;\n+}\n+\n+export async function updateProduct(id: string, data: Partial<Product>): Promise<void> {\n+  await db.products.update(id, data);\n+  cache.delete(\"products\");\n+}"
   },
   {
     "id": "reject-hard-delete-no-soft",
@@ -105,10 +105,12 @@
     "expected": {
       "approved": false,
       "mustContain": [
+        "delet",
+        "transaction",
+        "auth",
+        "foreign",
         "soft",
-        "recover",
-        "backup",
-        "irreversib"
+        "recover"
       ]
     },
     "codeDiff": "--- a/src/api/users.ts\n+++ b/src/api/users.ts\n@@ -3,6 +3,10 @@\n router.delete(\"/api/users/:id\", async (req, res) => {\n+  const userId = req.params.id;\n+  await db.query(\"DELETE FROM users WHERE id = $1\", [userId]);\n+  await db.query(\"DELETE FROM user_data WHERE user_id = $1\", [userId]);\n+  await db.query(\"DELETE FROM user_sessions WHERE user_id = $1\", [userId]);\n+  res.json({ deleted: true });\n });"
@@ -131,10 +133,10 @@
   },
   {
     "id": "reject-env-var-in-source",
-    "description": "Default value for env var contains production URL \u2014 should reject",
+    "description": "Hardcoded production URL with no env override \u2014 should be rejected",
     "issueTitle": "Configure API base URL",
     "issueNumber": 408,
-    "acceptanceCriteria": "- API base URL configurable via environment\n- Fallback to default if not set",
+    "acceptanceCriteria": "- API base URL configurable\n- Different URLs for dev/staging/production",
     "diffStats": {
       "filesChanged": 1,
       "linesChanged": 5
@@ -149,7 +151,7 @@
         "config"
       ]
     },
-    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,6 +2,7 @@\n export const config = {\n+  apiBaseUrl: process.env.API_URL ?? \"https://api.production.mycompany.com/v2\",\n   port: 3000,\n };"
+    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,6 +2,7 @@\n export const config = {\n+  apiBaseUrl: \"https://api.production.mycompany.com/v2\",\n   port: 3000,\n };"
   },
   {
     "id": "approve-comprehensive-types",
