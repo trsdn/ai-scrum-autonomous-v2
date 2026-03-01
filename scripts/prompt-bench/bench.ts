@@ -13,7 +13,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { AcpClient } from "../../src/acp/client.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +29,7 @@ interface CodeReviewExample {
   issueTitle: string;
   issueNumber: number;
   acceptanceCriteria: string;
+  codeDiff: string;
   diffStats: { filesChanged: number; linesChanged: number };
   branch: string;
   expected: {
@@ -62,7 +67,8 @@ interface BenchReport {
 
 function buildCodeReviewPrompt(example: CodeReviewExample): string {
   return [
-    "You are a code reviewer. Review the following changes.",
+    "You are a code reviewer. Review the following code diff.",
+    "DO NOT use any tools. DO NOT read files. Just analyze the diff provided below.",
     "",
     "Focus ONLY on:",
     "- Bugs and logic errors",
@@ -79,6 +85,11 @@ function buildCodeReviewPrompt(example: CodeReviewExample): string {
     "",
     `### Diff Stats: ${example.diffStats.filesChanged} files, ${example.diffStats.linesChanged} lines changed`,
     `### Branch: ${example.branch}`,
+    "",
+    "### Code Diff",
+    "```diff",
+    example.codeDiff,
+    "```",
     "",
     "Respond with exactly one of:",
     "- First line: `APPROVED: <one-line summary>` if the changes are acceptable",

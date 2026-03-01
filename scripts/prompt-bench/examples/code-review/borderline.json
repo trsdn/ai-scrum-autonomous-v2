@@ -1,102 +1,192 @@
 [
   {
     "id": "approve-good-error-boundary",
-    "description": "Proper React error boundary with fallback UI — should approve",
+    "description": "Proper React error boundary with fallback UI \u2014 should approve",
     "issueTitle": "Add error boundary for dashboard widgets",
     "issueNumber": 401,
     "acceptanceCriteria": "- Dashboard widgets wrapped in error boundary\n- Fallback shows friendly message\n- Error logged to monitoring service\n- Test for error state",
-    "diffStats": { "filesChanged": 2, "linesChanged": 45 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 45
+    },
     "branch": "feat/401-error-boundary",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/WidgetBoundary.tsx\n+++ b/src/components/WidgetBoundary.tsx\n@@ -0,0 +1,20 @@\n+import { Component, type ReactNode, type ErrorInfo } from \"react\";\n+import { reportError } from \"../monitoring\";\n+\n+export class WidgetBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {\n+  state = { hasError: false };\n+  static getDerivedStateFromError() { return { hasError: true }; }\n+  componentDidCatch(error: Error, info: ErrorInfo) {\n+    reportError(error, { componentStack: info.componentStack });\n+  }\n+  render() {\n+    if (this.state.hasError) return <div className=\"widget-error\">Widget unavailable</div>;\n+    return this.props.children;\n+  }\n+}"
   },
   {
     "id": "approve-proper-input-sanitization",
-    "description": "Input sanitization done correctly — should approve",
+    "description": "Input sanitization done correctly \u2014 should approve",
     "issueTitle": "Sanitize user input in comment form",
     "issueNumber": 402,
     "acceptanceCriteria": "- HTML tags stripped from comments\n- XSS vectors neutralized\n- Valid markdown preserved\n- Tests for common XSS payloads",
-    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 35
+    },
     "branch": "feat/402-sanitize-comments",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils/sanitize.ts\n+++ b/src/utils/sanitize.ts\n@@ -0,0 +1,12 @@\n+import DOMPurify from \"isomorphic-dompurify\";\n+\n+export function sanitizeComment(input: string): string {\n+  return DOMPurify.sanitize(input, {\n+    ALLOWED_TAGS: [\"b\", \"i\", \"em\", \"strong\", \"a\", \"p\", \"br\"],\n+    ALLOWED_ATTR: [\"href\"],\n+  });\n+}"
   },
   {
     "id": "reject-global-state-mutation",
-    "description": "Mutating global state in a handler — should reject",
+    "description": "Mutating global state in a handler \u2014 should reject",
     "issueTitle": "Add counter for API requests",
     "issueNumber": 403,
     "acceptanceCriteria": "- Track number of API requests\n- Show count in admin panel",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/403-request-counter",
-    "expected": { "approved": false, "mustContain": ["global", "mutat", "state", "thread"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "global",
+        "mutat",
+        "state",
+        "thread"
+      ]
+    },
+    "codeDiff": "--- a/src/middleware/counter.ts\n+++ b/src/middleware/counter.ts\n@@ -0,0 +1,8 @@\n+let requestCount = 0;\n+\n+export function countRequests(req: Request, res: Response, next: NextFunction) {\n+  requestCount++;\n+  next();\n+}\n+\n+export function getRequestCount() { return requestCount; }"
   },
   {
     "id": "reject-catching-all-errors",
-    "description": "Catching all errors including programming errors — should reject",
+    "description": "Catching all errors including programming errors \u2014 should reject",
     "issueTitle": "Add global error handler",
     "issueNumber": 404,
     "acceptanceCriteria": "- All uncaught errors caught\n- Error page shown to user\n- Error logged",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/404-global-error",
-    "expected": { "approved": false, "mustContain": ["catch", "swallow", "silenc", "programming"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "catch",
+        "swallow",
+        "silenc",
+        "programming"
+      ]
+    },
+    "codeDiff": "--- a/src/app.ts\n+++ b/src/app.ts\n@@ -10,6 +10,12 @@\n+process.on(\"uncaughtException\", (err) => {\n+  console.log(\"Caught exception:\", err.message);\n+  // Continue running\n+});\n+\n+process.on(\"unhandledRejection\", (reason) => {\n+  console.log(\"Caught rejection:\", reason);\n+  // Continue running\n+});"
   },
   {
     "id": "approve-proper-caching",
-    "description": "Proper caching with TTL and invalidation — should approve",
+    "description": "Proper caching with TTL and invalidation \u2014 should approve",
     "issueTitle": "Add caching layer for product catalog",
     "issueNumber": 405,
     "acceptanceCriteria": "- Products cached with 5min TTL\n- Cache invalidated on product update\n- Cache miss falls through to DB\n- Tests for hit, miss, invalidation",
-    "diffStats": { "filesChanged": 3, "linesChanged": 55 },
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 55
+    },
     "branch": "feat/405-product-cache",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/cache/products.ts\n+++ b/src/cache/products.ts\n@@ -0,0 +1,18 @@\n+import { TTLCache } from \"../utils/cache\";\n+\n+const cache = new TTLCache<Product[]>(5 * 60 * 1000); // 5 min TTL\n+\n+export async function getProducts(): Promise<Product[]> {\n+  const cached = cache.get(\"products\");\n+  if (cached) return cached;\n+  const products = await db.products.findAll();\n+  cache.set(\"products\", products);\n+  return products;\n+}\n+\n+export async function updateProduct(id: string, data: Partial<Product>): Promise<void> {\n+  await db.products.update(id, data);\n+  cache.invalidate(\"products\"); // Invalidate on write\n+}"
   },
   {
     "id": "reject-hard-delete-no-soft",
-    "description": "Hard delete of user data without soft delete option — should reject",
+    "description": "Hard delete of user data without soft delete option \u2014 should reject",
     "issueTitle": "Add user account deletion",
     "issueNumber": 406,
     "acceptanceCriteria": "- User can delete their account\n- All user data removed from database",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/406-delete-user",
-    "expected": { "approved": false, "mustContain": ["soft", "recover", "backup", "irreversib"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "soft",
+        "recover",
+        "backup",
+        "irreversib"
+      ]
+    },
+    "codeDiff": "--- a/src/api/users.ts\n+++ b/src/api/users.ts\n@@ -3,6 +3,10 @@\n router.delete(\"/api/users/:id\", async (req, res) => {\n+  const userId = req.params.id;\n+  await db.query(\"DELETE FROM users WHERE id = $1\", [userId]);\n+  await db.query(\"DELETE FROM user_data WHERE user_id = $1\", [userId]);\n+  await db.query(\"DELETE FROM user_sessions WHERE user_id = $1\", [userId]);\n+  res.json({ deleted: true });\n });"
   },
   {
     "id": "approve-idempotent-migration",
-    "description": "Idempotent database migration — should approve",
+    "description": "Idempotent database migration \u2014 should approve",
     "issueTitle": "Add index on users.email column",
     "issueNumber": 407,
     "acceptanceCriteria": "- Unique index added on users.email\n- Migration is idempotent (safe to rerun)\n- Rollback drops the index",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "chore/407-email-index",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/migrations/20240320_add_email_index.sql\n+++ b/migrations/20240320_add_email_index.sql\n@@ -0,0 +1,5 @@\n+-- Up\n+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);\n+\n+-- Down\n+DROP INDEX IF EXISTS idx_users_email;"
   },
   {
     "id": "reject-env-var-in-source",
-    "description": "Default value for env var contains production URL — should reject",
+    "description": "Default value for env var contains production URL \u2014 should reject",
     "issueTitle": "Configure API base URL",
     "issueNumber": 408,
     "acceptanceCriteria": "- API base URL configurable via environment\n- Fallback to default if not set",
-    "diffStats": { "filesChanged": 1, "linesChanged": 5 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 5
+    },
     "branch": "feat/408-api-url",
-    "expected": { "approved": false, "mustContain": ["hardcod", "env", "production", "config"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "hardcod",
+        "env",
+        "production",
+        "config"
+      ]
+    },
+    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,6 +2,7 @@\n export const config = {\n+  apiBaseUrl: process.env.API_URL ?? \"https://api.production.mycompany.com/v2\",\n   port: 3000,\n };"
   },
   {
     "id": "approve-comprehensive-types",
-    "description": "Adding TypeScript types with proper generics — should approve",
+    "description": "Adding TypeScript types with proper generics \u2014 should approve",
     "issueTitle": "Add TypeScript types for API responses",
     "issueNumber": 409,
     "acceptanceCriteria": "- All API responses typed\n- Generic wrapper for paginated responses\n- Discriminated unions for error types\n- No any types",
-    "diffStats": { "filesChanged": 4, "linesChanged": 80 },
+    "diffStats": {
+      "filesChanged": 4,
+      "linesChanged": 80
+    },
     "branch": "types/409-api-types",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/types/api.ts\n+++ b/src/types/api.ts\n@@ -0,0 +1,20 @@\n+export interface PaginatedResponse<T> {\n+  data: T[];\n+  meta: { page: number; limit: number; total: number; totalPages: number };\n+}\n+\n+export type ApiResult<T> =\n+  | { success: true; data: T }\n+  | { success: false; error: ApiError };\n+\n+export interface ApiError {\n+  code: string;\n+  message: string;\n+  details?: Record<string, string[]>;\n+}\n+\n+export interface UserResponse {\n+  id: string;\n+  email: string;\n+  name: string;\n+  role: \"user\" | \"admin\";\n+}"
   },
   {
     "id": "reject-circular-dependency",
-    "description": "Introducing circular import dependency — should reject",
+    "description": "Introducing circular import dependency \u2014 should reject",
     "issueTitle": "Add user service helper to auth module",
     "issueNumber": 410,
     "acceptanceCriteria": "- Auth module can access user details\n- User profile enriched with auth status",
-    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 20
+    },
     "branch": "feat/410-auth-user",
-    "expected": { "approved": false, "mustContain": ["circular", "import", "depend", "cycle"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "circular",
+        "import",
+        "depend",
+        "cycle"
+      ]
+    },
+    "codeDiff": "--- a/src/auth/index.ts\n+++ b/src/auth/index.ts\n@@ -1,4 +1,6 @@\n+import { getUserProfile } from \"../users\";\n+\n export function getAuthStatus(userId: string) {\n+  const profile = getUserProfile(userId);\n+  return { authenticated: true, ...profile };\n }\n--- a/src/users/index.ts\n+++ b/src/users/index.ts\n@@ -1,4 +1,6 @@\n+import { getAuthStatus } from \"../auth\";\n+\n export function getUserProfile(userId: string) {\n+  const auth = getAuthStatus(userId);\n+  return { userId, isAdmin: auth.role === \"admin\" };\n }"
   }
 ]

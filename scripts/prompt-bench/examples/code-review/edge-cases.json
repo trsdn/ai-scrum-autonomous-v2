@@ -1,152 +1,242 @@
 [
   {
     "id": "large-test-file-approve",
-    "description": "Large diff but all test code — should be approved",
+    "description": "Large diff but all test code \u2014 should be approved",
     "issueTitle": "Add comprehensive test suite for auth module",
     "issueNumber": 201,
     "acceptanceCriteria": "- Tests for login, logout, token refresh\n- Edge cases: expired tokens, invalid credentials\n- At least 90% coverage for auth module",
-    "diffStats": { "filesChanged": 3, "linesChanged": 300 },
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 300
+    },
     "branch": "test/201-auth-tests",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/tests/auth/login.test.ts\n+++ b/tests/auth/login.test.ts\n@@ -0,0 +1,45 @@\n+import { describe, it, expect, vi, beforeEach } from \"vitest\";\n+import { authenticate, validateToken, refreshToken } from \"../../src/auth\";\n+\n+describe(\"authenticate\", () => {\n+  it(\"returns token for valid credentials\", async () => {\n+    const result = await authenticate(\"user@test.com\", \"validPass123!\");\n+    expect(result.token).toBeDefined();\n+    expect(result.expiresIn).toBe(3600);\n+  });\n+  it(\"rejects invalid password\", async () => {\n+    await expect(authenticate(\"user@test.com\", \"wrong\")).rejects.toThrow();\n+  });\n+  it(\"rejects unknown email\", async () => {\n+    await expect(authenticate(\"nobody@test.com\", \"pass\")).rejects.toThrow();\n+  });\n+});\n+\n+describe(\"validateToken\", () => {\n+  it(\"validates unexpired token\", () => {\n+    expect(validateToken(createValidToken())).toBe(true);\n+  });\n+  it(\"rejects expired token\", () => {\n+    expect(validateToken(createExpiredToken())).toBe(false);\n+  });\n+  it(\"rejects malformed token\", () => {\n+    expect(validateToken(\"not-a-token\")).toBe(false);\n+  });\n+});\n+\n+describe(\"refreshToken\", () => {\n+  it(\"returns new token for valid refresh token\", async () => {\n+    const result = await refreshToken(createValidRefreshToken());\n+    expect(result.token).toBeDefined();\n+  });\n+  it(\"rejects expired refresh token\", async () => {\n+    await expect(refreshToken(createExpiredRefreshToken())).rejects.toThrow();\n+  });\n+});"
   },
   {
     "id": "lock-file-only-approve",
-    "description": "Only package-lock.json changed — should be approved",
+    "description": "Only package-lock.json changed \u2014 should be approved",
     "issueTitle": "Regenerate lock file after dependency update",
     "issueNumber": 202,
     "acceptanceCriteria": "- package-lock.json regenerated\n- No security vulnerabilities introduced",
-    "diffStats": { "filesChanged": 1, "linesChanged": 500 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 500
+    },
     "branch": "chore/202-lockfile",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/package-lock.json\n+++ b/package-lock.json\n@@ -100,7 +100,7 @@\n       \"node_modules/express\": {\n-        \"version\": \"4.18.2\",\n-        \"resolved\": \"https://registry.npmjs.org/express/-/express-4.18.2.tgz\",\n-        \"integrity\": \"sha512-abc123...\",\n+        \"version\": \"4.19.2\",\n+        \"resolved\": \"https://registry.npmjs.org/express/-/express-4.19.2.tgz\",\n+        \"integrity\": \"sha512-def456...\",\n       }"
   },
   {
     "id": "migration-file-approve",
-    "description": "Database migration file — should be approved",
+    "description": "Database migration file \u2014 should be approved",
     "issueTitle": "Add migration for user preferences table",
     "issueNumber": 203,
     "acceptanceCriteria": "- Migration creates user_preferences table\n- Columns: user_id, theme, language, notifications\n- Rollback drops the table",
-    "diffStats": { "filesChanged": 1, "linesChanged": 30 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 30
+    },
     "branch": "feat/203-preferences-migration",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/migrations/20240315_add_preferences.sql\n+++ b/migrations/20240315_add_preferences.sql\n@@ -0,0 +1,12 @@\n+-- Up\n+CREATE TABLE IF NOT EXISTS user_preferences (\n+  id INTEGER PRIMARY KEY AUTOINCREMENT,\n+  user_id INTEGER NOT NULL REFERENCES users(id),\n+  theme VARCHAR(20) DEFAULT 'light',\n+  language VARCHAR(10) DEFAULT 'en',\n+  notifications BOOLEAN DEFAULT true,\n+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n+);\n+\n+-- Down\n+DROP TABLE IF EXISTS user_preferences;"
   },
   {
     "id": "i18n-strings-approve",
-    "description": "Adding internationalization strings — should be approved",
+    "description": "Adding internationalization strings \u2014 should be approved",
     "issueTitle": "Add German translation strings",
     "issueNumber": 204,
     "acceptanceCriteria": "- All UI strings have German translations\n- Fallback to English if translation missing",
-    "diffStats": { "filesChanged": 2, "linesChanged": 150 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 150
+    },
     "branch": "feat/204-german-i18n",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/i18n/de.json\n+++ b/src/i18n/de.json\n@@ -0,0 +1,15 @@\n+{\n+  \"common.save\": \"Speichern\",\n+  \"common.cancel\": \"Abbrechen\",\n+  \"common.delete\": \"L\u00f6schen\",\n+  \"common.edit\": \"Bearbeiten\",\n+  \"auth.login\": \"Anmelden\",\n+  \"auth.logout\": \"Abmelden\",\n+  \"auth.register\": \"Registrieren\",\n+  \"dashboard.title\": \"\u00dcbersicht\",\n+  \"dashboard.welcome\": \"Willkommen, {{name}}\",\n+  \"errors.notFound\": \"Seite nicht gefunden\",\n+  \"errors.serverError\": \"Ein Fehler ist aufgetreten\",\n+  \"errors.unauthorized\": \"Nicht autorisiert\"\n+}"
   },
   {
     "id": "snapshot-update-approve",
-    "description": "Updating test snapshots after intentional change — should be approved",
+    "description": "Updating test snapshots after intentional change \u2014 should be approved",
     "issueTitle": "Update snapshots after header redesign",
     "issueNumber": 205,
     "acceptanceCriteria": "- Snapshots updated to match new header\n- Visual regression confirmed intentional",
-    "diffStats": { "filesChanged": 5, "linesChanged": 200 },
+    "diffStats": {
+      "filesChanged": 5,
+      "linesChanged": 200
+    },
     "branch": "test/205-snapshot-update",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/tests/__snapshots__/Header.test.tsx.snap\n+++ b/tests/__snapshots__/Header.test.tsx.snap\n@@ -2,10 +2,12 @@\n exports[`Header renders correctly 1`] = `\n-<div class=\"header\">\n-  <h1>My App</h1>\n-  <nav>\n-    <a href=\"/\">Home</a>\n-  </nav>\n-</div>\n+<header class=\"header header--redesigned\">\n+  <div class=\"header__logo\">\n+    <img src=\"/logo.svg\" alt=\"My App\" />\n+  </div>\n+  <nav class=\"header__nav\">\n+    <a href=\"/\" class=\"nav-link\">Home</a>\n+    <a href=\"/about\" class=\"nav-link\">About</a>\n+  </nav>\n+</header>\n `;"
   },
   {
     "id": "env-example-approve",
-    "description": "Adding .env.example with placeholder values — should be approved",
+    "description": "Adding .env.example with placeholder values \u2014 should be approved",
     "issueTitle": "Document required environment variables",
     "issueNumber": 206,
     "acceptanceCriteria": "- .env.example lists all required variables\n- Placeholder values, no real secrets\n- README references .env.example",
-    "diffStats": { "filesChanged": 2, "linesChanged": 15 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 15
+    },
     "branch": "docs/206-env-example",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/.env.example\n+++ b/.env.example\n@@ -0,0 +1,8 @@\n+# Database\n+DATABASE_URL=postgres://localhost:5432/myapp\n+\n+# Auth\n+JWT_SECRET=change-me-in-production\n+\n+# API\n+PORT=3000\n+LOG_LEVEL=info"
   },
   {
     "id": "multi-file-rename-approve",
-    "description": "Consistent file renaming — should be approved",
+    "description": "Consistent file renaming \u2014 should be approved",
     "issueTitle": "Rename utils/ to lib/ for consistency",
     "issueNumber": 207,
     "acceptanceCriteria": "- All files in utils/ moved to lib/\n- All imports updated\n- No behavior change",
-    "diffStats": { "filesChanged": 12, "linesChanged": 40 },
+    "diffStats": {
+      "filesChanged": 12,
+      "linesChanged": 40
+    },
     "branch": "refactor/207-rename-utils",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils/format.ts\n+++ b/src/lib/format.ts\n@@ -1,5 +1,5 @@\n export function formatDate(d: Date): string {\n   return d.toISOString().split(\"T\")[0];\n }\n--- a/src/services/order.ts\n+++ b/src/services/order.ts\n@@ -1,4 +1,4 @@\n-import { formatDate } from \"../utils/format\";\n+import { formatDate } from \"../lib/format\";"
   },
   {
     "id": "perf-optimization-approve",
-    "description": "Performance optimization with benchmarks — should be approved",
+    "description": "Performance optimization with benchmarks \u2014 should be approved",
     "issueTitle": "Optimize list rendering with virtual scrolling",
     "issueNumber": 208,
     "acceptanceCriteria": "- Virtual scrolling for lists > 100 items\n- Benchmark: 10x faster render for 1000 items\n- Tests verify correct rendering",
-    "diffStats": { "filesChanged": 3, "linesChanged": 80 },
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 80
+    },
     "branch": "perf/208-virtual-scroll",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/VirtualList.tsx\n+++ b/src/components/VirtualList.tsx\n@@ -0,0 +1,25 @@\n+import { useMemo, useRef } from \"react\";\n+\n+export function VirtualList<T>({ items, itemHeight, renderItem }: VirtualListProps<T>) {\n+  const containerRef = useRef<HTMLDivElement>(null);\n+  const [scrollTop, setScrollTop] = useState(0);\n+  const containerHeight = 400;\n+\n+  const visibleItems = useMemo(() => {\n+    const startIndex = Math.floor(scrollTop / itemHeight);\n+    const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + 1, items.length);\n+    return items.slice(startIndex, endIndex).map((item, i) => ({\n+      item,\n+      style: { position: \"absolute\" as const, top: (startIndex + i) * itemHeight, height: itemHeight },\n+    }));\n+  }, [items, scrollTop, itemHeight, containerHeight]);\n+\n+  return (\n+    <div ref={containerRef} style={{ height: containerHeight, overflow: \"auto\", position: \"relative\" }}\n+      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>\n+      <div style={{ height: items.length * itemHeight }}>\n+        {visibleItems.map(({ item, style }, i) => (\n+          <div key={i} style={style}>{renderItem(item)}</div>\n+        ))}\n+      </div>\n+    </div>\n+  );\n+}"
   },
   {
     "id": "ci-config-approve",
-    "description": "CI/CD configuration change — should be approved",
+    "description": "CI/CD configuration change \u2014 should be approved",
     "issueTitle": "Add GitHub Actions CI workflow",
     "issueNumber": 209,
     "acceptanceCriteria": "- CI runs on push and PR\n- Steps: install, lint, test, build\n- Fails on any step failure",
-    "diffStats": { "filesChanged": 1, "linesChanged": 40 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 40
+    },
     "branch": "chore/209-ci-workflow",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -0,0 +1,25 @@\n+name: CI\n+on: [push, pull_request]\n+jobs:\n+  build:\n+    runs-on: ubuntu-latest\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: 20\n+          cache: npm\n+      - run: npm ci\n+      - run: npm run lint\n+      - run: npm run test\n+      - run: npm run build"
   },
   {
     "id": "feature-flag-approve",
-    "description": "Adding feature flag for gradual rollout — should be approved",
+    "description": "Adding feature flag for gradual rollout \u2014 should be approved",
     "issueTitle": "Add feature flag for new checkout flow",
     "issueNumber": 210,
     "acceptanceCriteria": "- Feature flag: NEW_CHECKOUT_ENABLED\n- Falls back to old flow when disabled\n- Tests for both paths",
-    "diffStats": { "filesChanged": 3, "linesChanged": 35 },
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 35
+    },
     "branch": "feat/210-feature-flag",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/features/flags.ts\n+++ b/src/features/flags.ts\n@@ -3,6 +3,7 @@\n export const featureFlags = {\n   darkMode: true,\n   betaSearch: false,\n+  newCheckout: process.env.NEW_CHECKOUT_ENABLED === \"true\",\n } as const;\n \n--- a/src/checkout/index.ts\n+++ b/src/checkout/index.ts\n@@ -1,5 +1,9 @@\n+import { featureFlags } from \"../features/flags\";\n+\n export function getCheckoutFlow() {\n+  if (featureFlags.newCheckout) {\n+    return new NewCheckoutFlow();\n+  }\n   return new LegacyCheckoutFlow();\n }"
   },
   {
     "id": "deprecation-warning-approve",
-    "description": "Adding deprecation warnings before removal — should be approved",
+    "description": "Adding deprecation warnings before removal \u2014 should be approved",
     "issueTitle": "Deprecate legacy API endpoints",
     "issueNumber": 211,
     "acceptanceCriteria": "- Deprecated endpoints log warning\n- Sunset header added to response\n- Documentation updated",
-    "diffStats": { "filesChanged": 3, "linesChanged": 25 },
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 25
+    },
     "branch": "chore/211-deprecation",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/legacy.ts\n+++ b/src/api/legacy.ts\n@@ -3,6 +3,12 @@\n router.get(\"/api/v1/items\", (req, res, next) => {\n+  logger.warn({ endpoint: \"/api/v1/items\" }, \"deprecated endpoint accessed\");\n+  res.set(\"Sunset\", \"Sat, 01 Jun 2025 00:00:00 GMT\");\n+  res.set(\"Deprecation\", \"true\");\n+  res.set(\"Link\", '</api/v2/items>; rel=\"successor-version\"');\n   next();\n });"
   },
   {
     "id": "webhook-handler-approve",
-    "description": "Adding webhook handler with signature verification — should be approved",
+    "description": "Adding webhook handler with signature verification \u2014 should be approved",
     "issueTitle": "Add Stripe webhook handler",
     "issueNumber": 212,
     "acceptanceCriteria": "- Webhook signature verified\n- Payment events processed\n- Idempotent: duplicate events handled\n- Tests with mock events",
-    "diffStats": { "filesChanged": 2, "linesChanged": 55 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 55
+    },
     "branch": "feat/212-stripe-webhook",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/webhooks/stripe.ts\n+++ b/src/api/webhooks/stripe.ts\n@@ -0,0 +1,22 @@\n+import { Router } from \"express\";\n+import Stripe from \"stripe\";\n+\n+const router = Router();\n+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);\n+\n+router.post(\"/webhooks/stripe\", async (req, res) => {\n+  const sig = req.headers[\"stripe-signature\"] as string;\n+  let event: Stripe.Event;\n+  try {\n+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);\n+  } catch (err) {\n+    return res.status(400).json({ error: \"Invalid signature\" });\n+  }\n+\n+  if (event.type === \"payment_intent.succeeded\") {\n+    const payment = event.data.object as Stripe.PaymentIntent;\n+    await processPayment(payment.id, payment.amount);\n+  }\n+\n+  res.json({ received: true });\n+});"
   },
   {
     "id": "graceful-shutdown-approve",
-    "description": "Adding graceful shutdown handling — should be approved",
+    "description": "Adding graceful shutdown handling \u2014 should be approved",
     "issueTitle": "Handle SIGTERM for graceful shutdown",
     "issueNumber": 213,
     "acceptanceCriteria": "- SIGTERM/SIGINT handlers registered\n- In-flight requests completed before exit\n- Connections closed cleanly\n- Test verifies shutdown sequence",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/213-graceful-shutdown",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/server.ts\n+++ b/src/server.ts\n@@ -10,6 +10,18 @@\n const server = app.listen(config.port, () => {\n   logger.info({ port: config.port }, \"server started\");\n });\n+\n+function gracefulShutdown(signal: string) {\n+  logger.info({ signal }, \"shutdown signal received\");\n+  server.close(() => {\n+    logger.info(\"all connections closed\");\n+    db.end().then(() => {\n+      logger.info(\"database pool closed\");\n+      process.exit(0);\n+    });\n+  });\n+  setTimeout(() => { logger.error(\"forced shutdown\"); process.exit(1); }, 10_000);\n+}\n+\n+process.on(\"SIGTERM\", () => gracefulShutdown(\"SIGTERM\"));\n+process.on(\"SIGINT\", () => gracefulShutdown(\"SIGINT\"));"
   },
   {
     "id": "health-check-approve",
-    "description": "Adding health check endpoint — should be approved",
+    "description": "Adding health check endpoint \u2014 should be approved",
     "issueTitle": "Add /health endpoint for monitoring",
     "issueNumber": 214,
     "acceptanceCriteria": "- GET /health returns 200 with status: ok\n- Includes uptime and version\n- Test verifies response format",
-    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 20
+    },
     "branch": "feat/214-health-check",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/health.ts\n+++ b/src/api/health.ts\n@@ -0,0 +1,10 @@\n+import { Router } from \"express\";\n+\n+const router = Router();\n+\n+router.get(\"/health\", (_req, res) => {\n+  res.json({ status: \"ok\", uptime: process.uptime(), version: process.env.npm_package_version });\n+});\n+\n+export default router;"
   },
   {
     "id": "cors-config-approve",
-    "description": "Adding CORS configuration — should be approved",
+    "description": "Adding CORS configuration \u2014 should be approved",
     "issueTitle": "Configure CORS for API endpoints",
     "issueNumber": 215,
     "acceptanceCriteria": "- CORS enabled for configured origins\n- Credentials allowed\n- Preflight requests handled\n- Origin whitelist configurable",
-    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 20
+    },
     "branch": "feat/215-cors",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/middleware/cors.ts\n+++ b/src/middleware/cors.ts\n@@ -0,0 +1,12 @@\n+import cors from \"cors\";\n+\n+const allowedOrigins = (process.env.CORS_ORIGINS ?? \"\").split(\",\").filter(Boolean);\n+\n+export const corsMiddleware = cors({\n+  origin: (origin, callback) => {\n+    if (!origin || allowedOrigins.includes(origin)) {\n+      callback(null, true);\n+    } else {\n+      callback(new Error(\"Not allowed by CORS\"));\n+    }\n+  },\n+  credentials: true,\n+});"
   }
 ]
