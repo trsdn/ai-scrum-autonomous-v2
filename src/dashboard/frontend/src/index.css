@@ -76,3 +76,25 @@ body {
 /* Links */
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* Tab navigation */
+.tab-nav {
+  display: flex;
+  gap: 2px;
+  padding: 6px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+.tab-btn:hover { color: var(--text); background: var(--bg-hover); }
+.tab-active { color: var(--text); background: var(--bg); border-bottom: 2px solid var(--accent); }
