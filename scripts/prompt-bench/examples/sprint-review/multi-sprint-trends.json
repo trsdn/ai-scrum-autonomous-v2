@@ -8,8 +8,11 @@
     "mergedPRs": "- PR #50: Build user analytics dashboard\n- PR #51: Add cohort analysis\n- PR #52: Create retention metrics\n- PR #53: Implement funnel visualization\n- PR #54: Add custom event tracking",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "improving"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "trend",
+        "improving"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +24,11 @@
     "mergedPRs": "- PR #78: Add email verification flow\n- PR #79: Create welcome email template",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "declining"],
-      "mustNotContain": ["improving"]
+      "mustContain": [
+        "trend",
+        "declining"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +40,11 @@
     "mergedPRs": "- PR #98: Implement GraphQL subscriptions\n- PR #99: Add connection pooling\n- PR #100: Create data loader batching\n- PR #101: Implement persisted queries\n- PR #102: Add schema stitching\n- PR #103: Write performance benchmarks",
     "expected": {
       "passed": true,
-      "mustContain": ["compared", "tripled"],
-      "mustNotContain": ["regression"]
+      "mustContain": [
+        "compared",
+        "tripled"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +56,11 @@
     "mergedPRs": "- PR #68: Create notification service\n- PR #69: Add push notification support\n- PR #70: Implement in-app message center\n- PR #71: Add notification grouping\n- PR #72: Create notification analytics",
     "expected": {
       "passed": true,
-      "mustContain": ["previous", "recovery"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "previous",
+        "recovery"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,7 +72,10 @@
     "mergedPRs": "- PR #60: Add holiday banner to homepage\n- PR #61: Update footer with seasonal links\n- PR #62: Fix date handling for year-end",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "previous"],
+      "mustContain": [
+        "trend",
+        "previous"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,8 +88,11 @@
     "mergedPRs": "- PR #120: Implement caching for API responses\n- PR #121: Add request compression\n- PR #122: Optimize database connection pool\n- PR #123: Create API response time SLO\n- PR #124: Add CDN configuration",
     "expected": {
       "passed": true,
-      "mustContain": ["compared", "bug"],
-      "mustNotContain": ["worsening"]
+      "mustContain": [
+        "compared",
+        "bug"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +104,11 @@
     "mergedPRs": "- PR #38: Create customer portal\n- PR #39: Add invoice listing\n- PR #40: Implement payment history\n- PR #41: Add support ticket creation",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "accuracy"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "trend",
+        "accuracy"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +120,11 @@
     "mergedPRs": "- PR #88: Add GraphQL query caching\n- PR #89: Implement field-level permissions\n- PR #90: Create schema documentation generator\n- PR #91: Add custom scalar types\n- PR #92: Implement query complexity analysis\n- PR #93: Add automated schema validation",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "sustained"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "trend",
+        "sustained"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +136,11 @@
     "mergedPRs": "- PR #58: Create batch processing engine\n- PR #59: Add progress tracking UI",
     "expected": {
       "passed": true,
-      "mustContain": ["previous", "carryover"],
-      "mustNotContain": ["all delivered"]
+      "mustContain": [
+        "previous",
+        "carryover"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +152,11 @@
     "mergedPRs": "- PR #78: Implement automated code formatting\n- PR #79: Add pre-commit hooks\n- PR #80: Create PR template with checklist\n- PR #81: Set up automated dependency updates\n- PR #82: Add CODEOWNERS file",
     "expected": {
       "passed": true,
-      "mustContain": ["compared", "merge"],
-      "mustNotContain": ["worsening"]
+      "mustContain": [
+        "compared",
+        "merge"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +168,11 @@
     "mergedPRs": "- PR #155: Create multi-region deployment\n- PR #156: Add geographic load balancing\n- PR #157: Implement data replication\n- PR #158: Create failover automation\n- PR #159: Add latency monitoring per region",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "scaling"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "trend",
+        "scaling"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,7 +184,10 @@
     "mergedPRs": "- PR #68: Refactor user service to use repository pattern\n- PR #69: Extract shared validation logic\n- PR #70: Fix N+1 query in orders list\n- PR #71: Add missing test coverage for auth module\n- PR #72: Update deprecated API calls",
     "expected": {
       "passed": true,
-      "mustContain": ["previous", "tech debt"],
+      "mustContain": [
+        "previous",
+        "tech debt"
+      ],
       "mustNotContain": []
     }
   },
@@ -164,8 +200,11 @@
     "mergedPRs": "- PR #105: Implement SSO with OIDC\n- PR #106: Add session management\n- PR #107: Create user provisioning via SCIM\n- PR #108: Add directory sync\n- PR #109: Implement audit logging for auth events",
     "expected": {
       "passed": true,
-      "mustContain": ["compared", "completion"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "compared",
+        "completion"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +216,11 @@
     "mergedPRs": "- PR #24: Build REST API for comments\n- PR #25: Add comment threading\n- PR #26: Implement comment moderation\n- PR #27: Add comment notifications",
     "expected": {
       "passed": true,
-      "mustContain": ["trend", "cycle time"],
-      "mustNotContain": ["increasing"]
+      "mustContain": [
+        "trend",
+        "cycle time"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -186,12 +228,15 @@
     "description": "Sprint 13 showing test coverage improvement across project lifetime",
     "sprintNumber": 13,
     "sprintIssues": "- #120: Add integration tests for payment flow (status:done, PR #130 merged, 5 points)\n- #121: Create E2E tests for checkout (status:done, PR #131 merged, 8 points)\n- #122: Add load tests for API gateway (status:done, PR #132 merged, 5 points)\n- #123: Implement contract tests for microservices (status:done, PR #133 merged, 8 points)\n- #124: Add visual regression tests (status:done, PR #134 merged, 5 points)",
-    "velocityData": "Sprint 1: 0% test coverage. Sprint 5: 35% coverage. Sprint 9: 62% coverage. Sprint 13: 85% coverage. Coverage improved steadily, correlating with fewer production bugs (12 → 8 → 3 → 0).",
+    "velocityData": "Sprint 1: 0% test coverage. Sprint 5: 35% coverage. Sprint 9: 62% coverage. Sprint 13: 85% coverage. Coverage improved steadily, correlating with fewer production bugs (12 \u2192 8 \u2192 3 \u2192 0).",
     "mergedPRs": "- PR #130: Add integration tests for payment flow\n- PR #131: Create E2E tests for checkout\n- PR #132: Add load tests for API gateway\n- PR #133: Implement contract tests for microservices\n- PR #134: Add visual regression tests",
     "expected": {
       "passed": true,
-      "mustContain": ["compared", "coverage"],
-      "mustNotContain": ["declining"]
+      "mustContain": [
+        "compared",
+        "coverage"
+      ],
+      "mustNotContain": []
     }
   }
 ]

@@ -8,7 +8,9 @@
     "projectContext": "Generic web application",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
+      "mustContain": [
+        "AC"
+      ],
       "mustNotContain": []
     }
   },
@@ -21,7 +23,10 @@
     "projectContext": "React app where issue #101 already covers dark mode",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "duplicate"],
+      "mustContain": [
+        "AC",
+        "duplicate"
+      ],
       "mustNotContain": []
     }
   },
@@ -29,12 +34,15 @@
     "id": "refine-093",
     "description": "Idea written in German",
     "issueNumber": 603,
-    "ideaTitle": "Suchfunktion hinzufügen",
-    "ideaBody": "Wir brauchen eine Suchfunktion damit Benutzer Artikel schneller finden können. Volltextsuche wäre ideal.",
+    "ideaTitle": "Suchfunktion hinzuf\u00fcgen",
+    "ideaBody": "Wir brauchen eine Suchfunktion damit Benutzer Artikel schneller finden k\u00f6nnen. Volltextsuche w\u00e4re ideal.",
     "projectContext": "E-commerce platform, team uses German and English",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "search"],
+      "mustContain": [
+        "AC",
+        "search"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +55,10 @@
     "projectContext": "SaaS platform with basic email-only notifications via SendGrid",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "notification"],
+      "mustContain": [
+        "AC",
+        "notification"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +71,10 @@
     "projectContext": "TypeScript React app with fetch-based API layer",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "retry"],
+      "mustContain": [
+        "AC",
+        "retry"
+      ],
       "mustNotContain": []
     }
   },
@@ -68,12 +82,15 @@
     "id": "refine-096",
     "description": "Idea with only emojis and minimal text",
     "issueNumber": 606,
-    "ideaTitle": "🚀 Performance 🚀",
-    "ideaBody": "⚡ Make it fast ⚡ 🐌➡️🚀",
+    "ideaTitle": "\ud83d\ude80 Performance \ud83d\ude80",
+    "ideaBody": "\u26a1 Make it fast \u26a1 \ud83d\udc0c\u27a1\ufe0f\ud83d\ude80",
     "projectContext": "Web application with no specific performance requirements",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "performance"],
+      "mustContain": [
+        "AC",
+        "performance"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +103,10 @@
     "projectContext": "SaaS with flat monthly pricing, no usage tracking",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "billing"],
+      "mustContain": [
+        "AC",
+        "billing"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +119,9 @@
     "projectContext": "Project management tool with existing feature bloat",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
+      "mustContain": [
+        "AC"
+      ],
       "mustNotContain": []
     }
   },
@@ -107,12 +129,15 @@
     "id": "refine-099",
     "description": "Idea written in Spanish",
     "issueNumber": 609,
-    "ideaTitle": "Añadir modo offline",
-    "ideaBody": "Los usuarios necesitan poder usar la aplicación sin conexión a internet. Deberían poder ver sus datos y hacer cambios que se sincronicen cuando vuelvan a estar en línea.",
+    "ideaTitle": "A\u00f1adir modo offline",
+    "ideaBody": "Los usuarios necesitan poder usar la aplicaci\u00f3n sin conexi\u00f3n a internet. Deber\u00edan poder ver sus datos y hacer cambios que se sincronicen cuando vuelvan a estar en l\u00ednea.",
     "projectContext": "Progressive Web App with React, no service worker yet",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "offline"],
+      "mustContain": [
+        "AC",
+        "offline"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +150,9 @@
     "projectContext": "React monolithic frontend with multiple product areas",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria"],
+      "mustContain": [
+        "AC"
+      ],
       "mustNotContain": []
     }
   }

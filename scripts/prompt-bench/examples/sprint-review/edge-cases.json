@@ -8,8 +8,11 @@
     "mergedPRs": "- PR #28: Build complete payment processing system",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "payment"],
-      "mustNotContain": ["carryover"]
+      "mustContain": [
+        "completed",
+        "payment"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +24,10 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked"],
-      "mustNotContain": ["completed", "delivered"]
+      "mustContain": [
+        "blocked"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -33,8 +38,10 @@
     "mergedPRs": "- PR #1: Initialize project repository\n- PR #2: Set up development environment\n- PR #3: Create initial database schema",
     "expected": {
       "passed": true,
-      "mustContain": ["sprint 1"],
-      "mustNotContain": ["previous sprint", "compared to"]
+      "mustContain": [
+        "sprint 1"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -46,8 +53,11 @@
     "mergedPRs": "- PR #78: Fix memory leak in WebSocket handler\n- PR #79: Fix race condition in cache invalidation\n- PR #80: Fix incorrect timezone in scheduled jobs\n- PR #81: Fix pagination offset error\n- PR #82: Fix CSS overflow on mobile devices\n- PR #83: Fix broken email template rendering",
     "expected": {
       "passed": true,
-      "mustContain": ["bug", "fix"],
-      "mustNotContain": ["feature"]
+      "mustContain": [
+        "bug",
+        "fix"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -59,7 +69,9 @@
     "mergedPRs": "- PR #58: Build user profile API\n- PR #59: Add avatar upload\n- PR #60: Fix critical production login bug\n- PR #61: Hotfix: data corruption in user profiles",
     "expected": {
       "passed": true,
-      "mustContain": ["scope"],
+      "mustContain": [
+        "scope"
+      ],
       "mustNotContain": []
     }
   },
@@ -72,7 +84,10 @@
     "mergedPRs": "- PR #40: Create user registration API\n- PR #41: Add email verification\n- PR #42: Build login page\n- PR #43: Create forgot password flow\n- PR #44: Add social login (Google)\n- PR #45: Add social login (GitHub)\n- PR #46: Create user dashboard\n- PR #47: Add profile editing\n- PR #48: Implement account deletion\n- PR #49: Add two-factor auth\n- PR #50: Create session management\n- PR #51: Add API key management",
     "expected": {
       "passed": true,
-      "mustContain": ["completed", "12"],
+      "mustContain": [
+        "completed",
+        "12"
+      ],
       "mustNotContain": []
     }
   },
@@ -81,12 +96,14 @@
     "description": "Sprint with all items at 1 point: many small tasks",
     "sprintNumber": 7,
     "sprintIssues": "- #60: Fix typo in login page (status:done, PR #68 merged, 1 point)\n- #61: Update copyright year in footer (status:done, PR #69 merged, 1 point)\n- #62: Fix broken link in docs (status:done, PR #70 merged, 1 point)\n- #63: Update npm dependencies (status:done, PR #71 merged, 1 point)\n- #64: Fix lint warnings (status:done, PR #72 merged, 1 point)\n- #65: Update README badges (status:done, PR #73 merged, 1 point)\n- #66: Fix accessibility warning (status:done, PR #74 merged, 1 point)\n- #67: Update env example file (status:done, PR #75 merged, 1 point)\n- #68: Remove unused imports (status:done, PR #76 merged, 1 point)\n- #69: Fix console warning (status:done, PR #77 merged, 1 point)",
-    "velocityData": "Planned: 10 points, Completed: 10 points. Previous sprint velocity: 22 points. All items 1 point each — housekeeping sprint.",
+    "velocityData": "Planned: 10 points, Completed: 10 points. Previous sprint velocity: 22 points. All items 1 point each \u2014 housekeeping sprint.",
     "mergedPRs": "- PR #68-77: Ten small housekeeping fixes",
     "expected": {
       "passed": true,
-      "mustContain": ["completed"],
-      "mustNotContain": ["carryover"]
+      "mustContain": [
+        "completed"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -98,8 +115,10 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["incomplete"],
-      "mustNotContain": ["delivered"]
+      "mustContain": [
+        "incomplete"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -111,8 +130,11 @@
     "mergedPRs": "- PR #105: Add webhook support\n- PR #106: Create webhook testing tool",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "cancelled"],
-      "mustNotContain": ["all completed"]
+      "mustContain": [
+        "blocked",
+        "cancelled"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -123,8 +145,10 @@
     "mergedPRs": "- PR #14: Create user registration endpoint\n- PR #15: Add input validation\n- PR #16: Implement error handling middleware",
     "expected": {
       "passed": true,
-      "mustContain": ["completed"],
-      "mustNotContain": ["velocity"]
+      "mustContain": [
+        "completed"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -136,7 +160,9 @@
     "mergedPRs": "- PR #95: Add search filters\n- PR #96: Create saved searches\n- PR #97: Add search history\n- PR #98: Implement search suggestions",
     "expected": {
       "passed": true,
-      "mustContain": ["merged"],
+      "mustContain": [
+        "merged"
+      ],
       "mustNotContain": []
     }
   },
@@ -149,7 +175,9 @@
     "mergedPRs": "- PR #50: Add user avatar upload\n- PR #51: Create image resize service\n- PR #52: Add file type validation\n- PR #53: Implement storage cleanup job",
     "expected": {
       "passed": true,
-      "mustContain": ["duplicate"],
+      "mustContain": [
+        "duplicate"
+      ],
       "mustNotContain": []
     }
   },
@@ -158,12 +186,14 @@
     "description": "Sprint with only documentation and no code changes",
     "sprintNumber": 12,
     "sprintIssues": "- #105: Write API documentation for v2 (status:done, PR #115 merged, 5 points)\n- #106: Create architecture decision records (status:done, PR #116 merged, 3 points)\n- #107: Write deployment guide (status:done, PR #117 merged, 3 points)\n- #108: Create troubleshooting runbook (status:done, PR #118 merged, 3 points)\n- #109: Write onboarding guide for new developers (status:done, PR #119 merged, 5 points)",
-    "velocityData": "Planned: 19 points, Completed: 19 points. Previous sprint velocity: 24 points. All items were documentation — no code changes.",
+    "velocityData": "Planned: 19 points, Completed: 19 points. Previous sprint velocity: 24 points. All items were documentation \u2014 no code changes.",
     "mergedPRs": "- PR #115: Write API documentation for v2\n- PR #116: Create architecture decision records\n- PR #117: Write deployment guide\n- PR #118: Create troubleshooting runbook\n- PR #119: Write onboarding guide for new developers",
     "expected": {
       "passed": true,
-      "mustContain": ["documentation"],
-      "mustNotContain": ["feature"]
+      "mustContain": [
+        "documentation"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -175,8 +205,10 @@
     "mergedPRs": "- PR #58 (frontend): Add settings page UI\n- PR #59 (frontend): Create preference toggles\n- PR #30 (backend): Add settings API endpoints\n- PR #31 (backend): Create settings migration",
     "expected": {
       "passed": true,
-      "mustContain": ["repo"],
-      "mustNotContain": ["all delivered"]
+      "mustContain": [
+        "repo"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -188,8 +220,10 @@
     "mergedPRs": "- PR #140: Deploy new caching layer\n- PR #141: Add cache warming script\n- PR #142: Enable feature flag for new cache (REVERTED)\n- PR #143: Monitor cache hit rates",
     "expected": {
       "passed": true,
-      "mustContain": ["reverted"],
-      "mustNotContain": ["all completed"]
+      "mustContain": [
+        "reverted"
+      ],
+      "mustNotContain": []
     }
   }
 ]

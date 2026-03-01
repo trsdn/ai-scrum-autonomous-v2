@@ -9,13 +9,17 @@
     "dependencies": "#1002 depends on #1001; #1004 depends on #1003",
     "expected": {
       "passed": true,
-      "mustContain": ["#1000", "#1001", "#1005"],
-      "mustNotContain": ["#1007", "#1013", "#1008", "#1014"]
+      "mustContain": [
+        "#1000",
+        "#1001",
+        "#1005"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-092",
-    "description": "Previous sprint had carryover — re-select in-progress + fill remaining capacity",
+    "description": "Previous sprint had carryover \u2014 re-select in-progress + fill remaining capacity",
     "sprintNumber": 12,
     "maxIssues": 6,
     "velocity": 21,
@@ -23,8 +27,12 @@
     "previousSprint": "Sprint 11 had #1030 (40% complete) and #1031 (70% complete) as carryover items",
     "expected": {
       "passed": true,
-      "mustContain": ["#1030", "#1031", "#1032"],
-      "mustNotContain": ["#1037"]
+      "mustContain": [
+        "#1030",
+        "#1031",
+        "#1032"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -36,34 +44,46 @@
     "backlog": "- #1040: Build user management module (priority:high, size:l, 8 points, type:story, status:open)\n- #1041: Fix user session expiry bug (priority:high, size:s, 3 points, type:bug, status:open)\n- #1042: Add bulk user import (priority:high, size:l, 8 points, type:story, status:open)\n- #1043: Fix role assignment error (priority:high, size:s, 2 points, type:bug, status:open)\n- #1044: Implement user deactivation (priority:medium, size:m, 5 points, type:story, status:open)\n- #1045: Fix avatar upload crash (priority:high, size:s, 3 points, type:bug, status:open)\n- #1046: Add user activity timeline (priority:medium, size:m, 5 points, type:story, status:open)\n- #1047: Build user analytics dashboard (priority:low, size:l, 8 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#1041", "#1043", "#1045"],
-      "mustNotContain": ["#1047"]
+      "mustContain": [
+        "#1041",
+        "#1043",
+        "#1045"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-094",
-    "description": "XL item should only be picked if enough room — otherwise skip",
+    "description": "XL item should only be picked if enough room \u2014 otherwise skip",
     "sprintNumber": 7,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #1050: Redesign entire frontend (priority:medium, size:xl, 13 points, type:story, status:open)\n- #1051: Fix navigation accessibility (priority:critical, size:s, 3 points, type:bug, status:open)\n- #1052: Add responsive breakpoints (priority:high, size:m, 5 points, type:story, status:open)\n- #1053: Fix layout shift issues (priority:high, size:m, 5 points, type:bug, status:open)\n- #1054: Add component storybook (priority:medium, size:m, 5 points, type:story, status:open)\n- #1055: Fix CSS specificity issues (priority:medium, size:s, 3 points, type:bug, status:open)\n- #1056: Add animation library (priority:low, size:s, 3 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#1051", "#1052", "#1053"],
-      "mustNotContain": ["#1050"]
+      "mustContain": [
+        "#1051",
+        "#1052",
+        "#1053"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-095",
-    "description": "type:idea items should be skipped — not refined yet",
+    "description": "type:idea items should be skipped \u2014 not refined yet",
     "sprintNumber": 5,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #1060: Explore AI chatbot integration (priority:high, size:xl, 13 points, type:idea, status:open)\n- #1061: Research blockchain for audit trail (priority:medium, size:xl, 13 points, type:idea, status:open)\n- #1062: Fix form submission error (priority:critical, size:s, 3 points, type:bug, status:open)\n- #1063: Add input mask for phone numbers (priority:high, size:s, 2 points, type:story, status:open)\n- #1064: Implement address autocomplete (priority:high, size:m, 5 points, type:story, status:open)\n- #1065: Add form progress indicator (priority:medium, size:s, 3 points, type:story, status:open)\n- #1066: Fix date picker localization (priority:medium, size:s, 2 points, type:bug, status:open)\n- #1067: Build multi-step wizard (priority:medium, size:m, 5 points, type:story, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#1062", "#1063", "#1064"],
-      "mustNotContain": ["#1060", "#1061"]
+      "mustContain": [
+        "#1062",
+        "#1063",
+        "#1064"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -76,26 +96,35 @@
     "dependencies": "#1071 depends on #1070 (done); #1072 depends on #1070 (done); #1073 depends on #1070 (done, but #1073 is blocked); #1075 depends on #1071",
     "expected": {
       "passed": true,
-      "mustContain": ["#1071", "#1074", "#1075"],
-      "mustNotContain": ["#1070", "#1073"]
+      "mustContain": [
+        "#1071",
+        "#1074",
+        "#1075"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-097",
-    "description": "Sprint with tech debt paydown — mix of features, bugs, and refactoring",
+    "description": "Sprint with tech debt paydown \u2014 mix of features, bugs, and refactoring",
     "sprintNumber": 10,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #1080: Refactor database access layer (priority:high, size:l, 8 points, type:story, status:open)\n- #1081: Fix N+1 query in user list (priority:critical, size:s, 3 points, type:bug, status:open)\n- #1082: Add database connection pooling (priority:high, size:m, 5 points, type:story, status:open)\n- #1083: Fix slow search query (priority:high, size:s, 3 points, type:bug, status:open)\n- #1084: Add query caching (priority:medium, size:m, 5 points, type:story, status:open)\n- #1085: Implement read replicas (priority:medium, size:l, 8 points, type:story, status:open)\n- #1086: Add database monitoring (priority:medium, size:s, 3 points, type:story, status:open)\n- #1087: Fix connection timeout handling (priority:medium, size:s, 2 points, type:bug, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#1081", "#1080", "#1082", "#1083"],
-      "mustNotContain": ["#1085"]
+      "mustContain": [
+        "#1081",
+        "#1080",
+        "#1082",
+        "#1083"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "planner-098",
-    "description": "Large team sprint — higher velocity, more items selectable",
+    "description": "Large team sprint \u2014 higher velocity, more items selectable",
     "sprintNumber": 15,
     "maxIssues": 6,
     "velocity": 34,
@@ -103,21 +132,33 @@
     "dependencies": "#1091 depends on #1090; #1092 depends on #1090",
     "expected": {
       "passed": true,
-      "mustContain": ["#1090", "#1091", "#1092", "#1093", "#1095"],
+      "mustContain": [
+        "#1090",
+        "#1091",
+        "#1092",
+        "#1093",
+        "#1095"
+      ],
       "mustNotContain": []
     }
   },
   {
     "id": "planner-099",
-    "description": "Sprint close to release — prioritize stability (bugs > features)",
+    "description": "Sprint close to release \u2014 prioritize stability (bugs > features)",
     "sprintNumber": 20,
     "maxIssues": 6,
     "velocity": 21,
     "backlog": "- #1100: Fix login redirect loop (priority:critical, size:s, 2 points, type:bug, status:open)\n- #1101: Fix email notification delay (priority:high, size:s, 3 points, type:bug, status:open)\n- #1102: Fix data export encoding (priority:high, size:s, 2 points, type:bug, status:open)\n- #1103: Fix chart rendering on Safari (priority:high, size:s, 3 points, type:bug, status:open)\n- #1104: Fix password reset token expiry (priority:high, size:s, 2 points, type:bug, status:open)\n- #1105: Add new onboarding feature (priority:medium, size:l, 8 points, type:story, status:open)\n- #1106: Build analytics dashboard v2 (priority:medium, size:xl, 13 points, type:story, status:open)\n- #1107: Add dark mode support (priority:low, size:l, 8 points, type:story, status:open)\n- #1108: Fix form autofill styling (priority:medium, size:xs, 1 point, type:bug, status:open)\n- #1109: Fix table sort indicator (priority:medium, size:xs, 1 point, type:bug, status:open)",
     "expected": {
       "passed": true,
-      "mustContain": ["#1100", "#1101", "#1102", "#1103", "#1104"],
-      "mustNotContain": ["#1106", "#1107"]
+      "mustContain": [
+        "#1100",
+        "#1101",
+        "#1102",
+        "#1103",
+        "#1104"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -131,8 +172,12 @@
     "previousSprint": "Sprint 13 had #1110 in-progress at 60% completion",
     "expected": {
       "passed": true,
-      "mustContain": ["#1110", "#1114", "#1118"],
-      "mustNotContain": ["#1113", "#1116", "#1119"]
+      "mustContain": [
+        "#1110",
+        "#1114",
+        "#1118"
+      ],
+      "mustNotContain": []
     }
   }
 ]

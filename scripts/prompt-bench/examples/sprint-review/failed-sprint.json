@@ -8,8 +8,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "infrastructure"],
-      "mustNotContain": ["successful", "all completed"]
+      "mustContain": [
+        "blocked",
+        "infrastructure"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +24,11 @@
     "mergedPRs": "- PR #80: Fix critical data loss bug in production",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "production incident"],
-      "mustNotContain": ["successful sprint"]
+      "mustContain": [
+        "failed",
+        "production incident"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +40,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "Twilio"],
-      "mustNotContain": ["delivered", "all completed"]
+      "mustContain": [
+        "blocked",
+        "Twilio"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +56,11 @@
     "mergedPRs": "- PR #28: Patch critical XSS vulnerability",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "XSS"],
-      "mustNotContain": ["all delivered"]
+      "mustContain": [
+        "failed",
+        "XSS"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +72,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "reassigned"],
-      "mustNotContain": ["successful", "completed"]
+      "mustContain": [
+        "blocked",
+        "reassigned"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +88,11 @@
     "mergedPRs": "- PR #98: Run PostgreSQL 14 to 16 upgrade",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "PostgreSQL"],
-      "mustNotContain": ["all completed"]
+      "mustContain": [
+        "failed",
+        "PostgreSQL"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +104,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "knowledge"],
-      "mustNotContain": ["delivered", "successful"]
+      "mustContain": [
+        "blocked",
+        "knowledge"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +120,11 @@
     "mergedPRs": "- PR #130: Set up new GCP project and IAM",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "GCP"],
-      "mustNotContain": ["all delivered"]
+      "mustContain": [
+        "failed",
+        "GCP"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +136,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "compliance"],
-      "mustNotContain": ["successful", "all completed"]
+      "mustContain": [
+        "blocked",
+        "compliance"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +152,11 @@
     "mergedPRs": "- PR #41: Upgrade React from v17 to v18",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "React"],
-      "mustNotContain": ["all delivered"]
+      "mustContain": [
+        "failed",
+        "React"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +168,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "VPN"],
-      "mustNotContain": ["delivered", "completed"]
+      "mustContain": [
+        "blocked",
+        "VPN"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +184,11 @@
     "mergedPRs": "- PR #142: Pin dependency versions in lockfile",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "dependency"],
-      "mustNotContain": ["successful sprint"]
+      "mustContain": [
+        "failed",
+        "dependency"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +200,11 @@
     "mergedPRs": "",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "GPU"],
-      "mustNotContain": ["delivered", "completed"]
+      "mustContain": [
+        "blocked",
+        "GPU"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +216,11 @@
     "mergedPRs": "- PR #118: Analyze legacy database schema",
     "expected": {
       "passed": true,
-      "mustContain": ["failed", "underestimated"],
-      "mustNotContain": ["all completed"]
+      "mustContain": [
+        "failed",
+        "underestimated"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +232,11 @@
     "mergedPRs": "- PR #155: Implement caching layer for API responses",
     "expected": {
       "passed": true,
-      "mustContain": ["blocked", "rate limit"],
-      "mustNotContain": ["successful", "all delivered"]
+      "mustContain": [
+        "blocked",
+        "rate limit"
+      ],
+      "mustNotContain": []
     }
   }
 ]

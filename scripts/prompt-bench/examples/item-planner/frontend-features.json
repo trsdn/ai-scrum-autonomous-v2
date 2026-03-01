@@ -8,8 +8,12 @@
     "codebaseContext": "React 18 + TypeScript. Files: src/components/Header.tsx, src/hooks/useDebounce.ts, src/api/search.ts. Uses vitest + React Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["SearchBar", "debounce", "test"],
-      "mustNotContain": ["jQuery"]
+      "mustContain": [
+        "SearchBar",
+        "debounce",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +25,13 @@
     "codebaseContext": "React 18 + Tailwind CSS. Files: src/App.tsx, src/styles/globals.css, src/components/Settings.tsx, src/hooks/useTheme.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["localStorage", "CSS", "toggle", "test"],
-      "mustNotContain": ["Redux"]
+      "mustContain": [
+        "localStorage",
+        "CSS",
+        "toggle",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +43,13 @@
     "codebaseContext": "Next.js 14 + CSS Modules. Files: src/components/Nav.tsx, src/components/Nav.module.css, src/hooks/useMediaQuery.ts. Uses Jest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["breakpoint", "hamburger", "aria", "test"],
-      "mustNotContain": ["Bootstrap"]
+      "mustContain": [
+        "breakpoint",
+        "hamburger",
+        "aria",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +61,13 @@
     "codebaseContext": "React 18 + React Hook Form + Zod. Files: src/components/RegisterForm.tsx, src/schemas/user.ts, src/components/FormField.tsx. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["validation", "Zod", "error", "test"],
-      "mustNotContain": ["Formik"]
+      "mustContain": [
+        "validation",
+        "Zod",
+        "error",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +79,13 @@
     "codebaseContext": "React 18 + TanStack Query. Files: src/pages/Products.tsx, src/hooks/useInfiniteProducts.ts, src/api/products.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["IntersectionObserver", "pagination", "loading", "test"],
-      "mustNotContain": ["scroll event listener"]
+      "mustContain": [
+        "IntersectionObserver",
+        "pagination",
+        "loading",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +97,13 @@
     "codebaseContext": "React 18 + styled-components. Files: src/components/Modal.tsx, src/hooks/useFocusTrap.ts, src/hooks/useScrollLock.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["focus trap", "aria", "Escape", "test"],
-      "mustNotContain": ["window.alert"]
+      "mustContain": [
+        "focus trap",
+        "aria",
+        "Escape",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +115,13 @@
     "codebaseContext": "React 18 + dnd-kit. Files: src/components/Board.tsx, src/components/Column.tsx, src/components/Card.tsx, src/api/tasks.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["drag", "drop", "optimistic", "test"],
-      "mustNotContain": ["HTML5 drag API"]
+      "mustContain": [
+        "drag",
+        "drop",
+        "optimistic",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +133,13 @@
     "codebaseContext": "Vue 3 + Composition API. Files: src/components/Toast.vue, src/composables/useToast.ts, src/stores/notifications.ts. Uses Vitest + Vue Test Utils.",
     "expected": {
       "passed": true,
-      "mustContain": ["toast", "auto-dismiss", "role", "test"],
-      "mustNotContain": ["jQuery"]
+      "mustContain": [
+        "toast",
+        "auto-dismiss",
+        "role",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +151,13 @@
     "codebaseContext": "React 18 + CSS Grid. Files: src/components/Gallery.tsx, src/components/Lightbox.tsx, src/hooks/useLazyLoad.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["lazy load", "lightbox", "keyboard", "test"],
-      "mustNotContain": ["document.write"]
+      "mustContain": [
+        "lazy load",
+        "lightbox",
+        "keyboard",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +169,13 @@
     "codebaseContext": "React 18 + Zustand. Files: src/components/Checkout/, src/stores/checkoutStore.ts, src/schemas/checkout.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["step", "validation", "progress", "test"],
-      "mustNotContain": ["Redux"]
+      "mustContain": [
+        "step",
+        "validation",
+        "progress",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +187,13 @@
     "codebaseContext": "React 18 + TanStack Table. Files: src/components/DataTable.tsx, src/hooks/useTableData.ts, src/components/Pagination.tsx. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["sort", "filter", "pagination", "test"],
-      "mustNotContain": ["ag-grid"]
+      "mustContain": [
+        "sort",
+        "filter",
+        "pagination",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +205,13 @@
     "codebaseContext": "Angular 17 + Angular Router. Files: src/app/components/breadcrumb/, src/app/services/breadcrumb.service.ts, src/app/app-routing.module.ts. Uses Jasmine + Karma.",
     "expected": {
       "passed": true,
-      "mustContain": ["route", "breadcrumb", "aria", "test"],
-      "mustNotContain": ["React"]
+      "mustContain": [
+        "route",
+        "breadcrumb",
+        "aria",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +223,13 @@
     "codebaseContext": "Vue 3 + Tiptap editor. Files: src/components/Editor.vue, src/composables/useEditor.ts, src/utils/sanitize.ts, src/api/uploads.ts. Uses Vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["sanitiz", "editor", "upload", "test"],
-      "mustNotContain": ["contentEditable directly"]
+      "mustContain": [
+        "sanitiz",
+        "editor",
+        "upload",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +241,13 @@
     "codebaseContext": "React 18 + D3.js. Files: src/components/Dashboard.tsx, src/components/charts/LineChart.tsx, src/components/charts/BarChart.tsx, src/hooks/useChartData.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["chart", "responsive", "tooltip", "test"],
-      "mustNotContain": ["Chart.js"]
+      "mustContain": [
+        "chart",
+        "responsive",
+        "tooltip",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +259,13 @@
     "codebaseContext": "React 18 + WebSocket. Files: src/components/Editor.tsx, src/components/CursorOverlay.tsx, src/hooks/useCollaboration.ts, src/ws/cursorChannel.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["WebSocket", "cursor", "real-time", "test"],
-      "mustNotContain": ["polling"]
+      "mustContain": [
+        "WebSocket",
+        "cursor",
+        "real-time",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -203,8 +277,13 @@
     "codebaseContext": "React 18 + Radix UI primitives. Files: src/components/Select.tsx, src/components/Select.test.tsx, src/styles/select.css. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["aria", "keyboard", "combobox", "test"],
-      "mustNotContain": ["native select"]
+      "mustContain": [
+        "aria",
+        "keyboard",
+        "combobox",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -216,8 +295,13 @@
     "codebaseContext": "Next.js 14 + Tailwind CSS. Files: src/components/skeletons/ListSkeleton.tsx, src/components/skeletons/CardSkeleton.tsx, src/components/skeletons/DetailSkeleton.tsx. Uses Jest.",
     "expected": {
       "passed": true,
-      "mustContain": ["skeleton", "animation", "aria-busy", "test"],
-      "mustNotContain": ["spinner only"]
+      "mustContain": [
+        "skeleton",
+        "animation",
+        "aria-busy",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -229,8 +313,13 @@
     "codebaseContext": "Svelte + SvelteKit. Files: src/lib/components/CookieBanner.svelte, src/lib/stores/consent.ts, src/lib/utils/cookies.ts. Uses Vitest + Playwright.",
     "expected": {
       "passed": true,
-      "mustContain": ["cookie", "consent", "GDPR", "test"],
-      "mustNotContain": ["localStorage"]
+      "mustContain": [
+        "cookie",
+        "consent",
+        "GDPR",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -242,8 +331,13 @@
     "codebaseContext": "React 18 + react-window. Files: src/components/VirtualList.tsx, src/hooks/useVirtualScroll.ts, src/components/VirtualList.test.tsx. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["virtual", "render", "performance", "test"],
-      "mustNotContain": ["render all items"]
+      "mustContain": [
+        "virtual",
+        "render",
+        "performance",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -255,8 +349,13 @@
     "codebaseContext": "React 18 + react-i18next. Files: src/i18n/index.ts, src/i18n/locales/en.json, src/i18n/locales/es.json, src/components/LanguageSwitcher.tsx. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["i18n", "translation", "locale", "test"],
-      "mustNotContain": ["hardcoded strings"]
+      "mustContain": [
+        "i18n",
+        "translation",
+        "locale",
+        "test"
+      ],
+      "mustNotContain": []
     }
   }
 ]

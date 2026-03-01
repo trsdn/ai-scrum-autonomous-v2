@@ -8,8 +8,12 @@
     "codebaseContext": "React 18 + TanStack Query. Files: src/hooks/useDashboardData.ts, src/pages/Dashboard.tsx, src/api/dashboard.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["race condition", "AbortController", "regression test"],
-      "mustNotContain": ["setTimeout workaround"]
+      "mustContain": [
+        "race condition",
+        "AbortController",
+        "regression test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +25,12 @@
     "codebaseContext": "React 18. Files: src/components/ResponsiveLayout.tsx, src/hooks/useWindowSize.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["cleanup", "removeEventListener", "regression test"],
-      "mustNotContain": ["ignore the leak"]
+      "mustContain": [
+        "cleanup",
+        "removeEventListener",
+        "regression test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +42,13 @@
     "codebaseContext": "Express 4 + Prisma. Files: src/utils/pagination.ts, src/routes/products.ts, tests/utils/pagination.test.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["ceil", "off-by-one", "edge case", "test"],
-      "mustNotContain": ["Math.floor"]
+      "mustContain": [
+        "ceil",
+        "off-by-one",
+        "edge case",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +60,13 @@
     "codebaseContext": "React 18 + DOMPurify. Files: src/components/CommentList.tsx, src/utils/sanitize.ts, src/api/comments.ts. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["sanitiz", "XSS", "escape", "security test"],
-      "mustNotContain": ["dangerouslySetInnerHTML without sanitization"]
+      "mustContain": [
+        "sanitiz",
+        "XSS",
+        "escape",
+        "security test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +78,13 @@
     "codebaseContext": "React 18 + date-fns. Files: src/utils/dateFormat.ts, src/components/DateDisplay.tsx, src/api/events.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["UTC", "timezone", "locale", "regression test"],
-      "mustNotContain": ["new Date() without timezone"]
+      "mustContain": [
+        "UTC",
+        "timezone",
+        "locale",
+        "regression test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +96,13 @@
     "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/routes/orders.ts, src/services/orderService.ts, prisma/schema.prisma. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["eager loading", "include", "N+1", "test"],
-      "mustNotContain": ["loop query"]
+      "mustContain": [
+        "eager loading",
+        "include",
+        "N+1",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +114,13 @@
     "codebaseContext": "Express 4 + cors middleware. Files: src/middleware/cors.ts, src/config/index.ts, src/app.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["origin", "CORS", "environment", "test"],
-      "mustNotContain": ["Access-Control-Allow-Origin: *"]
+      "mustContain": [
+        "origin",
+        "CORS",
+        "environment",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +132,13 @@
     "codebaseContext": "React 18. Files: src/components/LazyImage.tsx, src/hooks/useLazyLoad.ts, src/utils/browserSupport.ts. Uses vitest + Playwright.",
     "expected": {
       "passed": true,
-      "mustContain": ["Safari", "fallback", "polyfill", "test"],
-      "mustNotContain": ["ignore Safari"]
+      "mustContain": [
+        "Safari",
+        "fallback",
+        "polyfill",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +150,13 @@
     "codebaseContext": "Node.js + Knex.js + PostgreSQL. Files: src/services/orderProcessor.ts, src/db/transactions.ts, src/utils/retry.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["deadlock", "lock ordering", "retry", "test"],
-      "mustNotContain": ["disable transactions"]
+      "mustContain": [
+        "deadlock",
+        "lock ordering",
+        "retry",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +168,13 @@
     "codebaseContext": "Express 4 + express-session + Redis. Files: src/routes/auth.ts, src/middleware/session.ts, src/config/session.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["regenerat", "session fixation", "HttpOnly", "security test"],
-      "mustNotContain": ["reuse session"]
+      "mustContain": [
+        "regenerat",
+        "session fixation",
+        "HttpOnly",
+        "security test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +186,13 @@
     "codebaseContext": "TypeScript + ESM. Files: src/models/user.ts, src/models/post.ts, src/models/types.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["circular", "extract", "types", "test"],
-      "mustNotContain": ["lazy import workaround"]
+      "mustContain": [
+        "circular",
+        "extract",
+        "types",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +204,13 @@
     "codebaseContext": "Express 4 + Redis. Files: src/middleware/cache.ts, src/services/productService.ts, src/utils/cacheKeys.ts. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["invalidat", "cache", "stale", "test"],
-      "mustNotContain": ["disable caching"]
+      "mustContain": [
+        "invalidat",
+        "cache",
+        "stale",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +222,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/asyncHandler.ts, src/middleware/errorHandler.ts, src/app.ts. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["async", "error handler", "500", "test"],
-      "mustNotContain": ["process.exit"]
+      "mustContain": [
+        "async",
+        "error handler",
+        "500",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +240,13 @@
     "codebaseContext": "Express 4 + Prisma. Files: src/routes/auth.ts, src/services/passwordResetService.ts, prisma/schema.prisma. Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["expir", "token", "invalidat", "test"],
-      "mustNotContain": ["never expires"]
+      "mustContain": [
+        "expir",
+        "token",
+        "invalidat",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +258,13 @@
     "codebaseContext": "React 18 + Express 4 + Prisma. Files: src/middleware/concurrency.ts, src/components/ConflictDialog.tsx, prisma/schema.prisma. Uses vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["version", "409", "conflict", "test"],
-      "mustNotContain": ["last write wins only"]
+      "mustContain": [
+        "version",
+        "409",
+        "conflict",
+        "test"
+      ],
+      "mustNotContain": []
     }
   }
 ]

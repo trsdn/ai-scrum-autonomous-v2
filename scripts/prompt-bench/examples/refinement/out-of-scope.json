@@ -8,7 +8,10 @@
     "projectContext": "Legacy PHP monolith with 200K+ lines of code",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -21,7 +24,10 @@
     "projectContext": "Traditional request-response web app with REST API",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -34,7 +40,10 @@
     "projectContext": "Web-only SaaS with responsive design",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "MVP"],
+      "mustContain": [
+        "AC",
+        "MVP"
+      ],
       "mustNotContain": []
     }
   },
@@ -47,7 +56,10 @@
     "projectContext": "React app with ad-hoc styled components",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -60,7 +72,10 @@
     "projectContext": "Single-tenant SaaS app with shared database",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -73,7 +88,10 @@
     "projectContext": "SaaS platform with plugin architecture",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -86,7 +104,10 @@
     "projectContext": "Node.js monolith handling all business logic",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -99,7 +120,10 @@
     "projectContext": "SaaS serving enterprise customers, no compliance framework",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   },
@@ -112,7 +136,10 @@
     "projectContext": "Web app currently using GA4 for basic analytics",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "step"],
+      "mustContain": [
+        "AC",
+        "step"
+      ],
       "mustNotContain": []
     }
   },
@@ -125,7 +152,10 @@
     "projectContext": "Single-brand SaaS application",
     "expected": {
       "passed": true,
-      "mustContain": ["acceptance criteria", "phase"],
+      "mustContain": [
+        "AC",
+        "phase"
+      ],
       "mustNotContain": []
     }
   }

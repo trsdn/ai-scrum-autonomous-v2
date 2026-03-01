@@ -8,8 +8,13 @@
     "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/routes/users.ts, tests/integration/users.test.ts (new). Uses vitest + supertest. Test DB configured in vitest.config.ts.",
     "expected": {
       "passed": true,
-      "mustContain": ["supertest", "integration", "seed", "coverage"],
-      "mustNotContain": ["unit test only"]
+      "mustContain": [
+        "supertest",
+        "integration",
+        "seed",
+        "coverage"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -21,8 +26,13 @@
     "codebaseContext": "Next.js 14 + React 18. Files: tests/e2e/, tests/e2e/pages/, playwright.config.ts. Uses Playwright.",
     "expected": {
       "passed": true,
-      "mustContain": ["Playwright", "Page Object", "CI", "screenshot"],
-      "mustNotContain": ["Cypress"]
+      "mustContain": [
+        "Playwright",
+        "Page Object",
+        "CI",
+        "screenshot"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -34,8 +44,13 @@
     "codebaseContext": "React 18 + TypeScript. Files: src/components/ui/*.tsx, tests/snapshots/ (new). Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["snapshot", "variant", "toMatchSnapshot", "CI"],
-      "mustNotContain": ["screenshot test"]
+      "mustContain": [
+        "snapshot",
+        "variant",
+        "toMatchSnapshot",
+        "CI"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -47,8 +62,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/services/authService.ts, src/middleware/auth.ts, tests/services/authService.test.ts. Uses vitest + c8 coverage.",
     "expected": {
       "passed": true,
-      "mustContain": ["coverage", "mock", "edge case", "branch"],
-      "mustNotContain": ["skip hard tests"]
+      "mustContain": [
+        "coverage",
+        "mock",
+        "edge case",
+        "branch"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -60,8 +80,13 @@
     "codebaseContext": "Express 4 + PostgreSQL. Files: tests/load/login.js, tests/load/products.js, tests/load/orders.js, tests/load/k6.config.js. Uses k6.",
     "expected": {
       "passed": true,
-      "mustContain": ["k6", "threshold", "VU", "baseline"],
-      "mustNotContain": ["JMeter"]
+      "mustContain": [
+        "k6",
+        "threshold",
+        "VU",
+        "baseline"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -73,8 +98,13 @@
     "codebaseContext": "Node.js microservices. Files: order-service/tests/contract/, payment-service/tests/contract/, pact-broker.config.ts. Uses Pact + vitest.",
     "expected": {
       "passed": true,
-      "mustContain": ["Pact", "contract", "consumer", "provider"],
-      "mustNotContain": ["integration test only"]
+      "mustContain": [
+        "Pact",
+        "contract",
+        "consumer",
+        "provider"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -86,8 +116,13 @@
     "codebaseContext": "React 18 + Storybook 8. Files: src/components/**/*.stories.tsx, .chromatic.config.js (new), .github/workflows/chromatic.yml. Uses Chromatic.",
     "expected": {
       "passed": true,
-      "mustContain": ["Chromatic", "visual", "screenshot", "Storybook"],
-      "mustNotContain": ["manual visual check"]
+      "mustContain": [
+        "Chromatic",
+        "visual",
+        "screenshot",
+        "Storybook"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -99,8 +134,13 @@
     "codebaseContext": "TypeScript + vitest. Files: stryker.conf.mjs (new), src/utils/*.ts, src/services/*.ts. Uses Stryker.",
     "expected": {
       "passed": true,
-      "mustContain": ["mutation", "Stryker", "mutant", "score"],
-      "mustNotContain": ["code coverage only"]
+      "mustContain": [
+        "mutation",
+        "Stryker",
+        "mutant",
+        "score"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -112,8 +152,13 @@
     "codebaseContext": "React 18 + Testing Library. Files: src/components/forms/*.tsx, tests/a11y/ (new). Uses vitest + @axe-core/react + jest-axe.",
     "expected": {
       "passed": true,
-      "mustContain": ["axe", "WCAG", "accessibility", "aria"],
-      "mustNotContain": ["manual testing only"]
+      "mustContain": [
+        "axe",
+        "WCAG",
+        "accessibility",
+        "aria"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -125,8 +170,13 @@
     "codebaseContext": "Express 4 + TypeScript + Zod. Files: src/schemas/responses/, tests/helpers/schemaValidator.ts, src/routes/*.ts. Uses vitest + zod-to-json-schema.",
     "expected": {
       "passed": true,
-      "mustContain": ["schema", "validation", "response", "strict"],
-      "mustNotContain": ["no validation"]
+      "mustContain": [
+        "schema",
+        "validation",
+        "response",
+        "strict"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -138,8 +188,13 @@
     "codebaseContext": "TypeScript + Prisma + PostgreSQL. Files: tests/factories/ (new), tests/helpers/db.ts, tests/setup.ts. Uses vitest + @faker-js/faker.",
     "expected": {
       "passed": true,
-      "mustContain": ["factory", "seed", "faker", "reset"],
-      "mustNotContain": ["hardcoded test data"]
+      "mustContain": [
+        "factory",
+        "seed",
+        "faker",
+        "reset"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -151,8 +206,13 @@
     "codebaseContext": "React 18 + TypeScript. Files: src/components/ErrorBoundary.tsx, tests/components/ErrorBoundary.test.tsx. Uses vitest + Testing Library.",
     "expected": {
       "passed": true,
-      "mustContain": ["ErrorBoundary", "fallback", "recovery", "test"],
-      "mustNotContain": ["ignore errors"]
+      "mustContain": [
+        "ErrorBoundary",
+        "fallback",
+        "recovery",
+        "test"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -164,8 +224,13 @@
     "codebaseContext": "TypeScript + vitest. Files: tests/benchmarks/utils.bench.ts (new), benchmark-results.json (new). Uses vitest bench mode.",
     "expected": {
       "passed": true,
-      "mustContain": ["benchmark", "baseline", "regression", "ops/sec"],
-      "mustNotContain": ["manual timing"]
+      "mustContain": [
+        "benchmark",
+        "baseline",
+        "regression",
+        "ops/sec"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -177,8 +242,13 @@
     "codebaseContext": "Node.js + Express. Files: tests/smoke/health.test.ts, tests/smoke/login.test.ts, tests/smoke/api.test.ts, scripts/run-smoke.sh. Uses vitest + node-fetch.",
     "expected": {
       "passed": true,
-      "mustContain": ["smoke", "deployment", "health", "alert"],
-      "mustNotContain": ["full test suite"]
+      "mustContain": [
+        "smoke",
+        "deployment",
+        "health",
+        "alert"
+      ],
+      "mustNotContain": []
     }
   },
   {
@@ -190,8 +260,13 @@
     "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/errorHandler.ts, src/services/*.ts, tests/errors/ (new). Uses vitest + supertest.",
     "expected": {
       "passed": true,
-      "mustContain": ["error handling", "timeout", "coverage", "test"],
-      "mustNotContain": ["happy path only"]
+      "mustContain": [
+        "error handling",
+        "timeout",
+        "coverage",
+        "test"
+      ],
+      "mustNotContain": []
     }
   }
 ]

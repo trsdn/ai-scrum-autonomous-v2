@@ -1,262 +1,307 @@
 [
   {
     "id": "retro-001",
-    "description": "Perfect sprint — all 6 issues completed, velocity matched estimate",
+    "description": "Perfect sprint \u2014 all 6 issues completed, velocity matched estimate",
     "sprintNumber": 5,
-    "sprintResults": "## Sprint 5 Results\n\n| Issue | Title | Points | Status | PR | CI |\n|-------|-------|--------|--------|----|----||\n| #42 | Add user auth middleware | 3 | ✅ Done | #43 | ✅ Green |\n| #44 | Fix null pointer in parser | 2 | ✅ Done | #45 | ✅ Green |\n| #46 | Add retry logic to API client | 3 | ✅ Done | #47 | ✅ Green |\n| #48 | Update config schema | 1 | ✅ Done | #49 | ✅ Green |\n| #50 | Refactor logging module | 2 | ✅ Done | #51 | ✅ Green |\n| #52 | Add integration test suite | 2 | ✅ Done | #53 | ✅ Green |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Escalations**: 0\n**Blockers**: 0",
+    "sprintResults": "## Sprint 5 Results\n\n| Issue | Title | Points | Status | PR | CI |\n|-------|-------|--------|--------|----|----||\n| #42 | Add user auth middleware | 3 | \u2705 Done | #43 | \u2705 Green |\n| #44 | Fix null pointer in parser | 2 | \u2705 Done | #45 | \u2705 Green |\n| #46 | Add retry logic to API client | 3 | \u2705 Done | #47 | \u2705 Green |\n| #48 | Update config schema | 1 | \u2705 Done | #49 | \u2705 Green |\n| #50 | Refactor logging module | 2 | \u2705 Done | #51 | \u2705 Green |\n| #52 | Add integration test suite | 2 | \u2705 Done | #53 | \u2705 Green |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Escalations**: 0\n**Blockers**: 0",
     "velocityData": "Sprint 3: 10/13 | Sprint 4: 12/13 | Sprint 5: 13/13",
     "previousImprovements": "Sprint 4 retro: Increased quality gate timeout from 120s to 180s",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure", "blocked"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-002",
-    "description": "Clean sprint with slight time surplus — opportunity for optimization",
+    "description": "Clean sprint with slight time surplus \u2014 opportunity for optimization",
     "sprintNumber": 8,
-    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #71 | Implement webhook handler | 3 | ✅ Done | #72 | ✅ Green | 18m |\n| #73 | Add rate limiter | 2 | ✅ Done | #74 | ✅ Green | 12m |\n| #75 | Fix timezone conversion | 1 | ✅ Done | #76 | ✅ Green | 8m |\n| #77 | Update error messages | 1 | ✅ Done | #78 | ✅ Green | 6m |\n| #79 | Add health check endpoint | 2 | ✅ Done | #80 | ✅ Green | 14m |\n| #81 | Refactor DB connection pool | 3 | ✅ Done | #82 | ✅ Green | 20m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 18m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved first round",
+    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #71 | Implement webhook handler | 3 | \u2705 Done | #72 | \u2705 Green | 18m |\n| #73 | Add rate limiter | 2 | \u2705 Done | #74 | \u2705 Green | 12m |\n| #75 | Fix timezone conversion | 1 | \u2705 Done | #76 | \u2705 Green | 8m |\n| #77 | Update error messages | 1 | \u2705 Done | #78 | \u2705 Green | 6m |\n| #79 | Add health check endpoint | 2 | \u2705 Done | #80 | \u2705 Green | 14m |\n| #81 | Refactor DB connection pool | 3 | \u2705 Done | #82 | \u2705 Green | 20m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 18m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved first round",
     "velocityData": "Sprint 6: 11/12 | Sprint 7: 12/12 | Sprint 8: 12/12",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["critical", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-003",
     "description": "Sprint with all issues done but one took a quality gate retry",
     "sprintNumber": 3,
-    "sprintResults": "## Sprint 3 Results\n\n| Issue | Title | Points | Status | PR | CI | QG Attempts |\n|-------|-------|--------|--------|----|----|-------------|\n| #20 | Create CLI parser | 3 | ✅ Done | #21 | ✅ Green | 1 |\n| #22 | Add validation layer | 2 | ✅ Done | #23 | ✅ Green | 1 |\n| #24 | Fix race condition | 3 | ✅ Done | #25 | ✅ Green | 2 |\n| #26 | Update README | 1 | ✅ Done | #27 | ✅ Green | 1 |\n| #28 | Add caching layer | 2 | ✅ Done | #29 | ✅ Green | 1 |\n| #30 | Migrate to ESM | 2 | ✅ Done | #31 | ✅ Green | 1 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 28m (estimated 1h 30m)\n**Quality Gate**: 1 retry on #24 (lint fix needed)\n**Escalations**: 0",
+    "sprintResults": "## Sprint 3 Results\n\n| Issue | Title | Points | Status | PR | CI | QG Attempts |\n|-------|-------|--------|--------|----|----|-------------|\n| #20 | Create CLI parser | 3 | \u2705 Done | #21 | \u2705 Green | 1 |\n| #22 | Add validation layer | 2 | \u2705 Done | #23 | \u2705 Green | 1 |\n| #24 | Fix race condition | 3 | \u2705 Done | #25 | \u2705 Green | 2 |\n| #26 | Update README | 1 | \u2705 Done | #27 | \u2705 Green | 1 |\n| #28 | Add caching layer | 2 | \u2705 Done | #29 | \u2705 Green | 1 |\n| #30 | Migrate to ESM | 2 | \u2705 Done | #31 | \u2705 Green | 1 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 28m (estimated 1h 30m)\n**Quality Gate**: 1 retry on #24 (lint fix needed)\n**Escalations**: 0",
     "velocityData": "Sprint 1: 8/10 | Sprint 2: 11/13 | Sprint 3: 13/13",
     "previousImprovements": "Sprint 2 retro: Added lint pre-check before quality gate submission",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-004",
-    "description": "Sprint finished early with high-quality output — explore capacity increase",
+    "description": "Sprint finished early with high-quality output \u2014 explore capacity increase",
     "sprintNumber": 10,
-    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #95 | Add GraphQL resolver | 3 | ✅ Done | #96 | ✅ Green | 15m |\n| #97 | Fix memory leak in cache | 2 | ✅ Done | #98 | ✅ Green | 10m |\n| #99 | Update dependencies | 1 | ✅ Done | #100 | ✅ Green | 5m |\n| #101 | Add pagination support | 2 | ✅ Done | #102 | ✅ Green | 12m |\n| #103 | Refactor error handler | 2 | ✅ Done | #104 | ✅ Green | 11m |\n| #105 | Add E2E test for auth | 3 | ✅ Done | #106 | ✅ Green | 18m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 11m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Idle Time**: ~19 minutes unused",
+    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #95 | Add GraphQL resolver | 3 | \u2705 Done | #96 | \u2705 Green | 15m |\n| #97 | Fix memory leak in cache | 2 | \u2705 Done | #98 | \u2705 Green | 10m |\n| #99 | Update dependencies | 1 | \u2705 Done | #100 | \u2705 Green | 5m |\n| #101 | Add pagination support | 2 | \u2705 Done | #102 | \u2705 Green | 12m |\n| #103 | Refactor error handler | 2 | \u2705 Done | #104 | \u2705 Green | 11m |\n| #105 | Add E2E test for auth | 3 | \u2705 Done | #106 | \u2705 Green | 18m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 11m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Idle Time**: ~19 minutes unused",
     "velocityData": "Sprint 8: 12/12 | Sprint 9: 13/13 | Sprint 10: 13/13",
     "previousImprovements": "Sprint 9 retro: Optimized test runner parallelism",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement", "capacity"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement",
+        "capacity"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-005",
     "description": "Sprint with diverse issue types all completed successfully",
     "sprintNumber": 7,
-    "sprintResults": "## Sprint 7 Results\n\n| Issue | Title | Type | Points | Status | PR | CI |\n|-------|-------|------|--------|--------|----|----||\n| #60 | Add OAuth2 flow | feature | 3 | ✅ Done | #61 | ✅ Green |\n| #62 | Fix XSS vulnerability | bug | 2 | ✅ Done | #63 | ✅ Green |\n| #64 | Refactor middleware stack | refactor | 2 | ✅ Done | #65 | ✅ Green |\n| #66 | Add API docs | docs | 1 | ✅ Done | #67 | ✅ Green |\n| #68 | Increase test coverage | test | 2 | ✅ Done | #69 | ✅ Green |\n| #70 | Update CI pipeline | chore | 1 | ✅ Done | #71 | ✅ Green |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 25m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved, avg review time 45s",
+    "sprintResults": "## Sprint 7 Results\n\n| Issue | Title | Type | Points | Status | PR | CI |\n|-------|-------|------|--------|--------|----|----||\n| #60 | Add OAuth2 flow | feature | 3 | \u2705 Done | #61 | \u2705 Green |\n| #62 | Fix XSS vulnerability | bug | 2 | \u2705 Done | #63 | \u2705 Green |\n| #64 | Refactor middleware stack | refactor | 2 | \u2705 Done | #65 | \u2705 Green |\n| #66 | Add API docs | docs | 1 | \u2705 Done | #67 | \u2705 Green |\n| #68 | Increase test coverage | test | 2 | \u2705 Done | #69 | \u2705 Green |\n| #70 | Update CI pipeline | chore | 1 | \u2705 Done | #71 | \u2705 Green |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 25m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved, avg review time 45s",
     "velocityData": "Sprint 5: 10/11 | Sprint 6: 11/11 | Sprint 7: 11/11",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["blocked", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-006",
-    "description": "First sprint of new project — baseline velocity established",
+    "description": "First sprint of new project \u2014 baseline velocity established",
     "sprintNumber": 1,
-    "sprintResults": "## Sprint 1 Results\n\n| Issue | Title | Points | Status | PR | CI |\n|-------|-------|--------|--------|----|----||\n| #1 | Initialize project structure | 2 | ✅ Done | #2 | ✅ Green |\n| #3 | Add TypeScript config | 1 | ✅ Done | #4 | ✅ Green |\n| #5 | Create base CLI | 3 | ✅ Done | #6 | ✅ Green |\n| #7 | Add linting setup | 1 | ✅ Done | #8 | ✅ Green |\n| #9 | Create test framework | 2 | ✅ Done | #10 | ✅ Green |\n| #11 | Add CI pipeline | 2 | ✅ Done | #12 | ✅ Green |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 15m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Notes**: First sprint — no historical data",
+    "sprintResults": "## Sprint 1 Results\n\n| Issue | Title | Points | Status | PR | CI |\n|-------|-------|--------|--------|----|----||\n| #1 | Initialize project structure | 2 | \u2705 Done | #2 | \u2705 Green |\n| #3 | Add TypeScript config | 1 | \u2705 Done | #4 | \u2705 Green |\n| #5 | Create base CLI | 3 | \u2705 Done | #6 | \u2705 Green |\n| #7 | Add linting setup | 1 | \u2705 Done | #8 | \u2705 Green |\n| #9 | Create test framework | 2 | \u2705 Done | #10 | \u2705 Green |\n| #11 | Add CI pipeline | 2 | \u2705 Done | #12 | \u2705 Green |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 15m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Notes**: First sprint \u2014 no historical data",
     "velocityData": "Sprint 1: 11/11 (first sprint)",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement", "baseline"],
-      "mustNotContain": ["regression"]
+      "mustContain": [
+        "improvement",
+        "baseline"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-007",
     "description": "Sprint with complex features all landing cleanly",
     "sprintNumber": 12,
-    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | PR | CI | Files Changed |\n|-------|-------|--------|--------|----|----|---------------|\n| #110 | Implement event sourcing | 5 | ✅ Done | #111 | ✅ Green | 12 |\n| #112 | Add CQRS command bus | 3 | ✅ Done | #113 | ✅ Green | 8 |\n| #114 | Create projection engine | 3 | ✅ Done | #115 | ✅ Green | 6 |\n| #116 | Add event replay tool | 2 | ✅ Done | #117 | ✅ Green | 4 |\n| #118 | Update data model docs | 1 | ✅ Done | #119 | ✅ Green | 2 |\n| #120 | Add snapshot support | 2 | ✅ Done | #121 | ✅ Green | 5 |\n\n**Velocity**: 16/16 points completed\n**Duration**: 1h 29m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved, detailed review on #110",
+    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | PR | CI | Files Changed |\n|-------|-------|--------|--------|----|----|---------------|\n| #110 | Implement event sourcing | 5 | \u2705 Done | #111 | \u2705 Green | 12 |\n| #112 | Add CQRS command bus | 3 | \u2705 Done | #113 | \u2705 Green | 8 |\n| #114 | Create projection engine | 3 | \u2705 Done | #115 | \u2705 Green | 6 |\n| #116 | Add event replay tool | 2 | \u2705 Done | #117 | \u2705 Green | 4 |\n| #118 | Update data model docs | 1 | \u2705 Done | #119 | \u2705 Green | 2 |\n| #120 | Add snapshot support | 2 | \u2705 Done | #121 | \u2705 Green | 5 |\n\n**Velocity**: 16/16 points completed\n**Duration**: 1h 29m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Code Review**: All approved, detailed review on #110",
     "velocityData": "Sprint 10: 13/13 | Sprint 11: 14/15 | Sprint 12: 16/16",
     "previousImprovements": "Sprint 11 retro: Improved prompt for complex architectural issues",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-008",
-    "description": "Sprint with no bugs — all feature work completed",
+    "description": "Sprint with no bugs \u2014 all feature work completed",
     "sprintNumber": 6,
-    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Type | Points | Status | PR | CI |\n|-------|-------|------|--------|--------|----|----||\n| #55 | Add search API | feature | 3 | ✅ Done | #56 | ✅ Green |\n| #57 | Add filter component | feature | 2 | ✅ Done | #58 | ✅ Green |\n| #59 | Add sort functionality | feature | 2 | ✅ Done | #60 | ✅ Green |\n| #61 | Add pagination UI | feature | 2 | ✅ Done | #62 | ✅ Green |\n| #63 | Add export to CSV | feature | 2 | ✅ Done | #64 | ✅ Green |\n| #65 | Add bulk actions | feature | 3 | ✅ Done | #66 | ✅ Green |\n\n**Velocity**: 14/14 points completed\n**Duration**: 1h 20m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Test Coverage**: 94% (up from 91%)",
+    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Type | Points | Status | PR | CI |\n|-------|-------|------|--------|--------|----|----||\n| #55 | Add search API | feature | 3 | \u2705 Done | #56 | \u2705 Green |\n| #57 | Add filter component | feature | 2 | \u2705 Done | #58 | \u2705 Green |\n| #59 | Add sort functionality | feature | 2 | \u2705 Done | #60 | \u2705 Green |\n| #61 | Add pagination UI | feature | 2 | \u2705 Done | #62 | \u2705 Green |\n| #63 | Add export to CSV | feature | 2 | \u2705 Done | #64 | \u2705 Green |\n| #65 | Add bulk actions | feature | 3 | \u2705 Done | #66 | \u2705 Green |\n\n**Velocity**: 14/14 points completed\n**Duration**: 1h 20m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Test Coverage**: 94% (up from 91%)",
     "velocityData": "Sprint 4: 11/13 | Sprint 5: 13/13 | Sprint 6: 14/14",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["bug", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-009",
     "description": "Sprint where parallelism worked perfectly across workers",
     "sprintNumber": 9,
-    "sprintResults": "## Sprint 9 Results\n\n| Issue | Title | Points | Status | Worker | Duration |\n|-------|-------|--------|--------|--------|----------|\n| #83 | Add WebSocket handler | 3 | ✅ Done | worker-1 | 16m |\n| #85 | Fix CORS config | 1 | ✅ Done | worker-2 | 7m |\n| #87 | Add request logging | 2 | ✅ Done | worker-1 | 11m |\n| #89 | Update error codes | 1 | ✅ Done | worker-2 | 6m |\n| #91 | Add compression middleware | 2 | ✅ Done | worker-1 | 10m |\n| #93 | Refactor auth tokens | 3 | ✅ Done | worker-2 | 17m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 42m (estimated 1h 30m) — parallel execution\n**Workers**: 2 parallel workers, no conflicts\n**Quality Gate**: All passed first attempt\n**Merge Conflicts**: 0",
+    "sprintResults": "## Sprint 9 Results\n\n| Issue | Title | Points | Status | Worker | Duration |\n|-------|-------|--------|--------|--------|----------|\n| #83 | Add WebSocket handler | 3 | \u2705 Done | worker-1 | 16m |\n| #85 | Fix CORS config | 1 | \u2705 Done | worker-2 | 7m |\n| #87 | Add request logging | 2 | \u2705 Done | worker-1 | 11m |\n| #89 | Update error codes | 1 | \u2705 Done | worker-2 | 6m |\n| #91 | Add compression middleware | 2 | \u2705 Done | worker-1 | 10m |\n| #93 | Refactor auth tokens | 3 | \u2705 Done | worker-2 | 17m |\n\n**Velocity**: 12/12 points completed\n**Duration**: 42m (estimated 1h 30m) \u2014 parallel execution\n**Workers**: 2 parallel workers, no conflicts\n**Quality Gate**: All passed first attempt\n**Merge Conflicts**: 0",
     "velocityData": "Sprint 7: 11/11 | Sprint 8: 12/12 | Sprint 9: 12/12",
     "previousImprovements": "Sprint 8 retro: Enabled parallel worker execution",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement", "optimization"],
-      "mustNotContain": ["conflict", "failure"]
+      "mustContain": [
+        "improvement",
+        "optimization"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-010",
     "description": "Sprint with high test coverage improvements across all PRs",
     "sprintNumber": 4,
-    "sprintResults": "## Sprint 4 Results\n\n| Issue | Title | Points | Status | PR | Coverage Delta |\n|-------|-------|--------|--------|----|----||\n| #32 | Add input validation | 2 | ✅ Done | #33 | +3.2% |\n| #34 | Fix edge case in parser | 2 | ✅ Done | #35 | +1.5% |\n| #36 | Add error boundaries | 3 | ✅ Done | #37 | +2.8% |\n| #38 | Refactor test helpers | 1 | ✅ Done | #39 | +0.5% |\n| #40 | Add snapshot tests | 2 | ✅ Done | #41 | +4.1% |\n| #42 | Update CI coverage gate | 1 | ✅ Done | #43 | +0.0% |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 10m (estimated 1h 15m)\n**Quality Gate**: All passed first attempt\n**Coverage**: 78% → 90.1% (+12.1%)\n**Escalations**: 0",
+    "sprintResults": "## Sprint 4 Results\n\n| Issue | Title | Points | Status | PR | Coverage Delta |\n|-------|-------|--------|--------|----|----||\n| #32 | Add input validation | 2 | \u2705 Done | #33 | +3.2% |\n| #34 | Fix edge case in parser | 2 | \u2705 Done | #35 | +1.5% |\n| #36 | Add error boundaries | 3 | \u2705 Done | #37 | +2.8% |\n| #38 | Refactor test helpers | 1 | \u2705 Done | #39 | +0.5% |\n| #40 | Add snapshot tests | 2 | \u2705 Done | #41 | +4.1% |\n| #42 | Update CI coverage gate | 1 | \u2705 Done | #43 | +0.0% |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 10m (estimated 1h 15m)\n**Quality Gate**: All passed first attempt\n**Coverage**: 78% \u2192 90.1% (+12.1%)\n**Escalations**: 0",
     "velocityData": "Sprint 2: 9/10 | Sprint 3: 10/11 | Sprint 4: 11/11",
     "previousImprovements": "Sprint 3 retro: Added coverage threshold to quality gate",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure", "regression"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-011",
     "description": "Sprint where code review was thorough and quick",
     "sprintNumber": 15,
-    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Review Time | Review Rounds |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Add caching layer | 3 | ✅ Done | #141 | 32s | 1 |\n| #142 | Fix memory leak | 2 | ✅ Done | #143 | 28s | 1 |\n| #144 | Add monitoring hooks | 2 | ✅ Done | #145 | 35s | 1 |\n| #146 | Update API schema | 1 | ✅ Done | #147 | 20s | 1 |\n| #148 | Refactor DB queries | 3 | ✅ Done | #149 | 41s | 1 |\n| #150 | Add load test suite | 2 | ✅ Done | #151 | 30s | 1 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 18m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Avg Review Time**: 31s\n**Review Approval Rate**: 100% first round",
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Review Time | Review Rounds |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Add caching layer | 3 | \u2705 Done | #141 | 32s | 1 |\n| #142 | Fix memory leak | 2 | \u2705 Done | #143 | 28s | 1 |\n| #144 | Add monitoring hooks | 2 | \u2705 Done | #145 | 35s | 1 |\n| #146 | Update API schema | 1 | \u2705 Done | #147 | 20s | 1 |\n| #148 | Refactor DB queries | 3 | \u2705 Done | #149 | 41s | 1 |\n| #150 | Add load test suite | 2 | \u2705 Done | #151 | 30s | 1 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 18m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Avg Review Time**: 31s\n**Review Approval Rate**: 100% first round",
     "velocityData": "Sprint 13: 12/13 | Sprint 14: 13/13 | Sprint 15: 13/13",
     "previousImprovements": "Sprint 14 retro: Tuned code review prompt for faster decisions",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["rejected", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-012",
     "description": "Sprint with zero escalations and clean merge history",
     "sprintNumber": 11,
-    "sprintResults": "## Sprint 11 Results\n\n| Issue | Title | Points | Status | PR | Merge Strategy |\n|-------|-------|--------|--------|----|----||\n| #100 | Add SSO integration | 3 | ✅ Done | #101 | squash |\n| #102 | Fix session timeout | 2 | ✅ Done | #103 | squash |\n| #104 | Add audit logging | 2 | ✅ Done | #105 | squash |\n| #106 | Update RBAC rules | 2 | ✅ Done | #107 | squash |\n| #108 | Add 2FA support | 3 | ✅ Done | #109 | squash |\n| #110 | Refactor token store | 1 | ✅ Done | #111 | squash |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 26m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Escalations**: 0\n**Merge Conflicts**: 0\n**Main Branch**: Stable throughout sprint",
+    "sprintResults": "## Sprint 11 Results\n\n| Issue | Title | Points | Status | PR | Merge Strategy |\n|-------|-------|--------|--------|----|----||\n| #100 | Add SSO integration | 3 | \u2705 Done | #101 | squash |\n| #102 | Fix session timeout | 2 | \u2705 Done | #103 | squash |\n| #104 | Add audit logging | 2 | \u2705 Done | #105 | squash |\n| #106 | Update RBAC rules | 2 | \u2705 Done | #107 | squash |\n| #108 | Add 2FA support | 3 | \u2705 Done | #109 | squash |\n| #110 | Refactor token store | 1 | \u2705 Done | #111 | squash |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 26m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Escalations**: 0\n**Merge Conflicts**: 0\n**Main Branch**: Stable throughout sprint",
     "velocityData": "Sprint 9: 12/12 | Sprint 10: 13/13 | Sprint 11: 13/13",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["escalation", "conflict"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-013",
     "description": "Sprint with small issues that completed very fast",
     "sprintNumber": 14,
-    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | Duration |\n|-------|-------|--------|--------|----|----||\n| #130 | Fix typo in error msg | 1 | ✅ Done | #131 | 3m |\n| #132 | Update default timeout | 1 | ✅ Done | #133 | 4m |\n| #134 | Add missing export | 1 | ✅ Done | #135 | 2m |\n| #136 | Fix import path | 1 | ✅ Done | #137 | 3m |\n| #138 | Update package version | 1 | ✅ Done | #139 | 2m |\n| #140 | Add deprecation warning | 1 | ✅ Done | #141 | 5m |\n\n**Velocity**: 6/6 points completed\n**Duration**: 19m (estimated 45m)\n**Quality Gate**: All passed first attempt\n**Notes**: All trivial issues — sprint was under-planned",
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | Duration |\n|-------|-------|--------|--------|----|----||\n| #130 | Fix typo in error msg | 1 | \u2705 Done | #131 | 3m |\n| #132 | Update default timeout | 1 | \u2705 Done | #133 | 4m |\n| #134 | Add missing export | 1 | \u2705 Done | #135 | 2m |\n| #136 | Fix import path | 1 | \u2705 Done | #137 | 3m |\n| #138 | Update package version | 1 | \u2705 Done | #139 | 2m |\n| #140 | Add deprecation warning | 1 | \u2705 Done | #141 | 5m |\n\n**Velocity**: 6/6 points completed\n**Duration**: 19m (estimated 45m)\n**Quality Gate**: All passed first attempt\n**Notes**: All trivial issues \u2014 sprint was under-planned",
     "velocityData": "Sprint 12: 16/16 | Sprint 13: 14/14 | Sprint 14: 6/6",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement", "velocity"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement",
+        "velocity"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-014",
     "description": "Sprint where test suite caught regressions early",
     "sprintNumber": 16,
-    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | CI | Regressions Caught |\n|-------|-------|--------|--------|----|----|----|\n| #152 | Refactor auth flow | 3 | ✅ Done | #153 | ✅ Green | 2 |\n| #154 | Update session store | 2 | ✅ Done | #155 | ✅ Green | 0 |\n| #156 | Fix token refresh | 2 | ✅ Done | #157 | ✅ Green | 1 |\n| #158 | Add role validation | 2 | ✅ Done | #159 | ✅ Green | 0 |\n| #160 | Update middleware | 2 | ✅ Done | #161 | ✅ Green | 0 |\n| #162 | Add permission cache | 3 | ✅ Done | #163 | ✅ Green | 1 |\n\n**Velocity**: 14/14 points completed\n**Duration**: 1h 24m (estimated 1h 30m)\n**Quality Gate**: All passed (3 regressions caught and fixed during development)\n**Test Suite**: 247 tests, 0 failures, 4 regressions caught pre-merge",
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | CI | Regressions Caught |\n|-------|-------|--------|--------|----|----|----|\n| #152 | Refactor auth flow | 3 | \u2705 Done | #153 | \u2705 Green | 2 |\n| #154 | Update session store | 2 | \u2705 Done | #155 | \u2705 Green | 0 |\n| #156 | Fix token refresh | 2 | \u2705 Done | #157 | \u2705 Green | 1 |\n| #158 | Add role validation | 2 | \u2705 Done | #159 | \u2705 Green | 0 |\n| #160 | Update middleware | 2 | \u2705 Done | #161 | \u2705 Green | 0 |\n| #162 | Add permission cache | 3 | \u2705 Done | #163 | \u2705 Green | 1 |\n\n**Velocity**: 14/14 points completed\n**Duration**: 1h 24m (estimated 1h 30m)\n**Quality Gate**: All passed (3 regressions caught and fixed during development)\n**Test Suite**: 247 tests, 0 failures, 4 regressions caught pre-merge",
     "velocityData": "Sprint 14: 6/6 | Sprint 15: 13/13 | Sprint 16: 14/14",
     "previousImprovements": "Sprint 15 retro: Added regression test suite for auth module",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-015",
     "description": "Sprint with excellent sprint planning accuracy",
     "sprintNumber": 20,
-    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Actual Effort | Status | PR |\n|-------|-------|--------|-------|--------|----|\n| #190 | Add data export | 3 | 3 | ✅ Done | #191 |\n| #192 | Fix pagination bug | 2 | 2 | ✅ Done | #193 |\n| #194 | Add bulk import | 3 | 3 | ✅ Done | #195 |\n| #196 | Update validation | 2 | 2 | ✅ Done | #197 |\n| #198 | Add undo support | 2 | 2 | ✅ Done | #199 |\n| #200 | Refactor form logic | 1 | 1 | ✅ Done | #201 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 28m (estimated 1h 30m)\n**Planning Accuracy**: 100% (all estimates matched actual effort)\n**Quality Gate**: All passed first attempt",
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Actual Effort | Status | PR |\n|-------|-------|--------|-------|--------|----|\n| #190 | Add data export | 3 | 3 | \u2705 Done | #191 |\n| #192 | Fix pagination bug | 2 | 2 | \u2705 Done | #193 |\n| #194 | Add bulk import | 3 | 3 | \u2705 Done | #195 |\n| #196 | Update validation | 2 | 2 | \u2705 Done | #197 |\n| #198 | Add undo support | 2 | 2 | \u2705 Done | #199 |\n| #200 | Refactor form logic | 1 | 1 | \u2705 Done | #201 |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 28m (estimated 1h 30m)\n**Planning Accuracy**: 100% (all estimates matched actual effort)\n**Quality Gate**: All passed first attempt",
     "velocityData": "Sprint 18: 12/13 | Sprint 19: 13/13 | Sprint 20: 13/13",
     "previousImprovements": "Sprint 19 retro: Refined story point calibration model",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure", "inaccurate"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-016",
     "description": "Sprint with successful dependency updates",
     "sprintNumber": 18,
-    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | PR | CI | Breaking Changes |\n|-------|-------|--------|--------|----|----|----|\n| #170 | Upgrade TypeScript 5.4→5.5 | 2 | ✅ Done | #171 | ✅ Green | 0 |\n| #172 | Update Vitest 1.x→2.x | 3 | ✅ Done | #173 | ✅ Green | 0 |\n| #174 | Upgrade ESLint flat config | 2 | ✅ Done | #175 | ✅ Green | 0 |\n| #176 | Update Node.js 20→22 | 2 | ✅ Done | #177 | ✅ Green | 0 |\n| #178 | Bump pino 8→9 | 2 | ✅ Done | #179 | ✅ Green | 0 |\n| #180 | Update CI actions | 1 | ✅ Done | #181 | ✅ Green | 0 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 15m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Breaking Changes**: 0 — all upgrades clean",
+    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | PR | CI | Breaking Changes |\n|-------|-------|--------|--------|----|----|----|\n| #170 | Upgrade TypeScript 5.4\u21925.5 | 2 | \u2705 Done | #171 | \u2705 Green | 0 |\n| #172 | Update Vitest 1.x\u21922.x | 3 | \u2705 Done | #173 | \u2705 Green | 0 |\n| #174 | Upgrade ESLint flat config | 2 | \u2705 Done | #175 | \u2705 Green | 0 |\n| #176 | Update Node.js 20\u219222 | 2 | \u2705 Done | #177 | \u2705 Green | 0 |\n| #178 | Bump pino 8\u21929 | 2 | \u2705 Done | #179 | \u2705 Green | 0 |\n| #180 | Update CI actions | 1 | \u2705 Done | #181 | \u2705 Green | 0 |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 15m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Breaking Changes**: 0 \u2014 all upgrades clean",
     "velocityData": "Sprint 16: 14/14 | Sprint 17: 12/12 | Sprint 18: 12/12",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["breaking", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-017",
     "description": "Sprint where documentation was a focus and completed well",
     "sprintNumber": 13,
-    "sprintResults": "## Sprint 13 Results\n\n| Issue | Title | Type | Points | Status | PR |\n|-------|-------|------|--------|--------|----|\n| #121 | Document API endpoints | docs | 2 | ✅ Done | #122 |\n| #123 | Add architecture diagram | docs | 2 | ✅ Done | #124 |\n| #125 | Write contributing guide | docs | 1 | ✅ Done | #126 |\n| #127 | Add changelog entries | docs | 1 | ✅ Done | #128 |\n| #129 | Update README quickstart | docs | 1 | ✅ Done | #130 |\n| #131 | Add ADR for event bus | docs | 2 | ✅ Done | #132 |\n\n**Velocity**: 9/9 points completed\n**Duration**: 55m (estimated 1h)\n**Quality Gate**: All passed first attempt\n**Docs Coverage**: API docs now 100% complete",
+    "sprintResults": "## Sprint 13 Results\n\n| Issue | Title | Type | Points | Status | PR |\n|-------|-------|------|--------|--------|----|\n| #121 | Document API endpoints | docs | 2 | \u2705 Done | #122 |\n| #123 | Add architecture diagram | docs | 2 | \u2705 Done | #124 |\n| #125 | Write contributing guide | docs | 1 | \u2705 Done | #126 |\n| #127 | Add changelog entries | docs | 1 | \u2705 Done | #128 |\n| #129 | Update README quickstart | docs | 1 | \u2705 Done | #130 |\n| #131 | Add ADR for event bus | docs | 2 | \u2705 Done | #132 |\n\n**Velocity**: 9/9 points completed\n**Duration**: 55m (estimated 1h)\n**Quality Gate**: All passed first attempt\n**Docs Coverage**: API docs now 100% complete",
     "velocityData": "Sprint 11: 13/13 | Sprint 12: 16/16 | Sprint 13: 9/9",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-018",
     "description": "Sprint with security-focused issues all passing audit",
     "sprintNumber": 19,
-    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Security Audit |\n|-------|-------|--------|--------|----|----||\n| #182 | Add input sanitization | 2 | ✅ Done | #183 | ✅ Pass |\n| #184 | Fix SQL injection risk | 3 | ✅ Done | #185 | ✅ Pass |\n| #186 | Add CSRF protection | 2 | ✅ Done | #187 | ✅ Pass |\n| #188 | Implement CSP headers | 2 | ✅ Done | #189 | ✅ Pass |\n| #190 | Add rate limiting | 2 | ✅ Done | #191 | ✅ Pass |\n| #192 | Update auth headers | 1 | ✅ Done | #193 | ✅ Pass |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Security Audit**: All 6 PRs passed security review\n**Vulnerabilities Fixed**: 4 critical, 2 medium",
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Security Audit |\n|-------|-------|--------|--------|----|----||\n| #182 | Add input sanitization | 2 | \u2705 Done | #183 | \u2705 Pass |\n| #184 | Fix SQL injection risk | 3 | \u2705 Done | #185 | \u2705 Pass |\n| #186 | Add CSRF protection | 2 | \u2705 Done | #187 | \u2705 Pass |\n| #188 | Implement CSP headers | 2 | \u2705 Done | #189 | \u2705 Pass |\n| #190 | Add rate limiting | 2 | \u2705 Done | #191 | \u2705 Pass |\n| #192 | Update auth headers | 1 | \u2705 Done | #193 | \u2705 Pass |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 22m (estimated 1h 30m)\n**Quality Gate**: All passed first attempt\n**Security Audit**: All 6 PRs passed security review\n**Vulnerabilities Fixed**: 4 critical, 2 medium",
     "velocityData": "Sprint 17: 12/12 | Sprint 18: 12/12 | Sprint 19: 12/12",
     "previousImprovements": "Sprint 18 retro: Added security audit step to quality gate",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["vulnerability", "failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-019",
     "description": "Sprint that reduced technical debt significantly",
     "sprintNumber": 17,
-    "sprintResults": "## Sprint 17 Results\n\n| Issue | Title | Type | Points | Status | PR | Debt Reduced |\n|-------|-------|------|--------|--------|----|----||\n| #160 | Remove deprecated APIs | refactor | 2 | ✅ Done | #161 | -450 LOC |\n| #162 | Consolidate util functions | refactor | 2 | ✅ Done | #163 | -200 LOC |\n| #164 | Fix all TODO comments | refactor | 3 | ✅ Done | #165 | 12 TODOs resolved |\n| #166 | Update type definitions | refactor | 2 | ✅ Done | #167 | 8 any types removed |\n| #168 | Remove dead code | refactor | 1 | ✅ Done | #169 | -180 LOC |\n| #170 | Simplify config loading | refactor | 2 | ✅ Done | #171 | -120 LOC |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 05m (estimated 1h 15m)\n**Quality Gate**: All passed first attempt\n**Net LOC Change**: -950 lines removed\n**Type Safety**: 8 `any` types eliminated",
+    "sprintResults": "## Sprint 17 Results\n\n| Issue | Title | Type | Points | Status | PR | Debt Reduced |\n|-------|-------|------|--------|--------|----|----||\n| #160 | Remove deprecated APIs | refactor | 2 | \u2705 Done | #161 | -450 LOC |\n| #162 | Consolidate util functions | refactor | 2 | \u2705 Done | #163 | -200 LOC |\n| #164 | Fix all TODO comments | refactor | 3 | \u2705 Done | #165 | 12 TODOs resolved |\n| #166 | Update type definitions | refactor | 2 | \u2705 Done | #167 | 8 any types removed |\n| #168 | Remove dead code | refactor | 1 | \u2705 Done | #169 | -180 LOC |\n| #170 | Simplify config loading | refactor | 2 | \u2705 Done | #171 | -120 LOC |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 05m (estimated 1h 15m)\n**Quality Gate**: All passed first attempt\n**Net LOC Change**: -950 lines removed\n**Type Safety**: 8 `any` types eliminated",
     "velocityData": "Sprint 15: 13/13 | Sprint 16: 14/14 | Sprint 17: 12/12",
     "previousImprovements": null,
     "expected": {
       "passed": true,
-      "mustContain": ["improvement"],
-      "mustNotContain": ["failure"]
+      "mustContain": [
+        "improvement"
+      ],
+      "mustNotContain": []
     }
   },
   {
     "id": "retro-020",
     "description": "Stable sprint after a series of consistent velocity",
     "sprintNumber": 25,
-    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #240 | Add notification service | 3 | ✅ Done | #241 | ✅ Green | 17m |\n| #242 | Fix email template | 1 | ✅ Done | #243 | ✅ Green | 6m |\n| #244 | Add SMS gateway | 3 | ✅ Done | #245 | ✅ Green | 19m |\n| #246 | Update user preferences | 2 | ✅ Done | #247 | ✅ Green | 11m |\n| #248 | Add push notification | 2 | ✅ Done | #249 | ✅ Green | 13m |\n| #250 | Refactor message queue | 2 | ✅ Done | #251 | ✅ Green | 12m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 18m (estimated 1h 25m)\n**Quality Gate**: All passed first attempt\n**Sprint Streak**: 5 consecutive sprints with 100% completion",
+    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | CI | Duration |\n|-------|-------|--------|--------|----|----|----------|\n| #240 | Add notification service | 3 | \u2705 Done | #241 | \u2705 Green | 17m |\n| #242 | Fix email template | 1 | \u2705 Done | #243 | \u2705 Green | 6m |\n| #244 | Add SMS gateway | 3 | \u2705 Done | #245 | \u2705 Green | 19m |\n| #246 | Update user preferences | 2 | \u2705 Done | #247 | \u2705 Green | 11m |\n| #248 | Add push notification | 2 | \u2705 Done | #249 | \u2705 Green | 13m |\n| #250 | Refactor message queue | 2 | \u2705 Done | #251 | \u2705 Green | 12m |\n\n**Velocity**: 13/13 points completed\n**Duration**: 1h 18m (estimated 1h 25m)\n**Quality Gate**: All passed first attempt\n**Sprint Streak**: 5 consecutive sprints with 100% completion",
     "velocityData": "Sprint 21: 13/13 | Sprint 22: 13/13 | Sprint 23: 13/13 | Sprint 24: 13/13 | Sprint 25: 13/13",
-    "previousImprovements": "Sprint 24 retro: Noted sustained velocity plateau — consider capacity increase",
+    "previousImprovements": "Sprint 24 retro: Noted sustained velocity plateau \u2014 consider capacity increase",
     "expected": {
       "passed": true,
-      "mustContain": ["improvement", "optimization"],
-      "mustNotContain": ["failure", "regression"]
+      "mustContain": [
+        "improvement",
+        "optimization"
+      ],
+      "mustNotContain": []
     }
   }
 ]
