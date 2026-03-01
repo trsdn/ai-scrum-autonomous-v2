@@ -1,302 +1,482 @@
 [
   {
     "id": "simple-bugfix-approve",
-    "description": "Simple null check bugfix — should be approved",
-    "issueTitle": "Fix null pointer in user lookup",
+    "description": "Bugfix: multiply price by quantity \u2014 should be approved",
+    "issueTitle": "Fix quantity calculation in total",
     "issueNumber": 42,
-    "acceptanceCriteria": "- User lookup returns null instead of throwing when user not found\n- Test added for null case",
-    "diffStats": { "filesChanged": 2, "linesChanged": 12 },
+    "acceptanceCriteria": "- calculateTotal multiplies item.price by item.quantity\n- Existing tests still pass",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 12
+    },
     "branch": "fix/42-null-pointer",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils.ts\n+++ b/src/utils.ts\n@@ -15,7 +15,7 @@ export function calculateTotal(items: Item[]): number {\n   let total = 0;\n   for (const item of items) {\n-    total += item.price;\n+    total += item.price * item.quantity;\n   }\n   return total;\n }"
   },
   {
     "id": "test-only-approve",
-    "description": "Adding tests for existing code — should be approved",
-    "issueTitle": "Add tests for formatBytes utility",
+    "description": "Adding unit tests for currency utilities \u2014 should be approved",
+    "issueTitle": "Add tests for formatCurrency and parseAmount",
     "issueNumber": 55,
-    "acceptanceCriteria": "- Unit tests cover 0, bytes, KB, MB, GB ranges\n- Edge case: negative numbers handled",
-    "diffStats": { "filesChanged": 1, "linesChanged": 45 },
+    "acceptanceCriteria": "- Tests for formatCurrency: positive, zero, negative amounts\n- Tests for parseAmount: valid strings, invalid input throws",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 45
+    },
     "branch": "test/55-format-bytes",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/tests/utils.test.ts\n+++ b/tests/utils.test.ts\n@@ -0,0 +1,25 @@\n+import { describe, it, expect } from \"vitest\";\n+import { formatCurrency, parseAmount } from \"../src/utils\";\n+\n+describe(\"formatCurrency\", () => {\n+  it(\"should format positive amounts\", () => {\n+    expect(formatCurrency(1234.56)).toBe(\"$1,234.56\");\n+  });\n+\n+  it(\"should handle zero\", () => {\n+    expect(formatCurrency(0)).toBe(\"$0.00\");\n+  });\n+\n+  it(\"should handle negative amounts\", () => {\n+    expect(formatCurrency(-50)).toBe(\"-$50.00\");\n+  });\n+});\n+\n+describe(\"parseAmount\", () => {\n+  it(\"should parse valid string amounts\", () => {\n+    expect(parseAmount(\"$1,234.56\")).toBe(1234.56);\n+  });\n+\n+  it(\"should throw on invalid input\", () => {\n+    expect(() => parseAmount(\"abc\")).toThrow(\"Invalid amount\");\n+  });\n+});"
   },
   {
     "id": "css-only-approve",
-    "description": "CSS-only styling change — should be approved",
-    "issueTitle": "Add hover effects to navigation links",
+    "description": "CSS update for .btn-primary with hover state \u2014 should be approved",
+    "issueTitle": "Update primary button styles",
     "issueNumber": 10,
-    "acceptanceCriteria": "- Nav links change color on hover\n- Transition is smooth (0.3s)",
-    "diffStats": { "filesChanged": 1, "linesChanged": 8 },
+    "acceptanceCriteria": "- Primary button uses brand colors (#0366d6)\n- Smooth hover transition (0.2s ease)\n- Darker shade on hover (#0255b3)",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 8
+    },
     "branch": "feat/10-nav-hover",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/Button.css\n+++ b/src/components/Button.css\n@@ -5,8 +5,8 @@\n .btn-primary {\n-  background-color: blue;\n-  color: white;\n+  background-color: #0366d6;\n+  color: #ffffff;\n   border: none;\n   border-radius: 4px;\n   padding: 8px 16px;\n+  transition: background-color 0.2s ease;\n+}\n+\n+.btn-primary:hover {\n+  background-color: #0255b3;\n }"
   },
   {
     "id": "config-change-approve",
-    "description": "Config file edit — should be approved",
-    "issueTitle": "Add build script to package.json",
+    "description": "ESLint config change to disallow console.log \u2014 should be approved",
+    "issueTitle": "Add no-console ESLint rule",
     "issueNumber": 77,
-    "acceptanceCriteria": "- package.json has 'build' script\n- Script runs tsc",
-    "diffStats": { "filesChanged": 1, "linesChanged": 3 },
+    "acceptanceCriteria": "- no-console rule added as error\n- console.warn and console.error still allowed",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 3
+    },
     "branch": "feat/77-build-script",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/eslint.config.js\n+++ b/eslint.config.js\n@@ -8,6 +8,7 @@ export default [\n   {\n     rules: {\n       \"no-unused-vars\": \"warn\",\n+      \"no-console\": [\"error\", { allow: [\"warn\", \"error\"] }],\n       \"@typescript-eslint/no-explicit-any\": \"error\",\n     },\n   },\n ];"
   },
   {
     "id": "docs-only-approve",
-    "description": "Documentation-only change — should be approved",
-    "issueTitle": "Update README with installation instructions",
+    "description": "API docs with query parameters and response format \u2014 should be approved",
+    "issueTitle": "Add API documentation for GET /api/users",
     "issueNumber": 88,
-    "acceptanceCriteria": "- README has install section\n- npm install command documented",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- Query parameters documented (page, limit, sort)\n- Response example with data, total, page, totalPages",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "docs/88-readme",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/docs/api.md\n+++ b/docs/api.md\n@@ -10,6 +10,22 @@\n ## Endpoints\n \n ### GET /api/users\n \n Returns a list of users.\n+\n+**Query Parameters:**\n+| Parameter | Type   | Default | Description          |\n+|-----------|--------|---------|----------------------|\n+| page      | number | 1       | Page number          |\n+| limit     | number | 20      | Items per page       |\n+| sort      | string | \"name\"  | Sort field           |\n+\n+**Response:**\n+```json\n+{\n+  \"data\": [{ \"id\": \"1\", \"name\": \"Alice\" }],\n+  \"total\": 42,\n+  \"page\": 1,\n+  \"totalPages\": 3\n+}\n+```"
   },
   {
     "id": "refactor-clean-approve",
-    "description": "Clean refactor with tests passing — should be approved",
-    "issueTitle": "Extract validation logic into helper",
+    "description": "Replace if-else chain with channel lookup map \u2014 should be approved",
+    "issueTitle": "Refactor notification dispatch to use lookup table",
     "issueNumber": 33,
-    "acceptanceCriteria": "- Validation logic extracted to validateInput()\n- Existing tests still pass\n- No behavior change",
-    "diffStats": { "filesChanged": 3, "linesChanged": 40 },
+    "acceptanceCriteria": "- Notification channels (email, sms, push) registered in lookup table\n- Unknown channel type throws descriptive error\n- Same external behavior for known channels",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 40
+    },
     "branch": "refactor/33-extract-validation",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/services/notification.ts\n+++ b/src/services/notification.ts\n@@ -5,20 +5,12 @@\n-export async function sendNotification(userId: string, type: string, message: string) {\n-  if (type === \"email\") {\n-    await sendEmail(userId, message);\n-  } else if (type === \"sms\") {\n-    await sendSms(userId, message);\n-  } else if (type === \"push\") {\n-    await sendPush(userId, message);\n-  }\n+const channels: Record<string, (userId: string, msg: string) => Promise<void>> = {\n+  email: sendEmail,\n+  sms: sendSms,\n+  push: sendPush,\n+};\n+\n+export async function sendNotification(userId: string, type: string, message: string) {\n+  const handler = channels[type];\n+  if (!handler) throw new Error(`Unknown channel: ${type}`);\n+  await handler(userId, message);\n }"
   },
   {
     "id": "error-handling-approve",
-    "description": "Adding proper error handling — should be approved",
-    "issueTitle": "Add error handling to API fetch calls",
+    "description": "Proper HTTP error handling with typed errors \u2014 should be approved",
+    "issueTitle": "Add error handling and validation to fetchUser",
     "issueNumber": 44,
-    "acceptanceCriteria": "- fetch() calls wrapped in try/catch\n- User-friendly error messages displayed\n- Tests for error cases",
-    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "acceptanceCriteria": "- 404 responses throw NotFoundError\n- Other error responses throw ApiError with status\n- Response body validated with UserSchema.parse",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 35
+    },
     "branch": "feat/44-error-handling",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/client.ts\n+++ b/src/api/client.ts\n@@ -10,7 +10,15 @@ export async function fetchUser(id: string): Promise<User> {\n-  const response = await fetch(`/api/users/${id}`);\n-  const data = await response.json();\n-  return data;\n+  const response = await fetch(`/api/users/${id}`);\n+  if (!response.ok) {\n+    if (response.status === 404) {\n+      throw new NotFoundError(`User ${id} not found`);\n+    }\n+    throw new ApiError(`Failed to fetch user: ${response.statusText}`, response.status);\n+  }\n+  const data: unknown = await response.json();\n+  return UserSchema.parse(data);\n }"
   },
   {
     "id": "small-feature-approve",
-    "description": "Small well-scoped feature — should be approved",
-    "issueTitle": "Add dark mode toggle button",
+    "description": "Simple GET /health endpoint \u2014 should be approved",
+    "issueTitle": "Add health check endpoint",
     "issueNumber": 22,
-    "acceptanceCriteria": "- Button toggles dark-mode class on body\n- Preference saved to localStorage\n- Test verifies toggle behavior",
-    "diffStats": { "filesChanged": 3, "linesChanged": 25 },
+    "acceptanceCriteria": "- GET /health returns JSON with status, uptime, timestamp\n- Returns 200 status",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 25
+    },
     "branch": "feat/22-dark-mode",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/health.ts\n+++ b/src/api/health.ts\n@@ -0,0 +1,12 @@\n+import { Router } from \"express\";\n+\n+const router = Router();\n+\n+router.get(\"/health\", (_req, res) => {\n+  res.json({\n+    status: \"ok\",\n+    uptime: process.uptime(),\n+    timestamp: new Date().toISOString(),\n+  });\n+});\n+\n+export default router;"
   },
   {
     "id": "type-annotation-approve",
-    "description": "Adding TypeScript type annotations — should be approved",
-    "issueTitle": "Add types to utility functions",
+    "description": "Adding type safety to mergeObjects and groupBy \u2014 should be approved",
+    "issueTitle": "Add TypeScript generics to utility functions",
     "issueNumber": 60,
-    "acceptanceCriteria": "- All exported functions have return type annotations\n- Parameter types specified\n- No any types",
-    "diffStats": { "filesChanged": 4, "linesChanged": 30 },
+    "acceptanceCriteria": "- mergeObjects uses generic constraints\n- groupBy returns properly typed Record\n- String conversion for group keys",
+    "diffStats": {
+      "filesChanged": 4,
+      "linesChanged": 30
+    },
     "branch": "chore/60-add-types",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils/helpers.ts\n+++ b/src/utils/helpers.ts\n@@ -1,10 +1,10 @@\n-export function mergeObjects(target, source) {\n+export function mergeObjects<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {\n   return { ...target, ...source };\n }\n \n-export function groupBy(items, key) {\n-  return items.reduce((acc, item) => {\n-    const group = item[key];\n+export function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {\n+  return items.reduce<Record<string, T[]>>((acc, item) => {\n+    const group = String(item[key]);\n     acc[group] = acc[group] ?? [];\n     acc[group].push(item);\n     return acc;\n   }, {});\n }"
   },
   {
     "id": "accessibility-approve",
-    "description": "Adding ARIA labels for accessibility — should be approved",
-    "issueTitle": "Add ARIA labels to navigation",
+    "description": "Modal with role=dialog, aria-modal, keyboard dismiss \u2014 should be approved",
+    "issueTitle": "Add ARIA attributes to Modal component",
     "issueNumber": 61,
-    "acceptanceCriteria": "- nav element has aria-label\n- Links have descriptive aria-labels\n- Skip-to-content link added",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "acceptanceCriteria": "- Modal has role=dialog and aria-modal=true\n- aria-labelledby references modal-title\n- Escape key closes modal\n- Click outside closes modal\n- Close button has aria-label",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/61-aria-labels",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/Modal.tsx\n+++ b/src/components/Modal.tsx\n@@ -3,8 +3,12 @@\n-export function Modal({ children, onClose }) {\n+export function Modal({ children, onClose }: ModalProps) {\n   return (\n-    <div className=\"modal-overlay\" onClick={onClose}>\n-      <div className=\"modal-content\">\n+    <div\n+      className=\"modal-overlay\"\n+      role=\"dialog\"\n+      aria-modal=\"true\"\n+      aria-labelledby=\"modal-title\"\n+      onClick={onClose}\n+      onKeyDown={(e) => e.key === \"Escape\" && onClose()}\n+    >\n+      <div className=\"modal-content\" onClick={(e) => e.stopPropagation()}>\n         {children}\n-        <button onClick={onClose}>Close</button>\n+        <button onClick={onClose} aria-label=\"Close dialog\">Close</button>\n       </div>\n     </div>\n   );\n }"
   },
   {
     "id": "delete-dead-code-approve",
-    "description": "Removing unused/dead code — should be approved",
-    "issueTitle": "Remove deprecated helper functions",
+    "description": "Removing dead code marked for removal \u2014 should be approved",
+    "issueTitle": "Remove deprecated legacyTransform and helpers",
     "issueNumber": 62,
-    "acceptanceCriteria": "- Remove formatLegacyDate()\n- Remove parseOldConfig()\n- No callers exist (verified by grep)",
-    "diffStats": { "filesChanged": 2, "linesChanged": 45 },
+    "acceptanceCriteria": "- legacyTransform function removed\n- normalizeItem helper removed\n- currentParser preserved unchanged",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 45
+    },
     "branch": "chore/62-remove-dead-code",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/deprecated.ts\n+++ /dev/null\n@@ -1,35 +0,0 @@\n-/**\n- * @deprecated Use newImplementation() instead\n- * Scheduled for removal in v3.0\n- */\n-export function legacyTransform(data: string[]): string[] {\n-  // This function is no longer called anywhere\n-  const result: string[] = [];\n-  for (const item of data) {\n-    result.push(item.toUpperCase().trim());\n-  }\n-  return result;\n-}\n-\n-// Helper only used by legacyTransform\n-function normalizeItem(item: string): string {\n-  return item.replace(/\\s+/g, \" \").trim();\n-}"
   },
   {
     "id": "env-config-approve",
-    "description": "Moving hardcoded values to env config — should be approved",
-    "issueTitle": "Use environment variables for API URLs",
+    "description": "Replace hardcoded values with env vars and defaults \u2014 should be approved",
+    "issueTitle": "Make config values environment-configurable",
     "issueNumber": 63,
-    "acceptanceCriteria": "- API base URL read from process.env.API_URL\n- Fallback to default if not set\n- .env.example updated",
-    "diffStats": { "filesChanged": 3, "linesChanged": 20 },
+    "acceptanceCriteria": "- PORT, HOST, LOG_LEVEL, DATABASE_URL read from environment\n- Sensible defaults for all values\n- Port parsed as integer",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 20
+    },
     "branch": "feat/63-env-config",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,8 +2,10 @@\n export const config = {\n-  port: 3000,\n-  host: \"localhost\",\n+  port: parseInt(process.env.PORT ?? \"3000\", 10),\n+  host: process.env.HOST ?? \"localhost\",\n+  logLevel: process.env.LOG_LEVEL ?? \"info\",\n   database: {\n-    url: \"postgres://localhost:5432/mydb\",\n+    url: process.env.DATABASE_URL ?? \"postgres://localhost:5432/mydb\",\n   },\n };"
   },
   {
     "id": "rename-variable-approve",
-    "description": "Renaming variable for clarity — should be approved",
-    "issueTitle": "Rename 'data' to 'userProfile' for clarity",
+    "description": "Rename abbreviated vars to descriptive names \u2014 should be approved",
+    "issueTitle": "Rename billing variables for clarity",
     "issueNumber": 64,
-    "acceptanceCriteria": "- All references to 'data' renamed to 'userProfile'\n- Tests updated\n- No behavior change",
-    "diffStats": { "filesChanged": 3, "linesChanged": 15 },
+    "acceptanceCriteria": "- amt renamed to subtotal\n- tx renamed to taxRate\n- d renamed to discount\n- fn renamed to finalAmount\n- No behavior change",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 15
+    },
     "branch": "refactor/64-rename-var",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/services/billing.ts\n+++ b/src/services/billing.ts\n@@ -3,10 +3,10 @@\n export async function processBilling(invoice: Invoice) {\n-  const amt = invoice.total;\n-  const tx = invoice.taxRate;\n-  const d = invoice.discount ?? 0;\n-  const fn = amt + (amt * tx) - d;\n-  return { invoiceId: invoice.id, finalAmount: fn };\n+  const subtotal = invoice.total;\n+  const taxRate = invoice.taxRate;\n+  const discount = invoice.discount ?? 0;\n+  const finalAmount = subtotal + (subtotal * taxRate) - discount;\n+  return { invoiceId: invoice.id, finalAmount };\n }"
   },
   {
     "id": "add-logging-approve",
-    "description": "Adding structured logging — should be approved",
-    "issueTitle": "Add logging to payment processing",
+    "description": "Adding pino logger calls with context \u2014 should be approved",
+    "issueTitle": "Add structured logging to payment processing",
     "issueNumber": 65,
-    "acceptanceCriteria": "- Log payment start/end/failure\n- Use structured logger (not console.log)\n- No sensitive data logged",
-    "diffStats": { "filesChanged": 2, "linesChanged": 18 },
+    "acceptanceCriteria": "- Log payment start with orderId and amount\n- Log success with transactionId\n- Log failure with error details",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 18
+    },
     "branch": "feat/65-payment-logging",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/services/payment.ts\n+++ b/src/services/payment.ts\n@@ -1,8 +1,14 @@\n+import { logger } from \"../logger\";\n+\n export async function processPayment(orderId: string, amount: number) {\n+  logger.info({ orderId, amount }, \"processing payment\");\n   const result = await paymentGateway.charge(amount);\n-  return result;\n+  if (result.success) {\n+    logger.info({ orderId, transactionId: result.id }, \"payment successful\");\n+  } else {\n+    logger.error({ orderId, error: result.error }, \"payment failed\");\n+  }\n+  return result;\n }"
   },
   {
     "id": "html-semantic-approve",
-    "description": "Converting divs to semantic HTML — should be approved",
-    "issueTitle": "Use semantic HTML elements",
+    "description": "Replace divs with article, header, section \u2014 should be approved",
+    "issueTitle": "Convert divs to semantic HTML elements",
     "issueNumber": 66,
-    "acceptanceCriteria": "- Replace div.header with <header>\n- Replace div.nav with <nav>\n- Replace div.footer with <footer>",
-    "diffStats": { "filesChanged": 1, "linesChanged": 12 },
+    "acceptanceCriteria": "- div.page-header replaced with header element\n- div.content replaced with section element\n- Outer div replaced with article element",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 12
+    },
     "branch": "refactor/66-semantic-html",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/pages/About.tsx\n+++ b/src/pages/About.tsx\n@@ -2,12 +2,12 @@\n export function About() {\n   return (\n-    <div>\n-      <div className=\"page-header\">\n+    <article>\n+      <header>\n         <h1>About Us</h1>\n-      </div>\n-      <div className=\"content\">\n+      </header>\n+      <section>\n         <p>We build software.</p>\n-      </div>\n-    </div>\n+      </section>\n+    </article>\n   );\n }"
   },
   {
     "id": "test-fixture-approve",
-    "description": "Adding test fixtures/helpers — should be approved",
-    "issueTitle": "Create shared test fixtures for user data",
+    "description": "In-memory Map-based mock DB with vitest spies \u2014 should be approved",
+    "issueTitle": "Add mock database helper for tests",
     "issueNumber": 67,
-    "acceptanceCriteria": "- Test fixture file with mock user data\n- Used by at least 2 test files\n- Replaces inline mock objects",
-    "diffStats": { "filesChanged": 4, "linesChanged": 50 },
+    "acceptanceCriteria": "- Mock DB supports get, set, delete, clear, has\n- All methods are vitest spies (vi.fn)\n- Uses Map internally for state",
+    "diffStats": {
+      "filesChanged": 4,
+      "linesChanged": 50
+    },
     "branch": "test/67-fixtures",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/tests/helpers/mock-db.ts\n+++ b/tests/helpers/mock-db.ts\n@@ -0,0 +1,20 @@\n+import { vi } from \"vitest\";\n+\n+export function createMockDb() {\n+  const store = new Map<string, unknown>();\n+  return {\n+    get: vi.fn((key: string) => store.get(key)),\n+    set: vi.fn((key: string, value: unknown) => { store.set(key, value); }),\n+    delete: vi.fn((key: string) => store.delete(key)),\n+    clear: vi.fn(() => store.clear()),\n+    has: vi.fn((key: string) => store.has(key)),\n+  };\n+}"
   },
   {
     "id": "dependency-update-approve",
-    "description": "Updating a dependency version — should be approved",
-    "issueTitle": "Update vitest to latest version",
+    "description": "Bump express 4.18\u21924.19.2, vitest 1.0\u21921.6 \u2014 should be approved",
+    "issueTitle": "Update express and vitest dependencies",
     "issueNumber": 68,
-    "acceptanceCriteria": "- vitest updated in package.json\n- package-lock.json regenerated\n- All tests still pass",
-    "diffStats": { "filesChanged": 2, "linesChanged": 200 },
+    "acceptanceCriteria": "- express updated to ^4.19.2\n- vitest updated to ^1.6.0\n- No other dependency changes",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 200
+    },
     "branch": "chore/68-update-vitest",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/package.json\n+++ b/package.json\n@@ -10,7 +10,7 @@\n   \"dependencies\": {\n-    \"express\": \"^4.18.0\",\n+    \"express\": \"^4.19.2\",\n     \"zod\": \"^3.22.0\"\n   },\n   \"devDependencies\": {\n-    \"vitest\": \"^1.0.0\",\n+    \"vitest\": \"^1.6.0\",\n     \"typescript\": \"^5.3.0\"\n   }"
   },
   {
     "id": "gitignore-approve",
-    "description": "Updating .gitignore — should be approved",
-    "issueTitle": "Add coverage directory to gitignore",
+    "description": "Exclude env files and OS files from git \u2014 should be approved",
+    "issueTitle": "Add .env and .DS_Store to gitignore",
     "issueNumber": 69,
-    "acceptanceCriteria": "- coverage/ added to .gitignore\n- .env files ignored",
-    "diffStats": { "filesChanged": 1, "linesChanged": 3 },
+    "acceptanceCriteria": "- .env added to gitignore\n- .env.local added to gitignore\n- .env.*.local pattern added\n- *.tsbuildinfo added",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 3
+    },
     "branch": "chore/69-gitignore",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/.gitignore\n+++ b/.gitignore\n@@ -3,3 +3,7 @@\n node_modules/\n dist/\n coverage/\n+.env\n+.env.local\n+.env.*.local\n+*.tsbuildinfo"
   },
   {
     "id": "input-validation-approve",
-    "description": "Adding input validation with Zod — should be approved",
-    "issueTitle": "Validate contact form inputs",
+    "description": "Input validation with Zod \u2014 should be approved",
+    "issueTitle": "Add Zod schema for user creation input",
     "issueNumber": 70,
-    "acceptanceCriteria": "- Email validated with Zod schema\n- Name required, min 2 chars\n- Error messages shown inline\n- Tests for valid/invalid inputs",
-    "diffStats": { "filesChanged": 3, "linesChanged": 40 },
+    "acceptanceCriteria": "- Email validated as proper format\n- Name required with min 1, max 100 chars\n- Age validated as integer, min 13, max 120\n- Role defaults to 'user', only allows 'user' or 'admin'",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 40
+    },
     "branch": "feat/70-form-validation",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/validators/user.ts\n+++ b/src/validators/user.ts\n@@ -1,4 +1,12 @@\n+import { z } from \"zod\";\n+\n+export const CreateUserSchema = z.object({\n+  email: z.string().email(\"Invalid email format\"),\n+  name: z.string().min(1, \"Name is required\").max(100, \"Name too long\"),\n+  age: z.number().int().min(13, \"Must be at least 13\").max(120, \"Invalid age\"),\n+  role: z.enum([\"user\", \"admin\"]).default(\"user\"),\n+});\n+\n+export type CreateUserInput = z.infer<typeof CreateUserSchema>;"
   },
   {
     "id": "rate-limit-approve",
-    "description": "Adding rate limiting to API — should be approved",
-    "issueTitle": "Add rate limiting to API endpoints",
+    "description": "Express rate limiter for API and auth endpoints \u2014 should be approved",
+    "issueTitle": "Add rate limiting middleware",
     "issueNumber": 71,
-    "acceptanceCriteria": "- Max 100 requests per minute per IP\n- 429 status returned when exceeded\n- Test covers rate limit trigger",
-    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "acceptanceCriteria": "- API limiter: 100 requests per 15 minutes per IP\n- Auth limiter: 5 login attempts per hour\n- Standard headers, no legacy headers\n- JSON error messages",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 35
+    },
     "branch": "feat/71-rate-limit",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/middleware/rate-limit.ts\n+++ b/src/middleware/rate-limit.ts\n@@ -1,4 +1,20 @@\n+import rateLimit from \"express-rate-limit\";\n+\n+export const apiLimiter = rateLimit({\n+  windowMs: 15 * 60 * 1000, // 15 minutes\n+  max: 100, // limit each IP to 100 requests per window\n+  standardHeaders: true,\n+  legacyHeaders: false,\n+  message: { error: \"Too many requests, please try again later\" },\n+});\n+\n+export const authLimiter = rateLimit({\n+  windowMs: 60 * 60 * 1000, // 1 hour\n+  max: 5, // limit login attempts\n+  message: { error: \"Too many login attempts\" },\n+});"
   },
   {
     "id": "cache-impl-approve",
-    "description": "Adding caching layer — should be approved",
-    "issueTitle": "Cache API responses with TTL",
+    "description": "Generic TTL cache with Map storage \u2014 should be approved",
+    "issueTitle": "Add TTL cache implementation",
     "issueNumber": 72,
-    "acceptanceCriteria": "- In-memory cache with configurable TTL\n- Cache invalidation on mutation\n- Tests for cache hit/miss/expiry",
-    "diffStats": { "filesChanged": 3, "linesChanged": 55 },
+    "acceptanceCriteria": "- Generic TTLCache class with get/set methods\n- Entries expire after configurable TTL\n- Expired entries cleaned up on access",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 55
+    },
     "branch": "feat/72-cache",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/cache.ts\n+++ b/src/cache.ts\n@@ -1,4 +1,22 @@\n+interface CacheEntry<T> {\n+  value: T;\n+  expiresAt: number;\n+}\n+\n+export class TTLCache<T> {\n+  private store = new Map<string, CacheEntry<T>>();\n+\n+  get(key: string): T | undefined {\n+    const entry = this.store.get(key);\n+    if (!entry) return undefined;\n+    if (Date.now() > entry.expiresAt) {\n+      this.store.delete(key);\n+      return undefined;\n+    }\n+    return entry.value;\n+  }\n+\n+  set(key: string, value: T, ttlMs: number): void {\n+    this.store.set(key, { value, expiresAt: Date.now() + ttlMs });\n+  }\n+}"
   },
   {
     "id": "pagination-approve",
-    "description": "Adding pagination to list endpoint — should be approved",
-    "issueTitle": "Add pagination to user list",
+    "description": "Paginated API with page/limit params \u2014 should be approved",
+    "issueTitle": "Add pagination to listItems endpoint",
     "issueNumber": 73,
-    "acceptanceCriteria": "- Page size configurable (default 20)\n- Response includes totalCount, page, pageSize\n- Tests for boundary pages",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "acceptanceCriteria": "- Page and limit parsed from query params\n- Default page=1, default limit=20, max limit=100\n- Response includes items, page, limit, total, totalPages",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/73-pagination",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/list.ts\n+++ b/src/api/list.ts\n@@ -5,8 +5,12 @@\n-export async function listItems(req: Request): Promise<Item[]> {\n-  return db.query(\"SELECT * FROM items\");\n+export async function listItems(req: Request): Promise<PaginatedResult<Item>> {\n+  const page = Math.max(1, parseInt(req.query.page as string) || 1);\n+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));\n+  const offset = (page - 1) * limit;\n+  const [items, total] = await Promise.all([\n+    db.query(\"SELECT * FROM items LIMIT ? OFFSET ?\", [limit, offset]),\n+    db.count(\"items\"),\n+  ]);\n+  return { items, page, limit, total, totalPages: Math.ceil(total / limit) };\n }"
   },
   {
     "id": "timeout-handling-approve",
-    "description": "Adding request timeout handling — should be approved",
+    "description": "AbortController-based fetch timeout \u2014 should be approved",
     "issueTitle": "Add timeout to external API calls",
     "issueNumber": 74,
-    "acceptanceCriteria": "- AbortController with 5s timeout\n- Timeout error shown to user\n- Test with mocked timeout",
-    "diffStats": { "filesChanged": 2, "linesChanged": 25 },
+    "acceptanceCriteria": "- Configurable timeout (default 5000ms)\n- Uses AbortController to cancel fetch\n- Timer cleared after successful response\n- Non-OK responses throw Error",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 25
+    },
     "branch": "feat/74-timeout",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/api/external.ts\n+++ b/src/api/external.ts\n@@ -3,7 +3,10 @@\n-export async function callExternalApi(url: string): Promise<unknown> {\n-  const response = await fetch(url);\n+export async function callExternalApi(url: string, timeoutMs = 5000): Promise<unknown> {\n+  const controller = new AbortController();\n+  const timer = setTimeout(() => controller.abort(), timeoutMs);\n+  const response = await fetch(url, { signal: controller.signal });\n+  clearTimeout(timer);\n+  if (!response.ok) {\n+    throw new Error(`API call failed: ${response.status}`);\n+  }\n   return response.json();\n }"
   },
   {
     "id": "loading-state-approve",
-    "description": "Adding loading state to UI — should be approved",
-    "issueTitle": "Show loading spinner during data fetch",
+    "description": "Loading/error state management in data fetch \u2014 should be approved",
+    "issueTitle": "Add loading and error states to DataTable",
     "issueNumber": 75,
-    "acceptanceCriteria": "- Spinner shown while fetch is pending\n- Spinner hidden on success or error\n- Accessible: aria-busy attribute set",
-    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "acceptanceCriteria": "- Loading state shown while fetching\n- Error state shown on fetch failure\n- Data typed as Item[]\n- Loading div has role=status, error div has role=alert",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 20
+    },
     "branch": "feat/75-loading-state",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/DataTable.tsx\n+++ b/src/components/DataTable.tsx\n@@ -5,7 +5,12 @@\n export function DataTable({ endpoint }: DataTableProps) {\n-  const [data, setData] = useState([]);\n+  const [data, setData] = useState<Item[]>([]);\n+  const [loading, setLoading] = useState(true);\n+  const [error, setError] = useState<string | null>(null);\n \n   useEffect(() => {\n-    fetch(endpoint).then(r => r.json()).then(setData);\n+    setLoading(true);\n+    fetch(endpoint)\n+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })\n+      .then(setData)\n+      .catch(err => setError(err.message))\n+      .finally(() => setLoading(false));\n   }, [endpoint]);\n+\n+  if (loading) return <div role=\"status\">Loading...</div>;\n+  if (error) return <div role=\"alert\">{error}</div>;"
   },
   {
     "id": "debounce-search-approve",
-    "description": "Adding debounce to search input — should be approved",
-    "issueTitle": "Debounce search input to reduce API calls",
+    "description": "Debounced search hook with cleanup \u2014 should be approved",
+    "issueTitle": "Add debounced search with URL encoding",
     "issueNumber": 76,
-    "acceptanceCriteria": "- Search input debounced at 300ms\n- Previous pending request cancelled\n- Test verifies debounce behavior",
-    "diffStats": { "filesChanged": 2, "linesChanged": 25 },
+    "acceptanceCriteria": "- Search debounced by configurable delay (default 300ms)\n- Query URL-encoded with encodeURIComponent\n- Empty queries clear results\n- Timer cleanup on unmount",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 25
+    },
     "branch": "feat/76-debounce",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/hooks/useSearch.ts\n+++ b/src/hooks/useSearch.ts\n@@ -1,8 +1,15 @@\n+import { useState, useEffect, useRef } from \"react\";\n+\n export function useSearch(query: string, delay = 300) {\n-  const [results, setResults] = useState([]);\n+  const [results, setResults] = useState<SearchResult[]>([]);\n+  const timerRef = useRef<ReturnType<typeof setTimeout>>();\n \n   useEffect(() => {\n-    fetch(`/api/search?q=${query}`).then(r => r.json()).then(setResults);\n+    if (timerRef.current) clearTimeout(timerRef.current);\n+    timerRef.current = setTimeout(async () => {\n+      if (!query.trim()) { setResults([]); return; }\n+      const r = await fetch(`/api/search?q=${encodeURIComponent(query)}`);\n+      if (r.ok) setResults(await r.json());\n+    }, delay);\n+    return () => clearTimeout(timerRef.current);\n   }, [query, delay]);\n \n   return results;\n }"
   },
   {
     "id": "responsive-layout-approve",
-    "description": "Making layout responsive — should be approved",
-    "issueTitle": "Add responsive breakpoints for mobile",
+    "description": "CSS grid with mobile-first responsive breakpoint \u2014 should be approved",
+    "issueTitle": "Add responsive grid layout",
     "issueNumber": 78,
-    "acceptanceCriteria": "- Layout stacks vertically below 768px\n- Navigation collapses to hamburger\n- Font sizes adjust for readability",
-    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "acceptanceCriteria": "- Single column on mobile\n- Two-column layout (250px sidebar + 1fr) at 768px breakpoint\n- Grid gap of 16px",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 40
+    },
     "branch": "feat/78-responsive",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/styles/layout.css\n+++ b/src/styles/layout.css\n@@ -5,6 +5,16 @@\n .container {\n   max-width: 1200px;\n   margin: 0 auto;\n   padding: 0 16px;\n+  display: grid;\n+  grid-template-columns: 1fr;\n+  gap: 16px;\n+}\n+\n+@media (min-width: 768px) {\n+  .container {\n+    grid-template-columns: 250px 1fr;\n+  }\n }"
   },
   {
     "id": "error-boundary-approve",
-    "description": "Adding error boundary component — should be approved",
-    "issueTitle": "Add error boundary for graceful error handling",
+    "description": "Error boundary with fallback UI and error logging \u2014 should be approved",
+    "issueTitle": "Add React error boundary component",
     "issueNumber": 79,
-    "acceptanceCriteria": "- Error boundary catches render errors\n- Fallback UI shown with retry button\n- Error logged to console",
-    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "acceptanceCriteria": "- Catches errors in child components\n- Shows fallback UI with error message\n- Accepts optional custom fallback prop\n- Logs error and componentStack to console",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 35
+    },
     "branch": "feat/79-error-boundary",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/components/ErrorBoundary.tsx\n+++ b/src/components/ErrorBoundary.tsx\n@@ -1,4 +1,28 @@\n+import { Component, type ReactNode, type ErrorInfo } from \"react\";\n+\n+interface Props { children: ReactNode; fallback?: ReactNode; }\n+interface State { hasError: boolean; error: Error | null; }\n+\n+export class ErrorBoundary extends Component<Props, State> {\n+  state: State = { hasError: false, error: null };\n+\n+  static getDerivedStateFromError(error: Error): State {\n+    return { hasError: true, error };\n+  }\n+\n+  componentDidCatch(error: Error, info: ErrorInfo) {\n+    console.error(\"ErrorBoundary caught:\", error, info.componentStack);\n+  }\n+\n+  render() {\n+    if (this.state.hasError) {\n+      return this.props.fallback ?? (\n+        <div role=\"alert\">\n+          <h2>Something went wrong</h2>\n+          <p>{this.state.error?.message}</p>\n+        </div>\n+      );\n+    }\n+    return this.props.children;\n+  }\n+}"
   },
   {
     "id": "date-format-approve",
-    "description": "Adding date formatting utility — should be approved",
-    "issueTitle": "Add relative date formatting (e.g., '2 hours ago')",
+    "description": "Locale-aware date format and relative time \u2014 should be approved",
+    "issueTitle": "Add date formatting utilities",
     "issueNumber": 80,
-    "acceptanceCriteria": "- Formats dates as relative time strings\n- Falls back to absolute date beyond 7 days\n- Tests for various time ranges",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "acceptanceCriteria": "- formatDate uses Intl.DateTimeFormat with configurable locale\n- formatRelative shows 'just now', minutes, hours, then falls back to absolute\n- Default locale is en-US",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/80-relative-dates",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils/date.ts\n+++ b/src/utils/date.ts\n@@ -1,5 +1,10 @@\n-export function formatDate(d: Date): string {\n-  return d.toLocaleDateString();\n+export function formatDate(d: Date, locale = \"en-US\"): string {\n+  return new Intl.DateTimeFormat(locale, {\n+    year: \"numeric\",\n+    month: \"short\",\n+    day: \"numeric\",\n+  }).format(d);\n }\n+\n+export function formatRelative(d: Date): string {\n+  const diff = Date.now() - d.getTime();\n+  const minutes = Math.floor(diff / 60_000);\n+  if (minutes < 1) return \"just now\";\n+  if (minutes < 60) return `${minutes}m ago`;\n+  const hours = Math.floor(minutes / 60);\n+  if (hours < 24) return `${hours}h ago`;\n+  return formatDate(d);\n+}"
   },
   {
     "id": "cleanup-imports-approve",
-    "description": "Cleaning up unused imports — should be approved",
-    "issueTitle": "Remove unused imports across codebase",
+    "description": "Clean up unused import statements \u2014 should be approved",
+    "issueTitle": "Remove unused imports from order service",
     "issueNumber": 81,
-    "acceptanceCriteria": "- All unused imports removed\n- No behavior change\n- ESLint no-unused-vars passes",
-    "diffStats": { "filesChanged": 8, "linesChanged": 20 },
+    "acceptanceCriteria": "- Unused imports removed (UserService, EmailService, MetricsCollector)\n- Used imports preserved (OrderRepository, validateOrder, Logger)\n- Import order cleaned up",
+    "diffStats": {
+      "filesChanged": 8,
+      "linesChanged": 20
+    },
     "branch": "chore/81-clean-imports",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/services/order.ts\n+++ b/src/services/order.ts\n@@ -1,8 +1,5 @@\n-import { Logger } from \"../logger\";\n-import { UserService } from \"./user\";\n-import { EmailService } from \"./email\";\n import { OrderRepository } from \"../repos/order\";\n-import { MetricsCollector } from \"../metrics\";\n import { validateOrder } from \"../validators/order\";\n+import { Logger } from \"../logger\";\n \n export class OrderService {"
   },
   {
     "id": "retry-with-backoff-approve",
-    "description": "Adding retry with exponential backoff — should be approved",
-    "issueTitle": "Add retry with backoff for flaky API",
+    "description": "Generic async retry with exponential delay \u2014 should be approved",
+    "issueTitle": "Add retry utility with exponential backoff",
     "issueNumber": 82,
-    "acceptanceCriteria": "- Max 3 retries with exponential backoff\n- Jitter added to prevent thundering herd\n- Test mocks failures then success",
-    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "acceptanceCriteria": "- Configurable max attempts (default 3)\n- Exponential backoff with configurable base delay (default 1000ms)\n- Last error thrown after all retries exhausted\n- Generic return type preserved",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 40
+    },
     "branch": "feat/82-retry-backoff",
-    "expected": { "approved": true }
+    "expected": {
+      "approved": true
+    },
+    "codeDiff": "--- a/src/utils/retry.ts\n+++ b/src/utils/retry.ts\n@@ -1,4 +1,18 @@\n+export async function withRetry<T>(\n+  fn: () => Promise<T>,\n+  maxAttempts = 3,\n+  baseDelayMs = 1000,\n+): Promise<T> {\n+  let lastError: Error | undefined;\n+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {\n+    try {\n+      return await fn();\n+    } catch (err) {\n+      lastError = err instanceof Error ? err : new Error(String(err));\n+      if (attempt < maxAttempts) {\n+        const delay = baseDelayMs * Math.pow(2, attempt - 1);\n+        await new Promise((r) => setTimeout(r, delay));\n+      }\n+    }\n+  }\n+  throw lastError;\n+}"
   }
 ]

@@ -4,60 +4,119 @@
     "description": "Code with SQL injection vulnerability — should be rejected",
     "issueTitle": "Add user search feature",
     "issueNumber": 101,
-    "acceptanceCriteria": "- Users can search by name\n- Results displayed in table",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "acceptanceCriteria": "- Users can search by name\n- Results displayed in a table\n- Search input properly sanitized",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/101-user-search",
-    "expected": { "approved": false, "mustContain": ["sql", "injection"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "sql",
+        "injection"
+      ]
+    },
+    "codeDiff": "--- a/src/api/users.ts\n+++ b/src/api/users.ts\n@@ -5,7 +5,7 @@\n router.get(\"/users\", async (req, res) => {\n   const name = req.query.name as string;\n-  const users = await db.query(\"SELECT * FROM users\");\n+  const users = await db.query(`SELECT * FROM users WHERE name = '${name}'`);\n   res.json(users);\n });"
   },
   {
     "id": "missing-error-handling-reject",
-    "description": "API call without error handling — should be rejected",
-    "issueTitle": "Fetch user profile from API",
+    "description": "Data import endpoint without error handling — should be rejected",
+    "issueTitle": "Add data import endpoint",
     "issueNumber": 102,
-    "acceptanceCriteria": "- Profile data fetched from /api/users/:id\n- Profile displayed on page",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- POST /data imports records from a file path\n- Imported data stored in database\n- Graceful error responses for missing files or malformed data",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/102-profile-fetch",
-    "expected": { "approved": false, "mustContain": ["error"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "error"
+      ]
+    },
+    "codeDiff": "--- a/src/api/data.ts\n+++ b/src/api/data.ts\n@@ -3,6 +3,10 @@\n router.post(\"/data\", async (req, res) => {\n+  const file = await fs.readFile(req.body.path);\n+  const parsed = JSON.parse(file.toString());\n+  await db.insert(\"data\", parsed);\n+  res.json({ success: true });\n });"
   },
   {
     "id": "no-tests-reject",
-    "description": "New logic with zero test coverage — should be rejected",
-    "issueTitle": "Add shopping cart calculation",
+    "description": "Payment processor with no test coverage — should be rejected",
+    "issueTitle": "Add payment processing service",
     "issueNumber": 103,
-    "acceptanceCriteria": "- Cart total calculated with tax\n- Discount codes supported\n- Tests added for all cases",
-    "diffStats": { "filesChanged": 1, "linesChanged": 50 },
+    "acceptanceCriteria": "- Payment processor charges user account via gateway\n- Insufficient funds handled gracefully\n- Unit tests cover charge success, failure, and edge cases",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 50
+    },
     "branch": "feat/103-cart-calc",
-    "expected": { "approved": false, "mustContain": ["test"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "test"
+      ]
+    },
+    "codeDiff": "--- a/src/services/payment.ts\n+++ b/src/services/payment.ts\n@@ -1,4 +1,25 @@\n+export class PaymentProcessor {\n+  private gateway: PaymentGateway;\n+\n+  constructor(gateway: PaymentGateway) {\n+    this.gateway = gateway;\n+  }\n+\n+  async charge(userId: string, amount: number): Promise<ChargeResult> {\n+    const user = await this.getUser(userId);\n+    if (user.balance < amount) {\n+      return { success: false, error: \"Insufficient funds\" };\n+    }\n+    const result = await this.gateway.process(amount, user.paymentMethod);\n+    if (result.success) {\n+      await this.updateBalance(userId, user.balance - amount);\n+    }\n+    return result;\n+  }\n+\n+  private async getUser(id: string) { return db.users.findById(id); }\n+  private async updateBalance(id: string, balance: number) { await db.users.update(id, { balance }); }\n+}"
   },
   {
     "id": "breaking-api-reject",
-    "description": "Breaking API change without migration — should be rejected",
-    "issueTitle": "Rename getUserById to fetchUser",
+    "description": "Breaking product API response change without migration — should be rejected",
+    "issueTitle": "Enrich product API response",
     "issueNumber": 104,
-    "acceptanceCriteria": "- Function renamed\n- All callers updated",
-    "diffStats": { "filesChanged": 5, "linesChanged": 25 },
+    "acceptanceCriteria": "- Product endpoint returns enriched data including currency\n- Backward compatible with existing API consumers\n- Response format changes documented",
+    "diffStats": {
+      "filesChanged": 5,
+      "linesChanged": 25
+    },
     "branch": "refactor/104-rename-api",
-    "expected": { "approved": false, "mustContain": ["breaking"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "breaking"
+      ]
+    },
+    "codeDiff": "--- a/src/api/products.ts\n+++ b/src/api/products.ts\n@@ -3,8 +3,8 @@\n router.get(\"/api/products/:id\", async (req, res) => {\n-  const product = await getProduct(req.params.id);\n-  res.json({ id: product.id, name: product.name, price: product.price });\n+  const product = await getProduct(req.params.id);\n+  res.json({ productId: product.id, title: product.name, cost: product.price, currency: \"USD\" });\n });"
   },
   {
     "id": "hardcoded-secret-reject",
-    "description": "Hardcoded API key in source — should be rejected",
-    "issueTitle": "Add weather API integration",
+    "description": "Hardcoded secrets in source code — should be rejected",
+    "issueTitle": "Configure API credentials for external services",
     "issueNumber": 105,
-    "acceptanceCriteria": "- Weather data fetched from OpenWeather API\n- Current temperature displayed",
-    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "acceptanceCriteria": "- API keys and secrets configured for external services\n- Credentials loaded from environment variables\n- No secrets committed to version control",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 20
+    },
     "branch": "feat/105-weather",
-    "expected": { "approved": false, "mustContain": ["secret", "key", "credential", "hardcoded", "environment"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "secret",
+        "key",
+        "credential",
+        "hardcoded",
+        "environment"
+      ]
+    },
+    "codeDiff": "--- a/src/config.ts\n+++ b/src/config.ts\n@@ -2,6 +2,8 @@\n export const config = {\n   port: 3000,\n+  jwtSecret: \"super-secret-key-do-not-share-2024\",\n+  apiKey: \"sk_live_abc123def456ghi789\",\n   database: {\n     host: \"localhost\",\n   },\n };"
   },
   {
     "id": "unchecked-null-reject",
-    "description": "Accessing property on potentially null value — should be rejected",
-    "issueTitle": "Display user email in header",
+    "description": "Order details accessed without null checks — should be rejected",
+    "issueTitle": "Add order details endpoint",
     "issueNumber": 106,
-    "acceptanceCriteria": "- Logged-in user email shown in header\n- Falls back to 'Guest' if not logged in",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "acceptanceCriteria": "- Order details include customer name and shipping address\n- Order total calculated from line items\n- Handles cases where order or customer data is incomplete",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/106-user-email",
-    "expected": { "approved": false, "mustContain": ["null"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "null"
+      ]
+    },
+    "codeDiff": "--- a/src/services/order.ts\n+++ b/src/services/order.ts\n@@ -5,6 +5,10 @@\n export async function getOrderDetails(orderId: string) {\n   const order = await db.orders.findById(orderId);\n+  const customer = await db.users.findById(order.customerId);\n+  const address = customer.addresses[0];\n+  const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);\n+  return { order, customerName: customer.name, shippingAddress: address.street, total };\n }"
   },
   {
     "id": "infinite-loop-reject",
@@ -65,69 +124,153 @@
     "issueTitle": "Add retry logic for failed requests",
     "issueNumber": 107,
     "acceptanceCriteria": "- Failed requests retried up to 3 times\n- Exponential backoff between retries",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/107-retry",
-    "expected": { "approved": false, "mustContain": ["loop", "infinite", "retry", "limit", "max"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "loop",
+        "infinite",
+        "retry",
+        "limit",
+        "max"
+      ]
+    },
+    "codeDiff": "--- a/src/utils/retry.ts\n+++ b/src/utils/retry.ts\n@@ -1,4 +1,10 @@\n+export async function retryUntilSuccess<T>(fn: () => Promise<T>): Promise<T> {\n+  while (true) {\n+    try {\n+      return await fn();\n+    } catch {\n+      await new Promise(r => setTimeout(r, 100));\n+    }\n+  }\n+}"
   },
   {
     "id": "xss-vulnerability-reject",
     "description": "Inserting user input into innerHTML without sanitization — should be rejected",
     "issueTitle": "Display user comments on page",
     "issueNumber": 108,
-    "acceptanceCriteria": "- User comments rendered in comment section\n- Comments support basic formatting",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- User comments rendered in comment section\n- Comments support basic formatting (bold, italic)\n- User-generated content sanitized before rendering",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/108-comments",
-    "expected": { "approved": false, "mustContain": ["xss", "sanitiz", "innerhtml", "script"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "xss",
+        "sanitiz",
+        "innerhtml",
+        "script"
+      ]
+    },
+    "codeDiff": "--- a/src/components/Comment.tsx\n+++ b/src/components/Comment.tsx\n@@ -3,6 +3,8 @@\n export function Comment({ comment }: { comment: CommentData }) {\n   return (\n     <div className=\"comment\">\n       <strong>{comment.author}</strong>\n-      <p>{comment.text}</p>\n+      <div dangerouslySetInnerHTML={{ __html: comment.text }} />\n     </div>\n   );\n }"
   },
   {
     "id": "race-condition-reject",
-    "description": "Race condition in concurrent state update — should be rejected",
-    "issueTitle": "Add concurrent request handling",
+    "description": "Counter increment with race condition — should be rejected",
+    "issueTitle": "Add atomic request counter",
     "issueNumber": 109,
-    "acceptanceCriteria": "- Multiple requests processed simultaneously\n- Results aggregated correctly",
-    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "acceptanceCriteria": "- Request counter tracks total API calls\n- Counter remains accurate under concurrent requests\n- Counter value retrievable via API",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 25
+    },
     "branch": "feat/109-concurrent",
-    "expected": { "approved": false, "mustContain": ["race", "concurrent", "atomic", "lock"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "race",
+        "concurrent",
+        "atomic",
+        "lock"
+      ]
+    },
+    "codeDiff": "--- a/src/services/counter.ts\n+++ b/src/services/counter.ts\n@@ -1,4 +1,10 @@\n+let counter = 0;\n+\n+export async function incrementAndGet(): Promise<number> {\n+  const current = counter;\n+  await someAsyncWork();\n+  counter = current + 1;\n+  return counter;\n+}"
   },
   {
     "id": "memory-leak-reject",
-    "description": "Event listener not cleaned up — should be rejected",
-    "issueTitle": "Add window resize handler for responsive layout",
+    "description": "Event system without unsubscribe capability — should be rejected",
+    "issueTitle": "Add event pub/sub system",
     "issueNumber": 110,
-    "acceptanceCriteria": "- Layout recalculates on window resize\n- Debounced for performance",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- Components can subscribe to named events\n- Events emitted to all active subscribers\n- Subscribers can unsubscribe to prevent resource leaks",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/110-resize-handler",
-    "expected": { "approved": false, "mustContain": ["cleanup", "remove", "listener", "leak", "unmount"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "cleanup",
+        "remove",
+        "listener",
+        "leak",
+        "unmount"
+      ]
+    },
+    "codeDiff": "--- a/src/services/events.ts\n+++ b/src/services/events.ts\n@@ -1,4 +1,12 @@\n+const listeners: Map<string, Function[]> = new Map();\n+\n+export function subscribe(event: string, callback: Function) {\n+  const existing = listeners.get(event) ?? [];\n+  existing.push(callback);\n+  listeners.set(event, existing);\n+}\n+\n+export function emit(event: string, data: unknown) {\n+  const callbacks = listeners.get(event) ?? [];\n+  callbacks.forEach(cb => cb(data));\n+}"
   },
   {
     "id": "eval-usage-reject",
     "description": "Using eval() for dynamic code execution — should be rejected",
     "issueTitle": "Add dynamic formula calculator",
     "issueNumber": 111,
-    "acceptanceCriteria": "- Users can enter formulas\n- Results calculated and displayed",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- Users can enter arithmetic formulas (e.g., 2+3*4)\n- Results calculated and displayed\n- Only safe mathematical expressions supported",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/111-calculator",
-    "expected": { "approved": false, "mustContain": ["eval", "security"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "eval",
+        "security"
+      ]
+    },
+    "codeDiff": "--- a/src/utils/calculate.ts\n+++ b/src/utils/calculate.ts\n@@ -1,4 +1,6 @@\n+export function calculate(expression: string): number {\n+  return eval(expression);\n+}"
   },
   {
     "id": "password-plaintext-reject",
     "description": "Storing password in plaintext — should be rejected",
     "issueTitle": "Add user registration",
     "issueNumber": 112,
-    "acceptanceCriteria": "- User can register with email/password\n- Account stored in database\n- Validation on all fields",
-    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "acceptanceCriteria": "- User can register with email and password\n- Password stored securely using industry-standard hashing\n- Validation on all input fields\n- Registration returns user ID and email",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 40
+    },
     "branch": "feat/112-registration",
-    "expected": { "approved": false, "mustContain": ["hash", "plain", "bcrypt", "password"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "hash",
+        "plain",
+        "bcrypt",
+        "password"
+      ]
+    },
+    "codeDiff": "--- a/src/auth/register.ts\n+++ b/src/auth/register.ts\n@@ -3,6 +3,10 @@\n export async function registerUser(email: string, password: string) {\n+  const user = {\n+    email,\n+    password: password,\n+    createdAt: new Date(),\n+  };\n+  await db.users.insert(user);\n+  return { id: user.id, email: user.email };\n }"
   },
   {
     "id": "unvalidated-redirect-reject",
-    "description": "Open redirect vulnerability — should be rejected",
-    "issueTitle": "Add redirect after login",
+    "description": "Redirect endpoint without URL validation — should be rejected",
+    "issueTitle": "Add post-login redirect",
     "issueNumber": 113,
-    "acceptanceCriteria": "- After login, redirect to ?returnUrl parameter\n- Default to homepage if no returnUrl",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "acceptanceCriteria": "- After login, user redirected to returnUrl query parameter\n- Defaults to homepage if no returnUrl provided\n- Only redirects to trusted internal URLs",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/113-login-redirect",
-    "expected": { "approved": false, "mustContain": ["redirect", "validat", "whitelist", "open"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "redirect",
+        "validat",
+        "whitelist",
+        "open"
+      ]
+    },
+    "codeDiff": "--- a/src/api/redirect.ts\n+++ b/src/api/redirect.ts\n@@ -3,6 +3,8 @@\n router.get(\"/redirect\", (req, res) => {\n   const url = req.query.url as string;\n+  res.redirect(url);\n });"
   },
   {
     "id": "large-unscoped-diff-reject",
@@ -135,68 +278,148 @@
     "issueTitle": "Fix typo in footer",
     "issueNumber": 114,
     "acceptanceCriteria": "- Fix 'Copyrihgt' typo to 'Copyright' in footer",
-    "diffStats": { "filesChanged": 15, "linesChanged": 500 },
+    "diffStats": {
+      "filesChanged": 15,
+      "linesChanged": 500
+    },
     "branch": "fix/114-footer-typo",
-    "expected": { "approved": false, "mustContain": ["scope", "unrelated", "files"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "scope",
+        "unrelated",
+        "files"
+      ]
+    },
+    "codeDiff": "--- a/src/services/user.ts\n+++ b/src/services/user.ts\n@@ -5,6 +5,15 @@\n export class UserService {\n   async getUser(id: string) {\n     return db.users.findById(id);\n   }\n+\n+  // Unrelated: refactored billing logic\n+  async calculateBilling(userId: string) {\n+    const user = await this.getUser(userId);\n+    const invoices = await db.invoices.findByUser(userId);\n+    const total = invoices.reduce((sum, inv) => sum + inv.amount, 0);\n+    return { userId, total, isPremium: total > 10000 };\n+  }\n }"
   },
   {
     "id": "console-log-production-reject",
-    "description": "Debug console.log statements left in production code — should be rejected",
-    "issueTitle": "Add order processing pipeline",
+    "description": "Auth middleware with debug console.log statements — should be rejected",
+    "issueTitle": "Add authentication middleware",
     "issueNumber": 115,
-    "acceptanceCriteria": "- Orders processed through validation, payment, fulfillment\n- Status updates at each stage\n- Tests for each pipeline stage",
-    "diffStats": { "filesChanged": 3, "linesChanged": 60 },
+    "acceptanceCriteria": "- Authentication middleware validates JWT tokens on requests\n- Unauthorized requests return 401\n- Use structured logger (pino) for request diagnostics",
+    "diffStats": {
+      "filesChanged": 3,
+      "linesChanged": 60
+    },
     "branch": "feat/115-order-pipeline",
-    "expected": { "approved": false, "mustContain": ["console.log", "debug", "logging"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "console.log",
+        "debug",
+        "logging"
+      ]
+    },
+    "codeDiff": "--- a/src/middleware/auth.ts\n+++ b/src/middleware/auth.ts\n@@ -5,6 +5,10 @@\n export function authMiddleware(req: Request, res: Response, next: NextFunction) {\n   const token = req.headers.authorization?.split(\" \")[1];\n+  console.log(\"Auth token:\", token);\n+  console.log(\"User agent:\", req.headers[\"user-agent\"]);\n   if (!token) return res.status(401).json({ error: \"Unauthorized\" });\n   const payload = verifyToken(token);\n+  console.log(\"Decoded payload:\", JSON.stringify(payload));\n   req.user = payload;\n   next();\n }"
   },
   {
     "id": "sync-fs-in-server-reject",
-    "description": "Using synchronous fs operations in request handler — should be rejected",
-    "issueTitle": "Add file upload endpoint",
+    "description": "Synchronous file read in request handler — should be rejected",
+    "issueTitle": "Add configuration endpoint",
     "issueNumber": 116,
-    "acceptanceCriteria": "- Users can upload files\n- Files saved to uploads directory\n- Max file size 5MB",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "acceptanceCriteria": "- GET /config returns application configuration\n- Configuration loaded from config.json file\n- Endpoint handles concurrent requests without blocking",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/116-file-upload",
-    "expected": { "approved": false, "mustContain": ["sync", "blocking", "async"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "sync",
+        "blocking",
+        "async"
+      ]
+    },
+    "codeDiff": "--- a/src/api/config.ts\n+++ b/src/api/config.ts\n@@ -3,6 +3,10 @@\n router.get(\"/config\", (req, res) => {\n+  const configFile = fs.readFileSync(\"./config.json\", \"utf-8\");\n+  const config = JSON.parse(configFile);\n+  res.json(config);\n });"
   },
   {
     "id": "missing-input-validation-reject",
-    "description": "Processing user input without any validation — should be rejected",
-    "issueTitle": "Add user profile update endpoint",
+    "description": "User creation without input validation — should be rejected",
+    "issueTitle": "Add user creation endpoint",
     "issueNumber": 117,
-    "acceptanceCriteria": "- Users can update their display name and bio\n- Changes saved to database",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- POST /users creates a new user account\n- Input fields validated (name required, valid email, age numeric)\n- Role field restricted to allowed values\n- Returns created user with 201 status",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/117-profile-update",
-    "expected": { "approved": false, "mustContain": ["validat", "sanitiz", "input"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "validat",
+        "sanitiz",
+        "input"
+      ]
+    },
+    "codeDiff": "--- a/src/api/users.ts\n+++ b/src/api/users.ts\n@@ -3,6 +3,12 @@\n router.post(\"/users\", async (req, res) => {\n+  const { name, email, age, role } = req.body;\n+  const user = await db.users.insert({\n+    name,\n+    email,\n+    age,\n+    role,\n+  });\n+  res.status(201).json(user);\n });"
   },
   {
     "id": "swallowed-error-reject",
-    "description": "Empty catch block swallowing errors — should be rejected",
-    "issueTitle": "Add data export feature",
+    "description": "Data sync with swallowed errors — should be rejected",
+    "issueTitle": "Add remote data sync",
     "issueNumber": 118,
-    "acceptanceCriteria": "- Users can export data as CSV\n- Download triggered automatically",
-    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "acceptanceCriteria": "- Remote data fetched and synced to local database\n- Sync errors logged and reported to monitoring\n- Failed syncs retried on next cycle",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 35
+    },
     "branch": "feat/118-data-export",
-    "expected": { "approved": false, "mustContain": ["catch", "error", "swallow", "silent"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "catch",
+        "error",
+        "swallow",
+        "silent"
+      ]
+    },
+    "codeDiff": "--- a/src/services/sync.ts\n+++ b/src/services/sync.ts\n@@ -3,6 +3,12 @@\n export async function syncData() {\n+  try {\n+    const data = await fetchRemoteData();\n+    await db.sync.upsert(data);\n+  } catch (e) {\n+    // ignore errors\n+  }\n }"
   },
   {
     "id": "hardcoded-timeout-reject",
-    "description": "Hardcoded magic number for timeout — should be rejected",
-    "issueTitle": "Add session timeout",
+    "description": "API fetch with hardcoded magic number delay — should be rejected",
+    "issueTitle": "Add request rate-limit delay",
     "issueNumber": 119,
-    "acceptanceCriteria": "- Session expires after inactivity\n- Warning shown before expiry\n- Configurable timeout duration",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- API requests include delay to avoid upstream throttling\n- Delay duration is configurable via settings\n- Delay value defined as a named constant",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/119-session-timeout",
-    "expected": { "approved": false, "mustContain": ["magic", "constant", "configur", "hardcoded"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "magic",
+        "constant",
+        "configur",
+        "hardcoded"
+      ]
+    },
+    "codeDiff": "--- a/src/services/api.ts\n+++ b/src/services/api.ts\n@@ -3,6 +3,8 @@\n export async function fetchData(url: string) {\n-  return fetch(url);\n+  await new Promise(r => setTimeout(r, 3000));\n+  return fetch(url);\n }"
   },
   {
     "id": "missing-auth-check-reject",
-    "description": "Endpoint accessible without authentication — should be rejected",
-    "issueTitle": "Add admin dashboard data endpoint",
+    "description": "Admin delete endpoint without authentication — should be rejected",
+    "issueTitle": "Add admin user management endpoint",
     "issueNumber": 120,
-    "acceptanceCriteria": "- Returns aggregated user statistics\n- Data formatted for dashboard charts",
-    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "acceptanceCriteria": "- Admin can delete user accounts via DELETE endpoint\n- Endpoint requires admin authentication and role check\n- Unauthorized requests return 403",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 25
+    },
     "branch": "feat/120-admin-data",
-    "expected": { "approved": false, "mustContain": ["auth", "permission", "access", "protect"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "auth",
+        "permission",
+        "access",
+        "protect"
+      ]
+    },
+    "codeDiff": "--- a/src/api/admin.ts\n+++ b/src/api/admin.ts\n@@ -3,6 +3,10 @@\n router.delete(\"/api/admin/users/:id\", async (req, res) => {\n+  const userId = req.params.id;\n+  await db.users.delete(userId);\n+  res.json({ deleted: true });\n });"
   }
 ]

@@ -13,7 +13,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { AcpClient } from "../../src/acp/client.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +29,7 @@ interface CodeReviewExample {
   issueTitle: string;
   issueNumber: number;
   acceptanceCriteria: string;
+  codeDiff: string;
   diffStats: { filesChanged: number; linesChanged: number };
   branch: string;
   expected: {
@@ -62,7 +67,8 @@ interface BenchReport {
 
 function buildCodeReviewPrompt(example: CodeReviewExample): string {
   return [
-    "You are a code reviewer. Review the following changes.",
+    "You are a code reviewer. Review the following code diff.",
+    "DO NOT use any tools. DO NOT read files. Just analyze the diff provided below.",
     "",
     "Focus ONLY on:",
     "- Bugs and logic errors",
@@ -80,6 +86,11 @@ function buildCodeReviewPrompt(example: CodeReviewExample): string {
     `### Diff Stats: ${example.diffStats.filesChanged} files, ${example.diffStats.linesChanged} lines changed`,
     `### Branch: ${example.branch}`,
     "",
+    "### Code Diff",
+    "```diff",
+    example.codeDiff,
+    "```",
+    "",
     "Respond with exactly one of:",
     "- First line: `APPROVED: <one-line summary>` if the changes are acceptable",
     "- First line: `CHANGES_REQUESTED: <one-line summary>` if there are blocking issues",
@@ -90,7 +101,7 @@ function buildCodeReviewPrompt(example: CodeReviewExample): string {
 }
 
 function parseCodeReviewResponse(response: string): { approved: boolean; issues: string[] } {
-  const firstLine = response.split("\n")[0] ?? "";
+  const firstLine = response.trim().split("\n")[0] ?? "";
   const approved = firstLine.toUpperCase().startsWith("APPROVED");
   const issues = response
     .split("\n")
@@ -154,14 +165,14 @@ async function runBench(
         const passed = parsed.approved === example.expected.approved;
         const duration_ms = Date.now() - start;
 
-        // Check mustContain / mustNotContain
+        // Check mustContain (any match) / mustNotContain (all must be absent)
         let contentPassed = true;
-        if (example.expected.mustContain) {
-          for (const phrase of example.expected.mustContain) {
-            if (!response.toLowerCase().includes(phrase.toLowerCase())) {
-              contentPassed = false;
-            }
-          }
+        if (example.expected.mustContain && example.expected.mustContain.length > 0) {
+          const lower = response.toLowerCase();
+          const anyMatch = example.expected.mustContain.some((phrase) =>
+            lower.includes(phrase.toLowerCase()),
+          );
+          if (!anyMatch) contentPassed = false;
         }
         if (example.expected.mustNotContain) {
           for (const phrase of example.expected.mustNotContain) {

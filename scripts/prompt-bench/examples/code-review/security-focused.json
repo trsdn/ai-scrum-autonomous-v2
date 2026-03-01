@@ -4,149 +4,329 @@
     "description": "Object merge without prototype pollution protection — should be rejected",
     "issueTitle": "Add settings merge utility",
     "issueNumber": 121,
-    "acceptanceCriteria": "- User settings merged with defaults\n- Nested objects merged recursively",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- User settings merged with default configuration\n- Nested objects merged recursively\n- Only valid setting keys accepted (no unsafe properties)",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/121-settings-merge",
-    "expected": { "approved": false, "mustContain": ["prototype", "__proto__", "constructor", "pollution"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "prototype",
+        "__proto__",
+        "constructor",
+        "pollution"
+      ]
+    },
+    "codeDiff": "--- a/src/utils/merge.ts\n+++ b/src/utils/merge.ts\n@@ -0,0 +1,12 @@\n+export function deepMerge(target: any, source: any): any {\n+  for (const key in source) {\n+    if (typeof source[key] === \"object\" && source[key] !== null) {\n+      if (!target[key]) target[key] = {};\n+      deepMerge(target[key], source[key]);\n+    } else {\n+      target[key] = source[key];\n+    }\n+  }\n+  return target;\n+}"
   },
   {
     "id": "path-traversal-reject",
     "description": "File path constructed from user input without sanitization — should be rejected",
     "issueTitle": "Add file download endpoint",
     "issueNumber": 122,
-    "acceptanceCriteria": "- Users can download files by name\n- Files served from uploads directory",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- Users can download previously uploaded files by filename\n- Files served exclusively from the uploads directory\n- Invalid or unauthorized file requests return 404",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/122-download",
-    "expected": { "approved": false, "mustContain": ["path", "traversal", "sanitiz", ".."] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "path",
+        "traversal",
+        "sanitiz",
+        ".."
+      ]
+    },
+    "codeDiff": "--- a/src/api/download.ts\n+++ b/src/api/download.ts\n@@ -3,6 +3,8 @@\n router.get(\"/download\", (req, res) => {\n   const filename = req.query.file as string;\n+  const filePath = path.join(\"./uploads\", filename);\n+  res.sendFile(filePath);\n });"
   },
   {
     "id": "regex-dos-reject",
     "description": "Regex vulnerable to ReDoS — should be rejected",
     "issueTitle": "Add email validation with regex",
     "issueNumber": 123,
-    "acceptanceCriteria": "- Email format validated before submission\n- Clear error message for invalid emails",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "acceptanceCriteria": "- Email format validated on form submission\n- Clear error message for invalid emails\n- Validation completes efficiently even with long input strings",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/123-email-regex",
-    "expected": { "approved": false, "mustContain": ["regex", "dos", "catastrophic", "backtrack"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "regex",
+        "dos",
+        "catastrophic",
+        "backtrack"
+      ]
+    },
+    "codeDiff": "--- a/src/validators/email.ts\n+++ b/src/validators/email.ts\n@@ -0,0 +1,5 @@\n+export function isValidEmail(email: string): boolean {\n+  const regex = /^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$/;\n+  return regex.test(email);\n+}"
   },
   {
     "id": "timing-attack-reject",
     "description": "String comparison vulnerable to timing attack — should be rejected",
     "issueTitle": "Add API key verification",
     "issueNumber": 124,
-    "acceptanceCriteria": "- API key checked against stored key\n- Unauthorized requests return 401",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- API key validated against stored key on each request\n- Unauthorized requests return 401\n- Key comparison resistant to side-channel attacks",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/124-api-key-verify",
-    "expected": { "approved": false, "mustContain": ["timing", "constant", "compare", "equal"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "timing",
+        "constant",
+        "compare",
+        "equal"
+      ]
+    },
+    "codeDiff": "--- a/src/auth/verify.ts\n+++ b/src/auth/verify.ts\n@@ -0,0 +1,6 @@\n+export function verifyApiKey(provided: string, stored: string): boolean {\n+  if (provided.length !== stored.length) return false;\n+  return provided === stored;\n+}"
   },
   {
     "id": "cors-wildcard-reject",
     "description": "CORS configured with wildcard origin on authenticated endpoint — should be rejected",
     "issueTitle": "Enable CORS for API",
     "issueNumber": 125,
-    "acceptanceCriteria": "- CORS enabled for all endpoints\n- Credentials included in requests",
-    "diffStats": { "filesChanged": 1, "linesChanged": 5 },
+    "acceptanceCriteria": "- Frontend application can make cross-origin API requests\n- Session cookies included with requests for authentication\n- CORS policy restricts access to trusted origins only",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 5
+    },
     "branch": "feat/125-cors-all",
-    "expected": { "approved": false, "mustContain": ["wildcard", "origin", "*", "credential"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "wildcard",
+        "origin",
+        "*",
+        "credential"
+      ]
+    },
+    "codeDiff": "--- a/src/app.ts\n+++ b/src/app.ts\n@@ -5,6 +5,7 @@\n const app = express();\n+app.use(cors({ origin: \"*\", credentials: true }));\n app.use(express.json());"
   },
   {
     "id": "type-confusion-reject",
     "description": "Loose equality causing type confusion — should be rejected",
     "issueTitle": "Add admin role check",
     "issueNumber": 126,
-    "acceptanceCriteria": "- Admin users identified by role field\n- Non-admin users see restricted view",
-    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "acceptanceCriteria": "- Middleware checks user role before granting admin access\n- Non-admin users receive 403 Forbidden\n- Role comparison is strict and type-safe",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 10
+    },
     "branch": "feat/126-admin-check",
-    "expected": { "approved": false, "mustContain": ["strict", "===", "equality", "type"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "strict",
+        "===",
+        "equality",
+        "type"
+      ]
+    },
+    "codeDiff": "--- a/src/middleware/admin.ts\n+++ b/src/middleware/admin.ts\n@@ -3,6 +3,8 @@\n export function requireAdmin(req: Request, res: Response, next: NextFunction) {\n+  if (req.user.role == \"admin\") {\n+    return next();\n+  }\n+  res.status(403).json({ error: \"Forbidden\" });\n }"
   },
   {
     "id": "unsafe-deserialization-reject",
     "description": "Deserializing untrusted data without validation — should be rejected",
     "issueTitle": "Add import from JSON file",
     "issueNumber": 127,
-    "acceptanceCriteria": "- Users can import data from JSON file\n- Data displayed in table",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- Users can upload a JSON file to import records\n- Each record validated against expected schema before insert\n- Import count returned in response",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/127-json-import",
-    "expected": { "approved": false, "mustContain": ["validat", "schema", "untrusted", "sanitiz"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "validat",
+        "schema",
+        "untrusted",
+        "sanitiz"
+      ]
+    },
+    "codeDiff": "--- a/src/api/import.ts\n+++ b/src/api/import.ts\n@@ -3,6 +3,10 @@\n router.post(\"/import\", async (req, res) => {\n   const file = req.file;\n+  const content = fs.readFileSync(file.path, \"utf-8\");\n+  const data = JSON.parse(content);\n+  for (const record of data) {\n+    await db.insert(\"imports\", record);\n+  }\n+  res.json({ imported: data.length });\n });"
   },
   {
     "id": "unhandled-promise-reject",
     "description": "Promise without catch handler — should be rejected",
     "issueTitle": "Add background data sync",
     "issueNumber": 128,
-    "acceptanceCriteria": "- Data syncs every 5 minutes in background\n- Sync status shown in UI",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- Data syncs with server every 5 minutes in background\n- Sync errors handled gracefully without crashing the app\n- Sync status (success/failure) reported to UI",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/128-bg-sync",
-    "expected": { "approved": false, "mustContain": ["promise", "catch", "unhandled", "reject"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "promise",
+        "catch",
+        "unhandled",
+        "reject"
+      ]
+    },
+    "codeDiff": "--- a/src/services/sync.ts\n+++ b/src/services/sync.ts\n@@ -0,0 +1,8 @@\n+export function startBackgroundSync(intervalMs = 300_000) {\n+  setInterval(() => {\n+    fetch(\"/api/sync\")\n+      .then(r => r.json())\n+      .then(data => updateLocalStore(data));\n+  }, intervalMs);\n+}"
   },
   {
     "id": "missing-csrf-reject",
     "description": "State-changing endpoint without CSRF protection — should be rejected",
     "issueTitle": "Add account deletion endpoint",
     "issueNumber": 129,
-    "acceptanceCriteria": "- POST /api/account/delete removes user account\n- Confirmation required",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- POST /api/account/delete removes user account and session data\n- Endpoint protected against cross-site request forgery\n- Session cookie cleared after deletion",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/129-delete-account",
-    "expected": { "approved": false, "mustContain": ["csrf", "token", "cross-site", "forgery"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "csrf",
+        "token",
+        "cross-site",
+        "forgery"
+      ]
+    },
+    "codeDiff": "--- a/src/api/account.ts\n+++ b/src/api/account.ts\n@@ -3,6 +3,10 @@\n router.post(\"/api/account/delete\", async (req, res) => {\n+  const userId = req.user.id;\n+  await db.users.delete(userId);\n+  await db.sessions.deleteByUser(userId);\n+  res.clearCookie(\"session\");\n+  res.json({ deleted: true });\n });"
   },
   {
     "id": "insecure-random-reject",
     "description": "Using Math.random for security-sensitive operation — should be rejected",
     "issueTitle": "Generate password reset tokens",
     "issueNumber": 130,
-    "acceptanceCriteria": "- Unique token generated for password reset\n- Token expires after 1 hour",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- Cryptographically secure token generated for password reset\n- Token expires after 1 hour\n- Token stored in database with user association",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/130-reset-token",
-    "expected": { "approved": false, "mustContain": ["random", "crypto", "secure", "Math.random"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "random",
+        "crypto",
+        "secure",
+        "Math.random"
+      ]
+    },
+    "codeDiff": "--- a/src/auth/reset.ts\n+++ b/src/auth/reset.ts\n@@ -0,0 +1,8 @@\n+export async function createResetToken(userId: string): Promise<string> {\n+  const token = Math.random().toString(36).substring(2, 15) +\n+                Math.random().toString(36).substring(2, 15);\n+  await db.resetTokens.insert({\n+    userId, token, expiresAt: new Date(Date.now() + 3600_000),\n+  });\n+  return token;\n+}"
   },
   {
     "id": "sensitive-data-log-reject",
     "description": "Logging sensitive user data — should be rejected",
     "issueTitle": "Add request logging middleware",
     "issueNumber": 131,
-    "acceptanceCriteria": "- All requests logged with method, path, status\n- Request body logged for debugging",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- All API requests logged with method, path, and status code\n- Sensitive fields (passwords, tokens) excluded from logs\n- Log format suitable for production monitoring",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/131-request-logging",
-    "expected": { "approved": false, "mustContain": ["sensitive", "password", "redact", "pii"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "sensitive",
+        "password",
+        "redact",
+        "pii"
+      ]
+    },
+    "codeDiff": "--- a/src/middleware/logger.ts\n+++ b/src/middleware/logger.ts\n@@ -3,6 +3,10 @@\n export function requestLogger(req: Request, res: Response, next: NextFunction) {\n+  console.log(\"Request:\", {\n+    method: req.method,\n+    path: req.path,\n+    body: req.body,\n+    headers: req.headers,\n+  });\n   next();\n }"
   },
   {
     "id": "no-rate-limit-reject",
     "description": "Authentication endpoint without rate limiting — should be rejected",
     "issueTitle": "Add login endpoint",
     "issueNumber": 132,
-    "acceptanceCriteria": "- POST /api/login authenticates user\n- Returns JWT token on success",
-    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "acceptanceCriteria": "- POST /api/login authenticates user with email and password\n- Returns JWT token on success (1 hour expiry)\n- Rate limiting prevents brute-force login attempts\n- Failed attempts return 401",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 25
+    },
     "branch": "feat/132-login",
-    "expected": { "approved": false, "mustContain": ["rate", "limit", "brute", "throttle"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "rate",
+        "limit",
+        "brute",
+        "throttle"
+      ]
+    },
+    "codeDiff": "--- a/src/api/auth.ts\n+++ b/src/api/auth.ts\n@@ -3,6 +3,12 @@\n router.post(\"/api/login\", async (req, res) => {\n+  const { email, password } = req.body;\n+  const user = await db.users.findByEmail(email);\n+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {\n+    return res.status(401).json({ error: \"Invalid credentials\" });\n+  }\n+  const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: \"1h\" });\n+  res.json({ token });\n });"
   },
   {
     "id": "http-no-https-reject",
     "description": "Making HTTP request instead of HTTPS to external API — should be rejected",
     "issueTitle": "Add payment processing integration",
     "issueNumber": 133,
-    "acceptanceCriteria": "- Payments processed via external API\n- Transaction status tracked",
-    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "acceptanceCriteria": "- Payments processed via external API over secure connection\n- Card token and amount sent to payment provider\n- Transaction result returned to caller",
+    "diffStats": {
+      "filesChanged": 2,
+      "linesChanged": 30
+    },
     "branch": "feat/133-payments",
-    "expected": { "approved": false, "mustContain": ["http", "https", "secure", "tls"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "http",
+        "https",
+        "secure",
+        "tls"
+      ]
+    },
+    "codeDiff": "--- a/src/services/payment.ts\n+++ b/src/services/payment.ts\n@@ -3,6 +3,10 @@\n export async function processPayment(amount: number, cardToken: string) {\n+  const response = await fetch(\"http://api.payment-provider.com/v1/charge\", {\n+    method: \"POST\",\n+    headers: { \"Content-Type\": \"application/json\", \"Authorization\": `Bearer ${config.paymentKey}` },\n+    body: JSON.stringify({ amount, cardToken }),\n+  });\n+  return response.json();\n }"
   },
   {
     "id": "unbounded-query-reject",
     "description": "Database query without limit clause — should be rejected",
     "issueTitle": "Add 'all users' admin endpoint",
     "issueNumber": 134,
-    "acceptanceCriteria": "- GET /api/admin/users returns all users\n- Response includes user count",
-    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "acceptanceCriteria": "- GET /api/admin/users returns paginated user list\n- Response includes total user count\n- Supports page and pageSize query parameters",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 15
+    },
     "branch": "feat/134-all-users",
-    "expected": { "approved": false, "mustContain": ["limit", "pagina", "unbounded", "memory"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "limit",
+        "pagina",
+        "unbounded",
+        "memory"
+      ]
+    },
+    "codeDiff": "--- a/src/api/admin.ts\n+++ b/src/api/admin.ts\n@@ -3,6 +3,8 @@\n router.get(\"/api/admin/users\", async (req, res) => {\n+  const users = await db.query(\"SELECT * FROM users\");\n+  res.json({ users, count: users.length });\n });"
   },
   {
     "id": "missing-timeout-reject",
     "description": "External HTTP call without timeout — should be rejected",
     "issueTitle": "Add geocoding service integration",
     "issueNumber": 135,
-    "acceptanceCriteria": "- Address converted to coordinates via external API\n- Results cached for 24 hours",
-    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "acceptanceCriteria": "- Address converted to lat/lng coordinates via external API\n- Request completes or fails within a reasonable time limit\n- Results cached for 24 hours to reduce API calls",
+    "diffStats": {
+      "filesChanged": 1,
+      "linesChanged": 20
+    },
     "branch": "feat/135-geocoding",
-    "expected": { "approved": false, "mustContain": ["timeout", "abort", "hang", "stuck"] }
+    "expected": {
+      "approved": false,
+      "mustContain": [
+        "timeout",
+        "abort",
+        "hang",
+        "stuck"
+      ]
+    },
+    "codeDiff": "--- a/src/services/geocode.ts\n+++ b/src/services/geocode.ts\n@@ -0,0 +1,8 @@\n+export async function geocodeAddress(address: string): Promise<Coordinates> {\n+  const encoded = encodeURIComponent(address);\n+  const response = await fetch(\n+    `https://api.geocoding-service.com/v1/search?q=${encoded}&key=${config.geocodeApiKey}`\n+  );\n+  const data = await response.json();\n+  return { lat: data.results[0].lat, lng: data.results[0].lng };\n+}"
   }
 ]
