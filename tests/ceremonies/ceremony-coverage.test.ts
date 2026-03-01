@@ -329,10 +329,16 @@ describe("runSprintRetro", () => {
 
     await runSprintRetro(client, config, sprintResult, reviewResult);
 
-    // Invalid improvements skipped, valid one auto-applied (no issues created)
-    expect(createIssue).not.toHaveBeenCalled();
-    // The valid "Real Fix" should trigger an ACP session for auto-apply
-    // (createSession is called once for retro + once for auto-apply)
-    expect(client.createSession).toHaveBeenCalledTimes(2);
+    // Invalid improvements skipped (undefined/empty title, undefined description).
+    // "Real Fix" has target "process" → creates a GitHub issue instead of ACP auto-apply.
+    expect(createIssue).toHaveBeenCalledTimes(1);
+    expect(createIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "[Retro] Real Fix",
+        labels: ["human-decision-needed", "type:improvement"],
+      }),
+    );
+    // Only 1 session: retro. No ACP apply session for process target.
+    expect(client.createSession).toHaveBeenCalledTimes(1);
   });
 });

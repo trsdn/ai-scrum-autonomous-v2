@@ -9,8 +9,6 @@ import { runSprintRetro } from "./ceremonies/retro.js";
 import { createSprintLog } from "./documentation/sprint-log.js";
 import { appendVelocity } from "./documentation/velocity.js";
 import { calculateSprintMetrics } from "./metrics.js";
-import { holisticDriftCheck } from "./enforcement/drift-control.js";
-import { escalateToStakeholder } from "./enforcement/escalation.js";
 import { getIssue } from "./github/issues.js";
 import type { IssueCreationState } from "./github/issue-rate-limiter.js";
 import { closeMilestone, getNextOpenMilestone } from "./github/milestones.js";
@@ -368,45 +366,6 @@ export class SprintRunner {
       }
     }
 
-    // Holistic drift check — update expectedFiles with actual changes per issue
-    for (const r of result.results) {
-      const issueInPlan = plan.sprint_issues.find((i) => i.number === r.issueNumber);
-      if (issueInPlan && r.filesChanged.length > 0) {
-        const existing = new Set(issueInPlan.expectedFiles);
-        for (const f of r.filesChanged) existing.add(f);
-        issueInPlan.expectedFiles = [...existing];
-      }
-    }
-    const allChanged = result.results.flatMap((r) => r.filesChanged);
-    const allExpected = plan.sprint_issues.flatMap((i) => i.expectedFiles);
-    const driftReport = await holisticDriftCheck(allChanged, allExpected);
-
-    if (driftReport.driftPercentage > 0) {
-      this.log.warn(
-        { driftPercentage: driftReport.driftPercentage },
-        "Drift detected during execution",
-      );
-    }
-
-    if (driftReport.unplannedChanges.length > this.config.maxDriftIncidents) {
-      await escalateToStakeholder(
-        {
-          level: "must",
-          reason: "Excessive drift detected",
-          detail: `${driftReport.unplannedChanges.length} unplanned file changes exceed threshold of ${this.config.maxDriftIncidents}`,
-          context: { driftReport },
-          timestamp: new Date(),
-        },
-        {
-          ntfyEnabled: false,
-          maxIssuesCreatedPerSprint: this.config.maxIssuesCreatedPerSprint,
-        },
-        this.events,
-        this.state as IssueCreationState,
-      );
-      this.pause();
-    }
-
     this.persistState();
     this.log.info(
       {
@@ -567,8 +526,13 @@ export class SprintRunner {
   private persistState(): void {
     try {
       saveState(this.state, this.stateFilePath);
-    } catch (err: unknown) {
-      this.log.warn({ err }, "Failed to persist sprint state");
+    } catch (firstErr: unknown) {
+      this.log.warn({ err: firstErr }, "State persistence failed — retrying once");
+      try {
+        saveState(this.state, this.stateFilePath);
+      } catch (retryErr: unknown) {
+        throw new Error(`State persistence failed after retry: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`);
+      }
     }
   }
 

@@ -27,6 +27,10 @@ vi.mock("../../src/documentation/velocity.js", () => ({
   readVelocity: vi.fn().mockReturnValue([]),
 }));
 
+vi.mock("../../src/github/issues.js", () => ({
+  createIssue: vi.fn().mockResolvedValue({ number: 999, title: "mock" }),
+}));
+
 vi.mock("../../src/logger.js", () => {
   const noop = vi.fn();
   const childLogger = {
@@ -233,8 +237,8 @@ describe("runSprintRetro", () => {
         wentWell: [],
         wentBadly: [],
         improvements: [
-          { title: "", description: "some desc", autoApplicable: true, target: "process" },
-          { title: "Valid", description: "valid desc", autoApplicable: true, target: "process" },
+          { title: "", description: "some desc", autoApplicable: true, target: "skill" },
+          { title: "Valid", description: "valid desc", autoApplicable: true, target: "skill" },
         ],
         previousImprovementsChecked: false,
       }),
@@ -364,7 +368,8 @@ describe("runSprintRetro", () => {
     expect(applyCall[1]).toContain("sprint-runner.config.yaml");
   });
 
-  it("auto-applies process improvement via ACP session", async () => {
+  it("creates backlog issue for process improvement instead of auto-applying", async () => {
+    const { createIssue } = await import("../../src/github/issues.js");
     const processResponse = {
       wentWell: ["Good"],
       wentBadly: [],
@@ -392,13 +397,16 @@ describe("runSprintRetro", () => {
       makeReviewResult(),
     );
 
-    // 2 sessions: retro + retro-apply
-    expect(mockClient.createSession).toHaveBeenCalledTimes(2);
-    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(2);
-    const applyCall = mockClient.sendPrompt.mock.calls[1];
-    expect(applyCall[1]).toContain("Add retry logic");
-    expect(applyCall[1]).toContain("src/ceremonies/");
-    expect(applyCall[1]).toContain("src/enforcement/");
+    // Only 1 session (retro) — no ACP apply session for process target
+    expect(mockClient.createSession).toHaveBeenCalledTimes(1);
+    expect(mockClient.sendPrompt).toHaveBeenCalledTimes(1);
+    // Instead, a GitHub issue should be created
+    expect(createIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "[Retro] Add retry logic",
+        labels: ["human-decision-needed", "type:improvement"],
+      }),
+    );
   });
 
   it("skips non-auto-applicable improvement with warning", async () => {
