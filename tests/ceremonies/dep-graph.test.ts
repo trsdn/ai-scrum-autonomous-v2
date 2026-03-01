@@ -3,7 +3,6 @@ import {
   buildExecutionGroups,
   detectCircularDependencies,
   validateDependencies,
-  splitByFileOverlap,
 } from "../../src/ceremonies/dep-graph.js";
 import type { SprintIssue } from "../../src/types.js";
 
@@ -152,70 +151,8 @@ describe("validateDependencies", () => {
   });
 });
 
-describe("splitByFileOverlap", () => {
-  it("returns single group when no files overlap", () => {
-    const issues = [
-      makeIssue(1, [], ["src/a.ts"]),
-      makeIssue(2, [], ["src/b.ts"]),
-      makeIssue(3, [], ["src/c.ts"]),
-    ];
-    const issueMap = new Map(issues.map((i) => [i.number, i]));
-    const result = splitByFileOverlap([1, 2, 3], issueMap);
-    expect(result).toEqual([[1, 2, 3]]);
-  });
-
-  it("splits overlapping issues into separate sub-groups", () => {
-    const issues = [
-      makeIssue(1, [], ["src/shared.ts", "src/a.ts"]),
-      makeIssue(2, [], ["src/shared.ts", "src/b.ts"]),
-      makeIssue(3, [], ["src/c.ts"]),
-    ];
-    const issueMap = new Map(issues.map((i) => [i.number, i]));
-    const result = splitByFileOverlap([1, 2, 3], issueMap);
-
-    // Issue 1 and 2 overlap on shared.ts → different sub-groups
-    // Issue 3 has no overlap → in first sub-group
-    expect(result.length).toBe(2);
-    expect(result[0]).toContain(1);
-    expect(result[0]).toContain(3);
-    expect(result[1]).toContain(2);
-  });
-
-  it("handles single issue", () => {
-    const issues = [makeIssue(1, [], ["src/a.ts"])];
-    const issueMap = new Map(issues.map((i) => [i.number, i]));
-    expect(splitByFileOverlap([1], issueMap)).toEqual([[1]]);
-  });
-
-  it("handles issues with no expectedFiles", () => {
-    const issues = [
-      makeIssue(1, [], []),
-      makeIssue(2, [], []),
-    ];
-    const issueMap = new Map(issues.map((i) => [i.number, i]));
-    const result = splitByFileOverlap([1, 2], issueMap);
-    expect(result).toEqual([[1, 2]]);
-  });
-
-  it("handles three-way file overlap", () => {
-    const issues = [
-      makeIssue(1, [], ["src/shared.ts"]),
-      makeIssue(2, [], ["src/shared.ts"]),
-      makeIssue(3, [], ["src/shared.ts"]),
-    ];
-    const issueMap = new Map(issues.map((i) => [i.number, i]));
-    const result = splitByFileOverlap([1, 2, 3], issueMap);
-
-    // All three conflict with each other → 3 separate sub-groups
-    expect(result.length).toBe(3);
-    expect(result[0]).toEqual([1]);
-    expect(result[1]).toEqual([2]);
-    expect(result[2]).toEqual([3]);
-  });
-});
-
-describe("buildExecutionGroups with file overlap", () => {
-  it("splits same-level issues with file overlap into sequential groups", () => {
+describe("buildExecutionGroups — all same-level issues grouped together", () => {
+  it("groups same-level issues with overlapping files together (rebase handles conflicts)", () => {
     const issues = [
       makeIssue(1, [], ["src/api.ts"]),
       makeIssue(2, [], ["src/api.ts"]),
@@ -223,15 +160,12 @@ describe("buildExecutionGroups with file overlap", () => {
     ];
     const groups = buildExecutionGroups(issues);
 
-    // Issue 1 and 2 overlap on api.ts → separate groups
-    // Issue 3 has no overlap → grouped with issue 1
-    expect(groups.length).toBe(2);
-    expect(groups[0].issues).toContain(1);
-    expect(groups[0].issues).toContain(3);
-    expect(groups[1].issues).toContain(2);
+    // All at level 0 → single group, rebase-before-merge handles file conflicts
+    expect(groups.length).toBe(1);
+    expect(groups[0].issues).toEqual([1, 2, 3]);
   });
 
-  it("preserves dependency ordering alongside file overlap splitting", () => {
+  it("preserves dependency ordering without file overlap splitting", () => {
     const issues = [
       makeIssue(1, [], ["src/a.ts"]),
       makeIssue(2, [], ["src/a.ts"]),
@@ -239,12 +173,11 @@ describe("buildExecutionGroups with file overlap", () => {
     ];
     const groups = buildExecutionGroups(issues);
 
-    // Level 0: issues 1, 2 (overlap on a.ts → split)
+    // Level 0: issues 1, 2 (both in same group now)
     // Level 1: issue 3 (depends on 1)
-    expect(groups.length).toBe(3);
-    expect(groups[0].issues).toEqual([1]);
-    expect(groups[1].issues).toEqual([2]);
-    expect(groups[2].issues).toEqual([3]);
+    expect(groups.length).toBe(2);
+    expect(groups[0].issues).toEqual([1, 2]);
+    expect(groups[1].issues).toEqual([3]);
   });
 
   it("keeps non-overlapping same-level issues in one group", () => {

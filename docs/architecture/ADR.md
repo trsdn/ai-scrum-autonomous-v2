@@ -305,3 +305,40 @@ Three escalation levels with different behaviors:
 
 **Risks:**
 - Too many SHOULD escalations can cause alert fatigue
+
+---
+
+## ADR-010: Remove File-Level Conflict Detection from Dependency Graph
+
+**Status**: Accepted (supersedes part of ADR-007)
+**Date**: 2026-03-01
+
+### Context
+
+ADR-007 introduced `splitByFileOverlap()` to serialize issues that share `expectedFiles` within the same dependency level. In practice, `expectedFiles` comes from the sprint planner's predictions, which have a ~40% miss rate. This caused:
+
+1. **False serialization** — issues incorrectly predicted to share files were run sequentially, reducing parallelism
+2. **False parallelism** — issues that actually share files but weren't predicted to overlap ran concurrently anyway
+3. **Dead code** — the holistic drift check that used `expectedFiles` was always 0% (backfilled before checking)
+
+The rebase-before-merge pipeline (introduced in PR #248) already handles file conflicts at merge time reliably.
+
+### Decision
+
+Remove `splitByFileOverlap()` from `dep-graph.ts`. All issues at the same dependency level now run in parallel (capped by `maxParallelSessions`). File-level conflicts are handled by the rebase-before-merge pipeline.
+
+ADR-007's topological sort and dependency ordering remain unchanged — only the file-overlap splitting is removed.
+
+### Consequences
+
+**Positive:**
+- Maximum parallelism within each dependency level
+- Simpler, more predictable execution behavior
+- No dependence on unreliable `expectedFiles` predictions for scheduling
+
+**Negative:**
+- Slightly higher chance of merge conflicts at merge time
+- Rebase step adds small overhead per merge
+
+**Risks:**
+- If many issues touch the same files, rebase churn could slow merges (mitigated by `maxParallelSessions` cap)
