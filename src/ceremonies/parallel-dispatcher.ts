@@ -141,14 +141,19 @@ export async function runParallelExecution(
         // Merge successful branches back to base via GitHub PR
         if (config.autoMerge && result.status === "completed") {
           // Rebase branch on latest main before pre-merge (main may have changed from earlier merges)
+          // Use a temporary worktree to avoid "unstaged changes" errors in the main repo
+          const rebaseTmpDir = path.join(os.tmpdir(), `rebase-${result.branch.replace(/\//g, "-")}-${Date.now()}`);
           try {
             await execFile("git", ["fetch", "origin", config.baseBranch], { cwd: config.projectPath });
-            await execFile("git", ["rebase", `origin/${config.baseBranch}`, result.branch], { cwd: config.projectPath });
-            await execFile("git", ["push", "origin", result.branch, "--force-with-lease"], { cwd: config.projectPath });
+            await createWorktree({ path: rebaseTmpDir, branch: `rebase-tmp-${Date.now()}`, base: result.branch });
+            await execFile("git", ["rebase", `origin/${config.baseBranch}`], { cwd: rebaseTmpDir });
+            await execFile("git", ["push", "origin", `HEAD:${result.branch}`, "--force-with-lease"], { cwd: rebaseTmpDir });
           } catch (rebaseErr) {
             // Rebase failed (conflicts) — abort and let pre-merge catch it
-            try { await execFile("git", ["rebase", "--abort"], { cwd: config.projectPath }); } catch { /* ignore */ }
+            try { await execFile("git", ["rebase", "--abort"], { cwd: rebaseTmpDir }); } catch { /* ignore */ }
             log.warn({ issue: result.issueNumber, err: String(rebaseErr) }, "rebase on latest main failed — proceeding to pre-merge");
+          } finally {
+            try { await removeWorktree(rebaseTmpDir); } catch { /* ignore */ }
           }
 
           // Pre-merge verification: test feature branch with main merged in
