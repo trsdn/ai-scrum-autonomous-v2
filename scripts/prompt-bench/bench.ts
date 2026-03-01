@@ -101,7 +101,7 @@ function buildCodeReviewPrompt(example: CodeReviewExample): string {
 }
 
 function parseCodeReviewResponse(response: string): { approved: boolean; issues: string[] } {
-  const firstLine = response.split("\n")[0] ?? "";
+  const firstLine = response.trim().split("\n")[0] ?? "";
   const approved = firstLine.toUpperCase().startsWith("APPROVED");
   const issues = response
     .split("\n")
