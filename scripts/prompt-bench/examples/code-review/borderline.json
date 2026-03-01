@@ -1,0 +1,102 @@
+[
+  {
+    "id": "approve-good-error-boundary",
+    "description": "Proper React error boundary with fallback UI — should approve",
+    "issueTitle": "Add error boundary for dashboard widgets",
+    "issueNumber": 401,
+    "acceptanceCriteria": "- Dashboard widgets wrapped in error boundary\n- Fallback shows friendly message\n- Error logged to monitoring service\n- Test for error state",
+    "diffStats": { "filesChanged": 2, "linesChanged": 45 },
+    "branch": "feat/401-error-boundary",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "approve-proper-input-sanitization",
+    "description": "Input sanitization done correctly — should approve",
+    "issueTitle": "Sanitize user input in comment form",
+    "issueNumber": 402,
+    "acceptanceCriteria": "- HTML tags stripped from comments\n- XSS vectors neutralized\n- Valid markdown preserved\n- Tests for common XSS payloads",
+    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "branch": "feat/402-sanitize-comments",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "reject-global-state-mutation",
+    "description": "Mutating global state in a handler — should reject",
+    "issueTitle": "Add counter for API requests",
+    "issueNumber": 403,
+    "acceptanceCriteria": "- Track number of API requests\n- Show count in admin panel",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/403-request-counter",
+    "expected": { "approved": false, "mustContain": ["global", "mutat", "state", "thread"] }
+  },
+  {
+    "id": "reject-catching-all-errors",
+    "description": "Catching all errors including programming errors — should reject",
+    "issueTitle": "Add global error handler",
+    "issueNumber": 404,
+    "acceptanceCriteria": "- All uncaught errors caught\n- Error page shown to user\n- Error logged",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/404-global-error",
+    "expected": { "approved": false, "mustContain": ["catch", "swallow", "silenc", "programming"] }
+  },
+  {
+    "id": "approve-proper-caching",
+    "description": "Proper caching with TTL and invalidation — should approve",
+    "issueTitle": "Add caching layer for product catalog",
+    "issueNumber": 405,
+    "acceptanceCriteria": "- Products cached with 5min TTL\n- Cache invalidated on product update\n- Cache miss falls through to DB\n- Tests for hit, miss, invalidation",
+    "diffStats": { "filesChanged": 3, "linesChanged": 55 },
+    "branch": "feat/405-product-cache",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "reject-hard-delete-no-soft",
+    "description": "Hard delete of user data without soft delete option — should reject",
+    "issueTitle": "Add user account deletion",
+    "issueNumber": 406,
+    "acceptanceCriteria": "- User can delete their account\n- All user data removed from database",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/406-delete-user",
+    "expected": { "approved": false, "mustContain": ["soft", "recover", "backup", "irreversib"] }
+  },
+  {
+    "id": "approve-idempotent-migration",
+    "description": "Idempotent database migration — should approve",
+    "issueTitle": "Add index on users.email column",
+    "issueNumber": 407,
+    "acceptanceCriteria": "- Unique index added on users.email\n- Migration is idempotent (safe to rerun)\n- Rollback drops the index",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "chore/407-email-index",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "reject-env-var-in-source",
+    "description": "Default value for env var contains production URL — should reject",
+    "issueTitle": "Configure API base URL",
+    "issueNumber": 408,
+    "acceptanceCriteria": "- API base URL configurable via environment\n- Fallback to default if not set",
+    "diffStats": { "filesChanged": 1, "linesChanged": 5 },
+    "branch": "feat/408-api-url",
+    "expected": { "approved": false, "mustContain": ["hardcod", "env", "production", "config"] }
+  },
+  {
+    "id": "approve-comprehensive-types",
+    "description": "Adding TypeScript types with proper generics — should approve",
+    "issueTitle": "Add TypeScript types for API responses",
+    "issueNumber": 409,
+    "acceptanceCriteria": "- All API responses typed\n- Generic wrapper for paginated responses\n- Discriminated unions for error types\n- No any types",
+    "diffStats": { "filesChanged": 4, "linesChanged": 80 },
+    "branch": "types/409-api-types",
+    "expected": { "approved": true }
+  },
+  {
+    "id": "reject-circular-dependency",
+    "description": "Introducing circular import dependency — should reject",
+    "issueTitle": "Add user service helper to auth module",
+    "issueNumber": 410,
+    "acceptanceCriteria": "- Auth module can access user details\n- User profile enriched with auth status",
+    "diffStats": { "filesChanged": 2, "linesChanged": 20 },
+    "branch": "feat/410-auth-user",
+    "expected": { "approved": false, "mustContain": ["circular", "import", "depend", "cycle"] }
+  }
+]

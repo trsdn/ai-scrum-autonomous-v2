@@ -7,10 +7,7 @@
     "acceptanceCriteria": "- Users can search by name\n- Results displayed in table",
     "diffStats": { "filesChanged": 2, "linesChanged": 30 },
     "branch": "feat/101-user-search",
-    "expected": {
-      "approved": false,
-      "mustContain": ["sql", "injection"]
-    }
+    "expected": { "approved": false, "mustContain": ["sql", "injection"] }
   },
   {
     "id": "missing-error-handling-reject",
@@ -20,10 +17,7 @@
     "acceptanceCriteria": "- Profile data fetched from /api/users/:id\n- Profile displayed on page",
     "diffStats": { "filesChanged": 1, "linesChanged": 15 },
     "branch": "feat/102-profile-fetch",
-    "expected": {
-      "approved": false,
-      "mustContain": ["error"]
-    }
+    "expected": { "approved": false, "mustContain": ["error"] }
   },
   {
     "id": "no-tests-reject",
@@ -33,10 +27,7 @@
     "acceptanceCriteria": "- Cart total calculated with tax\n- Discount codes supported\n- Tests added for all cases",
     "diffStats": { "filesChanged": 1, "linesChanged": 50 },
     "branch": "feat/103-cart-calc",
-    "expected": {
-      "approved": false,
-      "mustContain": ["test"]
-    }
+    "expected": { "approved": false, "mustContain": ["test"] }
   },
   {
     "id": "breaking-api-reject",
@@ -46,10 +37,7 @@
     "acceptanceCriteria": "- Function renamed\n- All callers updated",
     "diffStats": { "filesChanged": 5, "linesChanged": 25 },
     "branch": "refactor/104-rename-api",
-    "expected": {
-      "approved": false,
-      "mustContain": ["breaking"]
-    }
+    "expected": { "approved": false, "mustContain": ["breaking"] }
   },
   {
     "id": "hardcoded-secret-reject",
@@ -59,10 +47,7 @@
     "acceptanceCriteria": "- Weather data fetched from OpenWeather API\n- Current temperature displayed",
     "diffStats": { "filesChanged": 2, "linesChanged": 20 },
     "branch": "feat/105-weather",
-    "expected": {
-      "approved": false,
-      "mustContain": ["secret", "key", "credential", "hardcoded", "environment"]
-    }
+    "expected": { "approved": false, "mustContain": ["secret", "key", "credential", "hardcoded", "environment"] }
   },
   {
     "id": "unchecked-null-reject",
@@ -72,10 +57,7 @@
     "acceptanceCriteria": "- Logged-in user email shown in header\n- Falls back to 'Guest' if not logged in",
     "diffStats": { "filesChanged": 1, "linesChanged": 10 },
     "branch": "feat/106-user-email",
-    "expected": {
-      "approved": false,
-      "mustContain": ["null"]
-    }
+    "expected": { "approved": false, "mustContain": ["null"] }
   },
   {
     "id": "infinite-loop-reject",
@@ -85,9 +67,136 @@
     "acceptanceCriteria": "- Failed requests retried up to 3 times\n- Exponential backoff between retries",
     "diffStats": { "filesChanged": 1, "linesChanged": 20 },
     "branch": "feat/107-retry",
-    "expected": {
-      "approved": false,
-      "mustContain": ["loop", "infinite", "retry", "limit", "max"]
-    }
+    "expected": { "approved": false, "mustContain": ["loop", "infinite", "retry", "limit", "max"] }
+  },
+  {
+    "id": "xss-vulnerability-reject",
+    "description": "Inserting user input into innerHTML without sanitization — should be rejected",
+    "issueTitle": "Display user comments on page",
+    "issueNumber": 108,
+    "acceptanceCriteria": "- User comments rendered in comment section\n- Comments support basic formatting",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/108-comments",
+    "expected": { "approved": false, "mustContain": ["xss", "sanitiz", "innerhtml", "script"] }
+  },
+  {
+    "id": "race-condition-reject",
+    "description": "Race condition in concurrent state update — should be rejected",
+    "issueTitle": "Add concurrent request handling",
+    "issueNumber": 109,
+    "acceptanceCriteria": "- Multiple requests processed simultaneously\n- Results aggregated correctly",
+    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "branch": "feat/109-concurrent",
+    "expected": { "approved": false, "mustContain": ["race", "concurrent", "atomic", "lock"] }
+  },
+  {
+    "id": "memory-leak-reject",
+    "description": "Event listener not cleaned up — should be rejected",
+    "issueTitle": "Add window resize handler for responsive layout",
+    "issueNumber": 110,
+    "acceptanceCriteria": "- Layout recalculates on window resize\n- Debounced for performance",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/110-resize-handler",
+    "expected": { "approved": false, "mustContain": ["cleanup", "remove", "listener", "leak", "unmount"] }
+  },
+  {
+    "id": "eval-usage-reject",
+    "description": "Using eval() for dynamic code execution — should be rejected",
+    "issueTitle": "Add dynamic formula calculator",
+    "issueNumber": 111,
+    "acceptanceCriteria": "- Users can enter formulas\n- Results calculated and displayed",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/111-calculator",
+    "expected": { "approved": false, "mustContain": ["eval", "security"] }
+  },
+  {
+    "id": "password-plaintext-reject",
+    "description": "Storing password in plaintext — should be rejected",
+    "issueTitle": "Add user registration",
+    "issueNumber": 112,
+    "acceptanceCriteria": "- User can register with email/password\n- Account stored in database\n- Validation on all fields",
+    "diffStats": { "filesChanged": 2, "linesChanged": 40 },
+    "branch": "feat/112-registration",
+    "expected": { "approved": false, "mustContain": ["hash", "plain", "bcrypt", "password"] }
+  },
+  {
+    "id": "unvalidated-redirect-reject",
+    "description": "Open redirect vulnerability — should be rejected",
+    "issueTitle": "Add redirect after login",
+    "issueNumber": 113,
+    "acceptanceCriteria": "- After login, redirect to ?returnUrl parameter\n- Default to homepage if no returnUrl",
+    "diffStats": { "filesChanged": 1, "linesChanged": 10 },
+    "branch": "feat/113-login-redirect",
+    "expected": { "approved": false, "mustContain": ["redirect", "validat", "whitelist", "open"] }
+  },
+  {
+    "id": "large-unscoped-diff-reject",
+    "description": "Massive diff touching unrelated files — should be rejected",
+    "issueTitle": "Fix typo in footer",
+    "issueNumber": 114,
+    "acceptanceCriteria": "- Fix 'Copyrihgt' typo to 'Copyright' in footer",
+    "diffStats": { "filesChanged": 15, "linesChanged": 500 },
+    "branch": "fix/114-footer-typo",
+    "expected": { "approved": false, "mustContain": ["scope", "unrelated", "files"] }
+  },
+  {
+    "id": "console-log-production-reject",
+    "description": "Debug console.log statements left in production code — should be rejected",
+    "issueTitle": "Add order processing pipeline",
+    "issueNumber": 115,
+    "acceptanceCriteria": "- Orders processed through validation, payment, fulfillment\n- Status updates at each stage\n- Tests for each pipeline stage",
+    "diffStats": { "filesChanged": 3, "linesChanged": 60 },
+    "branch": "feat/115-order-pipeline",
+    "expected": { "approved": false, "mustContain": ["console.log", "debug", "logging"] }
+  },
+  {
+    "id": "sync-fs-in-server-reject",
+    "description": "Using synchronous fs operations in request handler — should be rejected",
+    "issueTitle": "Add file upload endpoint",
+    "issueNumber": 116,
+    "acceptanceCriteria": "- Users can upload files\n- Files saved to uploads directory\n- Max file size 5MB",
+    "diffStats": { "filesChanged": 2, "linesChanged": 30 },
+    "branch": "feat/116-file-upload",
+    "expected": { "approved": false, "mustContain": ["sync", "blocking", "async"] }
+  },
+  {
+    "id": "missing-input-validation-reject",
+    "description": "Processing user input without any validation — should be rejected",
+    "issueTitle": "Add user profile update endpoint",
+    "issueNumber": 117,
+    "acceptanceCriteria": "- Users can update their display name and bio\n- Changes saved to database",
+    "diffStats": { "filesChanged": 1, "linesChanged": 20 },
+    "branch": "feat/117-profile-update",
+    "expected": { "approved": false, "mustContain": ["validat", "sanitiz", "input"] }
+  },
+  {
+    "id": "swallowed-error-reject",
+    "description": "Empty catch block swallowing errors — should be rejected",
+    "issueTitle": "Add data export feature",
+    "issueNumber": 118,
+    "acceptanceCriteria": "- Users can export data as CSV\n- Download triggered automatically",
+    "diffStats": { "filesChanged": 2, "linesChanged": 35 },
+    "branch": "feat/118-data-export",
+    "expected": { "approved": false, "mustContain": ["catch", "error", "swallow", "silent"] }
+  },
+  {
+    "id": "hardcoded-timeout-reject",
+    "description": "Hardcoded magic number for timeout — should be rejected",
+    "issueTitle": "Add session timeout",
+    "issueNumber": 119,
+    "acceptanceCriteria": "- Session expires after inactivity\n- Warning shown before expiry\n- Configurable timeout duration",
+    "diffStats": { "filesChanged": 1, "linesChanged": 15 },
+    "branch": "feat/119-session-timeout",
+    "expected": { "approved": false, "mustContain": ["magic", "constant", "configur", "hardcoded"] }
+  },
+  {
+    "id": "missing-auth-check-reject",
+    "description": "Endpoint accessible without authentication — should be rejected",
+    "issueTitle": "Add admin dashboard data endpoint",
+    "issueNumber": 120,
+    "acceptanceCriteria": "- Returns aggregated user statistics\n- Data formatted for dashboard charts",
+    "diffStats": { "filesChanged": 1, "linesChanged": 25 },
+    "branch": "feat/120-admin-data",
+    "expected": { "approved": false, "mustContain": ["auth", "permission", "access", "protect"] }
   }
 ]
