@@ -177,6 +177,123 @@
       "expected": "completed",
       "complexity": "medium",
       "notes": "3-level transitive dependency chain. Very likely to fail if dependencies aren't executed in order."
+    },
+    {
+      "id": "html-semantic",
+      "title": "refactor: convert hero section divs to semantic HTML5 elements",
+      "body": "## Description\nThe hero section in `index.html` uses generic `<div>` tags. Convert them to semantic HTML5 elements for better accessibility and SEO.\n\n## Acceptance Criteria\n- [ ] Hero section uses `<header>` or `<section>` with appropriate `role` attribute\n- [ ] Hero heading uses `<h1>` (verify it already does, don't duplicate)\n- [ ] Hero subtitle uses `<p>` with a descriptive class\n- [ ] CTA buttons wrapped in `<nav>` with `aria-label=\"Call to action\"`\n- [ ] Add a test that reads `index.html` and verifies semantic elements exist in the hero section\n- [ ] No visual changes — only HTML structure improvements\n\n## Technical Notes\n- Only edit `index.html`\n- Do NOT change any CSS or JavaScript\n- This is a refactor of existing markup, not adding new content",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "HTML-only change. Tests if agent can refactor markup without touching CSS/JS. Pure structural improvement."
+    },
+    {
+      "id": "readme-docs",
+      "title": "docs: add project README with setup and API documentation",
+      "body": "## Description\nThe project lacks a README. Add one with setup instructions and API docs for existing modules.\n\n## Acceptance Criteria\n- [ ] Create `README.md` in project root\n- [ ] Include: project name (CloudPulse), description (1-2 sentences), setup instructions (`npm install`, `npm test`, `npm run lint`)\n- [ ] Document existing exported functions from `src/utils.ts` and `src/app.ts` with signatures and brief descriptions\n- [ ] Include a 'Project Structure' section listing key files\n- [ ] No code changes — only documentation\n\n## Technical Notes\n- Read existing source files to document their exports accurately\n- Use standard markdown formatting",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Documentation-only change. No tests to run. Tests if agent can read existing code and generate accurate docs."
+    },
+    {
+      "id": "add-npm-script",
+      "title": "chore: add lint:fix script and pre-test hook to package.json",
+      "body": "## Description\nAdd convenience scripts to `package.json` for common developer workflows.\n\n## Acceptance Criteria\n- [ ] Add `\"lint:fix\": \"eslint . --fix\"` script to package.json\n- [ ] Add `\"typecheck\": \"tsc --noEmit\"` script to package.json\n- [ ] Add `\"check\": \"npm run lint && npm run typecheck && npm test\"` script to package.json\n- [ ] Running `npm run lint:fix` works without errors\n- [ ] Running `npm run check` runs all three checks in sequence\n- [ ] Add a test that reads `package.json` and verifies these scripts exist\n\n## Technical Notes\n- Only edit `package.json` and add test\n- Do NOT install new dependencies\n- Be careful with JSON syntax — trailing commas break package.json",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Tests editing package.json (JSON format, easy to break). Modifying config files is different from code."
+    },
+    {
+      "id": "modify-signature",
+      "title": "feat: make formatBytes return structured object instead of string",
+      "body": "## Description\nChange `formatBytes()` in `src/utils.ts` to return a structured object for programmatic use.\n\n## Acceptance Criteria\n- [ ] `formatBytes()` returns `{ value: number, unit: string, formatted: string }` instead of just a string\n- [ ] `value` is the numeric part (e.g., `1.5`), `unit` is the suffix (e.g., `'MB'`), `formatted` is the old string output (e.g., `'1.50 MB'`)\n- [ ] Backward compatibility: add `formatBytesString()` that calls `formatBytes()` and returns `.formatted`\n- [ ] Update existing tests to use the new return type\n- [ ] Add at least 3 tests verifying the structured return (value, unit, formatted fields)\n\n## Technical Notes\n- This is a BREAKING CHANGE to the return type\n- Must update all callers of `formatBytes()` in the codebase\n- Search for usages before changing",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "hard",
+      "notes": "Breaking API change. Tests if agent can modify signatures, update all callers, and maintain backward compat."
+    },
+    {
+      "id": "minimal-issue",
+      "title": "feat: add date formatter",
+      "body": "Add a date formatting utility.",
+      "labels": ["status:ready"],
+      "expected": "failed",
+      "complexity": "impossible",
+      "notes": "Extremely terse — no ACs, no file paths, no specs. Should fail AC review or be blocked. Tests minimum viable issue quality."
+    },
+    {
+      "id": "verbose-buried-req",
+      "title": "feat: add keyboard navigation support for accessibility",
+      "body": "## Description\nAccessibility is a critical concern for modern web applications. According to WCAG 2.1 guidelines, all interactive elements must be keyboard accessible. This is not just a nice-to-have but a legal requirement in many jurisdictions including the EU (EN 301 549), US (Section 508), and others.\n\nOur CloudPulse landing page currently relies heavily on mouse interactions. While the page is relatively simple, we should ensure keyboard users can navigate effectively. This includes focus indicators, skip links, and proper tab order.\n\nThe World Health Organization estimates that over 1 billion people worldwide have some form of disability. Screen reader users, people with motor impairments, and power users who prefer keyboard navigation all benefit from proper keyboard support.\n\nResearch shows that accessible websites also tend to rank better in search engines, as many accessibility practices overlap with SEO best practices.\n\n## Background\nWe received feedback from a user who navigates entirely with keyboard. They reported that the CTA buttons in the hero section are not reachable via Tab key, and there's no visible focus indicator on interactive elements.\n\n## Acceptance Criteria\n- [ ] All interactive elements (links, buttons) are reachable via Tab key\n- [ ] Add `a:focus, button:focus { outline: 2px solid var(--accent, #e94560); outline-offset: 2px; }` to `style.css`\n- [ ] Add a skip-to-content link as the first child of `<body>` that links to `#main-content` or the first `<main>` element\n- [ ] Skip link is visually hidden but becomes visible on focus\n- [ ] Add a test that reads `style.css` and verifies focus styles exist\n- [ ] Add a test that reads `index.html` and verifies skip link exists\n\n## References\n- WCAG 2.1 Success Criterion 2.1.1 (Keyboard)\n- WCAG 2.1 Success Criterion 2.4.1 (Bypass Blocks)\n- WCAG 2.1 Success Criterion 2.4.7 (Focus Visible)\n\n## Priority\nThis should be treated as a high-priority accessibility fix.\n\n## Technical Notes\n- Only edit `style.css` and `index.html`\n- Do NOT add JavaScript — this is CSS-only keyboard support\n- The skip link pattern: `<a href='#main-content' class='skip-link'>Skip to content</a>` styled with `.skip-link { position: absolute; left: -9999px; } .skip-link:focus { left: 10px; top: 10px; }`",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Very verbose issue with buried requirements. Tests if agent extracts actionable ACs from noise. Real requirements are simple CSS + HTML."
+    },
+    {
+      "id": "accessibility-aria",
+      "title": "feat: add ARIA labels to all interactive elements",
+      "body": "## Description\nAdd ARIA labels to improve screen reader experience on the landing page.\n\n## Acceptance Criteria\n- [ ] Main navigation `<nav>` has `aria-label=\"Main navigation\"`\n- [ ] All external links have `aria-label` describing the destination\n- [ ] CTA buttons have descriptive `aria-label` attributes\n- [ ] The features section `<section>` has `aria-labelledby` pointing to its heading\n- [ ] Add `role=\"banner\"` to the header/hero section\n- [ ] Add a test that reads `index.html` and counts at least 5 `aria-label` attributes\n\n## Technical Notes\n- Only edit `index.html`\n- Do NOT change visual appearance\n- ARIA labels should be descriptive but concise",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "HTML-only attributes. Tests if agent can add ARIA attributes correctly without breaking HTML structure."
+    },
+    {
+      "id": "data-service-mock",
+      "title": "feat: add weather data service with API mocking in tests",
+      "body": "## Description\nAdd a weather data service that fetches weather info. Tests must mock the fetch call.\n\n## Acceptance Criteria\n- [ ] Create `src/weather.ts` with `fetchWeather(city: string): Promise<WeatherData>`\n- [ ] `WeatherData` type: `{ city: string, temp: number, condition: string, humidity: number }`\n- [ ] Function calls `fetch('https://api.weather.example.com/v1/current?city=${city}')` and parses JSON response\n- [ ] Throws `WeatherError` if city is empty or fetch fails\n- [ ] At least 6 tests: successful fetch, empty city, network error, invalid JSON, missing fields in response, timeout simulation\n- [ ] Tests MUST mock `global.fetch` — no real HTTP calls\n\n## Technical Notes\n- New files: `src/weather.ts`, `tests/weather.test.ts`\n- Use `vi.fn()` to mock `global.fetch` in tests\n- Return `new Response(JSON.stringify(data))` from mock",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "hard",
+      "notes": "Tests agent's ability to write fetch-based code AND mock it properly in tests. Common source of test failures."
+    },
+    {
+      "id": "rename-module",
+      "title": "refactor: rename utils.ts to helpers.ts and update all imports",
+      "body": "## Description\nRename `src/utils.ts` to `src/helpers.ts` to better reflect the module's purpose.\n\n## Acceptance Criteria\n- [ ] `src/utils.ts` is renamed to `src/helpers.ts`\n- [ ] All imports of `./utils.js` throughout the codebase are updated to `./helpers.js`\n- [ ] All test files importing from utils are updated\n- [ ] All existing tests pass with the new file name\n- [ ] No file named `src/utils.ts` remains\n\n## Technical Notes\n- Use `git mv src/utils.ts src/helpers.ts` to preserve history\n- Search for ALL references: `grep -r 'utils' src/ tests/`\n- This affects multiple files — be thorough",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "hard",
+      "notes": "File rename + multi-file import updates. Very likely to fail — agents struggle with file renames and comprehensive search-replace."
+    },
+    {
+      "id": "env-config",
+      "title": "feat: add environment-aware configuration loader",
+      "body": "## Description\nAdd a configuration loader that reads from environment variables with typed defaults.\n\n## Acceptance Criteria\n- [ ] Create `src/env.ts` with `loadEnv(): EnvConfig`\n- [ ] `EnvConfig` type: `{ nodeEnv: 'development' | 'production' | 'test', port: number, debug: boolean, apiUrl: string }`\n- [ ] Reads from `process.env` with defaults: `nodeEnv='development'`, `port=3000`, `debug=false`, `apiUrl='https://api.cloudpulse.example.com'`\n- [ ] `port` must be parsed as integer, throw if NaN\n- [ ] `debug` parsed from string: `'true'`/`'1'` → true, everything else → false\n- [ ] At least 6 tests using `vi.stubEnv()` to test different env combinations\n\n## Technical Notes\n- New files: `src/env.ts`, `tests/env.test.ts`\n- Use `vitest` env stubbing, not manual `process.env` manipulation\n- Clean up env stubs in `afterEach`",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Tests env variable handling and vitest env stubbing. Common pattern agents sometimes get wrong."
+    },
+    {
+      "id": "partial-achievable",
+      "title": "feat: add user profile component using UserService API",
+      "body": "## Description\nAdd a user profile display component that uses our UserService.\n\n## Acceptance Criteria\n- [ ] Create `src/profile.ts` with `renderProfile(userId: string): string` that returns HTML\n- [ ] Import `UserService` from `src/services/user-service.ts` to fetch user data\n- [ ] Profile HTML includes: avatar, name, email, join date\n- [ ] Handle loading state (return skeleton HTML) and error state (return error message HTML)\n- [ ] Add 4 tests with mocked UserService\n\n## Technical Notes\n- `src/services/user-service.ts` should already exist in the project\n- If it doesn't exist, create a minimal stub",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "References non-existent UserService. Tests if agent creates the dependency stub or fails. The AC says 'if it doesn't exist, create a minimal stub' — good agents will handle this."
+    },
+    {
+      "id": "cross-cutting-logging",
+      "title": "feat: add structured logging utility used across modules",
+      "body": "## Description\nAdd a logging utility that can be imported by any module for consistent log formatting.\n\n## Acceptance Criteria\n- [ ] Create `src/logger.ts` with `createLogger(module: string): Logger`\n- [ ] `Logger` interface: `info(msg: string, data?: object): void`, `warn(msg: string, data?: object): void`, `error(msg: string, error?: Error): void`\n- [ ] Log format: `[ISO_TIMESTAMP] [LEVEL] [MODULE] message {data}` as a string returned (not console.log)\n- [ ] Each method returns the formatted log string (for testing)\n- [ ] Add logging calls to `src/app.ts`: log when `estimateMonthlyCost` is called with the input value\n- [ ] Add logging calls to `src/utils.ts`: log when `formatBytes` is called with the input value\n- [ ] At least 5 tests: info/warn/error format, module name in output, data serialization\n\n## Technical Notes\n- New file: `src/logger.ts`, `tests/logger.test.ts`\n- Edit: `src/app.ts`, `src/utils.ts` (add import + logging calls)\n- Make logging non-intrusive — functions must still work the same way",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Cross-cutting concern: new module + edits to 2 existing files. Tests if agent can add imports and calls to existing working code without breaking it."
+    },
+    {
+      "id": "concurrent-array-ops",
+      "title": "feat: add concurrent task runner with queue and worker pool",
+      "body": "## Description\nAdd a concurrent task runner utility that processes items in parallel with a configurable concurrency limit.\n\n## Acceptance Criteria\n- [ ] Create `src/task-runner.ts` with `runConcurrent<T, R>(items: T[], worker: (item: T) => Promise<R>, concurrency: number): Promise<R[]>`\n- [ ] Processes at most `concurrency` items simultaneously\n- [ ] Returns results in the same order as input items (not completion order)\n- [ ] If any worker throws, collect the error but continue processing remaining items\n- [ ] Return type: `{ results: R[], errors: Array<{ index: number, error: Error }> }`\n- [ ] At least 8 tests: all succeed, one fails, all fail, concurrency=1 (serial), concurrency > items, empty array, order preserved, timing verification (concurrency actually limits parallel execution)\n\n## Technical Notes\n- New files: `src/task-runner.ts`, `tests/task-runner.test.ts`\n- Use `Promise.race` or semaphore pattern for concurrency control\n- Tests should verify actual concurrency behavior, not just results",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "hard",
+      "notes": "Complex async concurrency pattern. Hardest scenario — tests agent's ability to implement non-trivial async control flow."
     }
   ]
 }
