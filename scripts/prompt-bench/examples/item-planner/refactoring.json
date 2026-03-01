@@ -1,0 +1,197 @@
+[
+  {
+    "id": "itemplan-056",
+    "description": "Plan for extracting utility functions from monolithic file",
+    "issueNumber": 401,
+    "issueTitle": "Extract utility functions from utils.ts into focused modules",
+    "acceptanceCriteria": "- String utilities moved to src/utils/string.ts\n- Date utilities moved to src/utils/date.ts\n- Array utilities moved to src/utils/array.ts\n- Original src/utils.ts re-exports for backward compatibility\n- All imports across codebase updated\n- Zero test failures after refactor",
+    "codebaseContext": "TypeScript + ESM. Files: src/utils.ts (800 lines), src/components/*.tsx, src/services/*.ts. Uses vitest. 45 existing tests import from src/utils.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["extract", "re-export", "backward compat", "test"],
+      "mustNotContain": ["delete original file"]
+    }
+  },
+  {
+    "id": "itemplan-057",
+    "description": "Plan for converting class components to functional components with hooks",
+    "issueNumber": 402,
+    "issueTitle": "Convert UserProfile and Settings class components to hooks",
+    "acceptanceCriteria": "- UserProfile converted to function + useState/useEffect\n- Settings converted with useReducer for complex state\n- Lifecycle methods mapped to useEffect\n- Instance methods extracted to custom hooks\n- Existing snapshot tests updated\n- Visual behavior unchanged",
+    "codebaseContext": "React 18 + TypeScript. Files: src/components/UserProfile.tsx (class), src/components/Settings.tsx (class), tests/components/. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["useState", "useEffect", "hook", "test"],
+      "mustNotContain": ["componentDidMount"]
+    }
+  },
+  {
+    "id": "itemplan-058",
+    "description": "Plan for replacing callback-based APIs with async/await",
+    "issueNumber": 403,
+    "issueTitle": "Modernize file service from callbacks to async/await",
+    "acceptanceCriteria": "- All callback-based fs operations replaced with fs.promises\n- Error handling via try/catch instead of error-first callbacks\n- Promisify any remaining callback-only APIs\n- No callback pyramids remaining\n- Tests updated to async/await syntax",
+    "codebaseContext": "Node.js + TypeScript. Files: src/services/fileService.ts, src/utils/fileHelpers.ts, tests/services/fileService.test.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["async", "await", "fs.promises", "test"],
+      "mustNotContain": ["callback"]
+    }
+  },
+  {
+    "id": "itemplan-059",
+    "description": "Plan for splitting large module into smaller focused modules",
+    "issueNumber": 404,
+    "issueTitle": "Split orderService.ts into focused service modules",
+    "acceptanceCriteria": "- Order creation logic → src/services/orderCreation.ts\n- Order fulfillment → src/services/orderFulfillment.ts\n- Order queries → src/services/orderQueries.ts\n- Shared types → src/services/orderTypes.ts\n- Facade module re-exports public API\n- Each module < 200 lines",
+    "codebaseContext": "TypeScript + Express 4. Files: src/services/orderService.ts (650 lines), src/routes/orders.ts, tests/services/orderService.test.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["split", "facade", "module", "test"],
+      "mustNotContain": ["single file"]
+    }
+  },
+  {
+    "id": "itemplan-060",
+    "description": "Plan for adding TypeScript types to JavaScript module",
+    "issueNumber": 405,
+    "issueTitle": "Add TypeScript types to legacy payment module",
+    "acceptanceCriteria": "- Rename .js files to .ts\n- Add type annotations to all function signatures\n- Create interfaces for PaymentIntent, Charge, Refund\n- No 'any' types allowed\n- tsconfig strict mode passes\n- Existing test assertions unchanged",
+    "codebaseContext": "Mixed JS/TS codebase. Files: src/payments/processor.js, src/payments/gateway.js, src/payments/types.d.ts (partial). Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["interface", "type annotation", "strict", "test"],
+      "mustNotContain": ["any"]
+    }
+  },
+  {
+    "id": "itemplan-061",
+    "description": "Plan for replacing Redux with Zustand for state management",
+    "issueNumber": 406,
+    "issueTitle": "Migrate cart state from Redux to Zustand",
+    "acceptanceCriteria": "- Cart slice replaced with Zustand store\n- Actions: addItem, removeItem, updateQuantity, clearCart\n- Selectors: cartItems, cartTotal, cartItemCount\n- Redux Provider removed from cart-related tree\n- No Redux dependencies remain for cart feature\n- All cart tests pass with new store",
+    "codebaseContext": "React 18 + Redux Toolkit → Zustand. Files: src/store/cartSlice.ts, src/hooks/useCart.ts, src/components/Cart.tsx, src/components/CartItem.tsx. Uses vitest + Testing Library.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Zustand", "store", "migration", "test"],
+      "mustNotContain": ["keep Redux"]
+    }
+  },
+  {
+    "id": "itemplan-062",
+    "description": "Plan for normalizing database schema to reduce redundancy",
+    "issueNumber": 407,
+    "issueTitle": "Normalize address fields into separate addresses table",
+    "acceptanceCriteria": "- New addresses table created\n- Users and orders reference addresses via foreign key\n- Migration moves existing inline address data\n- Backward-compatible API response format\n- Rollback migration included\n- Queries updated for JOIN-based access",
+    "codebaseContext": "Express 4 + Knex.js + PostgreSQL. Files: src/db/migrations/, src/models/user.ts, src/models/order.ts, src/models/address.ts (new). Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["migration", "foreign key", "normalize", "test"],
+      "mustNotContain": ["denormalize"]
+    }
+  },
+  {
+    "id": "itemplan-063",
+    "description": "Plan for extracting shared component library from app",
+    "issueNumber": 408,
+    "issueTitle": "Extract reusable UI components into shared package",
+    "acceptanceCriteria": "- Button, Input, Select, Card extracted to packages/ui/\n- Components accept theme via CSS variables\n- Package exports ESM and CJS builds\n- Storybook stories for each component\n- App imports from @company/ui package\n- No visual regressions",
+    "codebaseContext": "Monorepo with Turborepo. Files: apps/web/src/components/, packages/ui/ (new). Uses vitest + Storybook.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["package", "export", "Storybook", "test"],
+      "mustNotContain": ["copy-paste"]
+    }
+  },
+  {
+    "id": "itemplan-064",
+    "description": "Plan for converting Express routes to Fastify",
+    "issueNumber": 409,
+    "issueTitle": "Migrate REST API from Express to Fastify",
+    "acceptanceCriteria": "- All Express routes converted to Fastify route handlers\n- Middleware replaced with Fastify hooks/plugins\n- JSON schema validation replaces express-validator\n- Error handling adapted to Fastify patterns\n- Response times improved by 20%+\n- API contract unchanged (same request/response shapes)",
+    "codebaseContext": "Express 4 → Fastify 4 migration. Files: src/routes/*.ts, src/middleware/*.ts, src/app.ts, src/plugins/ (new). Uses vitest + autocannon.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Fastify", "plugin", "schema", "test"],
+      "mustNotContain": ["Express middleware"]
+    }
+  },
+  {
+    "id": "itemplan-065",
+    "description": "Plan for replacing moment.js with date-fns",
+    "issueNumber": 410,
+    "issueTitle": "Replace moment.js with date-fns for smaller bundle",
+    "acceptanceCriteria": "- All moment() calls replaced with date-fns functions\n- Format strings converted to date-fns format tokens\n- Timezone handling via date-fns-tz\n- Bundle size reduced by ~60KB\n- No date formatting regressions\n- moment removed from package.json",
+    "codebaseContext": "React 18 + TypeScript. Files: src/utils/dateFormat.ts, src/components/EventCard.tsx, src/components/Timeline.tsx. Uses vitest. 23 files import moment.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["date-fns", "format", "bundle size", "test"],
+      "mustNotContain": ["moment"]
+    }
+  },
+  {
+    "id": "itemplan-066",
+    "description": "Plan for implementing dependency injection pattern",
+    "issueNumber": 411,
+    "issueTitle": "Refactor services to use dependency injection",
+    "acceptanceCriteria": "- Services receive dependencies via constructor\n- DI container configured at application startup\n- Database, cache, and logger injectable\n- Unit tests use mock dependencies\n- No global singletons remaining\n- Integration tests use real dependencies",
+    "codebaseContext": "TypeScript + tsyringe. Files: src/services/*.ts, src/container.ts (new), src/app.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["inject", "container", "constructor", "test"],
+      "mustNotContain": ["global singleton"]
+    }
+  },
+  {
+    "id": "itemplan-067",
+    "description": "Plan for converting REST API to use repository pattern",
+    "issueNumber": 412,
+    "issueTitle": "Introduce repository pattern for data access layer",
+    "acceptanceCriteria": "- UserRepository, PostRepository, CommentRepository created\n- Repository interface defines CRUD + custom query methods\n- Services depend on repository interfaces, not Prisma directly\n- In-memory repository for testing\n- Prisma calls isolated to repository implementations",
+    "codebaseContext": "TypeScript + Prisma + Express. Files: src/services/*.ts, src/repositories/ (new), src/repositories/interfaces/ (new). Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["repository", "interface", "decouple", "test"],
+      "mustNotContain": ["Prisma in service"]
+    }
+  },
+  {
+    "id": "itemplan-068",
+    "description": "Plan for removing deprecated API and adding migration guide",
+    "issueNumber": 413,
+    "issueTitle": "Remove deprecated v1 endpoints and publish migration guide",
+    "acceptanceCriteria": "- All /api/v1/ routes removed from codebase\n- v1 middleware and controllers deleted\n- 410 Gone response on v1 paths with migration link\n- Migration guide documents v1→v2 changes\n- Integration tests verify 410 responses\n- CHANGELOG updated",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/routes/v1/ (to remove), src/routes/v2/, src/middleware/deprecated.ts, docs/migration-v2.md. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["410", "migration guide", "remove", "test"],
+      "mustNotContain": ["keep v1"]
+    }
+  },
+  {
+    "id": "itemplan-069",
+    "description": "Plan for converting CommonJS module to ESM",
+    "issueNumber": 414,
+    "issueTitle": "Convert config module from CommonJS to ESM",
+    "acceptanceCriteria": "- require() replaced with import statements\n- module.exports replaced with named exports\n- __dirname replaced with import.meta.url approach\n- package.json 'type' set to 'module'\n- .cjs extension for any remaining CJS files\n- All dependent imports updated",
+    "codebaseContext": "Node.js + TypeScript. Files: src/config/index.ts, src/config/database.ts, src/config/auth.ts. Uses vitest. tsconfig uses 'NodeNext' module.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["ESM", "import", "export", "test"],
+      "mustNotContain": ["require"]
+    }
+  },
+  {
+    "id": "itemplan-070",
+    "description": "Plan for consolidating duplicate validation logic",
+    "issueNumber": 415,
+    "issueTitle": "DRY up duplicate email validation across modules",
+    "acceptanceCriteria": "- Single validateEmail function in src/utils/validators.ts\n- Used in registration, contact form, newsletter signup\n- Consistent error messages across all forms\n- Validation rules: format, max length, domain blocklist\n- Tests cover all validation rules\n- 3 duplicate implementations removed",
+    "codebaseContext": "TypeScript + Zod. Files: src/schemas/user.ts, src/schemas/contact.ts, src/schemas/newsletter.ts, src/utils/validators.ts (target). Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["DRY", "single source", "validator", "test"],
+      "mustNotContain": ["copy validation"]
+    }
+  }
+]

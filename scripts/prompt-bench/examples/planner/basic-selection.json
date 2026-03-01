@@ -1,0 +1,326 @@
+[
+  {
+    "id": "planner-001",
+    "description": "Simple 5-issue backlog, all fit within velocity — select all high/critical",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #10: Set up CI pipeline (priority:high, size:m, 5 points, type:story, status:open)\n- #11: Add unit tests for auth module (priority:high, size:m, 5 points, type:story, status:open)\n- #12: Fix broken login redirect (priority:critical, size:s, 2 points, type:bug, status:open)\n- #13: Update README with API docs (priority:medium, size:s, 3 points, type:story, status:open)\n- #14: Add health check endpoint (priority:high, size:s, 2 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#12", "#10", "#11", "#14"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-002",
+    "description": "6 issues all within velocity — select all",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #20: Create user registration form (priority:high, size:m, 5 points, type:story, status:open)\n- #21: Implement password reset flow (priority:high, size:m, 5 points, type:story, status:open)\n- #22: Add email verification (priority:medium, size:s, 3 points, type:story, status:open)\n- #23: Fix CSS alignment on dashboard (priority:medium, size:s, 2 points, type:bug, status:open)\n- #24: Add loading spinner component (priority:low, size:xs, 1 point, type:story, status:open)\n- #25: Write integration tests for signup (priority:high, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#20", "#21", "#25", "#22", "#23", "#24"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-003",
+    "description": "8 issues, only 6 slots — skip lowest priority",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #30: Implement JWT refresh tokens (priority:critical, size:m, 5 points, type:story, status:open)\n- #31: Add rate limiting middleware (priority:high, size:m, 5 points, type:story, status:open)\n- #32: Create API error handler (priority:high, size:s, 3 points, type:story, status:open)\n- #33: Add request logging (priority:medium, size:s, 2 points, type:story, status:open)\n- #34: Write API documentation (priority:low, size:s, 3 points, type:story, status:open)\n- #35: Fix token expiry bug (priority:critical, size:s, 2 points, type:bug, status:open)\n- #36: Add CORS configuration (priority:medium, size:xs, 1 point, type:story, status:open)\n- #37: Refactor test utilities (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#30", "#31", "#32", "#35"],
+      "mustNotContain": ["#37"]
+    }
+  },
+  {
+    "id": "planner-004",
+    "description": "Critical bug should be selected first regardless of order in backlog",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #40: Add dark mode toggle (priority:low, size:m, 5 points, type:story, status:open)\n- #41: Redesign settings page (priority:medium, size:l, 8 points, type:story, status:open)\n- #42: Fix data corruption on save (priority:critical, size:s, 3 points, type:bug, status:open)\n- #43: Add export to CSV (priority:medium, size:m, 5 points, type:story, status:open)\n- #44: Update color palette (priority:low, size:xs, 1 point, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#42"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-005",
+    "description": "All low priority — should still select within velocity",
+    "sprintNumber": 2,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #50: Clean up unused CSS classes (priority:low, size:s, 2 points, type:story, status:open)\n- #51: Add favicon (priority:low, size:xs, 1 point, type:story, status:open)\n- #52: Update footer links (priority:low, size:xs, 1 point, type:story, status:open)\n- #53: Improve 404 page (priority:low, size:s, 3 points, type:story, status:open)\n- #54: Add meta tags for SEO (priority:low, size:s, 2 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#50", "#51", "#52", "#53", "#54"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-006",
+    "description": "Mix of priorities, total points under velocity — select all",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #60: Implement search autocomplete (priority:high, size:m, 5 points, type:story, status:open)\n- #61: Fix pagination off-by-one (priority:critical, size:s, 2 points, type:bug, status:open)\n- #62: Add sort options to list view (priority:medium, size:s, 3 points, type:story, status:open)\n- #63: Cache search results (priority:medium, size:m, 5 points, type:story, status:open)\n- #64: Add keyboard shortcuts (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#61", "#60", "#62", "#63"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-007",
+    "description": "10 issues — planner must respect both maxIssues and velocity",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #70: Build notification system (priority:high, size:l, 8 points, type:story, status:open)\n- #71: Add email templates (priority:high, size:m, 5 points, type:story, status:open)\n- #72: Fix notification delivery bug (priority:critical, size:s, 3 points, type:bug, status:open)\n- #73: Add push notification support (priority:medium, size:m, 5 points, type:story, status:open)\n- #74: Create notification preferences UI (priority:medium, size:m, 5 points, type:story, status:open)\n- #75: Add notification badges (priority:low, size:s, 2 points, type:story, status:open)\n- #76: Write notification tests (priority:high, size:s, 3 points, type:story, status:open)\n- #77: Add SMS notifications (priority:low, size:l, 8 points, type:story, status:open)\n- #78: Notification analytics dashboard (priority:low, size:l, 8 points, type:story, status:open)\n- #79: Rate limit notifications (priority:medium, size:s, 2 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#72", "#70", "#71", "#76"],
+      "mustNotContain": ["#77", "#78"]
+    }
+  },
+  {
+    "id": "planner-008",
+    "description": "All critical items — select all that fit",
+    "sprintNumber": 9,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #80: Fix production crash on login (priority:critical, size:s, 3 points, type:bug, status:open)\n- #81: Fix data loss on form submit (priority:critical, size:m, 5 points, type:bug, status:open)\n- #82: Fix security vulnerability in auth (priority:critical, size:m, 5 points, type:bug, status:open)\n- #83: Fix broken payment flow (priority:critical, size:l, 8 points, type:bug, status:open)\n- #84: Fix email sending failure (priority:critical, size:s, 3 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#80", "#81", "#82", "#84"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-009",
+    "description": "Backlog with clear tiers — critical > high > medium",
+    "sprintNumber": 10,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #90: Fix broken API gateway (priority:critical, size:m, 5 points, type:bug, status:open)\n- #91: Add request validation (priority:high, size:m, 5 points, type:story, status:open)\n- #92: Implement caching layer (priority:high, size:m, 5 points, type:story, status:open)\n- #93: Add GraphQL support (priority:medium, size:l, 8 points, type:story, status:open)\n- #94: Write performance tests (priority:medium, size:s, 3 points, type:story, status:open)\n- #95: Add API versioning (priority:low, size:m, 5 points, type:story, status:open)\n- #96: Update Swagger docs (priority:low, size:s, 2 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#90", "#91", "#92"],
+      "mustNotContain": ["#95", "#96"]
+    }
+  },
+  {
+    "id": "planner-010",
+    "description": "Small backlog of 3 items — all fit easily",
+    "sprintNumber": 1,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #100: Set up project scaffolding (priority:high, size:m, 5 points, type:story, status:open)\n- #101: Configure ESLint and Prettier (priority:high, size:s, 3 points, type:story, status:open)\n- #102: Add initial test framework (priority:high, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#100", "#101", "#102"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-011",
+    "description": "7 issues, velocity forces leaving out large low-priority item",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #110: Implement file upload (priority:high, size:m, 5 points, type:story, status:open)\n- #111: Add image compression (priority:high, size:m, 5 points, type:story, status:open)\n- #112: Build file browser UI (priority:medium, size:m, 5 points, type:story, status:open)\n- #113: Add drag-and-drop support (priority:medium, size:s, 3 points, type:story, status:open)\n- #114: Fix upload progress bar (priority:high, size:s, 2 points, type:bug, status:open)\n- #115: Add bulk upload feature (priority:low, size:l, 8 points, type:story, status:open)\n- #116: Write upload integration tests (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#110", "#111", "#114"],
+      "mustNotContain": ["#115"]
+    }
+  },
+  {
+    "id": "planner-012",
+    "description": "9 items, mix of sizes — planner should maximize value within velocity",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #120: Deploy staging environment (priority:critical, size:m, 5 points, type:story, status:open)\n- #121: Add monitoring alerts (priority:high, size:s, 3 points, type:story, status:open)\n- #122: Configure auto-scaling (priority:high, size:m, 5 points, type:story, status:open)\n- #123: Set up log aggregation (priority:medium, size:m, 5 points, type:story, status:open)\n- #124: Add database backups (priority:high, size:s, 3 points, type:story, status:open)\n- #125: Create runbook for incidents (priority:low, size:s, 2 points, type:story, status:open)\n- #126: Add uptime monitoring (priority:medium, size:s, 2 points, type:story, status:open)\n- #127: Implement blue-green deployment (priority:low, size:l, 8 points, type:story, status:open)\n- #128: Add CDN configuration (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#120", "#121", "#122", "#124"],
+      "mustNotContain": ["#127"]
+    }
+  },
+  {
+    "id": "planner-013",
+    "description": "All medium priority, total exceeds velocity — pick top 6 by points fit",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #130: Add user avatar upload (priority:medium, size:m, 5 points, type:story, status:open)\n- #131: Implement user profiles (priority:medium, size:m, 5 points, type:story, status:open)\n- #132: Add social login (priority:medium, size:m, 5 points, type:story, status:open)\n- #133: Build activity feed (priority:medium, size:m, 5 points, type:story, status:open)\n- #134: Add user search (priority:medium, size:s, 3 points, type:story, status:open)\n- #135: Implement followers feature (priority:medium, size:m, 5 points, type:story, status:open)\n- #136: Add user blocking (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-014",
+    "description": "High priority items consume most velocity — low priority items excluded",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #140: Build admin dashboard (priority:high, size:l, 8 points, type:story, status:open)\n- #141: Add role-based access control (priority:high, size:l, 8 points, type:story, status:open)\n- #142: Implement audit logging (priority:high, size:m, 5 points, type:story, status:open)\n- #143: Add admin user management (priority:low, size:m, 5 points, type:story, status:open)\n- #144: Build reports page (priority:low, size:m, 5 points, type:story, status:open)\n- #145: Add data export for admins (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#140", "#141", "#142"],
+      "mustNotContain": ["#143", "#144"]
+    }
+  },
+  {
+    "id": "planner-015",
+    "description": "5 tiny issues — all fit easily under velocity",
+    "sprintNumber": 2,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #150: Fix typo in error message (priority:low, size:xs, 1 point, type:bug, status:open)\n- #151: Update copyright year (priority:low, size:xs, 1 point, type:story, status:open)\n- #152: Fix broken link in footer (priority:low, size:xs, 1 point, type:bug, status:open)\n- #153: Add alt text to images (priority:medium, size:xs, 1 point, type:story, status:open)\n- #154: Fix tooltip positioning (priority:medium, size:xs, 1 point, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#150", "#151", "#152", "#153", "#154"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-016",
+    "description": "Backlog with one critical bug among feature work",
+    "sprintNumber": 11,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #160: Build checkout flow (priority:high, size:l, 8 points, type:story, status:open)\n- #161: Add payment gateway integration (priority:high, size:l, 8 points, type:story, status:open)\n- #162: Fix cart total calculation bug (priority:critical, size:s, 2 points, type:bug, status:open)\n- #163: Add order confirmation email (priority:medium, size:s, 3 points, type:story, status:open)\n- #164: Implement coupon codes (priority:medium, size:m, 5 points, type:story, status:open)\n- #165: Add order history page (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#162", "#160", "#161"],
+      "mustNotContain": ["#165"]
+    }
+  },
+  {
+    "id": "planner-017",
+    "description": "Exactly 6 issues matching maxIssues and fitting velocity",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #170: Add input validation (priority:high, size:s, 3 points, type:story, status:open)\n- #171: Implement form autosave (priority:high, size:m, 5 points, type:story, status:open)\n- #172: Fix form reset behavior (priority:high, size:s, 2 points, type:bug, status:open)\n- #173: Add multi-step form wizard (priority:medium, size:m, 5 points, type:story, status:open)\n- #174: Add field-level help text (priority:medium, size:s, 3 points, type:story, status:open)\n- #175: Implement conditional fields (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#170", "#171", "#172", "#173", "#174", "#175"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-018",
+    "description": "Large backlog of 10 with clear priority gradient",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #180: Fix memory leak in WebSocket handler (priority:critical, size:m, 5 points, type:bug, status:open)\n- #181: Add connection pooling (priority:high, size:m, 5 points, type:story, status:open)\n- #182: Implement retry logic (priority:high, size:s, 3 points, type:story, status:open)\n- #183: Add heartbeat mechanism (priority:high, size:s, 3 points, type:story, status:open)\n- #184: Build WebSocket dashboard (priority:medium, size:m, 5 points, type:story, status:open)\n- #185: Add message compression (priority:medium, size:s, 3 points, type:story, status:open)\n- #186: Write WebSocket load tests (priority:medium, size:s, 3 points, type:story, status:open)\n- #187: Add WebSocket auth tokens (priority:low, size:s, 3 points, type:story, status:open)\n- #188: Implement message queuing (priority:low, size:l, 8 points, type:story, status:open)\n- #189: Add reconnection UI indicator (priority:low, size:xs, 1 point, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#180", "#181", "#182", "#183"],
+      "mustNotContain": ["#188"]
+    }
+  },
+  {
+    "id": "planner-019",
+    "description": "Two critical bugs and several features — bugs must be included",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #190: Build analytics dashboard (priority:medium, size:l, 8 points, type:story, status:open)\n- #191: Fix XSS vulnerability in comments (priority:critical, size:s, 3 points, type:bug, status:open)\n- #192: Fix SQL injection in search (priority:critical, size:s, 3 points, type:bug, status:open)\n- #193: Add event tracking (priority:high, size:m, 5 points, type:story, status:open)\n- #194: Implement A/B testing framework (priority:medium, size:l, 8 points, type:story, status:open)\n- #195: Add conversion tracking (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#191", "#192", "#193"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-020",
+    "description": "All items are size:s — can fit many within velocity",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #200: Add breadcrumb navigation (priority:high, size:s, 3 points, type:story, status:open)\n- #201: Fix mobile menu toggle (priority:high, size:s, 3 points, type:bug, status:open)\n- #202: Add skip-to-content link (priority:medium, size:s, 3 points, type:story, status:open)\n- #203: Improve focus indicators (priority:medium, size:s, 3 points, type:story, status:open)\n- #204: Add aria labels to icons (priority:medium, size:s, 3 points, type:story, status:open)\n- #205: Fix tab order on forms (priority:high, size:s, 3 points, type:bug, status:open)\n- #206: Add screen reader announcements (priority:low, size:s, 3 points, type:story, status:open)\n- #207: Improve contrast ratios (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#200", "#201", "#205"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-021",
+    "description": "Single critical item dominates — must be included even if large",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #210: Rewrite authentication system (priority:critical, size:xl, 13 points, type:story, status:open)\n- #211: Add MFA support (priority:high, size:m, 5 points, type:story, status:open)\n- #212: Fix session timeout handling (priority:medium, size:s, 3 points, type:story, status:open)\n- #213: Add remember me checkbox (priority:low, size:xs, 1 point, type:story, status:open)\n- #214: Update login page design (priority:low, size:s, 2 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#210", "#211"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-022",
+    "description": "Backlog with only 2 items — both should be selected",
+    "sprintNumber": 2,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #220: Set up database migrations (priority:high, size:m, 5 points, type:story, status:open)\n- #221: Create seed data script (priority:high, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#220", "#221"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-023",
+    "description": "Multiple bugs should be prioritized over feature requests",
+    "sprintNumber": 9,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #230: Build recommendation engine (priority:medium, size:l, 8 points, type:story, status:open)\n- #231: Fix broken image gallery (priority:high, size:s, 3 points, type:bug, status:open)\n- #232: Fix search results not loading (priority:high, size:s, 3 points, type:bug, status:open)\n- #233: Fix duplicate entries in feed (priority:high, size:s, 2 points, type:bug, status:open)\n- #234: Add content moderation tools (priority:medium, size:m, 5 points, type:story, status:open)\n- #235: Implement tag system (priority:medium, size:m, 5 points, type:story, status:open)\n- #236: Add content scheduling (priority:low, size:l, 8 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#231", "#232", "#233"],
+      "mustNotContain": ["#236"]
+    }
+  },
+  {
+    "id": "planner-024",
+    "description": "Backlog with variety of sizes — maximize fit within 21 points",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #240: Set up Docker compose (priority:high, size:l, 8 points, type:story, status:open)\n- #241: Add Dockerfile for API (priority:high, size:m, 5 points, type:story, status:open)\n- #242: Configure nginx reverse proxy (priority:high, size:m, 5 points, type:story, status:open)\n- #243: Add health check scripts (priority:medium, size:s, 2 points, type:story, status:open)\n- #244: Set up container registry (priority:medium, size:s, 3 points, type:story, status:open)\n- #245: Add volume mounts for data (priority:low, size:xs, 1 point, type:story, status:open)\n- #246: Write deployment guide (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#240", "#241", "#242"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-025",
+    "description": "Backlog where only high-priority items already fill velocity",
+    "sprintNumber": 10,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #250: Implement real-time sync (priority:high, size:l, 8 points, type:story, status:open)\n- #251: Add conflict resolution (priority:high, size:l, 8 points, type:story, status:open)\n- #252: Build offline mode (priority:high, size:m, 5 points, type:story, status:open)\n- #253: Add data migration tool (priority:medium, size:m, 5 points, type:story, status:open)\n- #254: Implement undo/redo (priority:medium, size:m, 5 points, type:story, status:open)\n- #255: Add version history (priority:low, size:l, 8 points, type:story, status:open)\n- #256: Build collaboration cursors (priority:low, size:l, 8 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#250", "#251", "#252"],
+      "mustNotContain": ["#255", "#256"]
+    }
+  }
+]

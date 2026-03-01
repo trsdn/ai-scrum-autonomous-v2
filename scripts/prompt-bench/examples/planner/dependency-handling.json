@@ -1,0 +1,283 @@
+[
+  {
+    "id": "planner-026",
+    "description": "B depends on A — both should be selected with A first",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #300: Create database schema (priority:high, size:m, 5 points, type:story, status:open)\n- #301: Build CRUD API endpoints (priority:high, size:m, 5 points, type:story, status:open)\n- #302: Add form validation (priority:medium, size:s, 3 points, type:story, status:open)\n- #303: Fix date picker bug (priority:medium, size:s, 2 points, type:bug, status:open)",
+    "dependencies": "#301 depends on #300",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#300", "#301"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-027",
+    "description": "Chain A→B→C — all should be selected in correct order",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #310: Design user data model (priority:high, size:s, 3 points, type:story, status:open)\n- #311: Implement user repository (priority:high, size:m, 5 points, type:story, status:open)\n- #312: Build user API controller (priority:high, size:m, 5 points, type:story, status:open)\n- #313: Add input sanitization (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#311 depends on #310; #312 depends on #311",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#310", "#311", "#312"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-028",
+    "description": "Issue depends on something outside the sprint — must not select dependent",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #320: Add OAuth2 provider integration (priority:high, size:m, 5 points, type:story, status:open)\n- #321: Build SSO login page (priority:high, size:m, 5 points, type:story, status:open)\n- #322: Add password complexity rules (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#321 depends on #999 (not in backlog — external dependency, not yet completed)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#320", "#322"],
+      "mustNotContain": ["#321"]
+    }
+  },
+  {
+    "id": "planner-029",
+    "description": "Two independent dependency pairs — both pairs selected",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #330: Create table component (priority:high, size:s, 3 points, type:story, status:open)\n- #331: Add table sorting (priority:high, size:s, 3 points, type:story, status:open)\n- #332: Build chart component (priority:high, size:m, 5 points, type:story, status:open)\n- #333: Add chart tooltips (priority:medium, size:s, 2 points, type:story, status:open)\n- #334: Fix grid layout bug (priority:medium, size:s, 2 points, type:bug, status:open)",
+    "dependencies": "#331 depends on #330; #333 depends on #332",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#330", "#331", "#332", "#333"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-030",
+    "description": "Dependency on blocked item — dependent should be excluded",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #340: Migrate to new database (priority:high, size:l, 8 points, type:story, status:blocked)\n- #341: Update ORM queries (priority:high, size:m, 5 points, type:story, status:open)\n- #342: Add database indexing (priority:medium, size:s, 3 points, type:story, status:open)\n- #343: Write migration tests (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#341 depends on #340; #343 depends on #340",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#342"],
+      "mustNotContain": ["#340", "#341", "#343"]
+    }
+  },
+  {
+    "id": "planner-031",
+    "description": "Long chain A→B→C→D exceeds velocity — select what fits",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #350: Design API specification (priority:high, size:m, 5 points, type:story, status:open)\n- #351: Generate API client SDK (priority:high, size:l, 8 points, type:story, status:open)\n- #352: Build API integration tests (priority:high, size:m, 5 points, type:story, status:open)\n- #353: Deploy API documentation site (priority:high, size:m, 5 points, type:story, status:open)\n- #354: Add API changelog (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#351 depends on #350; #352 depends on #351; #353 depends on #352",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#350", "#351"],
+      "mustNotContain": ["#353"]
+    }
+  },
+  {
+    "id": "planner-032",
+    "description": "Circular dependency — planner should detect and skip/flag circular items",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #360: Implement caching service (priority:high, size:m, 5 points, type:story, status:open)\n- #361: Build cache invalidation (priority:high, size:m, 5 points, type:story, status:open)\n- #362: Add Redis connection pool (priority:medium, size:s, 3 points, type:story, status:open)\n- #363: Fix cache TTL handling (priority:medium, size:s, 2 points, type:bug, status:open)",
+    "dependencies": "#360 depends on #361; #361 depends on #360 (circular dependency)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#362", "#363"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-033",
+    "description": "Diamond dependency — A→B, A→C, B→D, C→D — all fit",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #370: Set up message broker (priority:high, size:s, 3 points, type:story, status:open)\n- #371: Create producer service (priority:high, size:m, 5 points, type:story, status:open)\n- #372: Create consumer service (priority:high, size:m, 5 points, type:story, status:open)\n- #373: Build message monitoring dashboard (priority:medium, size:m, 5 points, type:story, status:open)",
+    "dependencies": "#371 depends on #370; #372 depends on #370; #373 depends on #371; #373 depends on #372",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#370", "#371", "#372"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-034",
+    "description": "Dependency on done item — dependent can be selected",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #380: Set up Terraform modules (priority:high, size:m, 5 points, type:story, status:done)\n- #381: Deploy VPC infrastructure (priority:high, size:m, 5 points, type:story, status:open)\n- #382: Configure security groups (priority:high, size:s, 3 points, type:story, status:open)\n- #383: Add CloudWatch alarms (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#381 depends on #380 (already done)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#381", "#382", "#383"],
+      "mustNotContain": ["#380"]
+    }
+  },
+  {
+    "id": "planner-035",
+    "description": "Multiple items depend on one root — root must be included",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #390: Build component library foundation (priority:high, size:m, 5 points, type:story, status:open)\n- #391: Create Button component (priority:high, size:s, 3 points, type:story, status:open)\n- #392: Create Modal component (priority:high, size:s, 3 points, type:story, status:open)\n- #393: Create Dropdown component (priority:medium, size:s, 3 points, type:story, status:open)\n- #394: Create Tooltip component (priority:medium, size:s, 2 points, type:story, status:open)",
+    "dependencies": "#391 depends on #390; #392 depends on #390; #393 depends on #390; #394 depends on #390",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#390", "#391", "#392"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-036",
+    "description": "Dependency chain where middle item is blocked — downstream excluded",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #400: Design payment data model (priority:high, size:s, 3 points, type:story, status:open)\n- #401: Integrate payment gateway SDK (priority:high, size:m, 5 points, type:story, status:blocked)\n- #402: Build payment processing service (priority:high, size:m, 5 points, type:story, status:open)\n- #403: Add payment retry logic (priority:medium, size:s, 3 points, type:story, status:open)\n- #404: Write payment tests (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#401 depends on #400; #402 depends on #401",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#400", "#404"],
+      "mustNotContain": ["#401", "#402"]
+    }
+  },
+  {
+    "id": "planner-037",
+    "description": "Independent and dependent items — select independent + satisfied deps",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #410: Add logging middleware (priority:high, size:s, 3 points, type:story, status:open)\n- #411: Create log viewer UI (priority:medium, size:m, 5 points, type:story, status:open)\n- #412: Add error tracking service (priority:high, size:m, 5 points, type:story, status:open)\n- #413: Build error dashboard (priority:medium, size:m, 5 points, type:story, status:open)\n- #414: Add alert rules engine (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#411 depends on #410; #413 depends on #412",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#410", "#412", "#411", "#413"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-038",
+    "description": "Dependency pulls in low-priority prerequisite — both should be selected",
+    "sprintNumber": 9,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #420: Set up i18n framework (priority:low, size:s, 3 points, type:story, status:open)\n- #421: Translate UI to Spanish (priority:high, size:m, 5 points, type:story, status:open)\n- #422: Add language selector (priority:high, size:s, 3 points, type:story, status:open)\n- #423: Fix date formatting for locales (priority:medium, size:s, 2 points, type:bug, status:open)",
+    "dependencies": "#421 depends on #420; #422 depends on #420",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#420", "#421", "#422"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-039",
+    "description": "Three-way circular dependency — all three should be skipped",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #430: Service A initialization (priority:high, size:m, 5 points, type:story, status:open)\n- #431: Service B initialization (priority:high, size:m, 5 points, type:story, status:open)\n- #432: Service C initialization (priority:high, size:m, 5 points, type:story, status:open)\n- #433: Add health check endpoints (priority:medium, size:s, 3 points, type:story, status:open)\n- #434: Configure service discovery (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#430 depends on #432; #431 depends on #430; #432 depends on #431 (three-way circular)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#433", "#434"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-040",
+    "description": "Dep chain fits exactly at velocity boundary",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #440: Create data pipeline framework (priority:high, size:l, 8 points, type:story, status:open)\n- #441: Build ETL transform step (priority:high, size:l, 8 points, type:story, status:open)\n- #442: Add pipeline monitoring (priority:high, size:m, 5 points, type:story, status:open)\n- #443: Implement data quality checks (priority:medium, size:m, 5 points, type:story, status:open)",
+    "dependencies": "#441 depends on #440; #442 depends on #441",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#440", "#441", "#442"],
+      "mustNotContain": ["#443"]
+    }
+  },
+  {
+    "id": "planner-041",
+    "description": "Dependency on in-progress item from previous sprint — dependent is selectable",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #450: Implement GraphQL schema (priority:high, size:l, 8 points, type:story, status:in-progress)\n- #451: Add GraphQL resolvers (priority:high, size:m, 5 points, type:story, status:open)\n- #452: Build GraphQL playground (priority:medium, size:s, 3 points, type:story, status:open)\n- #453: Add query complexity analysis (priority:medium, size:s, 3 points, type:story, status:open)",
+    "dependencies": "#451 depends on #450 (in-progress, carryover from previous sprint)",
+    "previousSprint": "Sprint 7 had #450 in-progress at 60% completion",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#450", "#451"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-042",
+    "description": "High-priority item depends on low-priority — both should be selected",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #460: Create test fixtures (priority:low, size:s, 2 points, type:story, status:open)\n- #461: Build E2E test suite (priority:critical, size:l, 8 points, type:story, status:open)\n- #462: Add CI test reporting (priority:high, size:s, 3 points, type:story, status:open)\n- #463: Fix flaky tests (priority:high, size:m, 5 points, type:bug, status:open)",
+    "dependencies": "#461 depends on #460",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#460", "#461", "#462", "#463"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-043",
+    "description": "Complex dependency graph — partial selection based on capacity",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #470: Set up microservice gateway (priority:high, size:m, 5 points, type:story, status:open)\n- #471: Create user service (priority:high, size:l, 8 points, type:story, status:open)\n- #472: Create order service (priority:high, size:l, 8 points, type:story, status:open)\n- #473: Add inter-service auth (priority:high, size:m, 5 points, type:story, status:open)\n- #474: Build service mesh config (priority:medium, size:s, 3 points, type:story, status:open)\n- #475: Add distributed tracing (priority:medium, size:m, 5 points, type:story, status:open)",
+    "dependencies": "#471 depends on #470; #472 depends on #470; #473 depends on #471; #473 depends on #472",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#470"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-044",
+    "description": "Dependency where prerequisite is too large to fit alone",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 5,
+    "backlog": "- #480: Full platform rewrite (priority:high, size:xl, 13 points, type:story, status:open)\n- #481: Migrate existing data (priority:high, size:l, 8 points, type:story, status:open)\n- #482: Fix login timeout (priority:critical, size:s, 3 points, type:bug, status:open)\n- #483: Update error messages (priority:medium, size:xs, 1 point, type:story, status:open)",
+    "dependencies": "#481 depends on #480",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#482", "#483"],
+      "mustNotContain": ["#480", "#481"]
+    }
+  },
+  {
+    "id": "planner-045",
+    "description": "Dep on external issue that is marked done in dependencies info",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #490: Build reporting module (priority:high, size:m, 5 points, type:story, status:open)\n- #491: Add PDF export (priority:high, size:m, 5 points, type:story, status:open)\n- #492: Create report templates (priority:medium, size:s, 3 points, type:story, status:open)\n- #493: Add scheduled reports (priority:medium, size:m, 5 points, type:story, status:open)",
+    "dependencies": "#490 depends on #289 (completed in previous sprint, status:done); #491 depends on #490",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#490", "#491", "#492"],
+      "mustNotContain": []
+    }
+  }
+]

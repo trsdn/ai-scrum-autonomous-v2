@@ -1,0 +1,262 @@
+[
+  {
+    "id": "retro-021",
+    "description": "Sprint with 2 issues failing quality gate — lint and test failures",
+    "sprintNumber": 4,
+    "sprintResults": "## Sprint 4 Results\n\n| Issue | Title | Points | Status | PR | CI | QG Result |\n|-------|-------|--------|--------|----|----|----|\n| #30 | Add user profile API | 3 | ✅ Done | #31 | ✅ Green | Pass |\n| #32 | Fix login redirect | 2 | ❌ Failed | #33 | ❌ Red | Fail — lint errors |\n| #34 | Add search indexing | 3 | ✅ Done | #35 | ✅ Green | Pass |\n| #36 | Update form validation | 2 | ❌ Failed | #37 | ❌ Red | Fail — 3 test failures |\n| #38 | Add caching headers | 1 | ✅ Done | #39 | ✅ Green | Pass |\n| #40 | Refactor error handler | 2 | ✅ Done | #41 | ✅ Green | Pass |\n\n**Velocity**: 9/13 points completed (4 points failed)\n**Duration**: 1h 45m (estimated 1h 30m)\n**Quality Gate Failures**: 2 issues (#32, #36)\n**Root Cause #32**: Generated code used `var` instead of `const`, 14 lint violations\n**Root Cause #36**: Missing mock for database service, 3 unit tests failed\n**Escalations**: 0",
+    "velocityData": "Sprint 2: 10/13 | Sprint 3: 13/13 | Sprint 4: 9/13",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["root cause", "quality gate"],
+      "mustNotContain": ["perfect"]
+    }
+  },
+  {
+    "id": "retro-022",
+    "description": "Sprint where 3 PRs rejected by code review agent",
+    "sprintNumber": 7,
+    "sprintResults": "## Sprint 7 Results\n\n| Issue | Title | Points | Status | PR | Review Result | Rejection Reason |\n|-------|-------|--------|--------|----|----|----|\n| #60 | Add OAuth flow | 3 | ❌ Failed | #61 | ❌ Rejected | Security: token in URL params |\n| #62 | Update middleware | 2 | ❌ Failed | #63 | ❌ Rejected | Missing error handling |\n| #64 | Add rate limiter | 2 | ✅ Done | #65 | ✅ Approved | — |\n| #66 | Fix CORS config | 1 | ✅ Done | #67 | ✅ Approved | — |\n| #68 | Add WebSocket auth | 3 | ❌ Failed | #69 | ❌ Rejected | Hardcoded credentials |\n| #70 | Update docs | 1 | ✅ Done | #71 | ✅ Approved | — |\n\n**Velocity**: 4/12 points completed (8 points rejected)\n**Duration**: 2h 10m (estimated 1h 30m)\n**Code Review Rejections**: 3 PRs (#61, #63, #69)\n**Common Pattern**: Security-related rejections in auth module\n**Escalations**: 1 (security concern in #68)",
+    "velocityData": "Sprint 5: 11/12 | Sprint 6: 12/12 | Sprint 7: 4/12",
+    "previousImprovements": "Sprint 6 retro: No issues identified",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "security"],
+      "mustNotContain": ["successful"]
+    }
+  },
+  {
+    "id": "retro-023",
+    "description": "Sprint where main branch broke after merge",
+    "sprintNumber": 9,
+    "sprintResults": "## Sprint 9 Results\n\n| Issue | Title | Points | Status | PR | CI | Post-Merge |\n|-------|-------|--------|--------|----|----|----|\n| #80 | Add event bus | 3 | ✅ Done | #81 | ✅ Green | ✅ Stable |\n| #82 | Refactor DB layer | 3 | ✅ Done | #83 | ✅ Green | ❌ BROKE MAIN |\n| #84 | Add migration tool | 2 | ❌ Blocked | — | — | — |\n| #86 | Fix connection pool | 2 | ❌ Blocked | — | — | — |\n| #88 | Add query builder | 2 | ❌ Blocked | — | — | — |\n| #90 | Update ORM config | 1 | ✅ Done | #91 | ✅ Green | ✅ Stable |\n\n**Velocity**: 7/13 points completed (6 points blocked)\n**Duration**: 2h 30m (estimated 1h 30m)\n**Critical Incident**: PR #83 passed CI on branch but broke main after merge\n**Root Cause**: Merge conflict in DB config resolved incorrectly by auto-merge\n**Impact**: Issues #84, #86, #88 blocked — depended on stable DB layer\n**Recovery Time**: 45 minutes to revert and fix\n**Escalations**: 1 (main branch broken)",
+    "velocityData": "Sprint 7: 4/12 | Sprint 8: 11/12 | Sprint 9: 7/13",
+    "previousImprovements": "Sprint 8 retro: Added pre-merge integration test",
+    "expected": {
+      "passed": true,
+      "mustContain": ["merge", "root cause"],
+      "mustNotContain": ["no issues"]
+    }
+  },
+  {
+    "id": "retro-024",
+    "description": "Sprint with session timeout during critical execution",
+    "sprintNumber": 6,
+    "sprintResults": "## Sprint 6 Results\n\n| Issue | Title | Points | Status | PR | Notes |\n|-------|-------|--------|--------|----|----||\n| #50 | Add payment gateway | 5 | ❌ Failed | #51 | Session timeout at 85% completion |\n| #52 | Fix cart calculation | 2 | ✅ Done | #53 | Completed before timeout |\n| #54 | Add order history | 3 | ❌ Failed | — | Not started — blocked by #50 |\n| #56 | Update checkout UI | 2 | ✅ Done | #57 | Completed before timeout |\n| #58 | Add invoice generator | 2 | ❌ Failed | — | Session expired mid-execution |\n| #60 | Fix currency format | 1 | ✅ Done | #61 | Completed before timeout |\n\n**Velocity**: 5/15 points completed (10 points lost to timeout)\n**Duration**: 1h 30m (session limit hit)\n**Session Timeout**: ACP session expired after 90 minutes\n**Issues Lost**: #50 was 85% done when session died\n**Escalations**: 1 (session management failure)",
+    "velocityData": "Sprint 4: 9/13 | Sprint 5: 12/13 | Sprint 6: 5/15",
+    "previousImprovements": null,
+    "expected": {
+      "passed": true,
+      "mustContain": ["timeout", "config"],
+      "mustNotContain": ["successful sprint"]
+    }
+  },
+  {
+    "id": "retro-025",
+    "description": "Sprint with cascading failures from a single broken dependency",
+    "sprintNumber": 11,
+    "sprintResults": "## Sprint 11 Results\n\n| Issue | Title | Points | Status | PR | CI | Failure |\n|-------|-------|--------|--------|----|----|----|\n| #100 | Update auth library | 2 | ✅ Done | #101 | ✅ Green | — |\n| #102 | Add SSO provider | 3 | ❌ Failed | #103 | ❌ Red | Auth lib incompatible |\n| #104 | Fix login flow | 2 | ❌ Failed | #105 | ❌ Red | Depends on auth lib |\n| #106 | Add session store | 2 | ❌ Failed | #107 | ❌ Red | Depends on auth lib |\n| #108 | Update JWT handler | 3 | ❌ Failed | #109 | ❌ Red | Depends on auth lib |\n| #110 | Add logout endpoint | 1 | ❌ Failed | #111 | ❌ Red | Depends on auth lib |\n\n**Velocity**: 2/13 points completed (11 points cascading failure)\n**Duration**: 2h 05m (estimated 1h 30m)\n**Root Cause**: Auth library update (#100) introduced breaking API change\n**Cascade**: 5 subsequent issues all depended on auth library\n**Detection Delay**: 35 minutes before cascade was identified\n**Escalations**: 2",
+    "velocityData": "Sprint 9: 7/13 | Sprint 10: 12/13 | Sprint 11: 2/13",
+    "previousImprovements": "Sprint 10 retro: Added dependency impact analysis to planning",
+    "expected": {
+      "passed": true,
+      "mustContain": ["cascade", "dependency"],
+      "mustNotContain": ["all passed"]
+    }
+  },
+  {
+    "id": "retro-026",
+    "description": "Sprint where half the issues had wrong acceptance criteria",
+    "sprintNumber": 5,
+    "sprintResults": "## Sprint 5 Results\n\n| Issue | Title | Points | Status | PR | Issue |\n|-------|-------|--------|--------|----|----||\n| #42 | Add user search | 3 | ❌ Failed | #43 | AC said 'fuzzy search' but no fuzzy lib available |\n| #44 | Add filter panel | 2 | ❌ Failed | #45 | AC referenced non-existent component |\n| #46 | Add sort options | 2 | ✅ Done | #47 | — |\n| #48 | Fix pagination | 1 | ✅ Done | #49 | — |\n| #50 | Add export feature | 3 | ❌ Failed | #51 | AC specified CSV but requirement was actually PDF |\n| #52 | Update list view | 2 | ✅ Done | #53 | — |\n\n**Velocity**: 5/13 points completed (8 points failed)\n**Duration**: 2h 00m (estimated 1h 30m)\n**Root Cause**: 3 issues had incorrect or outdated acceptance criteria\n**Refinement Gap**: Issues were not properly refined before sprint planning\n**Wasted Effort**: ~45 minutes building features against wrong specs\n**Escalations**: 1",
+    "velocityData": "Sprint 3: 13/13 | Sprint 4: 9/13 | Sprint 5: 5/13",
+    "previousImprovements": "Sprint 4 retro: Added lint pre-check step",
+    "expected": {
+      "passed": true,
+      "mustContain": ["refinement", "acceptance criteria"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "retro-027",
+    "description": "Sprint where agent produced code that compiled but failed integration tests",
+    "sprintNumber": 8,
+    "sprintResults": "## Sprint 8 Results\n\n| Issue | Title | Points | Status | PR | Unit Tests | Integration Tests |\n|-------|-------|--------|--------|----|----|----|\n| #70 | Add API gateway | 3 | ❌ Failed | #71 | ✅ Pass | ❌ 5 failures |\n| #72 | Add service mesh | 3 | ❌ Failed | #73 | ✅ Pass | ❌ 3 failures |\n| #74 | Fix load balancer | 2 | ✅ Done | #75 | ✅ Pass | ✅ Pass |\n| #76 | Add circuit breaker | 2 | ✅ Done | #77 | ✅ Pass | ✅ Pass |\n| #78 | Update health checks | 1 | ✅ Done | #79 | ✅ Pass | ✅ Pass |\n| #80 | Add retry policy | 2 | ❌ Failed | #81 | ✅ Pass | ❌ 2 failures |\n\n**Velocity**: 5/13 points completed (8 points failed integration)\n**Duration**: 2h 15m (estimated 1h 30m)\n**Root Cause**: Agent wrote unit tests with mocks that didn't match actual service interfaces\n**Pattern**: All failures in network/distributed system features\n**Integration Failures**: 10 total across 3 PRs",
+    "velocityData": "Sprint 6: 12/12 | Sprint 7: 4/12 | Sprint 8: 5/13",
+    "previousImprovements": "Sprint 7 retro: Improved code review for security checks",
+    "expected": {
+      "passed": true,
+      "mustContain": ["integration", "agent"],
+      "mustNotContain": ["all passed"]
+    }
+  },
+  {
+    "id": "retro-028",
+    "description": "Sprint where merge conflicts caused repeated CI failures",
+    "sprintNumber": 10,
+    "sprintResults": "## Sprint 10 Results\n\n| Issue | Title | Points | Status | PR | CI Runs | Merge Conflicts |\n|-------|-------|--------|--------|----|----|----|\n| #90 | Update shared utils | 2 | ✅ Done | #91 | 4 | 3 |\n| #92 | Fix type definitions | 2 | ✅ Done | #93 | 3 | 2 |\n| #94 | Refactor imports | 2 | ❌ Failed | #95 | 6 | 5 |\n| #96 | Add barrel exports | 1 | ❌ Failed | #97 | 5 | 4 |\n| #98 | Update test config | 1 | ✅ Done | #99 | 2 | 1 |\n| #100 | Fix circular deps | 3 | ❌ Failed | #101 | 7 | 6 |\n\n**Velocity**: 5/11 points completed (6 points failed)\n**Duration**: 3h 10m (estimated 1h 30m)\n**Total CI Runs**: 27 (expected ~12)\n**Merge Conflicts**: 21 total conflicts across 6 PRs\n**Root Cause**: All PRs modified shared files (utils.ts, index.ts, tsconfig.json)\n**Wasted Time**: ~1h 40m resolving merge conflicts",
+    "velocityData": "Sprint 8: 5/13 | Sprint 9: 7/13 | Sprint 10: 5/11",
+    "previousImprovements": "Sprint 9 retro: Added post-merge integration test",
+    "expected": {
+      "passed": true,
+      "mustContain": ["merge conflict", "parallel"],
+      "mustNotContain": ["no issues"]
+    }
+  },
+  {
+    "id": "retro-029",
+    "description": "Sprint where agent hallucinated non-existent APIs",
+    "sprintNumber": 3,
+    "sprintResults": "## Sprint 3 Results\n\n| Issue | Title | Points | Status | PR | Failure Reason |\n|-------|-------|--------|--------|----|----||\n| #20 | Add Stripe integration | 5 | ❌ Failed | #21 | Used non-existent Stripe SDK method |\n| #22 | Add PayPal checkout | 3 | ❌ Failed | #23 | Referenced deprecated PayPal API v1 |\n| #24 | Fix tax calculation | 2 | ✅ Done | #25 | — |\n| #26 | Add discount codes | 2 | ✅ Done | #27 | — |\n| #28 | Update pricing page | 1 | ✅ Done | #29 | — |\n| #30 | Add invoice template | 1 | ✅ Done | #31 | — |\n\n**Velocity**: 6/14 points completed (8 points failed)\n**Duration**: 1h 55m (estimated 1h 30m)\n**Root Cause**: Agent generated code calling API methods that don't exist in current SDK versions\n**#21 Details**: Called `stripe.customers.createSubscriptionSchedule()` — method doesn't exist\n**#23 Details**: Used PayPal REST API v1 endpoints deprecated since 2022\n**Escalations**: 1",
+    "velocityData": "Sprint 1: 11/11 | Sprint 2: 10/13 | Sprint 3: 6/14",
+    "previousImprovements": "Sprint 2 retro: Added stricter type checking",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "API"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "retro-030",
+    "description": "Sprint with complete CI infrastructure failure",
+    "sprintNumber": 12,
+    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | PR | CI | Notes |\n|-------|-------|--------|--------|----|----|----|\n| #110 | Add metrics dashboard | 3 | ❌ Failed | #111 | ❌ Infra | CI runner OOM |\n| #112 | Fix alert thresholds | 2 | ❌ Failed | #113 | ❌ Infra | CI runner OOM |\n| #114 | Add log aggregation | 3 | ❌ Failed | #115 | ❌ Infra | CI runner OOM |\n| #116 | Update monitoring | 2 | ❌ Failed | #117 | ❌ Infra | CI runner OOM |\n| #118 | Add tracing support | 2 | ❌ Failed | #119 | ❌ Infra | CI runner OOM |\n| #120 | Fix Grafana panels | 1 | ❌ Failed | #121 | ❌ Infra | CI runner OOM |\n\n**Velocity**: 0/13 points completed (all failed)\n**Duration**: 2h 45m (estimated 1h 30m)\n**Root Cause**: CI runner ran out of memory — all builds failed with OOM\n**Attempts**: Each PR attempted CI 3 times before giving up\n**Total CI Runs**: 18 (all failed)\n**Recovery**: CI infrastructure issue resolved after sprint ended\n**Escalations**: 2 (CI failure, sprint failure)",
+    "velocityData": "Sprint 10: 5/11 | Sprint 11: 2/13 | Sprint 12: 0/13",
+    "previousImprovements": "Sprint 11 retro: Added dependency impact analysis",
+    "expected": {
+      "passed": true,
+      "mustContain": ["infrastructure", "config"],
+      "mustNotContain": ["completed successfully"]
+    }
+  },
+  {
+    "id": "retro-031",
+    "description": "Sprint where wrong branch was used as base for PRs",
+    "sprintNumber": 14,
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | Issue |\n|-------|-------|--------|--------|----|----||\n| #130 | Add feature flags | 3 | ❌ Failed | #131 | PR based on stale develop branch |\n| #132 | Add A/B testing | 3 | ❌ Failed | #133 | PR based on stale develop branch |\n| #134 | Add analytics events | 2 | ❌ Failed | #135 | PR based on stale develop branch |\n| #136 | Fix tracking pixel | 1 | ✅ Done | #137 | Correctly based on main |\n| #138 | Update consent UI | 2 | ✅ Done | #139 | Correctly based on main |\n| #140 | Add GDPR export | 2 | ❌ Failed | #141 | PR based on stale develop branch |\n\n**Velocity**: 3/13 points completed (10 points failed)\n**Duration**: 2h 20m (estimated 1h 30m)\n**Root Cause**: Sprint runner used 'develop' as base branch, but project uses 'main'\n**Config Issue**: `baseBranch` was set to 'develop' from a previous project template\n**Impact**: 4 PRs had massive diffs including unrelated changes\n**Escalations**: 1",
+    "velocityData": "Sprint 12: 0/13 | Sprint 13: 9/9 | Sprint 14: 3/13",
+    "previousImprovements": "Sprint 13 retro: None — clean docs sprint",
+    "expected": {
+      "passed": true,
+      "mustContain": ["config", "branch"],
+      "mustNotContain": ["all passed"]
+    }
+  },
+  {
+    "id": "retro-032",
+    "description": "Sprint where code review agent was too strict — rejected valid code",
+    "sprintNumber": 16,
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Review | Rejection Reason |\n|-------|-------|--------|--------|----|----|----|\n| #150 | Add async queue | 3 | ❌ Failed | #151 | ❌ Rejected | 'Complex control flow' — valid async/await |\n| #152 | Add worker pool | 3 | ❌ Failed | #153 | ❌ Rejected | 'Too many dependencies' — 2 deps |\n| #154 | Fix race condition | 2 | ❌ Failed | #155 | ❌ Rejected | 'Mutex pattern unclear' — standard pattern |\n| #156 | Add job scheduler | 2 | ✅ Done | #157 | ✅ Approved | — |\n| #158 | Update task runner | 2 | ✅ Done | #159 | ✅ Approved | — |\n| #160 | Add progress API | 1 | ✅ Done | #161 | ✅ Approved | — |\n\n**Velocity**: 5/13 points completed (8 points false-rejected)\n**Duration**: 2h 00m (estimated 1h 30m)\n**Root Cause**: Code review agent prompt is too conservative for concurrent code patterns\n**False Positive Rate**: 3/6 reviews were incorrect rejections\n**Pattern**: All rejections were for valid concurrent/async patterns\n**Escalations**: 1",
+    "velocityData": "Sprint 14: 3/13 | Sprint 15: 13/13 | Sprint 16: 5/13",
+    "previousImprovements": "Sprint 15 retro: Tuned review prompt for faster decisions",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "review"],
+      "mustNotContain": ["all approved"]
+    }
+  },
+  {
+    "id": "retro-033",
+    "description": "Sprint with test environment misconfiguration causing false failures",
+    "sprintNumber": 13,
+    "sprintResults": "## Sprint 13 Results\n\n| Issue | Title | Points | Status | PR | CI | Real Failure? |\n|-------|-------|--------|--------|----|----|----|\n| #120 | Add cache invalidation | 3 | ❌ Failed | #121 | ❌ Red | No — env var missing |\n| #122 | Fix cache TTL | 2 | ❌ Failed | #123 | ❌ Red | No — env var missing |\n| #124 | Add cache warming | 2 | ❌ Failed | #125 | ❌ Red | No — env var missing |\n| #126 | Update cache config | 1 | ✅ Done | #127 | ✅ Green | — |\n| #128 | Add cache metrics | 2 | ❌ Failed | #129 | ❌ Red | No — env var missing |\n| #130 | Fix cache logging | 1 | ✅ Done | #131 | ✅ Green | — |\n\n**Velocity**: 2/11 points completed (9 points false-failed)\n**Duration**: 2h 30m (estimated 1h 15m)\n**Root Cause**: `REDIS_URL` environment variable not set in CI test environment\n**False Failures**: 4 PRs failed CI due to missing env config, not code issues\n**Wasted Time**: ~1h 15m debugging environment issues\n**Escalations**: 1",
+    "velocityData": "Sprint 11: 2/13 | Sprint 12: 0/13 | Sprint 13: 2/11",
+    "previousImprovements": "Sprint 12 retro: Added CI infrastructure monitoring",
+    "expected": {
+      "passed": true,
+      "mustContain": ["config", "environment"],
+      "mustNotContain": ["code quality"]
+    }
+  },
+  {
+    "id": "retro-034",
+    "description": "Sprint where large PRs exceeded diff size limits",
+    "sprintNumber": 15,
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Files Changed | Lines Changed |\n|-------|-------|--------|--------|----|----|----|\n| #140 | Full DB migration | 5 | ❌ Failed | #141 | 45 | 2,300 |\n| #142 | Schema redesign | 3 | ❌ Failed | #143 | 28 | 1,500 |\n| #144 | Fix small typo | 1 | ✅ Done | #145 | 1 | 2 |\n| #146 | Update config | 1 | ✅ Done | #147 | 1 | 5 |\n| #148 | Add unit test | 1 | ✅ Done | #149 | 1 | 30 |\n| #150 | Fix import | 1 | ✅ Done | #151 | 1 | 3 |\n\n**Velocity**: 4/12 points completed (8 points failed)\n**Duration**: 2h 40m (estimated 1h 30m)\n**Root Cause**: Issues #140 and #142 were too large for single PRs\n**PR #141**: 45 files, 2,300 lines — code review timed out\n**PR #143**: 28 files, 1,500 lines — review couldn't assess quality\n**Planning Error**: Large issues should have been split into smaller tasks\n**Escalations**: 1",
+    "velocityData": "Sprint 13: 2/11 | Sprint 14: 3/13 | Sprint 15: 4/12",
+    "previousImprovements": "Sprint 14 retro: Fixed base branch configuration",
+    "expected": {
+      "passed": true,
+      "mustContain": ["split", "process"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "retro-035",
+    "description": "Sprint where agent kept retrying same failing approach",
+    "sprintNumber": 17,
+    "sprintResults": "## Sprint 17 Results\n\n| Issue | Title | Points | Status | PR | QG Attempts | Same Error? |\n|-------|-------|--------|--------|----|----|----|\n| #160 | Add WebRTC support | 5 | ❌ Failed | #161 | 5/5 | Yes — same TypeError |\n| #162 | Fix audio codec | 3 | ❌ Failed | #163 | 5/5 | Yes — same import error |\n| #164 | Add video streaming | 3 | ✅ Done | #165 | 1 | — |\n| #166 | Update UI controls | 1 | ✅ Done | #167 | 1 | — |\n| #168 | Add chat feature | 2 | ✅ Done | #169 | 2 | — |\n| #170 | Fix reconnection | 2 | ✅ Done | #171 | 1 | — |\n\n**Velocity**: 8/16 points completed (8 points failed)\n**Duration**: 3h 00m (estimated 1h 30m)\n**Root Cause**: Agent retried failed approaches without changing strategy\n**#161**: Same `TypeError: Cannot read property 'createOffer'` on all 5 attempts\n**#163**: Same `Cannot find module 'opus-codec'` on all 5 attempts\n**Wasted Attempts**: 8 retries that reproduced identical errors\n**Escalations**: 1",
+    "velocityData": "Sprint 15: 4/12 | Sprint 16: 5/13 | Sprint 17: 8/16",
+    "previousImprovements": "Sprint 16 retro: Tuned code review for async patterns",
+    "expected": {
+      "passed": true,
+      "mustContain": ["retry", "agent"],
+      "mustNotContain": ["efficient"]
+    }
+  },
+  {
+    "id": "retro-036",
+    "description": "Sprint where issues were worked out of dependency order",
+    "sprintNumber": 19,
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | Depends On | Order Worked |\n|-------|-------|--------|--------|----|----||\n| #180 | Add data model | 3 | ✅ Done | — | 3rd (should be 1st) |\n| #182 | Add API routes | 3 | ❌ Failed | #180 | 1st (before dependency) |\n| #184 | Add controllers | 2 | ❌ Failed | #180 | 2nd (before dependency) |\n| #186 | Add validation | 2 | ✅ Done | #180 | 4th |\n| #188 | Add tests | 2 | ✅ Done | #186 | 5th |\n| #190 | Add docs | 1 | ✅ Done | — | 6th |\n\n**Velocity**: 8/13 points completed (5 points failed)\n**Duration**: 2h 10m (estimated 1h 30m)\n**Root Cause**: Sprint execution didn't respect issue dependency order\n**#182**: Built API routes before data model existed — compilation errors\n**#184**: Built controllers referencing non-existent model types\n**Wasted Work**: #182 and #184 had to be completely redone after #180 landed\n**Escalations**: 0",
+    "velocityData": "Sprint 17: 8/16 | Sprint 18: 12/12 | Sprint 19: 8/13",
+    "previousImprovements": "Sprint 18 retro: No issues identified (dependency-free sprint)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["dependency", "process"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "retro-037",
+    "description": "Sprint where generated tests were testing mocks not actual behavior",
+    "sprintNumber": 20,
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | Tests Written | Tests Useful? |\n|-------|-------|--------|--------|----|----|----|\n| #192 | Add payment processing | 3 | ❌ Failed | #193 | 12 | No — all mock-based |\n| #194 | Add refund logic | 2 | ❌ Failed | #195 | 8 | No — testing mock returns |\n| #196 | Add receipt generator | 2 | ✅ Done | #197 | 6 | Yes |\n| #198 | Fix tax rounding | 1 | ✅ Done | #199 | 4 | Yes |\n| #200 | Add payment history | 2 | ❌ Failed | #201 | 10 | No — all mock-based |\n| #202 | Update checkout flow | 2 | ✅ Done | #203 | 5 | Yes |\n\n**Velocity**: 5/12 points completed (7 points failed QG)\n**Duration**: 2h 15m (estimated 1h 30m)\n**Root Cause**: Agent generated tests that only validated mock return values\n**Example**: `expect(mockPayment.process).toHaveBeenCalled()` — tests mock, not behavior\n**Quality Gate Caught**: Code review flagged tautological tests\n**Pattern**: All external-service issues had this problem",
+    "velocityData": "Sprint 18: 12/12 | Sprint 19: 8/13 | Sprint 20: 5/12",
+    "previousImprovements": "Sprint 19 retro: Added dependency ordering to sprint execution",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "test"],
+      "mustNotContain": ["high quality"]
+    }
+  },
+  {
+    "id": "retro-038",
+    "description": "Sprint where escalation was needed but not triggered",
+    "sprintNumber": 22,
+    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR | Attempts | Should Escalate? |\n|-------|-------|--------|--------|----|----|----|\n| #210 | Fix critical auth bug | 5 | ❌ Failed | #211 | 5/5 | Yes — never escalated |\n| #212 | Add 2FA bypass fix | 3 | ❌ Failed | #213 | 5/5 | Yes — never escalated |\n| #214 | Update password policy | 2 | ✅ Done | #215 | 1 | — |\n| #216 | Fix session handling | 2 | ✅ Done | #217 | 2 | — |\n| #218 | Add brute force protection | 2 | ❌ Failed | #219 | 5/5 | Yes — never escalated |\n| #220 | Update security headers | 1 | ✅ Done | #221 | 1 | — |\n\n**Velocity**: 5/15 points completed (10 points failed)\n**Duration**: 3h 30m (estimated 1h 30m)\n**Critical Problem**: 3 security issues failed all 5 attempts without escalation\n**Root Cause**: Escalation threshold set to 'never' in config\n**Impact**: Sprint burned 2 extra hours on issues that needed human intervention\n**Config Issue**: `escalation.maxRetries: -1` (disabled escalation)\n**Escalations**: 0 (should have been 3)",
+    "velocityData": "Sprint 20: 5/12 | Sprint 21: 11/13 | Sprint 22: 5/15",
+    "previousImprovements": "Sprint 21 retro: No issues — clean sprint",
+    "expected": {
+      "passed": true,
+      "mustContain": ["escalation", "config"],
+      "mustNotContain": ["escalation worked"]
+    }
+  },
+  {
+    "id": "retro-039",
+    "description": "Sprint where git operations failed repeatedly",
+    "sprintNumber": 21,
+    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | Git Error |\n|-------|-------|--------|--------|----|----||\n| #200 | Add feature X | 3 | ❌ Failed | — | `git push` rejected — force push disabled |\n| #202 | Fix bug Y | 2 | ❌ Failed | — | Branch already exists from previous sprint |\n| #204 | Update module Z | 2 | ✅ Done | #205 | — |\n| #206 | Add test suite | 2 | ✅ Done | #207 | — |\n| #208 | Fix linting | 1 | ✅ Done | #209 | — |\n| #210 | Update docs | 1 | ✅ Done | #211 | — |\n\n**Velocity**: 6/11 points completed (5 points failed)\n**Duration**: 2h 00m (estimated 1h 15m)\n**Root Cause**: Stale branches from previous failed sprints not cleaned up\n**#200**: Branch `feat/200-feature-x` already existed with conflicting history\n**#202**: Same branch name reuse caused push rejection\n**Cleanup Needed**: 12 stale branches from sprints 18-20 still exist",
+    "velocityData": "Sprint 19: 8/13 | Sprint 20: 5/12 | Sprint 21: 6/11",
+    "previousImprovements": "Sprint 20 retro: Added test quality checks to review prompt",
+    "expected": {
+      "passed": true,
+      "mustContain": ["git", "cleanup"],
+      "mustNotContain": ["all passed"]
+    }
+  },
+  {
+    "id": "retro-040",
+    "description": "Sprint with catastrophic data loss — worktree deleted mid-work",
+    "sprintNumber": 23,
+    "sprintResults": "## Sprint 23 Results\n\n| Issue | Title | Points | Status | PR | Notes |\n|-------|-------|--------|--------|----|----||\n| #222 | Major refactor phase 1 | 5 | ❌ Failed | — | Worktree deleted at 90% completion |\n| #224 | Major refactor phase 2 | 3 | ❌ Failed | — | Dependent on #222 |\n| #226 | Update test fixtures | 2 | ❌ Failed | — | Worktree corruption |\n| #228 | Fix import paths | 1 | ❌ Failed | — | Worktree corruption |\n| #230 | Add migration script | 2 | ✅ Done | #231 | Completed before incident |\n| #232 | Update changelog | 1 | ✅ Done | #233 | Completed before incident |\n\n**Velocity**: 3/14 points completed (11 points lost)\n**Duration**: 1h 05m (sprint aborted)\n**Critical Incident**: Git worktree was deleted by cleanup script during active development\n**Root Cause**: Worktree cleanup cron job ran during sprint execution\n**Data Loss**: ~45 minutes of uncommitted work on #222 lost\n**Recovery**: Sprint aborted, issues returned to backlog\n**Escalations**: 2 (data loss, sprint abort)",
+    "velocityData": "Sprint 21: 6/11 | Sprint 22: 5/15 | Sprint 23: 3/14",
+    "previousImprovements": "Sprint 22 retro: Fixed escalation threshold config",
+    "expected": {
+      "passed": true,
+      "mustContain": ["worktree", "config"],
+      "mustNotContain": ["successful"]
+    }
+  }
+]

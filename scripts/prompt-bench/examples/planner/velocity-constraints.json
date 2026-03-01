@@ -1,0 +1,261 @@
+[
+  {
+    "id": "planner-046",
+    "description": "Exactly at capacity — 21 points from items totaling 21",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #500: Build user dashboard (priority:high, size:l, 8 points, type:story, status:open)\n- #501: Add notification center (priority:high, size:l, 8 points, type:story, status:open)\n- #502: Create settings page (priority:high, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#500", "#501", "#502"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-047",
+    "description": "Over capacity — 30 points available, velocity 21, must leave items out",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #510: Implement search engine (priority:high, size:l, 8 points, type:story, status:open)\n- #511: Add filters UI (priority:high, size:l, 8 points, type:story, status:open)\n- #512: Build search results page (priority:high, size:l, 8 points, type:story, status:open)\n- #513: Add autocomplete suggestions (priority:medium, size:s, 3 points, type:story, status:open)\n- #514: Implement faceted search (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#510", "#511"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-048",
+    "description": "Mix of big and small — optimal packing of 8+8+3+2 = 21",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #520: Build API gateway (priority:high, size:l, 8 points, type:story, status:open)\n- #521: Add rate limiter (priority:high, size:l, 8 points, type:story, status:open)\n- #522: Fix CORS headers (priority:high, size:s, 3 points, type:bug, status:open)\n- #523: Add request tracing header (priority:medium, size:xs, 2 points, type:story, status:open)\n- #524: Build API key management (priority:medium, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#520", "#521", "#522"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-049",
+    "description": "All items are 13 points — can only fit 1",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #530: Rewrite frontend framework (priority:high, size:xl, 13 points, type:story, status:open)\n- #531: Rebuild backend services (priority:high, size:xl, 13 points, type:story, status:open)\n- #532: Redesign database layer (priority:medium, size:xl, 13 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#530"],
+      "mustNotContain": ["#532"]
+    }
+  },
+  {
+    "id": "planner-050",
+    "description": "Velocity is 0 — should select nothing",
+    "sprintNumber": 1,
+    "maxIssues": 6,
+    "velocity": 0,
+    "backlog": "- #540: Add user login (priority:high, size:m, 5 points, type:story, status:open)\n- #541: Build registration flow (priority:high, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": [],
+      "mustNotContain": ["#540", "#541"]
+    }
+  },
+  {
+    "id": "planner-051",
+    "description": "Velocity 1 — only 1-point items fit",
+    "sprintNumber": 2,
+    "maxIssues": 6,
+    "velocity": 1,
+    "backlog": "- #550: Fix typo on homepage (priority:medium, size:xs, 1 point, type:bug, status:open)\n- #551: Add alt text to logo (priority:low, size:xs, 1 point, type:story, status:open)\n- #552: Build analytics dashboard (priority:high, size:l, 8 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#550"],
+      "mustNotContain": ["#552"]
+    }
+  },
+  {
+    "id": "planner-052",
+    "description": "All items are 1 point — maxIssues is the constraint, not velocity",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #560: Fix button color (priority:high, size:xs, 1 point, type:bug, status:open)\n- #561: Fix link underline (priority:high, size:xs, 1 point, type:bug, status:open)\n- #562: Fix icon alignment (priority:medium, size:xs, 1 point, type:bug, status:open)\n- #563: Fix padding on cards (priority:medium, size:xs, 1 point, type:bug, status:open)\n- #564: Fix margin on header (priority:low, size:xs, 1 point, type:bug, status:open)\n- #565: Fix font size on labels (priority:low, size:xs, 1 point, type:bug, status:open)\n- #566: Fix border radius (priority:low, size:xs, 1 point, type:bug, status:open)\n- #567: Fix shadow on modal (priority:low, size:xs, 1 point, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#560", "#561", "#562", "#563"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-053",
+    "description": "Single large item exactly at velocity",
+    "sprintNumber": 5,
+    "maxIssues": 6,
+    "velocity": 13,
+    "backlog": "- #570: Complete platform migration (priority:critical, size:xl, 13 points, type:story, status:open)\n- #571: Update documentation (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#570"],
+      "mustNotContain": ["#571"]
+    }
+  },
+  {
+    "id": "planner-054",
+    "description": "Velocity 3 — must pick small items only",
+    "sprintNumber": 2,
+    "maxIssues": 6,
+    "velocity": 3,
+    "backlog": "- #580: Implement caching layer (priority:high, size:l, 8 points, type:story, status:open)\n- #581: Add Redis connection (priority:high, size:m, 5 points, type:story, status:open)\n- #582: Fix cache invalidation (priority:critical, size:s, 3 points, type:bug, status:open)\n- #583: Add cache metrics (priority:medium, size:xs, 1 point, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#582"],
+      "mustNotContain": ["#580", "#581"]
+    }
+  },
+  {
+    "id": "planner-055",
+    "description": "Greedy vs optimal — 13+5=18 vs 8+8+5=21, should prefer more points",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #590: Rebuild auth system (priority:high, size:xl, 13 points, type:story, status:open)\n- #591: Add session management (priority:high, size:l, 8 points, type:story, status:open)\n- #592: Implement token refresh (priority:high, size:l, 8 points, type:story, status:open)\n- #593: Add MFA enrollment (priority:high, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-056",
+    "description": "Velocity 50 with small backlog — select everything",
+    "sprintNumber": 10,
+    "maxIssues": 6,
+    "velocity": 50,
+    "backlog": "- #600: Add user preferences (priority:high, size:m, 5 points, type:story, status:open)\n- #601: Build theme switcher (priority:medium, size:s, 3 points, type:story, status:open)\n- #602: Add language selector (priority:medium, size:s, 3 points, type:story, status:open)\n- #603: Fix timezone display (priority:high, size:s, 2 points, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#600", "#601", "#602", "#603"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-057",
+    "description": "All items exceed velocity individually — select the smallest that fits",
+    "sprintNumber": 3,
+    "maxIssues": 6,
+    "velocity": 5,
+    "backlog": "- #610: Build reporting engine (priority:high, size:xl, 13 points, type:story, status:open)\n- #611: Create dashboard framework (priority:high, size:l, 8 points, type:story, status:open)\n- #612: Add chart library integration (priority:high, size:m, 5 points, type:story, status:open)\n- #613: Build data export module (priority:medium, size:l, 8 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#612"],
+      "mustNotContain": ["#610", "#611", "#613"]
+    }
+  },
+  {
+    "id": "planner-058",
+    "description": "Tight velocity — 2 points left after high priority, pick small filler",
+    "sprintNumber": 8,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #620: Build inventory management (priority:critical, size:l, 8 points, type:story, status:open)\n- #621: Add stock tracking (priority:high, size:l, 8 points, type:story, status:open)\n- #622: Implement reorder alerts (priority:high, size:s, 3 points, type:story, status:open)\n- #623: Fix stock count display (priority:medium, size:xs, 2 points, type:bug, status:open)\n- #624: Add barcode scanning (priority:medium, size:m, 5 points, type:story, status:open)\n- #625: Update inventory reports (priority:low, size:xs, 1 point, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#620", "#621"],
+      "mustNotContain": ["#624"]
+    }
+  },
+  {
+    "id": "planner-059",
+    "description": "maxIssues is 3 but velocity allows more — respect maxIssues",
+    "sprintNumber": 5,
+    "maxIssues": 3,
+    "velocity": 21,
+    "backlog": "- #630: Add password policy (priority:high, size:s, 3 points, type:story, status:open)\n- #631: Implement account lockout (priority:high, size:s, 3 points, type:story, status:open)\n- #632: Add brute force protection (priority:high, size:s, 3 points, type:story, status:open)\n- #633: Fix login error messages (priority:medium, size:xs, 1 point, type:bug, status:open)\n- #634: Add CAPTCHA on login (priority:medium, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#630", "#631", "#632"],
+      "mustNotContain": ["#633", "#634"]
+    }
+  },
+  {
+    "id": "planner-060",
+    "description": "Velocity 8 — one large item fills it exactly",
+    "sprintNumber": 6,
+    "maxIssues": 6,
+    "velocity": 8,
+    "backlog": "- #640: Build CI/CD pipeline (priority:critical, size:l, 8 points, type:story, status:open)\n- #641: Add staging environment (priority:high, size:m, 5 points, type:story, status:open)\n- #642: Configure deployment scripts (priority:high, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#640"],
+      "mustNotContain": ["#641"]
+    }
+  },
+  {
+    "id": "planner-061",
+    "description": "Velocity 2 — very constrained, only tiny items",
+    "sprintNumber": 1,
+    "maxIssues": 6,
+    "velocity": 2,
+    "backlog": "- #650: Implement full-text search (priority:high, size:l, 8 points, type:story, status:open)\n- #651: Add search indexing (priority:high, size:m, 5 points, type:story, status:open)\n- #652: Fix search encoding bug (priority:critical, size:xs, 1 point, type:bug, status:open)\n- #653: Add search suggestions (priority:medium, size:xs, 1 point, type:story, status:open)\n- #654: Fix search result count (priority:medium, size:xs, 1 point, type:bug, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#652"],
+      "mustNotContain": ["#650", "#651"]
+    }
+  },
+  {
+    "id": "planner-062",
+    "description": "Velocity 34 — generous capacity, pick all high priority first",
+    "sprintNumber": 9,
+    "maxIssues": 6,
+    "velocity": 34,
+    "backlog": "- #660: Build workflow engine (priority:high, size:xl, 13 points, type:story, status:open)\n- #661: Add step editor (priority:high, size:l, 8 points, type:story, status:open)\n- #662: Implement conditions (priority:high, size:l, 8 points, type:story, status:open)\n- #663: Add triggers system (priority:medium, size:m, 5 points, type:story, status:open)\n- #664: Build execution logs (priority:medium, size:s, 3 points, type:story, status:open)\n- #665: Add retry policies (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#660", "#661", "#662"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-063",
+    "description": "Items of 5 points each — velocity 21 means max 4 items",
+    "sprintNumber": 4,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #670: Add webhook support (priority:high, size:m, 5 points, type:story, status:open)\n- #671: Build webhook manager UI (priority:high, size:m, 5 points, type:story, status:open)\n- #672: Add webhook retry logic (priority:high, size:m, 5 points, type:story, status:open)\n- #673: Implement webhook signatures (priority:medium, size:m, 5 points, type:story, status:open)\n- #674: Add webhook event log (priority:medium, size:m, 5 points, type:story, status:open)\n- #675: Build webhook testing tool (priority:low, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#670", "#671", "#672"],
+      "mustNotContain": ["#675"]
+    }
+  },
+  {
+    "id": "planner-064",
+    "description": "One XL critical item leaves room for small items",
+    "sprintNumber": 7,
+    "maxIssues": 6,
+    "velocity": 21,
+    "backlog": "- #680: Fix critical security breach (priority:critical, size:xl, 13 points, type:bug, status:open)\n- #681: Rotate API keys (priority:critical, size:s, 3 points, type:story, status:open)\n- #682: Add security headers (priority:high, size:s, 3 points, type:story, status:open)\n- #683: Implement CSP policy (priority:high, size:s, 2 points, type:story, status:open)\n- #684: Add vulnerability scanner (priority:medium, size:m, 5 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#680", "#681", "#682", "#683"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "planner-065",
+    "description": "Velocity 100 but maxIssues 2 — issue count is the constraint",
+    "sprintNumber": 5,
+    "maxIssues": 2,
+    "velocity": 100,
+    "backlog": "- #690: Build API v2 (priority:high, size:xl, 13 points, type:story, status:open)\n- #691: Migrate clients to v2 (priority:high, size:l, 8 points, type:story, status:open)\n- #692: Deprecate API v1 (priority:medium, size:m, 5 points, type:story, status:open)\n- #693: Update API docs (priority:low, size:s, 3 points, type:story, status:open)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["#690", "#691"],
+      "mustNotContain": ["#692", "#693"]
+    }
+  }
+]

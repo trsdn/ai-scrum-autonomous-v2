@@ -1,0 +1,197 @@
+[
+  {
+    "id": "refine-066",
+    "description": "Vague login broken report",
+    "issueNumber": 401,
+    "ideaTitle": "Login is broken",
+    "ideaBody": "Users can't log in. Getting errors. Please fix ASAP.",
+    "projectContext": "React app with Node.js backend, JWT auth, PostgreSQL",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "login", "repro"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-067",
+    "description": "Wrong data displayed",
+    "issueNumber": 402,
+    "ideaTitle": "Data is wrong on dashboard",
+    "ideaBody": "The numbers on the dashboard don't match what's in the database. Something is off.",
+    "projectContext": "Analytics dashboard with aggregation queries",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "data", "expected"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-068",
+    "description": "Mobile crash report",
+    "issueNumber": 403,
+    "ideaTitle": "App crashes on mobile",
+    "ideaBody": "The app keeps crashing on my phone. I think its an iphone 13. Happens when I try to upload a photo.",
+    "projectContext": "React Native app with image upload feature",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "crash", "mobile"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-069",
+    "description": "Email delivery failure",
+    "issueNumber": 404,
+    "ideaTitle": "Emails not sending",
+    "ideaBody": "Some users say they never received the verification email. Not sure how many are affected.",
+    "projectContext": "Node.js app using SendGrid for transactional emails",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "email"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-070",
+    "description": "Form submission data loss",
+    "issueNumber": 405,
+    "ideaTitle": "Form data disappears",
+    "ideaBody": "Users fill out the long form and when they submit it everything is lost. They have to start over. Super frustrating.",
+    "projectContext": "Multi-step React form with no auto-save",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "form", "data"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-071",
+    "description": "Search returning wrong results",
+    "issueNumber": 406,
+    "ideaTitle": "Search results are wrong",
+    "ideaBody": "When I search for 'annual report 2024' I get results from 2019. The search is definitely broken.",
+    "projectContext": "Document management system with Elasticsearch",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "search", "result"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-072",
+    "description": "Permission escalation bug",
+    "issueNumber": 407,
+    "ideaTitle": "Regular users can access admin pages",
+    "ideaBody": "Found out that regular users can access /admin/settings if they type the URL directly. This is a security issue.",
+    "projectContext": "Express.js app with role-based middleware",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "permission", "security"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-073",
+    "description": "Payment processing failure",
+    "issueNumber": 408,
+    "ideaTitle": "Payments failing randomly",
+    "ideaBody": "About 5% of payments are failing with a generic error. Stripe dashboard shows they should go through. Been happening since last deploy.",
+    "projectContext": "E-commerce site with Stripe integration, Node.js backend",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "payment", "error"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-074",
+    "description": "Timezone display bug",
+    "issueNumber": 409,
+    "ideaTitle": "Times are wrong for some users",
+    "ideaBody": "Users in Europe see wrong times for events. I think it's a timezone thing. Everything shows in UTC.",
+    "projectContext": "Event scheduling app with global users",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "timezone"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-075",
+    "description": "File upload size limit issue",
+    "issueNumber": 410,
+    "ideaTitle": "Large file uploads fail silently",
+    "ideaBody": "When someone tries to upload a file bigger than ~10MB, nothing happens. No error, no progress bar, it just sits there.",
+    "projectContext": "Express.js with multer, nginx reverse proxy",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "upload", "file"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-076",
+    "description": "Session timeout without warning",
+    "issueNumber": 411,
+    "ideaTitle": "Session expires without warning",
+    "ideaBody": "Users get logged out while typing a long post and lose everything. No warning that the session is about to expire.",
+    "projectContext": "React SPA with 30-minute JWT expiry",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "session", "expir"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-077",
+    "description": "Broken image rendering",
+    "issueNumber": 412,
+    "ideaTitle": "Images not loading",
+    "ideaBody": "Some images show as broken on the product pages. Maybe its a CDN issue? Started happening this week.",
+    "projectContext": "E-commerce site with CloudFront CDN for images",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "image"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-078",
+    "description": "Incorrect calculation in reports",
+    "issueNumber": 413,
+    "ideaTitle": "Revenue numbers don't add up",
+    "ideaBody": "Monthly revenue total on the summary page doesn't match the sum of daily revenues. Off by a few hundred dollars. Might be a rounding issue.",
+    "projectContext": "Financial reporting dashboard with PostgreSQL",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "calculat"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-079",
+    "description": "Notification spam bug",
+    "issueNumber": 414,
+    "ideaTitle": "Getting duplicate notifications",
+    "ideaBody": "Users report receiving the same notification 3-4 times. Especially the daily digest email. Very annoying.",
+    "projectContext": "Node.js notification service with Bull queue",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "notification", "duplicate"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-080",
+    "description": "Browser compatibility issue",
+    "issueNumber": 415,
+    "ideaTitle": "Doesn't work in Safari",
+    "ideaBody": "The drag and drop feature doesn't work in Safari. Works fine in Chrome and Firefox. Users on Macs are complaining.",
+    "projectContext": "React app using HTML5 drag and drop API",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "Safari", "browser"],
+      "mustNotContain": []
+    }
+  }
+]

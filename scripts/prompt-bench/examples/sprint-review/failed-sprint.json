@@ -1,0 +1,197 @@
+[
+  {
+    "id": "review-041",
+    "description": "0/6 completed: entire sprint blocked by infrastructure outage",
+    "sprintNumber": 5,
+    "sprintIssues": "- #42: Deploy new microservice to Kubernetes (status:blocked, no PR, 8 points)\n- #43: Set up service mesh with Istio (status:blocked, no PR, 13 points)\n- #44: Configure auto-scaling policies (status:blocked, no PR, 5 points)\n- #45: Add distributed tracing (status:blocked, no PR, 5 points)\n- #46: Set up centralized config management (status:blocked, no PR, 5 points)\n- #47: Create deployment runbook (status:blocked, no PR, 3 points)",
+    "velocityData": "Planned: 39 points, Completed: 0 points. Previous sprint velocity: 28 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "infrastructure"],
+      "mustNotContain": ["successful", "all completed"]
+    }
+  },
+  {
+    "id": "review-042",
+    "description": "1/6 done: critical production incident consumed the sprint",
+    "sprintNumber": 8,
+    "sprintIssues": "- #70: Fix critical data loss bug in production (status:done, PR #80 merged, 13 points)\n- #71: Add database connection pooling (status:in-progress, no PR, 5 points)\n- #72: Implement request queuing (status:not-started, no PR, 8 points)\n- #73: Add circuit breaker pattern (status:not-started, no PR, 5 points)\n- #74: Create load testing suite (status:not-started, no PR, 5 points)\n- #75: Add performance monitoring alerts (status:not-started, no PR, 3 points)",
+    "velocityData": "Planned: 39 points, Completed: 13 points. Previous sprint velocity: 32 points.",
+    "mergedPRs": "- PR #80: Fix critical data loss bug in production",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "production incident"],
+      "mustNotContain": ["successful sprint"]
+    }
+  },
+  {
+    "id": "review-043",
+    "description": "0/5 completed: vendor API broke backward compatibility unexpectedly",
+    "sprintNumber": 11,
+    "sprintIssues": "- #95: Upgrade Twilio SDK to v4 (status:blocked, PR #105 open, 8 points)\n- #96: Update SMS sending logic (status:blocked, no PR, 5 points)\n- #97: Fix voice call routing (status:blocked, no PR, 5 points)\n- #98: Add WhatsApp integration (status:blocked, no PR, 8 points)\n- #99: Update notification preferences for new channels (status:blocked, no PR, 3 points)",
+    "velocityData": "Planned: 29 points, Completed: 0 points. Previous sprint velocity: 25 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "Twilio"],
+      "mustNotContain": ["delivered", "all completed"]
+    }
+  },
+  {
+    "id": "review-044",
+    "description": "1/5 done: major security vulnerability required emergency response",
+    "sprintNumber": 3,
+    "sprintIssues": "- #20: Patch critical XSS vulnerability (status:done, PR #28 merged, 8 points)\n- #21: Add Content Security Policy (status:in-progress, PR #29 open, 5 points)\n- #22: Implement API token rotation (status:not-started, no PR, 8 points)\n- #23: Add dependency vulnerability scanning (status:not-started, no PR, 3 points)\n- #24: Create security incident response plan (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 29 points, Completed: 8 points. Previous sprint velocity: 24 points.",
+    "mergedPRs": "- PR #28: Patch critical XSS vulnerability",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "XSS"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-045",
+    "description": "0/4 completed: team reassigned to support critical client escalation",
+    "sprintNumber": 6,
+    "sprintIssues": "- #50: Build reporting dashboard (status:not-started, no PR, 8 points)\n- #51: Add scheduled report generation (status:not-started, no PR, 5 points)\n- #52: Create custom report builder (status:not-started, no PR, 13 points)\n- #53: Add report sharing via email (status:not-started, no PR, 3 points)",
+    "velocityData": "Planned: 29 points, Completed: 0 points. Previous sprint velocity: 27 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "reassigned"],
+      "mustNotContain": ["successful", "completed"]
+    }
+  },
+  {
+    "id": "review-046",
+    "description": "1/6 done: database migration failure caused cascading issues",
+    "sprintNumber": 10,
+    "sprintIssues": "- #88: Run PostgreSQL 14 to 16 upgrade (status:done, PR #98 merged, 8 points)\n- #89: Fix broken queries after upgrade (status:in-progress, PR #99 open, 8 points)\n- #90: Update connection string handling (status:in-progress, no PR, 3 points)\n- #91: Add new partitioning strategy (status:blocked, no PR, 8 points)\n- #92: Implement read replica routing (status:blocked, no PR, 5 points)\n- #93: Add query performance monitoring (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 37 points, Completed: 8 points. Previous sprint velocity: 30 points.",
+    "mergedPRs": "- PR #98: Run PostgreSQL 14 to 16 upgrade",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "PostgreSQL"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-047",
+    "description": "0/5 completed: key engineer left mid-sprint, knowledge gap",
+    "sprintNumber": 7,
+    "sprintIssues": "- #62: Refactor payment processing engine (status:in-progress, PR #72 open, 13 points)\n- #63: Add multi-currency support (status:not-started, no PR, 8 points)\n- #64: Implement payment reconciliation (status:not-started, no PR, 8 points)\n- #65: Add tax calculation service (status:not-started, no PR, 5 points)\n- #66: Create financial reporting module (status:not-started, no PR, 8 points)",
+    "velocityData": "Planned: 42 points, Completed: 0 points. Previous sprint velocity: 35 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "knowledge"],
+      "mustNotContain": ["delivered", "successful"]
+    }
+  },
+  {
+    "id": "review-048",
+    "description": "1/7 done: cloud provider migration hit unexpected compatibility issues",
+    "sprintNumber": 13,
+    "sprintIssues": "- #120: Set up new GCP project and IAM (status:done, PR #130 merged, 5 points)\n- #121: Migrate compute instances from AWS to GCP (status:in-progress, PR #131 open, 13 points)\n- #122: Move S3 buckets to Cloud Storage (status:in-progress, no PR, 8 points)\n- #123: Migrate RDS to Cloud SQL (status:blocked, no PR, 8 points)\n- #124: Update DNS and load balancer config (status:not-started, no PR, 5 points)\n- #125: Migrate Lambda functions to Cloud Functions (status:not-started, no PR, 8 points)\n- #126: Update monitoring from CloudWatch to Stackdriver (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 52 points, Completed: 5 points. Previous sprint velocity: 30 points.",
+    "mergedPRs": "- PR #130: Set up new GCP project and IAM",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "GCP"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-049",
+    "description": "0/4 completed: regulatory compliance deadline forced priority change",
+    "sprintNumber": 9,
+    "sprintIssues": "- #82: Build customer data export tool (status:in-progress, PR #92 open, 8 points)\n- #83: Implement data retention policies (status:in-progress, no PR, 5 points)\n- #84: Add consent management platform (status:not-started, no PR, 8 points)\n- #85: Create GDPR compliance audit trail (status:not-started, no PR, 8 points)",
+    "velocityData": "Planned: 29 points, Completed: 0 points. Previous sprint velocity: 26 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "compliance"],
+      "mustNotContain": ["successful", "all completed"]
+    }
+  },
+  {
+    "id": "review-050",
+    "description": "1/5 done: core framework upgrade broke half the test suite",
+    "sprintNumber": 4,
+    "sprintIssues": "- #33: Upgrade React from v17 to v18 (status:done, PR #41 merged, 5 points)\n- #34: Fix broken component tests (status:in-progress, PR #42 open, 13 points)\n- #35: Update deprecated lifecycle methods (status:in-progress, no PR, 8 points)\n- #36: Migrate class components to hooks (status:not-started, no PR, 8 points)\n- #37: Update E2E test selectors (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 39 points, Completed: 5 points. Previous sprint velocity: 28 points.",
+    "mergedPRs": "- PR #41: Upgrade React from v17 to v18",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "React"],
+      "mustNotContain": ["all delivered"]
+    }
+  },
+  {
+    "id": "review-051",
+    "description": "0/6 completed: network connectivity issues in dev environment",
+    "sprintNumber": 2,
+    "sprintIssues": "- #12: Set up VPN tunnel to partner network (status:blocked, no PR, 8 points)\n- #13: Configure firewall rules for API access (status:blocked, no PR, 5 points)\n- #14: Test connectivity to partner endpoints (status:blocked, no PR, 3 points)\n- #15: Implement partner data sync (status:blocked, no PR, 8 points)\n- #16: Add partner API error handling (status:blocked, no PR, 5 points)\n- #17: Create partner integration dashboard (status:blocked, no PR, 5 points)",
+    "velocityData": "Planned: 34 points, Completed: 0 points. Previous sprint velocity: 20 points.",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "VPN"],
+      "mustNotContain": ["delivered", "completed"]
+    }
+  },
+  {
+    "id": "review-052",
+    "description": "1/5 done: critical dependency had breaking change in patch release",
+    "sprintNumber": 14,
+    "sprintIssues": "- #132: Pin dependency versions in lockfile (status:done, PR #142 merged, 2 points)\n- #133: Fix webpack build after esbuild update (status:in-progress, PR #143 open, 8 points)\n- #134: Update test framework compatibility (status:in-progress, no PR, 5 points)\n- #135: Fix TypeScript compilation errors (status:blocked, no PR, 8 points)\n- #136: Restore CI pipeline after tool breakage (status:blocked, no PR, 5 points)",
+    "velocityData": "Planned: 28 points, Completed: 2 points. Previous sprint velocity: 25 points.",
+    "mergedPRs": "- PR #142: Pin dependency versions in lockfile",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "dependency"],
+      "mustNotContain": ["successful sprint"]
+    }
+  },
+  {
+    "id": "review-053",
+    "description": "0/3 completed: hardware provisioning delays blocked all work",
+    "sprintNumber": 1,
+    "sprintIssues": "- #1: Provision GPU instances for ML training (status:blocked, no PR, 8 points)\n- #2: Set up MLflow experiment tracking (status:blocked, no PR, 5 points)\n- #3: Create training data pipeline (status:blocked, no PR, 13 points)",
+    "velocityData": "Planned: 26 points, Completed: 0 points. No previous sprint data (first sprint).",
+    "mergedPRs": "",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "GPU"],
+      "mustNotContain": ["delivered", "completed"]
+    }
+  },
+  {
+    "id": "review-054",
+    "description": "1/6 done: scope dramatically underestimated for data migration",
+    "sprintNumber": 12,
+    "sprintIssues": "- #110: Analyze legacy database schema (status:done, PR #118 merged, 5 points)\n- #111: Write data transformation scripts (status:in-progress, PR #119 open, 13 points)\n- #112: Handle edge cases in legacy data (status:in-progress, no PR, 8 points)\n- #113: Validate migrated data integrity (status:not-started, no PR, 8 points)\n- #114: Create rollback procedure (status:not-started, no PR, 5 points)\n- #115: Run migration on staging (status:not-started, no PR, 3 points)",
+    "velocityData": "Planned: 42 points, Completed: 5 points. Previous sprint velocity: 28 points.",
+    "mergedPRs": "- PR #118: Analyze legacy database schema",
+    "expected": {
+      "passed": true,
+      "mustContain": ["failed", "underestimated"],
+      "mustNotContain": ["all completed"]
+    }
+  },
+  {
+    "id": "review-055",
+    "description": "1/5 done: API rate limiting from upstream provider halted development",
+    "sprintNumber": 15,
+    "sprintIssues": "- #145: Implement caching layer for API responses (status:done, PR #155 merged, 5 points)\n- #146: Add batch request support (status:in-progress, PR #156 open, 8 points)\n- #147: Implement request throttling (status:blocked, no PR, 5 points)\n- #148: Add fallback data sources (status:not-started, no PR, 8 points)\n- #149: Create API usage monitoring dashboard (status:not-started, no PR, 5 points)",
+    "velocityData": "Planned: 31 points, Completed: 5 points. Previous sprint velocity: 26 points.",
+    "mergedPRs": "- PR #155: Implement caching layer for API responses",
+    "expected": {
+      "passed": true,
+      "mustContain": ["blocked", "rate limit"],
+      "mustNotContain": ["successful", "all delivered"]
+    }
+  }
+]

@@ -1,0 +1,167 @@
+[
+  {
+    "id": "challenge-056",
+    "description": "Friday afternoon production deployment — should identify risk",
+    "decision": "Deployment Plan: We'll deploy the new billing system to production this Friday at 4 PM. The feature has been tested in staging all week and everything looks good. We want to get it out before the weekend so customers can start using it Monday morning. The on-call engineer (Jake) will be available until 6 PM to monitor the deployment. If anything goes wrong over the weekend, the on-call pager will alert the team.",
+    "context": "The billing system processes $2M in monthly transactions. Friday is the highest-traffic day (30% more than weekday average). The on-call rotation has 2 engineers, but one is at a wedding this weekend. Jake (the available on-call) has never debugged a billing issue before. Last deployment required 2 hours of post-deploy monitoring and 3 config adjustments.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "Friday"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-057",
+    "description": "Removing error handling for simplicity — should identify risk",
+    "decision": "Simplification Proposal: Remove the retry logic and circuit breaker from the external payment gateway integration. These were added 'defensively' but in 6 months we've never seen the circuit breaker trip. The retry logic adds complexity to the codebase and makes debugging harder because errors are swallowed and retried silently. Removing them simplifies the payment flow from 120 lines to 40 lines. If the gateway is down, we'll just return a 502 to the user and they can retry manually.",
+    "context": "Payment gateway has 99.95% uptime SLA. However, the gateway had a 2-hour partial outage 8 months ago (before the circuit breaker was added). The retry logic has saved ~200 transactions from failing during brief network blips over the last 6 months (visible in logs). Monthly transaction volume: 50,000.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-058",
+    "description": "Using alpha dependency in production — should identify risk",
+    "decision": "Technology Decision: We'll use the new ORM library 'TurboDB' (v0.3.0-alpha) for the analytics service. It offers 3x faster query generation than our current ORM, has a cleaner API, and the maintainer is very responsive on Discord. We've tested it with our query patterns and it works great. The alpha status is just because the maintainer hasn't written all the documentation yet — the core functionality is stable. We'll pin the version to avoid breaking changes.",
+    "context": "TurboDB has 450 GitHub stars, 2 contributors, and was first released 4 months ago. The last release was 3 weeks ago. The npm download count is ~200/week. Our current ORM (Prisma) has 35k stars and is used in production by thousands of companies. The analytics service will process customer financial data.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "alpha"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-059",
+    "description": "Skipping code review for 'simple' changes — should identify risk",
+    "decision": "Process Proposal: Database migrations should be exempt from code review since they're 'just SQL.' Our DBA writes all migrations and she's been doing this for 8 years without issues. Requiring another engineer to review SQL they don't fully understand adds 4-6 hours of delay per migration. We'll skip reviews for migrations and deploy them directly after the DBA approves. This applies to schema changes, data migrations, and index modifications.",
+    "context": "Last quarter: 12 migrations deployed, 1 caused a 15-minute outage (missing index on a JOIN column that wasn't caught until production traffic hit it). The DBA is the only person who understands the full schema. Team has 5 engineers, 2 have strong SQL skills. Migrations run against a database with 5M rows across 30 tables.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "review"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-060",
+    "description": "Single point of failure in architecture — should identify risk",
+    "decision": "Architecture for Event Processing: All events (user actions, system alerts, billing events, analytics) will flow through a single Redis instance that acts as the message broker. Consumers read from Redis streams and process events. We chose Redis over Kafka because it's simpler to operate and we already use Redis for caching. The Redis instance will be a single r6g.large with 26GB memory. No clustering or replication — that adds operational complexity we don't need at our scale.",
+    "context": "Expected event volume: 10,000 events/minute, growing 20% monthly. Events include billing triggers (charges, refunds) and compliance audit logs that legally cannot be lost. Redis is also used for session storage and caching (currently using 4GB of the 13GB instance). No dedicated infrastructure team — the 4-person dev team manages all infrastructure.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "single point of failure"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-061",
+    "description": "Deploying without health checks or readiness probes — should identify risk",
+    "decision": "Kubernetes Deployment: We'll deploy the new service with a simple Deployment manifest. No readiness probes, liveness probes, or startup probes — these are over-engineering for our use case. The service starts up in 2 seconds and if it crashes, Kubernetes will restart it automatically. We'll use a simple 'replicas: 2' for availability. Resource limits aren't needed since we have plenty of cluster capacity. The service handles user authentication for all API requests.",
+    "context": "Production Kubernetes cluster runs 12 services. Authentication service handles 5,000 requests/minute. The service connects to PostgreSQL on startup — if the DB is temporarily unavailable, the service starts but can't serve requests. Previous service deployments without probes caused 30-second windows of 503 errors during rolling updates.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-062",
+    "description": "Granting admin access to all developers — should identify risk",
+    "decision": "Access Control Simplification: Instead of managing granular IAM roles, all 8 developers will get admin access to the production AWS account. This eliminates the constant 'I need access to X' requests that slow down development. Currently, requesting access takes 2-3 days through the security team. With admin access, developers can debug production issues faster and deploy without waiting for permissions. We trust our team — they're all senior engineers who know what they're doing.",
+    "context": "Production AWS account runs 15 services, 3 databases, and stores customer PII for 200k users. The company is pursuing SOC 2 certification. Last month, a developer accidentally deleted a staging S3 bucket thinking it was a test bucket. Compliance audit is scheduled for next quarter.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "access"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-063",
+    "description": "No rate limiting on public API — should identify risk",
+    "decision": "API Launch Plan: We're launching our public API next week for third-party integrations. The API will be documented on our developer portal with API key authentication. We're not implementing rate limiting for the initial launch — we want to be 'developer-friendly' and not restrict usage. If someone abuses the API, we'll reach out to them directly. Our infrastructure can handle the load since we only expect 50-100 API consumers in the first month.",
+    "context": "The API provides access to user data, analytics, and billing information. API keys are self-service (anyone can generate one). The backend runs on 3 application servers with auto-scaling up to 6. Database connection pool is limited to 100 connections. One competitor's API was recently taken down by a bot that made 1M requests in an hour.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "rate limit"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-064",
+    "description": "Using shared credentials across environments — should identify risk",
+    "decision": "Credential Management: To simplify our setup, we'll use the same database credentials across development, staging, and production environments. This means developers can connect to staging for debugging without needing separate credentials. The production database is on a different server, so even if someone accidentally connects to the wrong environment, the hostname difference will prevent data corruption. We'll document which hostname is production in the team wiki.",
+    "context": "Team of 6 developers. Production database contains customer PII and payment data. Two incidents in the last year involved developers running scripts against the wrong environment. The staging database has a similar schema but synthetic data. No VPN is required to connect to any environment.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "credential"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-065",
+    "description": "Removing automated tests to speed up CI — should identify risk",
+    "decision": "CI Optimization: Our CI pipeline takes 18 minutes, which is too slow. Proposal: remove the end-to-end test suite (currently 45 tests, takes 8 minutes) and the performance benchmark suite (12 tests, takes 4 minutes). This brings CI down to 6 minutes. The e2e tests are flaky anyway — 3 of them fail intermittently due to timing issues. We'll rely on unit tests (280 tests, 4 minutes) and integration tests (35 tests, 2 minutes) for quality. Manual QA before each release will catch anything the automated tests miss.",
+    "context": "The e2e test suite has caught 7 bugs in the last quarter that unit and integration tests missed. Three of those were cross-service interaction bugs. The performance benchmarks caught a 5x latency regression last month before it reached production. The team releases twice per week. QA team consists of 1 person who is also the product owner.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "test"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-066",
+    "description": "Disabling HTTPS for internal services — should identify risk",
+    "decision": "Infrastructure Simplification: Disable TLS/HTTPS for all internal service-to-service communication within our Kubernetes cluster. Currently, each service has its own TLS certificate, and managing certificate rotation is a burden. Since all traffic stays within the cluster network, encryption is unnecessary overhead — it adds 2ms latency per request and complicates debugging with tools like tcpdump. We'll keep HTTPS only for the public-facing API gateway. Internal services will communicate over plain HTTP.",
+    "context": "Kubernetes cluster on AWS EKS with 12 services. Services transmit user PII, authentication tokens, and payment data internally. The cluster network is a VPC with no public IPs on internal services. However, 3 third-party monitoring agents have access to the cluster network. Company security policy requires encryption in transit, but the CTO is willing to make an exception.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "security"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-067",
+    "description": "Caching sensitive data without TTL — should identify risk",
+    "decision": "Performance Improvement: Cache user session data and permissions in Redis without a TTL (time-to-live). Currently, every API request queries the database for user permissions, adding 15ms latency. By caching indefinitely, we reduce this to <1ms after the first request. When permissions change, we'll invalidate the cache manually. Since permission changes are rare (2-3 times per month for our user base), indefinite caching is efficient. We'll build an admin tool for manual cache invalidation.",
+    "context": "Application has 15k active users with 8 permission roles. Permission checks happen on every authenticated request (50k/hour). Redis instance is shared with session storage and rate limiting. Last month, a bug in the cache invalidation logic for session tokens left 3 users logged in after password reset for 2 hours.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-068",
+    "description": "No disaster recovery plan for critical service — should identify risk",
+    "decision": "Launch Plan for Payment Processing Service: We'll deploy to a single AWS region (us-east-1) with auto-scaling and a managed database. No multi-region setup — it's too expensive and complex for our current scale. If us-east-1 goes down, we'll wait for AWS to recover. Historically, us-east-1 has had only 2 major outages in the last 3 years. Our SLA with customers allows up to 4 hours of downtime per month. We'll add multi-region later when revenue justifies the cost.",
+    "context": "Payment processing service handles $5M/month in transactions. Customer contracts include a 99.9% uptime SLA (43 minutes/month allowed downtime). The last us-east-1 outage lasted 6 hours and affected major services including Slack, Notion, and Vercel. The service has no offline mode or queuing mechanism — if it's down, transactions are lost.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "disaster recovery"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-069",
+    "description": "Running database migrations during peak hours — should identify risk",
+    "decision": "Database Migration Schedule: We'll run the schema migration (adding 3 new indexes and 2 column alterations on the orders table) at 2 PM EST on Wednesday, which is during business hours but allows us to have the full team available for troubleshooting. The migration should take about 15 minutes. We'll use 'ALTER TABLE ... ADD INDEX' which acquires a table lock on the orders table. The application will queue orders during the migration and process them after.",
+    "context": "The orders table has 12M rows and processes 500 inserts/minute during peak hours (1-4 PM EST). Peak hours account for 40% of daily revenue. The application has no graceful degradation for database locks — requests will time out and return 500 errors. Wednesday is the highest-traffic day of the week. Last migration at 3 AM took 20 minutes with zero impact.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "peak"],
+      "mustNotContain": ["APPROVE"]
+    }
+  },
+  {
+    "id": "challenge-070",
+    "description": "Trusting client-side validation only — should identify risk",
+    "decision": "Form Validation Strategy: For the new checkout flow, we'll implement validation entirely on the client side using React Hook Form with Zod schemas. This provides instant feedback to users without server round-trips. Server-side validation is redundant since the same Zod schemas are used on both sides — if the client validates, the server doesn't need to validate again. Removing server-side validation simplifies the API handlers and reduces response times by 5-10ms. We'll keep server-side validation only for authentication endpoints.",
+    "context": "Checkout flow processes credit card payments. The API is publicly accessible. Form fields include: name, email, shipping address, card number, CVV, and coupon codes. Coupon codes have monetary value up to $500. The application has had 2 incidents of bot attacks exploiting API endpoints directly (bypassing the frontend) in the last 6 months.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["risk", "validation"],
+      "mustNotContain": ["APPROVE"]
+    }
+  }
+]

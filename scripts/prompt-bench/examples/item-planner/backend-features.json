@@ -1,0 +1,262 @@
+[
+  {
+    "id": "itemplan-021",
+    "description": "Plan for CRUD REST API for blog posts",
+    "issueNumber": 201,
+    "issueTitle": "Create CRUD API endpoints for blog posts",
+    "acceptanceCriteria": "- GET /api/posts (list with pagination)\n- GET /api/posts/:id (single post)\n- POST /api/posts (create, auth required)\n- PUT /api/posts/:id (update, owner only)\n- DELETE /api/posts/:id (soft delete)\n- Input validation on create/update",
+    "codebaseContext": "Express 4 + TypeScript + Prisma. Files: src/routes/posts.ts, src/controllers/postController.ts, src/models/post.ts, prisma/schema.prisma. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["route", "controller", "validation", "test"],
+      "mustNotContain": ["mongoose"]
+    }
+  },
+  {
+    "id": "itemplan-022",
+    "description": "Plan for JWT authentication middleware",
+    "issueNumber": 202,
+    "issueTitle": "Implement JWT authentication middleware",
+    "acceptanceCriteria": "- POST /api/auth/login returns JWT access + refresh tokens\n- POST /api/auth/refresh rotates refresh token\n- Middleware validates JWT on protected routes\n- Token expiry: access 15min, refresh 7 days\n- Invalid/expired tokens return 401",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/middleware/auth.ts, src/routes/auth.ts, src/utils/jwt.ts, src/types/auth.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["JWT", "middleware", "refresh", "test"],
+      "mustNotContain": ["session cookie"]
+    }
+  },
+  {
+    "id": "itemplan-023",
+    "description": "Plan for database migration adding user roles",
+    "issueNumber": 203,
+    "issueTitle": "Add role-based access control to users table",
+    "acceptanceCriteria": "- Migration adds 'role' column (enum: admin, editor, viewer)\n- Default role is 'viewer'\n- Existing users backfilled to 'viewer'\n- Migration is reversible\n- Role check middleware for protected endpoints",
+    "codebaseContext": "Fastify + Knex.js + PostgreSQL. Files: src/db/migrations/, src/middleware/rbac.ts, src/models/user.ts, knexfile.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["migration", "role", "middleware", "test"],
+      "mustNotContain": ["MongoDB"]
+    }
+  },
+  {
+    "id": "itemplan-024",
+    "description": "Plan for rate limiting on API endpoints",
+    "issueNumber": 204,
+    "issueTitle": "Implement rate limiting for public API",
+    "acceptanceCriteria": "- 100 requests per minute per IP for public endpoints\n- 1000 requests per minute for authenticated users\n- Rate limit headers in response (X-RateLimit-*)\n- 429 Too Many Requests with retry-after header\n- Redis-backed for multi-instance support",
+    "codebaseContext": "Express 4 + Redis. Files: src/middleware/rateLimit.ts, src/config/limits.ts, src/utils/redis.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["rate limit", "Redis", "429", "test"],
+      "mustNotContain": ["in-memory only"]
+    }
+  },
+  {
+    "id": "itemplan-025",
+    "description": "Plan for webhook integration for payment events",
+    "issueNumber": 205,
+    "issueTitle": "Add Stripe webhook handler for payment events",
+    "acceptanceCriteria": "- POST /api/webhooks/stripe endpoint\n- Signature verification using Stripe secret\n- Handle: payment_intent.succeeded, payment_intent.failed, charge.refunded\n- Idempotent processing (skip duplicate events)\n- Event logging for audit trail",
+    "codebaseContext": "Express 4 + Stripe SDK. Files: src/routes/webhooks.ts, src/services/paymentService.ts, src/models/payment.ts, src/utils/stripe.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["webhook", "signature", "idempotent", "test"],
+      "mustNotContain": ["polling"]
+    }
+  },
+  {
+    "id": "itemplan-026",
+    "description": "Plan for file upload API with S3 storage",
+    "issueNumber": 206,
+    "issueTitle": "Implement file upload endpoint with S3 backend",
+    "acceptanceCriteria": "- POST /api/uploads accepts multipart/form-data\n- Max file size: 10MB\n- Allowed types: image/jpeg, image/png, application/pdf\n- Files stored in S3 with UUID filenames\n- Returns signed URL for download\n- Virus scan before storage",
+    "codebaseContext": "Fastify + AWS SDK v3 + multer. Files: src/routes/uploads.ts, src/services/s3Service.ts, src/middleware/upload.ts, src/config/aws.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["S3", "validation", "multipart", "test"],
+      "mustNotContain": ["local filesystem storage"]
+    }
+  },
+  {
+    "id": "itemplan-027",
+    "description": "Plan for GraphQL API layer over existing REST services",
+    "issueNumber": 207,
+    "issueTitle": "Add GraphQL API for mobile clients",
+    "acceptanceCriteria": "- Schema covers User, Post, Comment types\n- Query: users, posts with pagination\n- Mutation: createPost, updatePost, addComment\n- DataLoader for N+1 query prevention\n- Authentication via context from JWT header",
+    "codebaseContext": "Node.js + Apollo Server 4. Files: src/graphql/schema.ts, src/graphql/resolvers/, src/graphql/dataloaders.ts, src/graphql/context.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["schema", "resolver", "DataLoader", "test"],
+      "mustNotContain": ["REST endpoint"]
+    }
+  },
+  {
+    "id": "itemplan-028",
+    "description": "Plan for background job queue with Bull",
+    "issueNumber": 208,
+    "issueTitle": "Implement background job processing with Bull",
+    "acceptanceCriteria": "- Email sending processed asynchronously\n- Job retry with exponential backoff (3 attempts)\n- Dead letter queue for failed jobs\n- Dashboard endpoint for job monitoring\n- Graceful shutdown: finish current jobs before exit",
+    "codebaseContext": "Express 4 + BullMQ + Redis. Files: src/jobs/emailJob.ts, src/queues/emailQueue.ts, src/workers/emailWorker.ts, src/config/bull.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["queue", "retry", "worker", "test"],
+      "mustNotContain": ["setTimeout"]
+    }
+  },
+  {
+    "id": "itemplan-029",
+    "description": "Plan for health check and readiness endpoints",
+    "issueNumber": 209,
+    "issueTitle": "Add health check and readiness probe endpoints",
+    "acceptanceCriteria": "- GET /health returns 200 if server running\n- GET /ready checks DB connection, Redis, external APIs\n- Response includes individual check status\n- Kubernetes-compatible response format\n- Timeout: individual checks fail after 5s",
+    "codebaseContext": "Fastify + PostgreSQL + Redis. Files: src/routes/health.ts, src/services/healthChecks.ts, src/types/health.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["health", "readiness", "database", "test"],
+      "mustNotContain": ["process.exit"]
+    }
+  },
+  {
+    "id": "itemplan-030",
+    "description": "Plan for API versioning strategy implementation",
+    "issueNumber": 210,
+    "issueTitle": "Implement API versioning with URL prefix",
+    "acceptanceCriteria": "- Routes prefixed with /api/v1/ and /api/v2/\n- V1 remains backward compatible\n- V2 introduces new response format\n- Deprecation header on v1 responses\n- Version-specific middleware stacks\n- Documentation updated for both versions",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/routes/v1/, src/routes/v2/, src/middleware/versioning.ts, src/app.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["version", "backward compatible", "deprecat", "test"],
+      "mustNotContain": ["breaking change"]
+    }
+  },
+  {
+    "id": "itemplan-031",
+    "description": "Plan for audit logging middleware",
+    "issueNumber": 211,
+    "issueTitle": "Add audit logging for all write operations",
+    "acceptanceCriteria": "- Log all POST/PUT/PATCH/DELETE requests\n- Capture: user, action, resource, timestamp, IP\n- Stored in separate audit_logs table\n- Queryable via admin API endpoint\n- Sensitive fields (password, tokens) redacted",
+    "codebaseContext": "Express 4 + Prisma + PostgreSQL. Files: src/middleware/auditLog.ts, prisma/schema.prisma, src/routes/admin/audit.ts, src/utils/redact.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["audit", "redact", "middleware", "test"],
+      "mustNotContain": ["console.log"]
+    }
+  },
+  {
+    "id": "itemplan-032",
+    "description": "Plan for caching layer with Redis",
+    "issueNumber": 212,
+    "issueTitle": "Implement Redis caching for expensive queries",
+    "acceptanceCriteria": "- Cache GET /api/products/popular (TTL: 5 min)\n- Cache GET /api/stats/dashboard (TTL: 1 min)\n- Cache invalidation on relevant POST/PUT/DELETE\n- Cache-Control headers in response\n- Graceful fallback to DB if Redis unavailable",
+    "codebaseContext": "Fastify + ioredis + PostgreSQL. Files: src/middleware/cache.ts, src/services/cacheService.ts, src/config/redis.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["cache", "TTL", "invalidat", "test"],
+      "mustNotContain": ["in-memory Map"]
+    }
+  },
+  {
+    "id": "itemplan-033",
+    "description": "Plan for Django REST API with serializers",
+    "issueNumber": 213,
+    "issueTitle": "Build REST API for inventory management",
+    "acceptanceCriteria": "- ModelViewSet for Product, Category, Supplier\n- Nested serializers for related objects\n- Filter by category, price range, availability\n- Permission classes: IsAuthenticated, IsAdminUser\n- Pagination: 50 items per page",
+    "codebaseContext": "Django 5 + Django REST Framework. Files: api/views.py, api/serializers.py, api/models.py, api/urls.py, api/permissions.py. Uses pytest + factory_boy.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["serializer", "ViewSet", "permission", "test"],
+      "mustNotContain": ["Express"]
+    }
+  },
+  {
+    "id": "itemplan-034",
+    "description": "Plan for server-sent events for live notifications",
+    "issueNumber": 214,
+    "issueTitle": "Implement SSE endpoint for real-time notifications",
+    "acceptanceCriteria": "- GET /api/notifications/stream returns SSE stream\n- Events: new_message, order_update, system_alert\n- Per-user event filtering\n- Automatic reconnection handling\n- Connection cleanup on client disconnect",
+    "codebaseContext": "Express 4 + TypeScript. Files: src/routes/notifications.ts, src/services/sseManager.ts, src/events/eventBus.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["SSE", "stream", "event", "test"],
+      "mustNotContain": ["WebSocket"]
+    }
+  },
+  {
+    "id": "itemplan-035",
+    "description": "Plan for API key management system",
+    "issueNumber": 215,
+    "issueTitle": "Build API key creation and management endpoints",
+    "acceptanceCriteria": "- POST /api/keys creates new API key (shown once)\n- GET /api/keys lists user's keys (masked)\n- DELETE /api/keys/:id revokes a key\n- Keys hashed with bcrypt before storage\n- Rate limiting per API key\n- Usage tracking per key",
+    "codebaseContext": "Fastify + Prisma + PostgreSQL. Files: src/routes/apiKeys.ts, src/services/apiKeyService.ts, src/middleware/apiKeyAuth.ts, prisma/schema.prisma. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["hash", "API key", "revoke", "test"],
+      "mustNotContain": ["plaintext"]
+    }
+  },
+  {
+    "id": "itemplan-036",
+    "description": "Plan for multi-tenant data isolation",
+    "issueNumber": 216,
+    "issueTitle": "Implement multi-tenant data isolation with row-level security",
+    "acceptanceCriteria": "- tenant_id column on all relevant tables\n- Middleware extracts tenant from JWT\n- All queries scoped to current tenant\n- Prevent cross-tenant data access\n- Admin users can access all tenants\n- Migration adds tenant_id to existing rows",
+    "codebaseContext": "Express 4 + Knex.js + PostgreSQL. Files: src/middleware/tenant.ts, src/db/migrations/, src/models/base.ts, src/utils/tenantScope.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["tenant", "isolation", "migration", "test"],
+      "mustNotContain": ["separate databases"]
+    }
+  },
+  {
+    "id": "itemplan-037",
+    "description": "Plan for request validation with Zod schemas",
+    "issueNumber": 217,
+    "issueTitle": "Add request validation middleware using Zod",
+    "acceptanceCriteria": "- Validate body, query params, and path params\n- Return 400 with structured error messages\n- Error messages include field path and constraint\n- Schemas co-located with route definitions\n- Type inference from schemas to handlers",
+    "codebaseContext": "Express 4 + Zod + TypeScript. Files: src/middleware/validate.ts, src/schemas/user.ts, src/schemas/post.ts, src/routes/users.ts. Uses vitest + supertest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["Zod", "validation", "400", "test"],
+      "mustNotContain": ["Joi"]
+    }
+  },
+  {
+    "id": "itemplan-038",
+    "description": "Plan for scheduled task runner with cron",
+    "issueNumber": 218,
+    "issueTitle": "Implement scheduled tasks for data cleanup and reports",
+    "acceptanceCriteria": "- Daily: purge expired sessions\n- Weekly: generate usage report email\n- Configurable schedules via environment variables\n- Distributed lock to prevent duplicate runs\n- Logging for each task execution with duration",
+    "codebaseContext": "Node.js + node-cron + Redis. Files: src/scheduler/index.ts, src/scheduler/tasks/purgeExpired.ts, src/scheduler/tasks/usageReport.ts, src/utils/distributedLock.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["cron", "lock", "schedule", "test"],
+      "mustNotContain": ["setInterval"]
+    }
+  },
+  {
+    "id": "itemplan-039",
+    "description": "Plan for Rails API endpoint with ActiveRecord",
+    "issueNumber": 219,
+    "issueTitle": "Build order management API in Rails",
+    "acceptanceCriteria": "- POST /api/orders creates order with line items\n- GET /api/orders/:id returns order with associations\n- PATCH /api/orders/:id/status updates order status\n- State machine: pending → confirmed → shipped → delivered\n- Validates stock availability before confirming",
+    "codebaseContext": "Rails 7 API mode + PostgreSQL. Files: app/controllers/api/orders_controller.rb, app/models/order.rb, app/models/line_item.rb, app/serializers/order_serializer.rb. Uses RSpec + FactoryBot.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["controller", "model", "state", "test"],
+      "mustNotContain": ["Express"]
+    }
+  },
+  {
+    "id": "itemplan-040",
+    "description": "Plan for structured logging with correlation IDs",
+    "issueNumber": 220,
+    "issueTitle": "Add structured logging with request correlation",
+    "acceptanceCriteria": "- Each request gets unique correlation ID (X-Request-ID header)\n- Correlation ID propagated to all log entries\n- JSON log format with timestamp, level, message, context\n- Log levels configurable per environment\n- Sensitive data masked in logs",
+    "codebaseContext": "Express 4 + pino. Files: src/middleware/requestId.ts, src/utils/logger.ts, src/config/logging.ts, src/middleware/requestLogger.ts. Uses vitest.",
+    "expected": {
+      "passed": true,
+      "mustContain": ["correlation", "pino", "structured", "test"],
+      "mustNotContain": ["console.log"]
+    }
+  }
+]

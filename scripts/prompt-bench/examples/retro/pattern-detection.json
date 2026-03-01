@@ -1,0 +1,197 @@
+[
+  {
+    "id": "retro-071",
+    "description": "Same lint failure pattern across 3 consecutive sprints",
+    "sprintNumber": 9,
+    "sprintResults": "## Sprint 9 Results\n\n| Issue | Title | Points | Status | PR | QG Failure |\n|-------|-------|--------|--------|----|----||\n| #80 | Add config loader | 2 | ✅ Done | #81 | 1 retry — unused import |\n| #82 | Add env parser | 2 | ✅ Done | #83 | 1 retry — unused import |\n| #84 | Add secret manager | 3 | ✅ Done | #85 | 2 retries — unused imports |\n| #86 | Add feature flags | 2 | ✅ Done | #87 | 1 retry — unused import |\n| #88 | Add config watcher | 2 | ✅ Done | #89 | Pass first try |\n| #90 | Update defaults | 1 | ✅ Done | #91 | Pass first try |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 45m (estimated 1h 15m)\n**Recurring Pattern**: Unused import lint failures\n- Sprint 7: 3/6 issues had unused import failures\n- Sprint 8: 4/6 issues had unused import failures\n- Sprint 9: 4/6 issues had unused import failures\n**Total Retries from Pattern**: 16 across 3 sprints\n**Root Cause**: Agent adds speculative imports that aren't used",
+    "velocityData": "Sprint 7: 11/12 | Sprint 8: 12/12 | Sprint 9: 12/12",
+    "previousImprovements": "Sprint 7 retro: 'Fix lint issues' (too vague, didn't address root cause)\nSprint 8 retro: 'Run linter before commit' (added but agent still generates unused imports)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["recurring", "trend"],
+      "mustNotContain": ["first time"]
+    }
+  },
+  {
+    "id": "retro-072",
+    "description": "Velocity declining over 5 consecutive sprints",
+    "sprintNumber": 15,
+    "sprintResults": "## Sprint 15 Results\n\n| Issue | Title | Points | Status | PR | Duration |\n|-------|-------|--------|--------|----|----||\n| #140 | Add search feature | 3 | ✅ Done | #141 | 22m |\n| #142 | Fix sort logic | 2 | ✅ Done | #143 | 18m |\n| #144 | Add filter panel | 2 | ❌ Failed | #145 | — |\n| #146 | Update pagination | 1 | ✅ Done | #147 | 12m |\n| #148 | Add export button | 2 | ❌ Failed | #149 | — |\n| #150 | Fix table render | 2 | ❌ Failed | #151 | — |\n\n**Velocity**: 6/12 points completed (50%)\n**Duration**: 1h 30m (estimated 1h 20m)\n**Velocity Trend**:\n- Sprint 11: 13/13 (100%)\n- Sprint 12: 12/14 (86%)\n- Sprint 13: 10/13 (77%)\n- Sprint 14: 8/12 (67%)\n- Sprint 15: 6/12 (50%)\n**Declining Rate**: ~10% per sprint over 5 sprints\n**Root Cause**: Codebase complexity increasing, agent prompts not updated to match\n**Technical Debt**: Growing number of workarounds making new features harder",
+    "velocityData": "Sprint 11: 13/13 | Sprint 12: 12/14 | Sprint 13: 10/13 | Sprint 14: 8/12 | Sprint 15: 6/12",
+    "previousImprovements": "Sprint 12: Added CI monitoring\nSprint 13: None\nSprint 14: Increased QG timeout",
+    "expected": {
+      "passed": true,
+      "mustContain": ["declining", "trend"],
+      "mustNotContain": ["stable velocity"]
+    }
+  },
+  {
+    "id": "retro-073",
+    "description": "Carryover items appearing every sprint for 4 sprints",
+    "sprintNumber": 12,
+    "sprintResults": "## Sprint 12 Results\n\n| Issue | Title | Points | Status | Carryover From |\n|-------|-------|--------|--------|----|\n| #95 | Add GraphQL schema | 5 | ❌ Failed | Sprint 9 (3rd carry) |\n| #110 | Add resolver layer | 3 | ❌ Failed | Sprint 10 (2nd carry) |\n| #115 | Add subscription support | 3 | ✅ Done | Sprint 11 (1st carry) |\n| #120 | Fix query optimizer | 2 | ✅ Done | New |\n| #122 | Add mutation tests | 2 | ✅ Done | New |\n| #124 | Update schema docs | 1 | ✅ Done | New |\n\n**Velocity**: 8/16 points completed\n**Duration**: 2h 00m (estimated 1h 30m)\n**Carryover Pattern**:\n- Issue #95: Failed in Sprint 9, 10, 11, 12 (4 consecutive failures)\n- Issue #110: Failed in Sprint 10, 11, 12 (3 consecutive failures)\n- Issue #115: Failed in Sprint 11, completed in Sprint 12\n**Root Cause #95**: Issue is too complex for single-session execution (5 points)\n**Root Cause #110**: Depends on #95 which keeps failing\n**Planning Issue**: Same failing issues re-planned without investigation",
+    "velocityData": "Sprint 9: 8/14 | Sprint 10: 7/15 | Sprint 11: 6/16 | Sprint 12: 8/16",
+    "previousImprovements": "Sprint 9-11: All noted carryover but didn't address root cause",
+    "expected": {
+      "passed": true,
+      "mustContain": ["carryover", "pattern"],
+      "mustNotContain": ["new issue"]
+    }
+  },
+  {
+    "id": "retro-074",
+    "description": "Same agent (code-worker) failing on all complex architectural issues",
+    "sprintNumber": 18,
+    "sprintResults": "## Sprint 18 Results\n\n| Issue | Title | Points | Status | Agent | Complexity |\n|-------|-------|--------|--------|----|----||\n| #170 | Implement CQRS pattern | 5 | ❌ Failed | code-worker | High |\n| #172 | Add event sourcing | 5 | ❌ Failed | code-worker | High |\n| #174 | Fix simple bug | 1 | ✅ Done | code-worker | Low |\n| #176 | Add unit test | 1 | ✅ Done | code-worker | Low |\n| #178 | Update config | 1 | ✅ Done | code-worker | Low |\n| #180 | Fix typo | 1 | ✅ Done | code-worker | Low |\n\n**Velocity**: 4/14 points completed\n**Duration**: 2h 15m (estimated 1h 30m)\n**Agent Performance Pattern** (last 5 sprints):\n- code-worker on high-complexity (>3 pts): 2/12 success (17%)\n- code-worker on low-complexity (≤3 pts): 28/30 success (93%)\n**Root Cause**: code-worker agent lacks architectural pattern knowledge\n**Previous Failures**: CQRS, event sourcing, saga pattern, domain events all failed\n**Agent Prompt**: Missing guidance for complex architectural patterns",
+    "velocityData": "Sprint 14: 8/12 | Sprint 15: 6/12 | Sprint 16: 5/13 | Sprint 17: 8/16 | Sprint 18: 4/14",
+    "previousImprovements": "Sprint 14-17: Various config tweaks, none addressed agent capability gap",
+    "expected": {
+      "passed": true,
+      "mustContain": ["agent", "pattern"],
+      "mustNotContain": ["all agents performing well"]
+    }
+  },
+  {
+    "id": "retro-075",
+    "description": "Test flakiness increasing sprint over sprint",
+    "sprintNumber": 20,
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | Flaky Test Retries |\n|-------|-------|--------|--------|----|----||\n| #190 | Add real-time feed | 3 | ✅ Done | #191 | 3 |\n| #192 | Fix WebSocket handler | 2 | ✅ Done | #193 | 2 |\n| #194 | Add notification stream | 2 | ✅ Done | #195 | 4 |\n| #196 | Fix event ordering | 2 | ✅ Done | #197 | 2 |\n| #198 | Add heartbeat | 1 | ✅ Done | #199 | 1 |\n| #200 | Update protocol | 1 | ✅ Done | #201 | 3 |\n\n**Velocity**: 11/11 points completed\n**Duration**: 2h 30m (estimated 1h 10m)\n**Flaky Test Trend**:\n- Sprint 16: 2 flaky retries total\n- Sprint 17: 5 flaky retries total\n- Sprint 18: 8 flaky retries total\n- Sprint 19: 12 flaky retries total\n- Sprint 20: 15 flaky retries total\n**Root Cause**: Timing-dependent tests in WebSocket/real-time modules\n**Pattern**: Flaky count growing ~3 per sprint\n**Time Wasted**: ~1h 20m on flaky retries this sprint alone",
+    "velocityData": "Sprint 16: 11/11 | Sprint 17: 12/12 | Sprint 18: 13/13 | Sprint 19: 13/13 | Sprint 20: 11/11",
+    "previousImprovements": "Sprint 18 retro: Added retry config for flaky tests (masked problem, didn't fix it)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["flaky", "trend"],
+      "mustNotContain": ["stable"]
+    }
+  },
+  {
+    "id": "retro-076",
+    "description": "Sprint duration increasing linearly over 6 sprints",
+    "sprintNumber": 16,
+    "sprintResults": "## Sprint 16 Results\n\n| Issue | Title | Points | Status | PR | Duration |\n|-------|-------|--------|--------|----|----||\n| #150 | Add feature A | 2 | ✅ Done | #151 | 25m |\n| #152 | Add feature B | 2 | ✅ Done | #153 | 28m |\n| #154 | Add feature C | 2 | ✅ Done | #155 | 22m |\n| #156 | Fix bug D | 1 | ✅ Done | #157 | 15m |\n| #158 | Fix bug E | 1 | ✅ Done | #159 | 18m |\n| #160 | Update config | 1 | ✅ Done | #161 | 12m |\n\n**Velocity**: 9/9 points completed (100%)\n**Duration**: 2h 00m (estimated 1h 00m)\n**Duration Trend** (same 9-point sprints):\n- Sprint 11: 55m\n- Sprint 12: 1h 05m\n- Sprint 13: 1h 15m\n- Sprint 14: 1h 30m\n- Sprint 15: 1h 45m\n- Sprint 16: 2h 00m\n**Growth Rate**: ~12-15 minutes per sprint\n**Root Cause**: Test suite growing without cleanup, CI getting slower\n**Projection**: Sprint 20 will take ~3h for same 9 points",
+    "velocityData": "Sprint 11: 9/9 (55m) | Sprint 12: 9/9 (1h05m) | Sprint 13: 9/9 (1h15m) | Sprint 14: 9/9 (1h30m) | Sprint 15: 9/9 (1h45m) | Sprint 16: 9/9 (2h00m)",
+    "previousImprovements": "Sprint 13: Added CI monitoring\nSprint 15: None — 'duration acceptable'",
+    "expected": {
+      "passed": true,
+      "mustContain": ["increasing", "trend"],
+      "mustNotContain": ["stable duration"]
+    }
+  },
+  {
+    "id": "retro-077",
+    "description": "Code review rejection rate spiking after review prompt change",
+    "sprintNumber": 22,
+    "sprintResults": "## Sprint 22 Results\n\n| Issue | Title | Points | Status | PR | Review Result |\n|-------|-------|--------|--------|----|----||\n| #210 | Add caching | 3 | ❌ Failed | #211 | Rejected — 'insufficient comments' |\n| #212 | Fix query | 2 | ❌ Failed | #213 | Rejected — 'insufficient comments' |\n| #214 | Add indexing | 2 | ✅ Done | #215 | Approved (had comments) |\n| #216 | Fix timeout | 1 | ❌ Failed | #217 | Rejected — 'insufficient comments' |\n| #218 | Add retry | 2 | ❌ Failed | #219 | Rejected — 'insufficient comments' |\n| #220 | Update docs | 1 | ✅ Done | #221 | Approved |\n\n**Velocity**: 3/11 points completed\n**Duration**: 2h 10m (estimated 1h 10m)\n**Review Rejection Trend**:\n- Sprint 18: 0/6 rejected (0%)\n- Sprint 19: 0/6 rejected (0%)\n- Sprint 20: 1/6 rejected (17%) — prompt updated\n- Sprint 21: 3/6 rejected (50%)\n- Sprint 22: 4/6 rejected (67%)\n**Root Cause**: Sprint 20 retro added 'require code comments' to review prompt\n**Effect**: Review agent now rejects code without inline comments — too strict",
+    "velocityData": "Sprint 18: 13/13 | Sprint 19: 13/13 | Sprint 20: 12/12 | Sprint 21: 6/11 | Sprint 22: 3/11",
+    "previousImprovements": "Sprint 20 retro: Added 'require code comments' to review prompt\nSprint 21 retro: 'Review prompt may be too strict' (not actioned)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["review", "trend", "agent"],
+      "mustNotContain": ["stable rejection rate"]
+    }
+  },
+  {
+    "id": "retro-078",
+    "description": "Same file causing merge conflicts in every sprint",
+    "sprintNumber": 14,
+    "sprintResults": "## Sprint 14 Results\n\n| Issue | Title | Points | Status | PR | Conflict File |\n|-------|-------|--------|--------|----|----||\n| #130 | Add feature X | 2 | ✅ Done | #131 | src/index.ts conflict |\n| #132 | Add feature Y | 2 | ✅ Done | #133 | src/index.ts conflict |\n| #134 | Fix bug Z | 1 | ✅ Done | #135 | No conflict |\n| #136 | Add feature W | 2 | ✅ Done | #137 | src/index.ts conflict |\n| #138 | Update config | 1 | ✅ Done | #139 | No conflict |\n| #140 | Fix import | 1 | ✅ Done | #141 | src/index.ts conflict |\n\n**Velocity**: 9/9 points completed\n**Duration**: 1h 55m (estimated 1h 00m)\n**Recurring Conflict File**: src/index.ts\n- Sprint 10: 2 conflicts in src/index.ts\n- Sprint 11: 3 conflicts in src/index.ts\n- Sprint 12: 3 conflicts in src/index.ts\n- Sprint 13: 4 conflicts in src/index.ts\n- Sprint 14: 4 conflicts in src/index.ts\n**Root Cause**: Barrel export file grows with every feature — every PR touches it\n**Total Conflict Resolution Time**: ~55m across 4 conflicts this sprint",
+    "velocityData": "Sprint 10: 9/9 | Sprint 11: 9/9 | Sprint 12: 9/9 | Sprint 13: 9/9 | Sprint 14: 9/9",
+    "previousImprovements": "Sprint 12 retro: 'Reduce merge conflicts' (too vague)\nSprint 13 retro: 'Use sequential merging' (workaround, not fix)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["recurring", "pattern"],
+      "mustNotContain": ["resolved"]
+    }
+  },
+  {
+    "id": "retro-079",
+    "description": "Escalation count trending upward — system becoming less autonomous",
+    "sprintNumber": 25,
+    "sprintResults": "## Sprint 25 Results\n\n| Issue | Title | Points | Status | PR | Escalated? |\n|-------|-------|--------|--------|----|----||\n| #240 | Add feature A | 3 | ✅ Done | #241 | Yes — needed human guidance |\n| #242 | Add feature B | 2 | ✅ Done | #243 | Yes — unclear AC |\n| #244 | Fix bug C | 2 | ✅ Done | #245 | No |\n| #246 | Add feature D | 2 | ✅ Done | #247 | Yes — dependency issue |\n| #248 | Fix bug E | 1 | ✅ Done | #249 | Yes — environment issue |\n| #250 | Update docs | 1 | ✅ Done | #251 | No |\n\n**Velocity**: 11/11 points completed\n**Duration**: 2h 30m (estimated 1h 10m)\n**Escalation Trend**:\n- Sprint 20: 0 escalations\n- Sprint 21: 1 escalation\n- Sprint 22: 1 escalation\n- Sprint 23: 2 escalations\n- Sprint 24: 3 escalations\n- Sprint 25: 4 escalations\n**Root Cause**: New feature areas lack context in agent prompts\n**Impact**: Human intervention needed more frequently, reducing autonomy\n**Wait Time**: Average 15m per escalation for human response",
+    "velocityData": "Sprint 20: 12/12 | Sprint 21: 9/9 | Sprint 22: 13/13 | Sprint 23: 10/10 | Sprint 24: 12/12 | Sprint 25: 11/11",
+    "previousImprovements": "Sprint 23 retro: 'Improve agent autonomy' (too vague)\nSprint 24 retro: 'Add more context to prompts' (partially done)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["escalation", "trend"],
+      "mustNotContain": ["decreasing escalations"]
+    }
+  },
+  {
+    "id": "retro-080",
+    "description": "Quality gate pass rate declining across sprint history",
+    "sprintNumber": 20,
+    "sprintResults": "## Sprint 20 Results\n\n| Issue | Title | Points | Status | PR | QG Attempts |\n|-------|-------|--------|--------|----|----||\n| #190 | Add dashboard API | 3 | ✅ Done | #191 | 4 |\n| #192 | Fix chart data | 2 | ✅ Done | #193 | 3 |\n| #194 | Add widget system | 3 | ✅ Done | #195 | 5 (max) |\n| #196 | Fix layout engine | 2 | ❌ Failed | #197 | 5 (max — failed) |\n| #198 | Add theme support | 1 | ✅ Done | #199 | 2 |\n| #200 | Update styles | 1 | ✅ Done | #201 | 1 |\n\n**Velocity**: 10/12 points completed\n**Duration**: 2h 45m (estimated 1h 20m)\n**QG First-Pass Rate Trend**:\n- Sprint 15: 5/6 first-pass (83%)\n- Sprint 16: 4/6 first-pass (67%)\n- Sprint 17: 3/6 first-pass (50%)\n- Sprint 18: 3/6 first-pass (50%)\n- Sprint 19: 2/6 first-pass (33%)\n- Sprint 20: 1/6 first-pass (17%)\n**Root Cause**: Codebase conventions evolving but agent prompts static\n**Total Wasted Retries**: 14 this sprint (expected 0-2)",
+    "velocityData": "Sprint 15: 12/12 | Sprint 16: 11/11 | Sprint 17: 13/13 | Sprint 18: 13/13 | Sprint 19: 13/13 | Sprint 20: 10/12",
+    "previousImprovements": "Sprint 17-19: Various config changes, no prompt updates",
+    "expected": {
+      "passed": true,
+      "mustContain": ["declining", "trend", "agent"],
+      "mustNotContain": ["improving"]
+    }
+  },
+  {
+    "id": "retro-081",
+    "description": "Recurring pattern of session timeouts on large refactoring issues",
+    "sprintNumber": 17,
+    "sprintResults": "## Sprint 17 Results\n\n| Issue | Title | Points | Status | PR | Timeout? |\n|-------|-------|--------|--------|----|----||\n| #160 | Refactor auth module | 5 | ❌ Failed | — | Yes — 90m limit |\n| #162 | Fix small bug | 1 | ✅ Done | #163 | No |\n| #164 | Add unit test | 1 | ✅ Done | #165 | No |\n| #166 | Update config | 1 | ✅ Done | #167 | No |\n| #168 | Fix import path | 1 | ✅ Done | #169 | No |\n| #170 | Add docs | 1 | ✅ Done | #171 | No |\n\n**Velocity**: 5/10 points completed\n**Duration**: 1h 30m (session timeout)\n**Session Timeout Pattern** (all refactor issues):\n- Sprint 11: 'Refactor DB layer' (5pts) — timed out\n- Sprint 13: 'Refactor API routes' (5pts) — timed out\n- Sprint 15: 'Refactor middleware' (5pts) — timed out\n- Sprint 17: 'Refactor auth module' (5pts) — timed out\n**Pattern**: Every 5-point refactor issue times out at 90m\n**Root Cause**: Large refactors need >90m but session limit is 90m\n**Previous Retros**: Each noted timeout but didn't change config or splitting strategy",
+    "velocityData": "Sprint 11: 2/13 | Sprint 13: 10/13 | Sprint 15: 6/12 | Sprint 17: 5/10",
+    "previousImprovements": "Sprint 11 retro: 'Session timed out — consider longer sessions'\nSprint 13 retro: 'Timeout again — investigate'\nSprint 15 retro: 'Refactor timed out — known issue'",
+    "expected": {
+      "passed": true,
+      "mustContain": ["recurring", "timeout", "pattern"],
+      "mustNotContain": ["first occurrence"]
+    }
+  },
+  {
+    "id": "retro-082",
+    "description": "Point estimates consistently wrong — 3pt issues taking as long as 5pt",
+    "sprintNumber": 24,
+    "sprintResults": "## Sprint 24 Results\n\n| Issue | Title | Estimated | Actual Effort | Status | PR |\n|-------|-------|--------|-------|--------|----|\n| #230 | Add search (3pt) | 3 | 5 | ✅ Done | #231 |\n| #232 | Fix bug (1pt) | 1 | 3 | ✅ Done | #233 |\n| #234 | Add filter (2pt) | 2 | 4 | ✅ Done | #235 |\n| #236 | Update API (2pt) | 2 | 2 | ✅ Done | #237 |\n| #238 | Add export (3pt) | 3 | 5 | ✅ Done | #239 |\n| #240 | Fix styling (1pt) | 1 | 1 | ✅ Done | #241 |\n\n**Velocity**: 12/12 points completed (but actual effort was 20 points)\n**Duration**: 2h 50m (estimated 1h 20m)\n**Estimation Accuracy Trend**:\n- Sprint 20: Avg error 0.5 pts\n- Sprint 21: Avg error 1.0 pts\n- Sprint 22: Avg error 1.2 pts\n- Sprint 23: Avg error 1.5 pts\n- Sprint 24: Avg error 1.7 pts\n**Root Cause**: Planning agent not accounting for growing codebase complexity\n**Pattern**: Estimation error increasing as codebase grows",
+    "velocityData": "Sprint 20: 12/12 | Sprint 21: 9/9 | Sprint 22: 13/13 | Sprint 23: 12/12 | Sprint 24: 12/12",
+    "previousImprovements": "Sprint 22 retro: 'Improve estimation accuracy' (no action taken)\nSprint 23 retro: 'Estimates seem off' (noted but not addressed)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["estimation", "trend"],
+      "mustNotContain": ["accurate estimates"]
+    }
+  },
+  {
+    "id": "retro-083",
+    "description": "Test-to-code ratio declining sprint over sprint",
+    "sprintNumber": 19,
+    "sprintResults": "## Sprint 19 Results\n\n| Issue | Title | Points | Status | PR | Code Lines | Test Lines | Ratio |\n|-------|-------|--------|--------|----|----|----|----||\n| #180 | Add payment API | 3 | ✅ Done | #181 | 250 | 45 | 0.18 |\n| #182 | Add checkout flow | 2 | ✅ Done | #183 | 180 | 30 | 0.17 |\n| #184 | Add cart service | 2 | ✅ Done | #185 | 200 | 25 | 0.13 |\n| #186 | Fix pricing | 1 | ✅ Done | #187 | 50 | 15 | 0.30 |\n| #188 | Add inventory | 3 | ✅ Done | #189 | 280 | 40 | 0.14 |\n| #190 | Update docs | 1 | ✅ Done | #191 | 0 | 0 | — |\n\n**Velocity**: 12/12 points completed\n**Duration**: 1h 25m (estimated 1h 25m)\n**Test-to-Code Ratio Trend**:\n- Sprint 15: 0.45 (45 test lines per 100 code lines)\n- Sprint 16: 0.38\n- Sprint 17: 0.30\n- Sprint 18: 0.22\n- Sprint 19: 0.17\n**Declining Rate**: Losing ~0.06 ratio per sprint\n**Root Cause**: Agent prioritizes code delivery over test thoroughness\n**Impact**: Each sprint adds more untested code to the codebase",
+    "velocityData": "Sprint 15: 12/12 | Sprint 16: 11/11 | Sprint 17: 13/13 | Sprint 18: 13/13 | Sprint 19: 12/12",
+    "previousImprovements": "Sprint 17 retro: 'Add test coverage requirement' (config set to 60%, now at 68%)\nSprint 18 retro: 'Coverage acceptable' (didn't notice ratio decline)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["test", "trend", "declining"],
+      "mustNotContain": ["improving test quality"]
+    }
+  },
+  {
+    "id": "retro-084",
+    "description": "PR size growing sprint over sprint — approaching review limits",
+    "sprintNumber": 21,
+    "sprintResults": "## Sprint 21 Results\n\n| Issue | Title | Points | Status | PR | Lines Changed |\n|-------|-------|--------|--------|----|----||\n| #200 | Add feature A | 2 | ✅ Done | #201 | 380 |\n| #202 | Add feature B | 2 | ✅ Done | #203 | 420 |\n| #204 | Fix bug C | 1 | ✅ Done | #205 | 150 |\n| #206 | Add feature D | 3 | ✅ Done | #207 | 550 |\n| #208 | Add feature E | 2 | ✅ Done | #209 | 400 |\n| #210 | Update config | 1 | ✅ Done | #211 | 80 |\n\n**Velocity**: 11/11 points completed\n**Duration**: 1h 40m (estimated 1h 10m)\n**Average PR Size Trend**:\n- Sprint 17: 120 lines avg\n- Sprint 18: 180 lines avg\n- Sprint 19: 250 lines avg\n- Sprint 20: 310 lines avg\n- Sprint 21: 330 lines avg\n**Review Limit**: 500 lines (PR #207 at 550 — approaching limit)\n**Root Cause**: Agent includes generated boilerplate and verbose patterns\n**Risk**: PRs exceeding 500 lines will fail code review",
+    "velocityData": "Sprint 17: 13/13 | Sprint 18: 13/13 | Sprint 19: 13/13 | Sprint 20: 12/12 | Sprint 21: 11/11",
+    "previousImprovements": "Sprint 19 retro: 'Monitor PR sizes' (noted but no action)\nSprint 20 retro: 'PR sizes increasing' (noted but no action)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["PR size", "trend"],
+      "mustNotContain": ["stable"]
+    }
+  },
+  {
+    "id": "retro-085",
+    "description": "Dependency update failures becoming more frequent each sprint",
+    "sprintNumber": 23,
+    "sprintResults": "## Sprint 23 Results\n\n| Issue | Title | Points | Status | PR | Dep Conflict? |\n|-------|-------|--------|--------|----|----||\n| #220 | Add analytics SDK | 2 | ❌ Failed | #221 | Yes — peer dep conflict |\n| #222 | Update charts lib | 2 | ❌ Failed | #223 | Yes — breaking change |\n| #224 | Add map component | 2 | ✅ Done | #225 | No |\n| #226 | Fix responsive grid | 1 | ✅ Done | #227 | No |\n| #228 | Add export plugin | 2 | ❌ Failed | #229 | Yes — peer dep conflict |\n| #230 | Update build tools | 1 | ✅ Done | #231 | No |\n\n**Velocity**: 4/10 points completed\n**Duration**: 1h 50m (estimated 1h 05m)\n**Dependency Failure Trend**:\n- Sprint 19: 0 dep failures\n- Sprint 20: 1 dep failure\n- Sprint 21: 1 dep failure\n- Sprint 22: 2 dep failures\n- Sprint 23: 3 dep failures\n**Root Cause**: package.json has increasingly outdated base versions\n**Pattern**: More packages falling behind = more conflicts when adding new deps\n**Impact**: Each sprint more likely to hit version conflicts",
+    "velocityData": "Sprint 19: 13/13 | Sprint 20: 12/12 | Sprint 21: 11/11 | Sprint 22: 14/14 | Sprint 23: 4/10",
+    "previousImprovements": "Sprint 21 retro: 'Pin dependency versions' (made it worse — prevented auto-updates)\nSprint 22 retro: 'Dependency issue noted' (no action)",
+    "expected": {
+      "passed": true,
+      "mustContain": ["dependency", "trend"],
+      "mustNotContain": ["resolved"]
+    }
+  }
+]

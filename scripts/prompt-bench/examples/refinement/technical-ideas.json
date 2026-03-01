@@ -1,0 +1,262 @@
+[
+  {
+    "id": "refine-046",
+    "description": "TypeScript migration scoping",
+    "issueNumber": 301,
+    "ideaTitle": "Migrate to TypeScript",
+    "ideaBody": "We should convert the codebase from JavaScript to TypeScript. Would help with maintainability.",
+    "projectContext": "Node.js Express API with 150+ JS files, no type definitions",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "TypeScript", "strict"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-047",
+    "description": "CI/CD pipeline setup",
+    "issueNumber": 302,
+    "ideaTitle": "Add CI/CD pipeline",
+    "ideaBody": "We deploy manually right now by SSHing into the server. Need proper CI/CD.",
+    "projectContext": "Python Flask app deployed on a single EC2 instance",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "pipeline", "deploy"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-048",
+    "description": "Bundle size reduction with metrics",
+    "issueNumber": 303,
+    "ideaTitle": "Reduce bundle size",
+    "ideaBody": "Our JS bundle is 2.5MB. First load takes forever. Need to get it down.",
+    "projectContext": "React SPA with Webpack, lots of dependencies",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "bundle", "size"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-049",
+    "description": "Caching strategy definition",
+    "issueNumber": 304,
+    "ideaTitle": "Add caching layer",
+    "ideaBody": "Database queries are hitting the DB every time. Should add Redis or something for caching.",
+    "projectContext": "Node.js API with PostgreSQL, high read traffic",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "cache", "TTL"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-050",
+    "description": "Database migration to PostgreSQL",
+    "issueNumber": 305,
+    "ideaTitle": "Migrate from MySQL to PostgreSQL",
+    "ideaBody": "We want to switch to Postgres for better JSON support and full-text search.",
+    "projectContext": "Rails app with MySQL 5.7, ~50 tables",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "migration", "data"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-051",
+    "description": "API versioning strategy",
+    "issueNumber": 306,
+    "ideaTitle": "Add API versioning",
+    "ideaBody": "We need to version our API. Breaking changes are causing problems for mobile clients on older versions.",
+    "projectContext": "Express.js REST API consumed by mobile and web clients",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "version", "API"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-052",
+    "description": "Containerization with Docker",
+    "issueNumber": 307,
+    "ideaTitle": "Dockerize the application",
+    "ideaBody": "Works on my machine issues. Let's use Docker so everyone has the same environment.",
+    "projectContext": "Python Django app with Celery workers and Redis",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "Docker", "container"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-053",
+    "description": "Logging and observability setup",
+    "issueNumber": 308,
+    "ideaTitle": "Add structured logging",
+    "ideaBody": "We use console.log everywhere. Need proper structured logging so we can debug production issues.",
+    "projectContext": "Node.js microservices, currently using console.log",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "logging", "structured"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-054",
+    "description": "Database indexing optimization",
+    "issueNumber": 309,
+    "ideaTitle": "Optimize database indexes",
+    "ideaBody": "Some queries are doing full table scans. Need to add proper indexes.",
+    "projectContext": "PostgreSQL database with 10M+ rows in key tables",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "index", "query"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-055",
+    "description": "Monorepo migration",
+    "issueNumber": 310,
+    "ideaTitle": "Move to monorepo",
+    "ideaBody": "We have 8 separate repos that share code. Should consolidate into a monorepo with Turborepo or Nx.",
+    "projectContext": "Multiple TypeScript packages across separate GitHub repos",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "monorepo"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-056",
+    "description": "GraphQL API layer addition",
+    "issueNumber": 311,
+    "ideaTitle": "Add GraphQL",
+    "ideaBody": "REST is getting messy with all the nested resources. GraphQL might be better for our frontend needs.",
+    "projectContext": "Express REST API with React frontend doing lots of data joining client-side",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "GraphQL", "schema"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-057",
+    "description": "Test coverage improvement",
+    "issueNumber": 312,
+    "ideaTitle": "Increase test coverage",
+    "ideaBody": "Our test coverage is at 23%. Need to get it up. Critical paths have no tests at all.",
+    "projectContext": "TypeScript Node.js app with Vitest, 23% coverage",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "coverage", "test"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-058",
+    "description": "Message queue introduction",
+    "issueNumber": 313,
+    "ideaTitle": "Add message queue",
+    "ideaBody": "Background jobs are running inline and blocking requests. Need async processing with a queue.",
+    "projectContext": "Node.js API doing email sending and PDF generation synchronously",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "queue", "async"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-059",
+    "description": "Error tracking integration",
+    "issueNumber": 314,
+    "ideaTitle": "Set up error tracking",
+    "ideaBody": "We don't know when errors happen in production until users complain. Need Sentry or something similar.",
+    "projectContext": "React + Node.js full-stack app with no error monitoring",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "error", "tracking"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-060",
+    "description": "Feature flag system",
+    "issueNumber": 315,
+    "ideaTitle": "Add feature flags",
+    "ideaBody": "We need to be able to toggle features on/off without deploying. Would help with gradual rollouts.",
+    "projectContext": "SaaS platform with weekly releases",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "feature flag", "toggle"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-061",
+    "description": "Dependency update and audit",
+    "issueNumber": 316,
+    "ideaTitle": "Update outdated dependencies",
+    "ideaBody": "npm audit shows 47 vulnerabilities. Many deps are 3+ major versions behind.",
+    "projectContext": "Node.js app with package.json last updated 18 months ago",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "dependencies", "vulnerabilit"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-062",
+    "description": "Infrastructure as Code adoption",
+    "issueNumber": 317,
+    "ideaTitle": "Infrastructure as code",
+    "ideaBody": "All our infra is set up manually in AWS console. Need to codify it with Terraform or CDK.",
+    "projectContext": "AWS infrastructure managed through console clicks",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "infrastructure"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-063",
+    "description": "API documentation generation",
+    "issueNumber": 318,
+    "ideaTitle": "Auto-generate API docs",
+    "ideaBody": "Our API docs are always out of date. Need to generate them from code - maybe OpenAPI/Swagger.",
+    "projectContext": "Express.js API with hand-written Markdown docs",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "API", "documentation"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-064",
+    "description": "End-to-end testing setup",
+    "issueNumber": 319,
+    "ideaTitle": "Add E2E tests",
+    "ideaBody": "We have unit tests but no E2E tests. Critical user flows break without us knowing.",
+    "projectContext": "React app with Vitest unit tests, no E2E framework",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "E2E", "test"],
+      "mustNotContain": []
+    }
+  },
+  {
+    "id": "refine-065",
+    "description": "Database connection pooling",
+    "issueNumber": 320,
+    "ideaTitle": "Fix database connections",
+    "ideaBody": "We keep running out of database connections under load. Need connection pooling.",
+    "projectContext": "Node.js app with raw pg driver, no pooling configured",
+    "expected": {
+      "passed": true,
+      "mustContain": ["acceptance criteria", "connection pool"],
+      "mustNotContain": []
+    }
+  }
+]
