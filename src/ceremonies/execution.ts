@@ -113,7 +113,7 @@ async function planPhase(ctx: ExecutionContext): Promise<string> {
         }
       }
     } catch {
-      log.info({ responseLength: implementationPlan.length }, "implementation plan created (unstructured)");
+      log.warn({ issue: issue.number, responseLength: implementationPlan.length }, "implementation plan JSON extraction failed — proceeding with unstructured plan");
     }
 
     await addComment(
@@ -398,8 +398,8 @@ async function qualityAndReviewPhase(ctx: ExecutionContext, devSessionId: string
         codeReview = fixResult.codeReview;
       }
     } catch (err: unknown) {
-      log.warn({ err }, "code review failed — proceeding without review");
-      codeReview = undefined;
+      log.warn({ err, issue: issue.number }, "code review failed — proceeding without review (tracked in metrics)");
+      codeReview = { approved: false, feedback: "Code review skipped due to error", issues: ["review-skipped"] };
     }
   }
 
@@ -421,7 +421,7 @@ async function qualityAndReviewPhase(ctx: ExecutionContext, devSessionId: string
         }
       }
     } catch (err) {
-      log.warn({ err }, "acceptance criteria review failed — proceeding without");
+      log.warn({ err, issue: issue.number }, "acceptance criteria review failed — proceeding without (tracked in metrics)");
     }
   }
 
@@ -727,7 +727,9 @@ export async function executeIssue(
     // Close developer session after all retries are done
     if (devSessionId) {
       eventBus?.emitTyped("session:end", { sessionId: devSessionId });
-      await client.endSession(devSessionId).catch(() => {});
+      await client.endSession(devSessionId).catch((err) => {
+        log.warn({ err, sessionId: devSessionId, issue: issue.number }, "failed to end developer session — possible session leak");
+      });
     }
     // Step 8: Cleanup (worktree, huddle, labels)
     await cleanupPhase(ctx, { status, qualityResult, codeReview, retryCount, filesChanged, errorMessage, startTime, acpOutputLines, timedOut });

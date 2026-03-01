@@ -14,6 +14,7 @@ import { readVelocity } from "../documentation/velocity.js";
 import { logger } from "../logger.js";
 import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
+import { createIssue } from "../github/issues.js";
 
 /**
  * Run the sprint retro ceremony: analyse sprint data, ask ACP for
@@ -167,6 +168,29 @@ export async function runSprintRetro(
 
       if (!improvement.autoApplicable) {
         log.warn({ title, target: improvement.target }, "Skipping non-auto-applicable improvement");
+        continue;
+      }
+
+      // Only auto-apply prompt/config changes (skill, agent, config targets).
+      // Process-level changes (code in src/, enforcement, ceremonies) require human oversight.
+      if (improvement.target === "process") {
+        log.info({ title }, "Process improvement requires human decision — creating backlog issue");
+        try {
+          await createIssue({
+            title: `[Retro] ${title}`,
+            body: [
+              `## Retro Improvement — Requires Human Decision`,
+              "",
+              `**Target:** ${improvement.target}`,
+              `**Description:** ${description}`,
+              "",
+              `This improvement was identified during sprint retrospective but targets process/code changes that require human oversight before applying.`,
+            ].join("\n"),
+            labels: ["human-decision-needed", "type:improvement"],
+          });
+        } catch (issueErr) {
+          log.warn({ err: String(issueErr), title }, "Failed to create backlog issue for process improvement");
+        }
         continue;
       }
 

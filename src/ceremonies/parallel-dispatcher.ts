@@ -201,7 +201,8 @@ export async function runParallelExecution(
                   }, { ntfyEnabled: !!config.ntfy?.enabled, ntfyTopic: config.ntfy?.topic }, eventBus);
                 }
               } catch (verifyErr: unknown) {
-                log.warn({ err: verifyErr }, "post-merge verification could not run");
+                log.error({ err: verifyErr, issue: result.issueNumber }, "post-merge verification could not run — halting further merges");
+                break;
               }
             }
           } catch (err: unknown) {

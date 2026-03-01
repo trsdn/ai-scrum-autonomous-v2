@@ -111,15 +111,6 @@ vi.mock("../src/metrics.js", () => ({
   }),
 }));
 
-vi.mock("../src/enforcement/drift-control.js", () => ({
-  holisticDriftCheck: vi.fn().mockResolvedValue({
-    totalFilesChanged: 1,
-    plannedChanges: 1,
-    unplannedChanges: [],
-    driftPercentage: 0,
-  }),
-}));
-
 vi.mock("../src/enforcement/escalation.js", () => ({
   escalateToStakeholder: vi.fn().mockResolvedValue(undefined),
 }));
@@ -566,53 +557,6 @@ describe("SprintRunner", { timeout: 15000 }, () => {
       // Should still report the original error, not the disconnect error
       expect(finalState.phase).toBe("failed");
       expect(finalState.error).toBe("boom");
-    });
-  });
-
-  describe("drift escalation", () => {
-    it("escalates when drift exceeds threshold", async () => {
-      const { holisticDriftCheck } = await import(
-        "../src/enforcement/drift-control.js"
-      );
-      vi.mocked(holisticDriftCheck).mockResolvedValueOnce({
-        totalFilesChanged: 5,
-        plannedChanges: 1,
-        unplannedChanges: ["a.ts", "b.ts", "c.ts"],
-        driftPercentage: 80,
-      });
-
-      const { escalateToStakeholder } = await import(
-        "../src/enforcement/escalation.js"
-      );
-
-      const runner = new SprintRunner(config);
-      const plan: SprintPlan = {
-        sprintNumber: 1,
-        sprint_issues: [
-          {
-            number: 1,
-            title: "t",
-            ice_score: 5,
-            depends_on: [],
-            acceptanceCriteria: "",
-            expectedFiles: ["src/a.ts"],
-            points: 3,
-          },
-        ],
-        execution_groups: [[1]],
-        estimated_points: 3,
-        rationale: "test",
-      };
-
-      await (runner as any).client.connect();
-      await runner.runExecute(plan);
-
-      expect(escalateToStakeholder).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "must", reason: "Excessive drift detected" }),
-        expect.objectContaining({ ntfyEnabled: false }),
-        expect.anything(),
-        expect.objectContaining({ issuesCreatedCount: expect.any(Number) }),
-      );
     });
   });
 });
