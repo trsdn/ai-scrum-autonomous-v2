@@ -91,11 +91,27 @@ async function planPhase(ctx: ExecutionContext): Promise<string> {
     implementationPlan = planResult.response;
 
     try {
-      const planJson = extractJson<{ summary: string; steps: unknown[] }>(implementationPlan);
+      const planJson = extractJson<{ summary: string; steps: Array<{ file?: string; action?: string }> }>(implementationPlan);
       log.info(
         { summary: planJson.summary, stepCount: planJson.steps?.length ?? 0 },
         "implementation plan created",
       );
+      // Extract files from the structured plan and merge into expectedFiles.
+      // The item planner has read the codebase — its file predictions are more accurate
+      // than the sprint planner's guesses.
+      if (planJson.steps) {
+        const planFiles = planJson.steps
+          .map((s) => s.file)
+          .filter((f): f is string => typeof f === "string" && f.length > 0);
+        if (planFiles.length > 0) {
+          const existing = new Set(issue.expectedFiles);
+          for (const f of planFiles) {
+            existing.add(f);
+          }
+          issue.expectedFiles = [...existing];
+          log.info({ expectedFiles: issue.expectedFiles }, "expectedFiles updated from implementation plan");
+        }
+      }
     } catch {
       log.info({ responseLength: implementationPlan.length }, "implementation plan created (unstructured)");
     }

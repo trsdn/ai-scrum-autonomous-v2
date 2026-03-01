@@ -97,22 +97,22 @@ describe("calculateSprintMetrics", () => {
       makeIssue({
         issueNumber: 1,
         qualityDetails: {
-          passed: false,
-          checks: [{ name: "scope_drift", passed: false, detail: "drift", category: "diff" }],
+          passed: true,
+          checks: [{ name: "scope-drift", passed: true, detail: "⚠️ 2 unplanned files (non-blocking): index.html, src/footer.ts", category: "diff" }],
         },
       }),
       makeIssue({
         issueNumber: 2,
         qualityDetails: {
           passed: true,
-          checks: [{ name: "scope_drift", passed: true, detail: "ok", category: "diff" }],
+          checks: [{ name: "scope-drift", passed: true, detail: "All 3 changed files within expected scope", category: "diff" }],
         },
       }),
       makeIssue({
         issueNumber: 3,
         qualityDetails: {
-          passed: false,
-          checks: [{ name: "scope_drift", passed: false, detail: "drift", category: "diff" }],
+          passed: true,
+          checks: [{ name: "scope-drift", passed: true, detail: "⚠️ 1 unplanned files (non-blocking): style.css", category: "diff" }],
         },
       }),
     ]);

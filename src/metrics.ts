@@ -50,7 +50,8 @@ export function calculateSprintMetrics(result: SprintResult): SprintMetrics {
   const firstPassCount = results.filter((r) => r.retryCount === 0).length;
   const firstPassRate = percent(firstPassCount, planned);
   const driftIncidents = results.filter((r) =>
-    r.qualityDetails.checks.some((c) => c.name === "scope_drift" && !c.passed),
+    r.qualityDetails.checks.some((c) =>
+      (c.name === "scope_drift" || c.name === "scope-drift") && c.detail?.includes("unplanned")),
   ).length;
 
   return {
