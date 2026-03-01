@@ -52,13 +52,13 @@ for i in $(seq 0 $((scenario_count - 1))); do
     continue
   fi
 
-  issue_num=$(gh issue create \
-    --repo "$REPO" \
-    --title "$title" \
-    --body "$body" \
-    --label "$labels" \
-    --milestone "$MILESTONE" \
-    2>/dev/null | grep -o '[0-9]*$')
+  # Build gh issue create command (omit --label if empty)
+  create_args=(--repo "$REPO" --title "$title" --body "$body" --milestone "$MILESTONE")
+  if [ -n "$labels" ]; then
+    create_args+=(--label "$labels")
+  fi
+
+  issue_num=$(gh issue create "${create_args[@]}" 2>/dev/null | grep -o '[0-9]*$')
 
   echo "  ✅ #$issue_num: $title (expected: $expected)"
   ((issue_count++)) || true

@@ -51,6 +51,69 @@
       "expected": "failed",
       "complexity": "impossible",
       "notes": "Deliberately vague — no measurable criteria, no specific files, no clear action. Should fail AC review or get blocked."
+    },
+    {
+      "id": "refactor-existing",
+      "title": "refactor: extract email validation into utils module",
+      "body": "## Description\nThe `isValidEmail()` function currently lives in `src/app.ts`. Move it to `src/utils.ts` where it belongs with other utility functions.\n\n## Acceptance Criteria\n- [ ] `isValidEmail()` is exported from `src/utils.ts`\n- [ ] `src/app.ts` imports `isValidEmail` from `./utils.js` instead of defining it locally\n- [ ] Existing tests in `tests/app.test.ts` still pass (may need import path update)\n- [ ] Add at least 2 new edge-case tests in `tests/utils.test.ts` for `isValidEmail`\n- [ ] No duplicate definition of `isValidEmail` remains in `app.ts`\n\n## Technical Notes\n- This is a pure refactor — behavior must not change\n- Be careful with the re-export to avoid breaking the public API",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Tests the agent's ability to move code between files without breaking imports or tests. Cross-file refactoring edge case."
+    },
+    {
+      "id": "bugfix-edge-case",
+      "title": "fix: formatBytes returns wrong unit for exactly 1 GB",
+      "body": "## Description\n`formatBytes(1073741824)` should return `'1.00 GB'` but the current implementation needs verification and a regression test.\n\n## Acceptance Criteria\n- [ ] `formatBytes(1073741824)` returns `'1.00 GB'`\n- [ ] `formatBytes(1073741823)` returns a value in MB (boundary check)\n- [ ] Add boundary-value tests for KB/MB/GB/TB transitions in `tests/utils.test.ts`\n- [ ] Existing tests continue to pass\n\n## Technical Notes\n- Check `src/utils.ts` formatBytes implementation\n- If already correct, just add the regression tests\n- If buggy, fix the off-by-one and add tests",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Tests agent's ability to investigate before coding. May be a non-bug that just needs tests, or a real boundary issue."
+    },
+    {
+      "id": "multi-file-feature",
+      "title": "feat: add contact form validation module",
+      "body": "## Description\nAdd a contact form validation module that validates name, email, and message fields.\n\n## Acceptance Criteria\n- [ ] Create `src/contact.ts` with `validateContactForm(data: ContactFormData): ValidationResult`\n- [ ] `ContactFormData` type has: `name: string`, `email: string`, `message: string`\n- [ ] `ValidationResult` type has: `valid: boolean`, `errors: string[]`\n- [ ] Validates: name not empty (min 2 chars), email valid (reuse `isValidEmail` from utils), message not empty (min 10 chars)\n- [ ] Add `<section id='contact'>` to `index.html` after testimonials/features with a form (name, email, message, submit button)\n- [ ] Add CSS styles for the contact form in `style.css`\n- [ ] At least 6 tests covering: all valid, empty name, invalid email, short message, all empty, boundary lengths\n\n## Technical Notes\n- New files: `src/contact.ts`, `tests/contact.test.ts`\n- Edit: `index.html`, `style.css`\n- Import `isValidEmail` from `./utils.js` if available, otherwise implement inline",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Tests multi-file creation + editing existing files. 4 files touched, cross-module dependency."
+    },
+    {
+      "id": "conflicting-styles",
+      "title": "feat: add animated gradient background to hero section",
+      "body": "## Description\nReplace the static hero background with an animated gradient that shifts between brand colors.\n\n## Acceptance Criteria\n- [ ] Hero section has a CSS gradient background using brand colors (#1a1a2e, #16213e, #0f3460)\n- [ ] Add `@keyframes` animation that shifts the gradient position over 15 seconds\n- [ ] Animation loops infinitely and uses `ease` timing\n- [ ] Hero text remains readable (check contrast)\n- [ ] Add a test that reads `style.css` and verifies the `@keyframes` rule exists\n\n## Technical Notes\n- Edit `.hero` in `style.css`\n- Use `background-size: 200% 200%` with `animation` property\n- This modifies the same file as dark-mode-vars and nav-hover — potential merge conflict",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Deliberately conflicts with dark-mode-vars and nav-hover on style.css. Tests merge conflict handling when in same group."
+    },
+    {
+      "id": "depends-on-pricing",
+      "title": "feat: add pricing page with tier comparison table",
+      "body": "## Description\nAdd an HTML pricing section that displays the tiers from the pricing utility.\n\n## Acceptance Criteria\n- [ ] Add `<section id='pricing'>` to `index.html` after features section\n- [ ] Display 3 pricing cards: Starter ($29/mo, 0-100h), Pro ($99/mo, 101-500h), Enterprise ($299/mo, 500+h)\n- [ ] Each card has: tier name, price, hours range, and a CTA button\n- [ ] Import and use `getPricingTier` from `src/pricing.ts` in a new `src/pricing-page.ts` that exports `getPricingPageData()`\n- [ ] Add CSS styles for pricing cards grid (responsive)\n- [ ] Add tests for `getPricingPageData()` verifying it returns 3 tiers with correct prices\n\n## Technical Notes\n- Depends on #pricing-utils being completed first — needs `src/pricing.ts` to exist\n- New files: `src/pricing-page.ts`, `tests/pricing-page.test.ts`\n- Edit: `index.html`, `style.css`",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "medium",
+      "notes": "Has an implicit dependency on pricing-utils. Tests whether the planner groups dependencies correctly."
+    },
+    {
+      "id": "type-only-change",
+      "title": "feat: add strict TypeScript types for app configuration",
+      "body": "## Description\nAdd a typed configuration module that replaces magic numbers and strings throughout the app.\n\n## Acceptance Criteria\n- [ ] Create `src/config.ts` with `AppConfig` interface containing: `siteName: string`, `maxFeatures: number`, `supportEmail: string`, `apiBaseUrl: string`\n- [ ] Export a `getDefaultConfig(): AppConfig` function with sensible defaults for CloudPulse\n- [ ] Export a `validateConfig(config: Partial<AppConfig>): config is AppConfig` type guard\n- [ ] Add at least 4 tests: default config valid, missing fields invalid, extra fields still valid, empty object invalid\n\n## Technical Notes\n- New files: `src/config.ts`, `tests/config.test.ts`\n- Pure TypeScript — no HTML/CSS changes\n- Tests the type guard pattern",
+      "labels": ["status:ready"],
+      "expected": "completed",
+      "complexity": "easy",
+      "notes": "Pure TS, no file conflicts. Tests if agent can implement type guards correctly."
+    },
+    {
+      "id": "missing-label",
+      "title": "feat: add analytics tracking module",
+      "body": "## Description\nAdd a simple analytics event tracking module.\n\n## Acceptance Criteria\n- [ ] Create `src/analytics.ts` with `trackEvent(category: string, action: string, label?: string): void`\n- [ ] Events are stored in an internal array (no external service)\n- [ ] Export `getEvents()` to retrieve tracked events\n- [ ] Export `clearEvents()` to reset\n- [ ] At least 5 tests covering: track single event, track multiple, get events, clear events, optional label",
+      "labels": [],
+      "expected": "skipped",
+      "complexity": "easy",
+      "notes": "Missing 'status:ready' label — should NOT be picked up by the planner. Tests label filtering."
     }
   ]
 }
