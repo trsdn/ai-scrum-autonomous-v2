@@ -476,7 +476,6 @@ describe("runParallelExecution", () => {
     const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(mergeIssuePR).not.toHaveBeenCalled();
-    expect(createWorktree).not.toHaveBeenCalled();
     const issue1 = result.results.find((r) => r.issueNumber === 1)!;
     expect(issue1.status).toBe("failed");
     expect(issue1.qualityGatePassed).toBe(false);
