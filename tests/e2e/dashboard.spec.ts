@@ -122,3 +122,14 @@ test.describe("Dashboard Settings Page", () => {
     await expect(heading).toContainText("Settings", { timeout: 5000 });
   });
 });
+
+test.describe("Dashboard Sprint Report", () => {
+  test("report tab shows sprint report", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForSelector(".tab-nav", { timeout: 10_000 });
+    const reportTab = page.locator("button.tab-btn", { hasText: "Report" });
+    await reportTab.click();
+    const heading = page.locator(".sprint-report h1");
+    await expect(heading).toContainText("Sprint Report", { timeout: 5000 });
+  });
+});

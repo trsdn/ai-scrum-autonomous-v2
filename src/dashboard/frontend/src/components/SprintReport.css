@@ -1,0 +1,228 @@
+.sprint-report {
+  padding: 24px 32px;
+  overflow-y: auto;
+  height: 100%;
+  max-width: 1000px;
+}
+
+.sprint-report h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.report-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* Summary cards */
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.summary-card .value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-card .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.summary-card.success .value { color: #3fb950; }
+.summary-card.danger .value { color: #f85149; }
+.summary-card.info .value { color: #58a6ff; }
+
+/* Sections */
+.report-section {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.report-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.report-section-header:hover {
+  background: var(--bg-hover);
+}
+
+.report-section-header .chevron {
+  font-size: 10px;
+  transition: transform 0.15s;
+  color: var(--text-dim);
+}
+
+.report-section-header .chevron.open {
+  transform: rotate(90deg);
+}
+
+.report-section-body {
+  padding: 12px 16px;
+}
+
+/* Issue results table */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table th {
+  text-align: left;
+  padding: 8px;
+  font-weight: 600;
+  color: var(--text-dim);
+  border-bottom: 2px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.report-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.report-table tr:last-child td {
+  border-bottom: none;
+}
+
+.report-table tr:hover {
+  background: var(--bg-hover);
+}
+
+.quality-checks {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quality-check {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.quality-check.pass {
+  background: rgba(46, 160, 67, 0.15);
+  color: #3fb950;
+}
+
+.quality-check.fail {
+  background: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+}
+
+/* Retro lists */
+.retro-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.retro-list li {
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.retro-list li:last-child {
+  border-bottom: none;
+}
+
+.retro-list li::before {
+  margin-right: 8px;
+}
+
+.retro-list.well li::before { content: "✅"; }
+.retro-list.bad li::before { content: "⚠️"; }
+.retro-list.improve li::before { content: "💡"; }
+
+/* Sprint selector */
+.report-sprint-select {
+  font-size: 13px;
+  padding: 4px 8px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.report-empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.report-loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-dim);
+}
+
+.duration-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.copied-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #3fb950;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: fadeOut 2s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}

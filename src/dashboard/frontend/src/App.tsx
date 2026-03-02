@@ -6,9 +6,10 @@ import { SprintBacklogTab } from "./components/SprintBacklogTab";
 import { BacklogTab, BlockedTab, DecisionsTab, IdeasTab } from "./components/Tabs";
 import { SidePanel } from "./components/SidePanel";
 import { SettingsPage } from "./components/SettingsPage";
+import { SprintReport } from "./components/SprintReport";
 import "./index.css";
 
-type Tab = "sprint" | "sprint-backlog" | "backlog" | "blocked" | "decisions" | "ideas" | "settings";
+type Tab = "sprint" | "sprint-backlog" | "backlog" | "blocked" | "decisions" | "ideas" | "report" | "settings";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "sprint", label: "Sprint", icon: "🏃" },
@@ -17,6 +18,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "blocked", label: "Blocked", icon: "🚧" },
   { id: "decisions", label: "Decisions", icon: "⚖️" },
   { id: "ideas", label: "Ideas", icon: "💡" },
+  { id: "report", label: "Report", icon: "📊" },
   { id: "settings", label: "Settings", icon: "⚙️" },
 ];
 
@@ -109,6 +111,7 @@ export default function App() {
           {activeTab === "blocked" && <BlockedTab />}
           {activeTab === "decisions" && <DecisionsTab />}
           {activeTab === "ideas" && <IdeasTab />}
+          {activeTab === "report" && <SprintReport />}
           {activeTab === "settings" && <SettingsPage />}
         </div>
         {chatPanelOpen && activeTab !== "sprint" && activeTab !== "settings" && (
