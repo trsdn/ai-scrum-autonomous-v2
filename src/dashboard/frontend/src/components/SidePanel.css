@@ -45,6 +45,29 @@
   font-size: 14px;
 }
 
+.side-panel-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.side-panel-status.loading {
+  color: var(--yellow);
+  background: rgba(210, 153, 34, 0.15);
+}
+.side-panel-status.connected {
+  color: var(--green);
+  background: rgba(63, 185, 80, 0.15);
+}
+
+.side-panel-model {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  background: var(--bg);
+  border-radius: 4px;
+}
+
 .side-panel-messages {
   flex: 1;
   overflow-y: auto;

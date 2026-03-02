@@ -226,7 +226,7 @@ export function IdeasTab() {
 
   const startRefine = () => {
     send({ type: "chat:create", role: "refiner" });
-    useDashboardStore.setState({ chatPanelOpen: true });
+    useDashboardStore.setState({ chatPanelOpen: true, sidePanelRole: "refiner" });
   };
 
   useEffect(() => { fetchItems(); }, []);

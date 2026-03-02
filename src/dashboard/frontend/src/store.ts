@@ -30,12 +30,13 @@ export interface DashboardStore {
   viewingSessionId: string | null;
   sessionOutput: Map<string, string>;
 
-  // Chat
+  // Chat / Side panel
   chatSessions: ChatSession[];
   activeChatId: string | null;
   chatMessages: Record<string, ChatMessage[]>;
   chatStreaming: Record<string, string>;
   chatPanelOpen: boolean;
+  sidePanelRole: string | null;
 
   // Execution mode
   executionMode: "autonomous" | "hitl";
@@ -454,6 +455,7 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
   chatMessages: {},
   chatStreaming: {},
   chatPanelOpen: false,
+  sidePanelRole: null,
   executionMode: "autonomous",
   sprintLimit: 0,
   backlogPending: new Set<number>(),
