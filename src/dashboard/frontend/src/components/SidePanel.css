@@ -198,6 +198,11 @@
   z-index: 100;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
 }
+.mode-selector-menu.model-menu {
+  min-width: 220px;
+  max-height: 280px;
+  overflow-y: auto;
+}
 .mode-selector-option {
   display: flex;
   align-items: center;
