@@ -69,6 +69,7 @@ export function SidePanel() {
   const [slashFilter, setSlashFilter] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showModeMenu, setShowModeMenu] = useState(false);
+  const [showModelMenu, setShowModelMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -215,7 +216,7 @@ export function SidePanel() {
         {activeSession?.model && (
           <span className="side-panel-model">{activeSession.model}</span>
         )}
-        {configs && configs.filter((c) => c.category !== "mode").length > 0 && (
+        {configs && configs.filter((c) => c.category !== "mode" && c.category !== "model").length > 0 && (
           <div className="side-panel-config-wrapper">
             <button
               className="side-panel-settings-btn"
@@ -226,7 +227,7 @@ export function SidePanel() {
             </button>
             {showSettings && (
               <div className="side-panel-settings-panel">
-                {configs.filter((c) => c.category !== "mode").map((cfg) => (
+                {configs.filter((c) => c.category !== "mode" && c.category !== "model").map((cfg) => (
                   <div key={cfg.id} className="settings-group">
                     <label className="settings-label">{cfg.name}</label>
                     <select
@@ -379,13 +380,13 @@ export function SidePanel() {
         </button>
       </div>
 
-      {/* Mode selector */}
+      {/* Mode & Model selectors */}
       {activeSession && (
         <div className="side-panel-mode-bar">
           <div className="mode-selector-wrapper">
             <button
               className="mode-selector-btn"
-              onClick={() => setShowModeMenu(!showModeMenu)}
+              onClick={() => { setShowModeMenu(!showModeMenu); setShowModelMenu(false); }}
             >
               {(() => {
                 const m = MODE_LABELS[activeSession.modeId ?? ""] ?? MODE_LABELS[MODE_CYCLE[0]!]!;
@@ -414,6 +415,41 @@ export function SidePanel() {
               </div>
             )}
           </div>
+          {(() => {
+            const modelCfg = configs?.find((c) => c.category === "model");
+            if (!modelCfg) return null;
+            const currentOpt = modelCfg.options.find((o) => o.value === modelCfg.currentValue);
+            const shortLabel = currentOpt?.name ?? modelCfg.currentValue;
+            return (
+              <div className="mode-selector-wrapper">
+                <button
+                  className="mode-selector-btn"
+                  onClick={() => { setShowModelMenu(!showModelMenu); setShowModeMenu(false); }}
+                >
+                  🧠 {shortLabel}
+                  <span className="mode-selector-arrow">▲</span>
+                </button>
+                {showModelMenu && (
+                  <div className="mode-selector-menu model-menu">
+                    {modelCfg.options.map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={`mode-selector-option${opt.value === modelCfg.currentValue ? " active" : ""}`}
+                        onClick={() => {
+                          if (activeChatId) {
+                            send({ type: "chat:set-config", sessionId: activeChatId, optionId: modelCfg.id, value: opt.value });
+                          }
+                          setShowModelMenu(false);
+                        }}
+                      >
+                        {opt.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           <span className="mode-hint">Shift+Tab</span>
         </div>
       )}
