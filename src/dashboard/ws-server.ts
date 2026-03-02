@@ -121,7 +121,11 @@ export class DashboardWebServer {
 
   constructor(options: DashboardServerOptions) {
     this.options = options;
-    this.publicDir = path.join(path.dirname(new URL(import.meta.url).pathname), "public");
+    // Prefer React build in dist/; fall back to co-located public/ (legacy dev)
+    const thisDir = path.dirname(new URL(import.meta.url).pathname);
+    const distPublic = path.resolve(thisDir, "..", "..", "dist", "dashboard", "public");
+    const localPublic = path.join(thisDir, "public");
+    this.publicDir = fs.existsSync(distPublic) ? distPublic : localPublic;
   }
 
   /** Update the active sprint number (called when sprint loop advances). */
