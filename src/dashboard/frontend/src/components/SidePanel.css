@@ -387,3 +387,164 @@
   border-radius: 2px;
   transition: width 0.3s;
 }
+
+/* Plan progress panel */
+.chat-plan {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(88, 166, 255, 0.06);
+  border: 1px solid rgba(88, 166, 255, 0.15);
+  font-size: 12px;
+}
+.chat-plan-header {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.chat-plan-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 3px 0;
+  line-height: 1.4;
+}
+.chat-plan-check {
+  flex-shrink: 0;
+  font-size: 11px;
+  width: 14px;
+  text-align: center;
+}
+.chat-plan-completed .chat-plan-check { color: var(--green); }
+.chat-plan-in_progress .chat-plan-check {
+  color: var(--yellow);
+  animation: spin 1s linear infinite;
+}
+.chat-plan-pending .chat-plan-check { color: var(--text-dim); }
+.chat-plan-text {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+.chat-plan-completed .chat-plan-text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.chat-plan-in_progress .chat-plan-text {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Tool call kind icon */
+.chat-tool-kind {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.chat-tool-locations {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.chat-tool-location {
+  font-size: 10px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+/* Slash command menu */
+.slash-menu {
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  max-height: 200px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.slash-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+}
+.slash-menu-item:hover {
+  background: var(--bg-hover);
+}
+.slash-menu-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  min-width: 120px;
+}
+.slash-menu-desc {
+  color: var(--text-dim);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Config dropdowns */
+.side-panel-config-wrapper {
+  position: relative;
+}
+.side-panel-config-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.side-panel-config-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+.side-panel-config-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 160px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.side-panel-config-option {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+}
+.side-panel-config-option:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.side-panel-config-option.active {
+  color: var(--accent);
+  font-weight: 600;
+}

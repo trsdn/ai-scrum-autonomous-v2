@@ -49,6 +49,12 @@ export interface AcpClientOptions {
   onUsageUpdate?: (sessionId: string, usage: AcpUsageEvent) => void;
   /** Callback for mode changes. */
   onModeChange?: (sessionId: string, modeId: string) => void;
+  /** Callback for plan updates. */
+  onPlanUpdate?: (sessionId: string, plan: AcpPlanEvent) => void;
+  /** Callback for available commands updates. */
+  onCommandsUpdate?: (sessionId: string, commands: AcpCommand[]) => void;
+  /** Callback for config option updates. */
+  onConfigUpdate?: (sessionId: string, configs: AcpConfigOption[]) => void;
 }
 
 export interface AcpToolCallEvent {
@@ -63,6 +69,31 @@ export interface AcpUsageEvent {
   used: number;
   size: number;
   cost?: { amount?: number; currency?: string } | null;
+}
+
+export interface AcpPlanEntry {
+  content: string;
+  priority: "high" | "medium" | "low";
+  status: "pending" | "in_progress" | "completed";
+}
+
+export interface AcpPlanEvent {
+  entries: AcpPlanEntry[];
+}
+
+export interface AcpCommand {
+  name: string;
+  description: string;
+  hint?: string;
+}
+
+export interface AcpConfigOption {
+  id: string;
+  name: string;
+  category?: string;
+  description?: string;
+  currentValue: string;
+  options: Array<{ value: string; name: string; description?: string }>;
 }
 
 export interface CreateSessionOptions {
@@ -110,6 +141,9 @@ export class AcpClient {
   private readonly onToolCall?: (sessionId: string, toolCall: AcpToolCallEvent) => void;
   private readonly onUsageUpdate?: (sessionId: string, usage: AcpUsageEvent) => void;
   private readonly onModeChange?: (sessionId: string, modeId: string) => void;
+  private readonly onPlanUpdate?: (sessionId: string, plan: AcpPlanEvent) => void;
+  private readonly onCommandsUpdate?: (sessionId: string, commands: AcpCommand[]) => void;
+  private readonly onConfigUpdate?: (sessionId: string, configs: AcpConfigOption[]) => void;
 
   // Accumulate streamed chunks per session
   private sessionChunks = new Map<string, string[]>();
@@ -133,6 +167,9 @@ export class AcpClient {
     this.onToolCall = options.onToolCall;
     this.onUsageUpdate = options.onUsageUpdate;
     this.onModeChange = options.onModeChange;
+    this.onPlanUpdate = options.onPlanUpdate;
+    this.onCommandsUpdate = options.onCommandsUpdate;
+    this.onConfigUpdate = options.onConfigUpdate;
     this.permissionHandler = createPermissionHandler(
       options.permissions ?? DEFAULT_PERMISSION_CONFIG,
       this.log,
@@ -228,6 +265,9 @@ export class AcpClient {
       const onTool = this.onToolCall;
       const onUsage = this.onUsageUpdate;
       const onMode = this.onModeChange;
+      const onPlan = this.onPlanUpdate;
+      const onCommands = this.onCommandsUpdate;
+      const onConfig = this.onConfigUpdate;
 
       this.connection = new ClientSideConnection(
         (_agent) => {
@@ -274,6 +314,54 @@ export class AcpClient {
                 const m = update as Record<string, unknown>;
                 if (m.currentModeId) {
                   onMode?.(sid, String(m.currentModeId));
+                }
+              } else if (update.sessionUpdate === "plan") {
+                const p = update as Record<string, unknown>;
+                const entries = p.entries as Array<{ content: string; priority: string; status: string }> | undefined;
+                if (entries) {
+                  onPlan?.(sid, {
+                    entries: entries.map((e) => ({
+                      content: e.content,
+                      priority: (e.priority ?? "medium") as AcpPlanEntry["priority"],
+                      status: (e.status ?? "pending") as AcpPlanEntry["status"],
+                    })),
+                  });
+                }
+              } else if (update.sessionUpdate === "available_commands_update") {
+                const c = update as Record<string, unknown>;
+                const cmds = c.availableCommands as Array<{ name: string; description: string; input?: { hint?: string } }> | undefined;
+                if (cmds) {
+                  onCommands?.(sid, cmds.map((cmd) => ({
+                    name: cmd.name,
+                    description: cmd.description,
+                    hint: cmd.input?.hint,
+                  })));
+                }
+              } else if (update.sessionUpdate === "config_option_update") {
+                const c = update as Record<string, unknown>;
+                const opts = c.configOptions as Array<Record<string, unknown>> | undefined;
+                if (opts) {
+                  onConfig?.(sid, opts.map((o) => {
+                    const flatOpts = Array.isArray(o.options)
+                      ? (o.options as Array<Record<string, unknown>>).flatMap((item) =>
+                          item.group != null
+                            ? ((item.options as Array<Record<string, unknown>>) ?? []).map((sub) => ({
+                                value: String(sub.value ?? ""),
+                                name: String(sub.name ?? ""),
+                                description: sub.description as string | undefined,
+                              }))
+                            : [{ value: String(item.value ?? ""), name: String(item.name ?? ""), description: item.description as string | undefined }],
+                        )
+                      : [];
+                    return {
+                      id: String(o.id ?? ""),
+                      name: String(o.name ?? ""),
+                      category: o.category as string | undefined,
+                      description: o.description as string | undefined,
+                      currentValue: String(o.currentValue ?? ""),
+                      options: flatOpts,
+                    };
+                  }));
                 }
               }
 
@@ -356,6 +444,15 @@ export class AcpClient {
     const conn = this.requireConnection();
     this.log.info({ sessionId, modelId }, "setting session model");
     await conn.unstable_setSessionModel({ sessionId, modelId });
+  }
+
+  /**
+   * Set a session config option (e.g., model, thought level).
+   */
+  async setConfigOption(sessionId: string, optionId: string, value: string): Promise<void> {
+    const conn = this.requireConnection();
+    this.log.info({ sessionId, optionId, value }, "setting session config option");
+    await conn.setSessionConfigOption({ sessionId, configOptionId: optionId, value });
   }
 
   /**

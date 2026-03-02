@@ -31,7 +31,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "backlog:planned" | "backlog:removed" | "backlog:error" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "chat:thinking" | "chat:tool-call" | "chat:usage" | "chat:mode" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "backlog:planned" | "backlog:removed" | "backlog:error" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "chat:thinking" | "chat:tool-call" | "chat:usage" | "chat:mode" | "chat:plan" | "chat:commands" | "chat:config" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -39,7 +39,7 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "sprint:set-limit" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "chat:set-mode" | "blocked:comment" | "blocked:unblock" | "decisions:approve" | "decisions:reject" | "decisions:comment" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "sprint:set-limit" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "chat:set-mode" | "chat:set-config" | "blocked:comment" | "blocked:unblock" | "decisions:approve" | "decisions:reject" | "decisions:comment" | "ping";
   sprintNumber?: number;
   issueNumber?: number;
   sessionId?: string;
@@ -48,6 +48,8 @@ export interface ClientMessage {
   mode?: string;
   body?: string;
   limit?: number;
+  optionId?: string;
+  value?: string;
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -546,6 +548,11 @@ export class DashboardWebServer {
           this.handleChatSetMode(msg.sessionId, msg.mode, ws);
         }
         break;
+      case "chat:set-config":
+        if (msg.sessionId && msg.optionId && msg.value) {
+          this.handleChatSetConfig(msg.sessionId, msg.optionId, msg.value, ws);
+        }
+        break;
       case "session:subscribe":
         if (msg.sessionId) {
           let subs = this.sessionSubscribers.get(msg.sessionId);
@@ -665,6 +672,24 @@ export class DashboardWebServer {
             payload: { sessionId: chatId, modeId },
           });
         },
+        onPlanUpdate: (chatId, plan) => {
+          this.broadcast({
+            type: "chat:plan",
+            payload: { sessionId: chatId, entries: plan.entries },
+          });
+        },
+        onCommandsUpdate: (chatId, commands) => {
+          this.broadcast({
+            type: "chat:commands",
+            payload: { sessionId: chatId, commands },
+          });
+        },
+        onConfigUpdate: (chatId, configs) => {
+          this.broadcast({
+            type: "chat:config",
+            payload: { sessionId: chatId, configs },
+          });
+        },
       });
     }
     return this.chatManager;
@@ -738,6 +763,19 @@ export class DashboardWebServer {
       this.sendTo(ws, {
         type: "chat:error",
         payload: { sessionId, error: `Failed to set mode: ${msg}` },
+      });
+    }
+  }
+
+  private async handleChatSetConfig(sessionId: string, optionId: string, value: string, ws: WebSocket): Promise<void> {
+    try {
+      await this.getChatManager().setConfig(sessionId, optionId, value);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, sessionId, optionId, value }, "Failed to set chat config");
+      this.sendTo(ws, {
+        type: "chat:error",
+        payload: { sessionId, error: `Failed to set config: ${msg}` },
       });
     }
   }
