@@ -46,7 +46,7 @@ export interface DashboardStore {
   issues: SprintIssue[];
   activeSprintNumber: number;
   viewingSprintNumber: number;
-  availableSprints: { sprintNumber: number }[];
+  availableSprints: { sprintNumber: number; milestoneNumber?: number }[];
   repoUrl: string | null;
 
   // Activities & logs
@@ -688,7 +688,7 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
       .catch(() => {});
     fetch("/api/sprints")
       .then((r) => r.json())
-      .then((d: { sprintNumber: number }[]) => {
+      .then((d: { sprintNumber: number; milestoneNumber?: number }[]) => {
         if (Array.isArray(d)) set({ availableSprints: d });
       })
       .catch(() => {});
@@ -752,7 +752,7 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
     // Refresh sprint list
     fetch("/api/sprints")
       .then((r) => r.json())
-      .then((d: { sprintNumber: number }[]) => {
+      .then((d: { sprintNumber: number; milestoneNumber?: number }[]) => {
         if (Array.isArray(d)) set({ availableSprints: d });
       })
       .catch(() => {});
