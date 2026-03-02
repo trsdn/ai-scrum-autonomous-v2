@@ -153,10 +153,22 @@ export function SidePanel() {
     inputRef.current?.focus();
   };
 
+  const toggleMode = () => {
+    if (!activeSession) return;
+    const currentMode = activeSession.modeId ?? MODE_CYCLE[0]!;
+    const idx = MODE_CYCLE.indexOf(currentMode);
+    const nextMode = MODE_CYCLE[(idx + 1) % MODE_CYCLE.length]!;
+    send({ type: "chat:set-mode", sessionId: activeSession.id, mode: nextMode });
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+    if (e.key === "Tab" && e.shiftKey) {
+      e.preventDefault();
+      toggleMode();
     }
   };
 
@@ -200,23 +212,6 @@ export function SidePanel() {
         {activeSession && <span className="side-panel-status connected">● Connected</span>}
         {activeSession?.model && (
           <span className="side-panel-model">{activeSession.model}</span>
-        )}
-        {activeSession && (
-          <button
-            className="side-panel-mode-btn"
-            onClick={() => {
-              const currentMode = activeSession.modeId ?? MODE_CYCLE[0]!;
-              const idx = MODE_CYCLE.indexOf(currentMode);
-              const nextMode = MODE_CYCLE[(idx + 1) % MODE_CYCLE.length]!;
-              send({ type: "chat:set-mode", sessionId: activeSession.id, mode: nextMode });
-            }}
-            title="Toggle mode (Shift+Tab)"
-          >
-            {(() => {
-              const m = MODE_LABELS[activeSession.modeId ?? ""] ?? MODE_LABELS[MODE_CYCLE[0]!]!;
-              return `${m.icon} ${m.short}`;
-            })()}
-          </button>
         )}
         {configs && configs.length > 0 && (
           <div className="side-panel-config-wrapper">
@@ -381,6 +376,26 @@ export function SidePanel() {
           Send
         </button>
       </div>
+
+      {/* Mode toggle */}
+      {activeSession && (
+        <div className="side-panel-mode-bar">
+          {MODE_CYCLE.map((modeId) => {
+            const m = MODE_LABELS[modeId]!;
+            const isActive = (activeSession.modeId ?? MODE_CYCLE[0]) === modeId;
+            return (
+              <button
+                key={modeId}
+                className={`mode-tab${isActive ? " mode-tab-active" : ""}`}
+                onClick={() => send({ type: "chat:set-mode", sessionId: activeSession.id, mode: modeId })}
+              >
+                {m.icon} {m.short}
+              </button>
+            );
+          })}
+          <span className="mode-hint">Shift+Tab</span>
+        </div>
+      )}
     </div>
   );
 }
