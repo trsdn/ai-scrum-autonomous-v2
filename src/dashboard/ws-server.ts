@@ -549,7 +549,7 @@ export class DashboardWebServer {
         }
         break;
       case "chat:set-config":
-        if (msg.sessionId && msg.optionId && msg.value) {
+        if (msg.sessionId && msg.optionId && msg.value != null) {
           this.handleChatSetConfig(msg.sessionId, msg.optionId, msg.value, ws);
         }
         break;
@@ -769,7 +769,9 @@ export class DashboardWebServer {
 
   private async handleChatSetConfig(sessionId: string, optionId: string, value: string, ws: WebSocket): Promise<void> {
     try {
+      log.info({ sessionId, optionId, value }, "Setting chat config option");
       await this.getChatManager().setConfig(sessionId, optionId, value);
+      log.info({ sessionId, optionId, value }, "Chat config option set successfully");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       log.error({ err, sessionId, optionId, value }, "Failed to set chat config");
