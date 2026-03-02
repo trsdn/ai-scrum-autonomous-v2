@@ -84,6 +84,24 @@ if [[ $branch_count -eq 0 ]]; then
   echo "  (none found)"
 fi
 
+# --- 4. Delete state and log files in test repo ---
+echo ""
+echo "📄 Cleaning state files in test repo..."
+TEST_REPO_DIR="${HOME}/dev/GitHub/ai-scrum-test-project"
+file_count=0
+if [[ -d "${TEST_REPO_DIR}/docs/sprints" ]]; then
+  for f in "${TEST_REPO_DIR}"/docs/sprints/sprint-*-state.json "${TEST_REPO_DIR}"/docs/sprints/sprint-*-log.md "${TEST_REPO_DIR}"/docs/sprints/sprint-*-state.json.lock; do
+    if [[ -f "$f" ]]; then
+      rm "$f"
+      echo "  ❌ Deleted: $(basename "$f")"
+      ((file_count++)) || true
+    fi
+  done
+fi
+if [[ $file_count -eq 0 ]]; then
+  echo "  (none found)"
+fi
+
 echo ""
 echo "✅ Cleanup complete! (${REPO})"
 echo ""
