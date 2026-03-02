@@ -236,24 +236,27 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
 
     case "chat:error": {
       const p = msg.payload as {
-        sessionId: string;
+        sessionId?: string;
         error: string;
       } | undefined;
       if (p) {
+        const sid = p.sessionId ?? "__global__";
         set((prev) => {
-          const msgs = prev.chatMessages[p.sessionId] ?? [];
+          const msgs = prev.chatMessages[sid] ?? [];
           const streaming = { ...prev.chatStreaming };
-          delete streaming[p.sessionId];
+          delete streaming[sid];
           return {
             ...prev,
             chatMessages: {
               ...prev.chatMessages,
-              [p.sessionId]: [
+              [sid]: [
                 ...msgs,
                 { role: "system", content: `Error: ${p.error}` },
               ],
             },
             chatStreaming: streaming,
+            // Show error in side panel even if no session was created
+            ...(!p.sessionId ? { activeChatId: sid, chatPanelOpen: true } : {}),
           };
         });
       }

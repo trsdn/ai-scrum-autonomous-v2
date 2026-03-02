@@ -179,7 +179,7 @@ export class ChatManager {
     const roleContext = this.loadRoleContext(roleDir);
 
     if (!roleContext) {
-      throw new Error(`No role context found at ${roleDir}. Create .aiscrum/roles/${role}/ with .md files.`);
+      return `You are a ${role} assistant. Respond helpfully and concisely.`;
     }
 
     return `${roleContext}\n\nYou are in an interactive chat session. Respond helpfully and concisely.`;

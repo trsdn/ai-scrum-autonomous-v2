@@ -121,10 +121,11 @@ describe("ChatManager", () => {
       expect(prompt).toContain("Custom refiner context");
     });
 
-    it("throws when role folder does not exist", async () => {
+    it("falls back to generic prompt when role folder does not exist", async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
-      await expect(manager.createSession("planner")).rejects.toThrow("No role context found");
+      const session = await manager.createSession("planner");
+      expect(session.role).toBe("planner");
     });
 
     it("excludes log/ directory from role context loading", async () => {
