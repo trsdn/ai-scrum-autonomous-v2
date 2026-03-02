@@ -3,11 +3,21 @@ import { useDashboardStore } from "../store";
 import { Markdown } from "./Markdown";
 import "./SidePanel.css";
 
+const ROLE_META: Record<string, { icon: string; label: string }> = {
+  refiner:   { icon: "🔬", label: "Refiner" },
+  planner:   { icon: "📐", label: "Planner" },
+  reviewer:  { icon: "🔍", label: "Reviewer" },
+  researcher:{ icon: "🔎", label: "Researcher" },
+  general:   { icon: "💬", label: "General" },
+  challenger:{ icon: "⚔️", label: "Challenger" },
+};
+
 export function SidePanel() {
-  const chatSessions = useDashboardStore((s) => s.chatSessions);
   const activeChatId = useDashboardStore((s) => s.activeChatId);
+  const chatSessions = useDashboardStore((s) => s.chatSessions);
   const chatMessages = useDashboardStore((s) => s.chatMessages);
   const chatStreaming = useDashboardStore((s) => s.chatStreaming);
+  const sidePanelRole = useDashboardStore((s) => s.sidePanelRole);
   const send = useDashboardStore((s) => s.send);
 
   const [input, setInput] = useState("");
@@ -16,13 +26,17 @@ export function SidePanel() {
   const activeMessages = activeChatId ? chatMessages[activeChatId] ?? [] : [];
   const streaming = activeChatId ? chatStreaming[activeChatId] : undefined;
   const activeSession = chatSessions.find((s) => s.id === activeChatId);
+  const isLoading = !activeSession && activeChatId !== "__global__";
+
+  const role = activeSession?.role ?? sidePanelRole ?? "agent";
+  const meta = ROLE_META[role] ?? { icon: "🤖", label: role };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeMessages, streaming]);
 
   const handleClose = () => {
-    if (activeChatId) {
+    if (activeChatId && activeChatId !== "__global__") {
       send({ type: "chat:close", sessionId: activeChatId });
     }
     useDashboardStore.setState({ chatPanelOpen: false, activeChatId: null });
@@ -46,28 +60,25 @@ export function SidePanel() {
     <div className="side-panel">
       <div className="side-panel-header">
         <span className="side-panel-title">
-          🔬 {activeSession?.role ?? "Session"}
+          {meta.icon} {meta.label}
         </span>
-        {chatSessions.length > 1 && (
-          <div className="side-panel-tabs">
-            {chatSessions.map((s) => (
-              <button
-                key={s.id}
-                className={`side-panel-tab ${s.id === activeChatId ? "side-panel-tab-active" : ""}`}
-                onClick={() => useDashboardStore.setState({ activeChatId: s.id })}
-              >
-                {s.role}
-              </button>
-            ))}
-          </div>
+        {isLoading && <span className="side-panel-status loading">Connecting…</span>}
+        {activeSession && <span className="side-panel-status connected">● Connected</span>}
+        {activeSession?.model && (
+          <span className="side-panel-model">{activeSession.model}</span>
         )}
         <button className="btn btn-small side-panel-close" onClick={handleClose}>✕</button>
       </div>
 
       <div className="side-panel-messages">
-        {activeMessages.length === 0 && !streaming && (
+        {activeMessages.length === 0 && !streaming && !isLoading && (
           <div className="side-panel-empty">
             Session ready. Send a message to start.
+          </div>
+        )}
+        {isLoading && activeMessages.length === 0 && (
+          <div className="side-panel-empty">
+            Loading {meta.label} agent…
           </div>
         )}
         {activeMessages.map((m, i) => (
