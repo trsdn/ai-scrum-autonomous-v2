@@ -116,7 +116,7 @@ export class DashboardWebServer {
   private readonly options: DashboardServerOptions;
   private readonly publicDir: string;
   private eventBuffer: BufferedEvent[] = [];
-  private knownMilestones: { sprintNumber: number; title: string; state: string }[] = [];
+  private knownMilestones: { sprintNumber: number; milestoneNumber: number; title: string; state: string }[] = [];
   private executionMode: "autonomous" | "hitl" = "autonomous";
   private activeSprintNumberOverride: number | undefined;
   public sprintLimit = 0;
@@ -1276,10 +1276,10 @@ export class DashboardWebServer {
   }
 
   /** List available sprints by scanning state files, log files, and filling gaps. */
-  private listSprints(): { sprintNumber: number; phase: string; isActive: boolean }[] {
+  private listSprints(): { sprintNumber: number; milestoneNumber?: number; phase: string; isActive: boolean }[] {
     const projectPath = this.options.projectPath ?? process.cwd();
     const sprintsDir = path.join(projectPath, "docs", "sprints");
-    const sprintMap = new Map<number, { phase: string; isActive: boolean }>();
+    const sprintMap = new Map<number, { milestoneNumber?: number; phase: string; isActive: boolean }>();
     const slug = this.options.sprintSlug ?? "sprint";
     const stateRegex = new RegExp(`^${slug}-(\\d+)-state\\.json$`);
     const logRegex = new RegExp(`^${slug}-(\\d+)-log\\.md$`);
@@ -1328,9 +1328,16 @@ export class DashboardWebServer {
     for (const ms of this.knownMilestones) {
       if (!sprintMap.has(ms.sprintNumber)) {
         sprintMap.set(ms.sprintNumber, {
+          milestoneNumber: ms.milestoneNumber,
           phase: ms.state === "closed" ? "complete" : "init",
           isActive: ms.sprintNumber === activeNum,
         });
+      } else {
+        // Enrich existing entry with milestoneNumber
+        const existing = sprintMap.get(ms.sprintNumber)!;
+        if (!existing.milestoneNumber) {
+          existing.milestoneNumber = ms.milestoneNumber;
+        }
       }
     }
 

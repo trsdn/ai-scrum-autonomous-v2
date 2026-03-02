@@ -48,8 +48,10 @@ export function Header() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [state.startedAt, state.finalElapsed]);
 
+  const currentSprint = availableSprints.find((s) => s.sprintNumber === viewingSprintNumber);
+  const milestoneId = currentSprint?.milestoneNumber ?? displayNumber;
   const sprintLabel = repoUrl
-    ? <a href={`${repoUrl}/milestone/${displayNumber}`} target="_blank" rel="noopener">Sprint {displayNumber} ↗</a>
+    ? <a href={`${repoUrl}/milestone/${milestoneId}`} target="_blank" rel="noopener">Sprint {displayNumber} ↗</a>
     : `Sprint ${displayNumber}`;
 
   return (
