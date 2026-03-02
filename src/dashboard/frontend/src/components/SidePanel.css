@@ -134,6 +134,24 @@
   border-radius: 4px;
 }
 
+.side-panel-mode-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.side-panel-mode-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+
 .side-panel-messages {
   flex: 1;
   overflow-y: auto;

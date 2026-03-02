@@ -18,6 +18,7 @@ export interface ServerMessage {
     | "chat:thinking"
     | "chat:tool-call"
     | "chat:usage"
+    | "chat:mode"
     | "pong";
   eventName?: string;
   payload?: unknown;
@@ -42,6 +43,7 @@ export interface ClientMessage {
     | "chat:create"
     | "chat:send"
     | "chat:close"
+    | "chat:set-mode"
     | "blocked:comment"
     | "blocked:unblock"
     | "decisions:approve"
@@ -93,6 +95,7 @@ export interface ChatSession {
   id: string;
   role: string;
   model?: string;
+  modeId?: string;
 }
 
 /** Chat message. */
