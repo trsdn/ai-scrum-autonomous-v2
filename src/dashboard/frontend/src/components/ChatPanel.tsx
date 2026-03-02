@@ -8,12 +8,14 @@ export function ChatPanel() {
   const activeChatId = useDashboardStore((s) => s.activeChatId);
   const chatMessages = useDashboardStore((s) => s.chatMessages);
   const chatStreaming = useDashboardStore((s) => s.chatStreaming);
+  const chatPanelOpen = useDashboardStore((s) => s.chatPanelOpen);
   const send = useDashboardStore((s) => s.send);
 
-  const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [role, setRole] = useState("general");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const setIsOpen = (open: boolean) => useDashboardStore.setState({ chatPanelOpen: open });
 
   const activeMessages = activeChatId ? chatMessages[activeChatId] ?? [] : [];
   const streaming = activeChatId ? chatStreaming[activeChatId] : undefined;
@@ -48,11 +50,11 @@ export function ChatPanel() {
 
   return (
     <>
-      <button className="chat-toggle" onClick={() => setIsOpen(!isOpen)}>
-        💬 {isOpen ? "Close" : "Chat"}
+      <button className="chat-toggle" onClick={() => setIsOpen(!chatPanelOpen)}>
+        💬 {chatPanelOpen ? "Close" : "Chat"}
       </button>
 
-      {isOpen && (
+      {chatPanelOpen && (
         <div className="chat-panel">
           <div className="chat-header">
             <span>💬 Chat</span>
@@ -74,6 +76,7 @@ export function ChatPanel() {
                 onChange={(e) => setRole(e.target.value)}
               >
                 <option value="general">General</option>
+                <option value="refiner">Refiner</option>
                 <option value="code-review">Code Review</option>
                 <option value="planner">Planner</option>
                 <option value="challenger">Challenger</option>
