@@ -37,6 +37,9 @@ export interface ChatManagerOptions {
   onToolCall?: (sessionId: string, toolCall: { toolCallId: string; title: string; status?: string; kind?: string }) => void;
   onUsageUpdate?: (sessionId: string, usage: { used: number; size: number }) => void;
   onModeChange?: (sessionId: string, modeId: string) => void;
+  onPlanUpdate?: (sessionId: string, plan: { entries: Array<{ content: string; priority: string; status: string }> }) => void;
+  onCommandsUpdate?: (sessionId: string, commands: Array<{ name: string; description: string; hint?: string }>) => void;
+  onConfigUpdate?: (sessionId: string, configs: Array<{ id: string; name: string; category?: string; currentValue: string; options: Array<{ value: string; name: string }> }>) => void;
 }
 
 export class ChatManager {
@@ -86,6 +89,18 @@ export class ChatManager {
       onModeChange: (acpSessionId, modeId) => {
         const chatId = this.findChatId(acpSessionId);
         if (chatId) this.options.onModeChange?.(chatId, modeId);
+      },
+      onPlanUpdate: (acpSessionId, plan) => {
+        const chatId = this.findChatId(acpSessionId);
+        if (chatId) this.options.onPlanUpdate?.(chatId, plan);
+      },
+      onCommandsUpdate: (acpSessionId, commands) => {
+        const chatId = this.findChatId(acpSessionId);
+        if (chatId) this.options.onCommandsUpdate?.(chatId, commands);
+      },
+      onConfigUpdate: (acpSessionId, configs) => {
+        const chatId = this.findChatId(acpSessionId);
+        if (chatId) this.options.onConfigUpdate?.(chatId, configs);
       },
     });
 
@@ -173,6 +188,15 @@ export class ChatManager {
     const client = await this.ensureClient();
     await client.setMode(session.acpSessionId, modeId);
     log.info({ chatId, modeId }, "Chat session mode changed");
+  }
+
+  /** Set a config option for a chat session. */
+  async setConfig(chatId: string, optionId: string, value: string): Promise<void> {
+    const session = this.sessions.get(chatId);
+    if (!session) throw new Error(`Chat session ${chatId} not found`);
+    const client = await this.ensureClient();
+    await client.setConfigOption(session.acpSessionId, optionId, value);
+    log.info({ chatId, optionId, value }, "Chat session config changed");
   }
 
   /** Get a chat session by ID. */

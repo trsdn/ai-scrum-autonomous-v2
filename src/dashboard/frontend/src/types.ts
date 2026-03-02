@@ -19,6 +19,9 @@ export interface ServerMessage {
     | "chat:tool-call"
     | "chat:usage"
     | "chat:mode"
+    | "chat:plan"
+    | "chat:commands"
+    | "chat:config"
     | "pong";
   eventName?: string;
   payload?: unknown;
@@ -44,6 +47,7 @@ export interface ClientMessage {
     | "chat:send"
     | "chat:close"
     | "chat:set-mode"
+    | "chat:set-config"
     | "blocked:comment"
     | "blocked:unblock"
     | "decisions:approve"
@@ -58,6 +62,8 @@ export interface ClientMessage {
   mode?: string;
   body?: string;
   limit?: number;
+  optionId?: string;
+  value?: string;
 }
 
 /** Sprint state from server. */

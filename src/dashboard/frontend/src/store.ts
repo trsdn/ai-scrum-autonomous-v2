@@ -14,6 +14,27 @@ export interface ChatToolCall {
   title: string;
   status?: string;
   kind?: string;
+  locations?: Array<{ path: string; line?: number }>;
+}
+
+export interface ChatPlanEntry {
+  content: string;
+  priority: "high" | "medium" | "low";
+  status: "pending" | "in_progress" | "completed";
+}
+
+export interface ChatCommand {
+  name: string;
+  description: string;
+  hint?: string;
+}
+
+export interface ChatConfigOption {
+  id: string;
+  name: string;
+  category?: string;
+  currentValue: string;
+  options: Array<{ value: string; name: string }>;
 }
 
 export interface DashboardStore {
@@ -46,6 +67,9 @@ export interface DashboardStore {
   chatThinking: Record<string, string>;
   chatToolCalls: Record<string, ChatToolCall[]>;
   chatUsage: Record<string, { used: number; size: number }>;
+  chatPlan: Record<string, ChatPlanEntry[]>;
+  chatCommands: Record<string, ChatCommand[]>;
+  chatConfig: Record<string, ChatConfigOption[]>;
   chatPanelOpen: boolean;
   sidePanelRole: string | null;
   pendingChatMessage: string | null;
@@ -304,16 +328,22 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
         title: string;
         status?: string;
         kind?: string;
+        locations?: Array<{ uri?: string; path?: string; line?: number }>;
       } | undefined;
       if (p) {
         set((prev) => {
           const existing = prev.chatToolCalls[p.sessionId] ?? [];
           const idx = existing.findIndex((t) => t.toolCallId === p.toolCallId);
+          const locs = p.locations?.map((l) => ({
+            path: l.path ?? l.uri?.replace("file://", "") ?? "",
+            line: l.line,
+          }));
           const entry: ChatToolCall = {
             toolCallId: p.toolCallId,
             title: p.title,
             status: p.status,
             kind: p.kind,
+            locations: locs,
           };
           const updated = idx >= 0
             ? existing.map((t, i) => (i === idx ? entry : t))
@@ -350,6 +380,39 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
           chatSessions: prev.chatSessions.map((s) =>
             s.id === p.sessionId ? { ...s, modeId: p.modeId } : s,
           ),
+        }));
+      }
+      break;
+    }
+
+    case "chat:plan": {
+      const p = msg.payload as { sessionId: string; entries: ChatPlanEntry[] } | undefined;
+      if (p) {
+        set((prev) => ({
+          ...prev,
+          chatPlan: { ...prev.chatPlan, [p.sessionId]: p.entries },
+        }));
+      }
+      break;
+    }
+
+    case "chat:commands": {
+      const p = msg.payload as { sessionId: string; commands: ChatCommand[] } | undefined;
+      if (p) {
+        set((prev) => ({
+          ...prev,
+          chatCommands: { ...prev.chatCommands, [p.sessionId]: p.commands },
+        }));
+      }
+      break;
+    }
+
+    case "chat:config": {
+      const p = msg.payload as { sessionId: string; configs: ChatConfigOption[] } | undefined;
+      if (p) {
+        set((prev) => ({
+          ...prev,
+          chatConfig: { ...prev.chatConfig, [p.sessionId]: p.configs },
         }));
       }
       break;
@@ -578,6 +641,9 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
   chatThinking: {},
   chatToolCalls: {},
   chatUsage: {},
+  chatPlan: {},
+  chatCommands: {},
+  chatConfig: {},
   chatPanelOpen: false,
   sidePanelRole: null,
   pendingChatMessage: null,

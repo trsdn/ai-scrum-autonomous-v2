@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useDashboardStore } from "../store";
+import type { ChatCommand } from "../store";
 import { Markdown } from "./Markdown";
 import "./SidePanel.css";
 
@@ -23,6 +24,19 @@ const MODE_CYCLE = [
   "https://agentclientprotocol.com/protocol/session-modes#plan",
 ];
 
+const TOOL_KIND_ICONS: Record<string, string> = {
+  read: "📖",
+  edit: "✏️",
+  delete: "🗑️",
+  move: "📁",
+  search: "🔍",
+  execute: "▶️",
+  think: "💭",
+  fetch: "🌐",
+  switch_mode: "🔄",
+  other: "🔧",
+};
+
 export function SidePanel() {
   const activeChatId = useDashboardStore((s) => s.activeChatId);
   const chatSessions = useDashboardStore((s) => s.chatSessions);
@@ -32,17 +46,27 @@ export function SidePanel() {
   const chatThinking = useDashboardStore((s) => s.chatThinking);
   const chatToolCalls = useDashboardStore((s) => s.chatToolCalls);
   const chatUsage = useDashboardStore((s) => s.chatUsage);
+  const chatPlan = useDashboardStore((s) => s.chatPlan);
+  const chatCommands = useDashboardStore((s) => s.chatCommands);
+  const chatConfig = useDashboardStore((s) => s.chatConfig);
   const sidePanelRole = useDashboardStore((s) => s.sidePanelRole);
   const send = useDashboardStore((s) => s.send);
 
   const [input, setInput] = useState("");
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashFilter, setSlashFilter] = useState("");
+  const [showConfigDropdown, setShowConfigDropdown] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const activeMessages = activeChatId ? chatMessages[activeChatId] ?? [] : [];
   const streaming = activeChatId ? chatStreaming[activeChatId] : undefined;
   const thinking = activeChatId ? chatThinking[activeChatId] : undefined;
   const toolCalls = activeChatId ? chatToolCalls[activeChatId] : undefined;
   const usage = activeChatId ? chatUsage[activeChatId] : undefined;
+  const plan = activeChatId ? chatPlan[activeChatId] : undefined;
+  const commands = activeChatId ? chatCommands[activeChatId] : undefined;
+  const configs = activeChatId ? chatConfig[activeChatId] : undefined;
   const activeSession = chatSessions.find((s) => s.id === activeChatId);
   const isLoading = !activeSession && activeChatId !== "__global__" && activeChatId !== null;
 
@@ -51,7 +75,7 @@ export function SidePanel() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessages, streaming, thinking, toolCalls]);
+  }, [activeMessages, streaming, thinking, toolCalls, plan]);
 
   const handleClosePanel = () => {
     useDashboardStore.setState({ chatPanelOpen: false });
@@ -95,6 +119,26 @@ export function SidePanel() {
       },
     });
     setInput("");
+    setShowSlashMenu(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setInput(val);
+    // Slash command detection
+    if (val.startsWith("/") && commands && commands.length > 0) {
+      setShowSlashMenu(true);
+      setSlashFilter(val.slice(1).toLowerCase());
+    } else {
+      setShowSlashMenu(false);
+    }
+  };
+
+  const selectCommand = (cmd: ChatCommand) => {
+    const text = `/${cmd.name} `;
+    setInput(text);
+    setShowSlashMenu(false);
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -103,6 +147,10 @@ export function SidePanel() {
       handleSend();
     }
   };
+
+  const filteredCommands = commands?.filter((c) =>
+    c.name.toLowerCase().includes(slashFilter) || c.description.toLowerCase().includes(slashFilter),
+  ) ?? [];
 
   return (
     <div className="side-panel">
@@ -159,6 +207,35 @@ export function SidePanel() {
             })()}
           </button>
         )}
+        {configs && configs.length > 0 && configs.map((cfg) => (
+          <div key={cfg.id} className="side-panel-config-wrapper">
+            <button
+              className="side-panel-config-btn"
+              onClick={() => setShowConfigDropdown(showConfigDropdown === cfg.id ? null : cfg.id)}
+              title={cfg.name}
+            >
+              {cfg.name}: {cfg.options.find((o) => o.value === cfg.currentValue)?.name ?? cfg.currentValue}
+            </button>
+            {showConfigDropdown === cfg.id && (
+              <div className="side-panel-config-dropdown">
+                {cfg.options.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={`side-panel-config-option${opt.value === cfg.currentValue ? " active" : ""}`}
+                    onClick={() => {
+                      if (activeChatId) {
+                        send({ type: "chat:set-config", sessionId: activeChatId, optionId: cfg.id, value: opt.value });
+                      }
+                      setShowConfigDropdown(null);
+                    }}
+                  >
+                    {opt.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       <div className="side-panel-messages">
@@ -197,7 +274,34 @@ export function SidePanel() {
                 <span className="chat-tool-icon">
                   {tc.status === "completed" ? "✓" : tc.status === "failed" ? "✗" : "⟳"}
                 </span>
+                <span className="chat-tool-kind">{TOOL_KIND_ICONS[tc.kind ?? ""] ?? "🔧"}</span>
                 <span className="chat-tool-title">{tc.title}</span>
+                {tc.locations && tc.locations.length > 0 && (
+                  <span className="chat-tool-locations">
+                    {tc.locations.map((l, i) => (
+                      <span key={i} className="chat-tool-location">
+                        {l.path.split("/").pop()}{l.line ? `:${l.line}` : ""}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Plan progress */}
+        {plan && plan.length > 0 && (
+          <div className="chat-plan">
+            <div className="chat-plan-header">
+              📋 Plan ({plan.filter((e) => e.status === "completed").length}/{plan.length})
+            </div>
+            {plan.map((entry, i) => (
+              <div key={i} className={`chat-plan-entry chat-plan-${entry.status}`}>
+                <span className="chat-plan-check">
+                  {entry.status === "completed" ? "✓" : entry.status === "in_progress" ? "⟳" : "○"}
+                </span>
+                <span className="chat-plan-text">{entry.content}</span>
               </div>
             ))}
           </div>
@@ -230,13 +334,33 @@ export function SidePanel() {
         </div>
       )}
 
+      {/* Slash command menu */}
+      {showSlashMenu && filteredCommands.length > 0 && (
+        <div className="slash-menu">
+          {filteredCommands.map((cmd) => (
+            <button
+              key={cmd.name}
+              className="slash-menu-item"
+              onClick={() => selectCommand(cmd)}
+            >
+              <span className="slash-menu-name">/{cmd.name}</span>
+              <span className="slash-menu-desc">{cmd.description}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="side-panel-input-row">
         <textarea
+          ref={inputRef}
           className="side-panel-input"
-          placeholder="Ask something… (Enter to send, Shift+Enter for new line)"
+          placeholder={commands && commands.length > 0
+            ? "Type / for commands or ask something…"
+            : "Ask something… (Enter to send, Shift+Enter for new line)"}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          onBlur={() => setTimeout(() => setShowSlashMenu(false), 200)}
           rows={2}
           autoFocus
         />
