@@ -35,6 +35,7 @@ export interface DashboardStore {
   activeChatId: string | null;
   chatMessages: Record<string, ChatMessage[]>;
   chatStreaming: Record<string, string>;
+  chatPanelOpen: boolean;
 
   // Execution mode
   executionMode: "autonomous" | "hitl";
@@ -449,6 +450,7 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
   activeChatId: null,
   chatMessages: {},
   chatStreaming: {},
+  chatPanelOpen: false,
   executionMode: "autonomous",
   sprintLimit: 0,
   backlogPending: new Set<number>(),

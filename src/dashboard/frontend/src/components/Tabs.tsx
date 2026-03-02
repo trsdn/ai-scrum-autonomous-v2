@@ -213,6 +213,7 @@ export function DecisionsTab() {
 export function IdeasTab() {
   const [items, setItems] = useState<GhIssueItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const send = useDashboardStore((s) => s.send);
 
   const fetchItems = () => {
     setLoading(true);
@@ -221,6 +222,11 @@ export function IdeasTab() {
       .then((d) => setItems(Array.isArray(d) ? d : []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
+  };
+
+  const startRefine = () => {
+    send({ type: "chat:create", role: "refiner" });
+    useDashboardStore.setState({ chatPanelOpen: true });
   };
 
   useEffect(() => { fetchItems(); }, []);
@@ -236,7 +242,18 @@ export function IdeasTab() {
       </div>
       <ul className="tab-list">
         {items.map((item) => (
-          <IssueCard key={item.number} item={item} />
+          <IssueCard
+            key={item.number}
+            item={item}
+            actions={
+              <button
+                className="btn btn-small btn-primary"
+                onClick={() => startRefine()}
+              >
+                🔬 Refine
+              </button>
+            }
+          />
         ))}
       </ul>
     </div>
