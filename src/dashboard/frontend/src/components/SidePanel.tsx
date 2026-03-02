@@ -12,6 +12,17 @@ const ROLE_META: Record<string, { icon: string; label: string }> = {
   challenger:{ icon: "⚔️", label: "Challenger Agent" },
 };
 
+const MODE_LABELS: Record<string, { short: string; icon: string }> = {
+  "https://agentclientprotocol.com/protocol/session-modes#agent": { short: "Agent", icon: "🤖" },
+  "https://agentclientprotocol.com/protocol/session-modes#plan": { short: "Plan", icon: "📋" },
+  "https://agentclientprotocol.com/protocol/session-modes#autopilot": { short: "Autopilot", icon: "🚀" },
+};
+
+const MODE_CYCLE = [
+  "https://agentclientprotocol.com/protocol/session-modes#agent",
+  "https://agentclientprotocol.com/protocol/session-modes#plan",
+];
+
 export function SidePanel() {
   const activeChatId = useDashboardStore((s) => s.activeChatId);
   const chatSessions = useDashboardStore((s) => s.chatSessions);
@@ -130,6 +141,23 @@ export function SidePanel() {
         {activeSession && <span className="side-panel-status connected">● Connected</span>}
         {activeSession?.model && (
           <span className="side-panel-model">{activeSession.model}</span>
+        )}
+        {activeSession && (
+          <button
+            className="side-panel-mode-btn"
+            onClick={() => {
+              const currentMode = activeSession.modeId ?? MODE_CYCLE[0]!;
+              const idx = MODE_CYCLE.indexOf(currentMode);
+              const nextMode = MODE_CYCLE[(idx + 1) % MODE_CYCLE.length]!;
+              send({ type: "chat:set-mode", sessionId: activeSession.id, mode: nextMode });
+            }}
+            title="Toggle mode (Shift+Tab)"
+          >
+            {(() => {
+              const m = MODE_LABELS[activeSession.modeId ?? ""] ?? MODE_LABELS[MODE_CYCLE[0]!]!;
+              return `${m.icon} ${m.short}`;
+            })()}
+          </button>
         )}
       </div>
 

@@ -31,7 +31,7 @@ export interface IssueEntry {
 
 /** Message sent from server to browser clients. */
 export interface ServerMessage {
-  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "backlog:planned" | "backlog:removed" | "backlog:error" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "chat:thinking" | "chat:tool-call" | "chat:usage" | "pong";
+  type: "sprint:event" | "sprint:state" | "sprint:issues" | "sprint:switched" | "backlog:planned" | "backlog:removed" | "backlog:error" | "session:list" | "session:output" | "session:status" | "chat:chunk" | "chat:done" | "chat:created" | "chat:error" | "chat:thinking" | "chat:tool-call" | "chat:usage" | "chat:mode" | "pong";
   eventName?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
@@ -39,7 +39,7 @@ export interface ServerMessage {
 
 /** Message sent from browser client to server. */
 export interface ClientMessage {
-  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "sprint:set-limit" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "blocked:comment" | "blocked:unblock" | "decisions:approve" | "decisions:reject" | "decisions:comment" | "ping";
+  type: "sprint:start" | "sprint:stop" | "sprint:pause" | "sprint:resume" | "sprint:switch" | "sprint:set-limit" | "mode:set" | "backlog:plan-issue" | "backlog:remove-issue" | "session:subscribe" | "session:unsubscribe" | "session:send-message" | "session:stop" | "chat:create" | "chat:send" | "chat:close" | "chat:set-mode" | "blocked:comment" | "blocked:unblock" | "decisions:approve" | "decisions:reject" | "decisions:comment" | "ping";
   sprintNumber?: number;
   issueNumber?: number;
   sessionId?: string;
@@ -541,6 +541,11 @@ export class DashboardWebServer {
           this.handleChatClose(msg.sessionId);
         }
         break;
+      case "chat:set-mode":
+        if (msg.sessionId && msg.mode) {
+          this.handleChatSetMode(msg.sessionId, msg.mode, ws);
+        }
+        break;
       case "session:subscribe":
         if (msg.sessionId) {
           let subs = this.sessionSubscribers.get(msg.sessionId);
@@ -654,6 +659,12 @@ export class DashboardWebServer {
             payload: { sessionId: chatId, ...usage },
           });
         },
+        onModeChange: (chatId, modeId) => {
+          this.broadcast({
+            type: "chat:mode",
+            payload: { sessionId: chatId, modeId },
+          });
+        },
       });
     }
     return this.chatManager;
@@ -711,6 +722,23 @@ export class DashboardWebServer {
       await this.getChatManager().closeSession(sessionId);
     } catch (err: unknown) {
       log.warn({ err, sessionId }, "Failed to close chat session");
+    }
+  }
+
+  private async handleChatSetMode(sessionId: string, modeId: string, ws: WebSocket): Promise<void> {
+    try {
+      await this.getChatManager().setMode(sessionId, modeId);
+      this.broadcast({
+        type: "chat:mode",
+        payload: { sessionId, modeId },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ err, sessionId, modeId }, "Failed to set chat mode");
+      this.sendTo(ws, {
+        type: "chat:error",
+        payload: { sessionId, error: `Failed to set mode: ${msg}` },
+      });
     }
   }
 

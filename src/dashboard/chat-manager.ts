@@ -36,6 +36,7 @@ export interface ChatManagerOptions {
   onThinkingChunk?: (sessionId: string, text: string) => void;
   onToolCall?: (sessionId: string, toolCall: { toolCallId: string; title: string; status?: string; kind?: string }) => void;
   onUsageUpdate?: (sessionId: string, usage: { used: number; size: number }) => void;
+  onModeChange?: (sessionId: string, modeId: string) => void;
 }
 
 export class ChatManager {
@@ -81,6 +82,10 @@ export class ChatManager {
       onUsageUpdate: (acpSessionId, usage) => {
         const chatId = this.findChatId(acpSessionId);
         if (chatId) this.options.onUsageUpdate?.(chatId, usage);
+      },
+      onModeChange: (acpSessionId, modeId) => {
+        const chatId = this.findChatId(acpSessionId);
+        if (chatId) this.options.onModeChange?.(chatId, modeId);
       },
     });
 
@@ -159,6 +164,15 @@ export class ChatManager {
 
     this.sessions.delete(chatId);
     log.info({ chatId }, "Chat session closed");
+  }
+
+  /** Set the ACP mode for a chat session. */
+  async setMode(chatId: string, modeId: string): Promise<void> {
+    const session = this.sessions.get(chatId);
+    if (!session) throw new Error(`Chat session ${chatId} not found`);
+    const client = await this.ensureClient();
+    await client.setMode(session.acpSessionId, modeId);
+    log.info({ chatId, modeId }, "Chat session mode changed");
   }
 
   /** Get a chat session by ID. */

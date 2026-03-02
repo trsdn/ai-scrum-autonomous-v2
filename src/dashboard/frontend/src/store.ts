@@ -342,6 +342,19 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
       break;
     }
 
+    case "chat:mode": {
+      const p = msg.payload as { sessionId: string; modeId: string } | undefined;
+      if (p) {
+        set((prev) => ({
+          ...prev,
+          chatSessions: prev.chatSessions.map((s) =>
+            s.id === p.sessionId ? { ...s, modeId: p.modeId } : s,
+          ),
+        }));
+      }
+      break;
+    }
+
     case "chat:error": {
       const p = msg.payload as {
         sessionId?: string;

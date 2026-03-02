@@ -47,6 +47,8 @@ export interface AcpClientOptions {
   onToolCall?: (sessionId: string, toolCall: AcpToolCallEvent) => void;
   /** Callback for usage/token updates. */
   onUsageUpdate?: (sessionId: string, usage: AcpUsageEvent) => void;
+  /** Callback for mode changes. */
+  onModeChange?: (sessionId: string, modeId: string) => void;
 }
 
 export interface AcpToolCallEvent {
@@ -107,6 +109,7 @@ export class AcpClient {
   private readonly onThinkingChunk?: (sessionId: string, text: string) => void;
   private readonly onToolCall?: (sessionId: string, toolCall: AcpToolCallEvent) => void;
   private readonly onUsageUpdate?: (sessionId: string, usage: AcpUsageEvent) => void;
+  private readonly onModeChange?: (sessionId: string, modeId: string) => void;
 
   // Accumulate streamed chunks per session
   private sessionChunks = new Map<string, string[]>();
@@ -129,6 +132,7 @@ export class AcpClient {
     this.onThinkingChunk = options.onThinkingChunk;
     this.onToolCall = options.onToolCall;
     this.onUsageUpdate = options.onUsageUpdate;
+    this.onModeChange = options.onModeChange;
     this.permissionHandler = createPermissionHandler(
       options.permissions ?? DEFAULT_PERMISSION_CONFIG,
       this.log,
@@ -223,6 +227,7 @@ export class AcpClient {
       const onThinking = this.onThinkingChunk;
       const onTool = this.onToolCall;
       const onUsage = this.onUsageUpdate;
+      const onMode = this.onModeChange;
 
       this.connection = new ClientSideConnection(
         (_agent) => {
@@ -265,6 +270,11 @@ export class AcpClient {
                   size: Number(u.size ?? 0),
                   cost: u.cost as AcpUsageEvent["cost"],
                 });
+              } else if (update.sessionUpdate === "current_mode_update") {
+                const m = update as Record<string, unknown>;
+                if (m.currentModeId) {
+                  onMode?.(sid, String(m.currentModeId));
+                }
               }
 
               log.debug(
