@@ -70,22 +70,30 @@ test.describe("Settings Save & Reset", () => {
   });
 
   test("save sends config to backend and shows toast", async ({ page }) => {
-    // Make a change
+    // Wait for settings inputs to be fully loaded
     const input = page.locator(".settings-table input[type='number']").first();
+    await expect(input).toBeVisible({ timeout: 5_000 });
     const original = await input.inputValue();
+    // Use a value guaranteed to be different from the current value
+    const newValue = String(parseInt(original, 10) + 1);
     await input.click();
-    await input.fill("42");
-    // Save
+    await input.fill(newValue);
+    // Wait for dirty indicator — confirms React state updated
+    const dirtyBadge = page.locator(".settings-dirty");
+    await expect(dirtyBadge.first()).toBeVisible({ timeout: 3_000 });
+    // Save (should now be enabled)
     const saveBtn = page.locator("button", { hasText: /💾\s*Save/i }).first();
+    await expect(saveBtn).toBeEnabled({ timeout: 2_000 });
     await saveBtn.click();
     // Toast should appear
     const toast = page.locator(".settings-toast");
-    await expect(toast).toBeVisible({ timeout: 3_000 });
-    // Restore
+    await expect(toast).toBeVisible({ timeout: 5_000 });
+    // Restore original value
     await input.click();
     await input.fill(original);
+    await expect(dirtyBadge.first()).toBeVisible({ timeout: 3_000 });
     await saveBtn.click();
-    await page.waitForTimeout(1000);
+    await expect(toast).toBeVisible({ timeout: 5_000 });
   });
 
   test("reset button reverts changes", async ({ page }) => {
