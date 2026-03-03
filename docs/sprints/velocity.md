@@ -4,7 +4,7 @@ Track sprint-over-sprint performance to calibrate future sprint sizing.
 
 | Sprint | Date | Goal | Planned | Done | Carry | ~Hours | Issues/Hr | Notes |
 |--------|------|------|---------|------|-------|--------|-----------|-------|
-| 1 | 2026-02-27 | Add validation, retry tracking, error messages | 3 | 2 | 1 | ~0.25 | 8.0 | First sprint — 1 issue blocked by unrelated test timeout |
+| 1 | 2026-03-03 | Sprint 1 was already planned by a previous run with 8 independent 1-point tasks. Prioritized medium-priority items (#2, #3, #4) first in sequencing. All issues are independent with no cross-dependencies, so they form a single parallel execution group. No stakeholder-flagged (critical/high) or bug issues exist. Sprint is at capacity — 3 unlabeled issues (#44, #45, #46) deferred to backlog pending grooming. ICE scores are 0 (not assigned by stakeholder). | 8 | 6 | 2 | 1 | 8.59 | undefined |
 
 ## How to Read This
 
@@ -18,7 +18,6 @@ Track sprint-over-sprint performance to calibrate future sprint sizing.
 
 > Update this section after accumulating 3+ sprints of data.
 
-- **Average velocity**: TBD issues/hr
-- **Best sprint type**: TBD
-- **Recommended sprint size**: 7 issues (adjust based on data)
-| 1 | 2026-02-27 | First sprint — no historical velocity, capped at 3 issues. All 3 S1-designated issues are independent tasks with clear acceptance criteria. No stakeholder-priority or bug issues to override ordering. All run in a single parallel group since they have no dependencies on each other. | 3 | 2 | 1 | 0 | 7.25 | undefined |
+- **Average velocity**: 8.6 issues/hr (1 sprint)
+- **Best sprint type**: Small, independent housekeeping tasks
+- **Recommended sprint size**: 7–8 issues (adjust based on data)

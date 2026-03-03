@@ -25,6 +25,9 @@ Implement issue #{{ISSUE_NUMBER}} following the AI-Scrum Definition of Done, the
 - Read the full issue body and acceptance criteria
 - Search the codebase for related files and existing implementations
 - Check `docs/architecture/ADR.md` for relevant architectural decisions
+- **CRITICAL: Parse the issue title and body to identify target files explicitly mentioned**
+- **BEFORE making changes: List ALL files you intend to modify**
+- **If your list exceeds the files mentioned in the issue, STOP and ask for clarification**
 - Identify the minimal set of files to change
 
 ### 2. Plan the Implementation
@@ -121,6 +124,7 @@ Create a PR with:
 - **Small diffs** — ~150 lines ideal, max {{MAX_DIFF_LINES}} lines
 - **No process bypass** — always branch → PR → CI green → merge (Constitution §5)
 - **No scope creep** — implement only what the issue asks for. Discovered work → new issue in backlog
+- **File scope control** — Only modify files explicitly mentioned in the issue. If you need to change additional files, STOP and ask for clarification
 - **Stakeholder Authority (Constitution §0)**: Do not descope acceptance criteria. If criteria seem wrong, add a comment on the issue and proceed with what's written
 
 ## Verification Before Completion

@@ -1,52 +1,78 @@
-# Sprint Runner Configuration
-# See src/config.ts for schema and validation
-
 project:
-  name: "ai-scrum-autonomous-v2"
-  base_branch: "main"
-
+  name: ai-scrum-autonomous-v2
+  base_branch: main
 copilot:
-  executable: "copilot"
-  max_parallel_sessions: 4
-  session_timeout_ms: 600000
+  executable: copilot
+  max_parallel_sessions: 2
+  session_timeout_ms: 300000
   auto_approve_tools: true
-
-  # Global MCP servers — attached to every ACP session
+  allow_tool_patterns: []
   mcp_servers:
-    - name: "github"
-      type: "stdio"
-      command: "npx"
-      args: ["-y", "@github/mcp-server"]
-
-  # Global instructions — prepended to every prompt
+    - type: stdio
+      name: github
+      command: npx
+      args:
+        - -y
+        - "@github/mcp-server"
   instructions: []
-
-  # Per-phase configuration (model + additional MCPs + instructions)
   phases:
     planner:
-      model: "claude-opus-4.6"
+      model: claude-sonnet-4.5
+      mcp_servers: []
+      instructions: []
     worker:
-      model: "claude-sonnet-4.5"
+      model: claude-sonnet-4.5
+      mcp_servers: []
+      instructions: []
     reviewer:
-      model: "claude-opus-4.6"
-
+      model: claude-sonnet-4.5
+      mcp_servers: []
+      instructions: []
 sprint:
-  max_issues: 8
+  prefix: Sprint
+  min_issues: 0
+  max_issues: 3
+  max_issues_created_per_sprint: 10
+  max_sprints: 0
   max_drift_incidents: 2
-  max_retries: 2
-  enable_challenger: true
+  max_retries: 1
+  enable_challenger: false
+  enable_tdd: false
   auto_revert_drift: false
-
+  backlog_labels:
+    - test-run
+quality_gates:
+  require_tests: true
+  require_lint: true
+  require_types: true
+  require_build: true
+  max_diff_lines: 300
+  test_command:
+    - npm
+    - run
+    - test
+  lint_command:
+    - npm
+    - run
+    - lint
+  typecheck_command:
+    - npm
+    - run
+    - typecheck
+  build_command:
+    - npm
+    - run
+    - build
+  require_challenger: false
 escalation:
   notifications:
     ntfy: true
-    ntfy_topic: "${NTFY_TOPIC}"
-
+    ntfy_topic: qet-88676313052c548c
+    ntfy_server_url: https://ntfy.sh
 git:
-  worktree_base: "../sprint-worktrees"
+  worktree_base: ../sprint-worktrees
   branch_pattern: "{prefix}/{sprint}/issue-{issue}"
   auto_merge: true
   squash_merge: true
   delete_branch_after_merge: true
-
 github: {}
