@@ -117,7 +117,7 @@ export function Header() {
 
         <select
           className="btn btn-small"
-          value={sprintLimit}
+          value={String(sprintLimit)}
           onChange={(e) => send({ type: "sprint:set-limit", limit: parseInt(e.target.value, 10) })}
           title="Number of sprints to run"
         >

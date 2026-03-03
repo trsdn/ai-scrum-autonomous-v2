@@ -30,6 +30,10 @@ export function LogTerminal() {
   const [fileEntries, setFileEntries] = useState<FileLogEntry[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(false);
 
+  // Stable refs to avoid dependency loops in intervals
+  const selectedFileRef = useRef(selectedFile);
+  selectedFileRef.current = selectedFile;
+
   // Fetch available log files
   const fetchLogFiles = useCallback(async () => {
     try {
@@ -38,30 +42,31 @@ export function LogTerminal() {
       const data = await resp.json();
       setLogFiles(data.files ?? []);
       // Auto-select today's file if none selected
-      if (!selectedFile && data.files?.length > 0) {
+      if (!selectedFileRef.current && data.files?.length > 0) {
         setSelectedFile(data.files[0].name);
       }
     } catch { /* network error */ }
-  }, [selectedFile]);
+  }, []);
 
   // Fetch entries for selected log file
   const fetchLogEntries = useCallback(async () => {
-    if (!selectedFile) return;
+    const file = selectedFileRef.current;
+    if (!file) return;
     setLoadingFiles(true);
     try {
-      const resp = await fetch(`/api/logs?file=${encodeURIComponent(selectedFile)}&tail=500`);
+      const resp = await fetch(`/api/logs?file=${encodeURIComponent(file)}&tail=500`);
       if (!resp.ok) return;
       const data = await resp.json();
       setFileEntries(data.entries ?? []);
     } catch { /* network error */ }
     setLoadingFiles(false);
-  }, [selectedFile]);
+  }, []);
 
   // Load files list on mount
   useEffect(() => { fetchLogFiles(); }, [fetchLogFiles]);
 
   // Load entries when file changes
-  useEffect(() => { fetchLogEntries(); }, [fetchLogEntries]);
+  useEffect(() => { if (selectedFile) fetchLogEntries(); }, [selectedFile, fetchLogEntries]);
 
   // Auto-refresh: poll for new entries every 5s when viewing today's file
   useEffect(() => {

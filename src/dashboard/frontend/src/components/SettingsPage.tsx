@@ -460,6 +460,8 @@ export function SettingsPage() {
   const [config, setConfig] = useState<Config | null>(null);
   const [savedConfig, setSavedConfig] = useState<string>("");
   const [roles, setRoles] = useState<AgentRole[]>([]);
+  const [savedRoles, setSavedRoles] = useState<string>("");
+  const [resetKey, setResetKey] = useState(0);
   const [qualityGates, setQualityGates] = useState<QualityGates | null>(null);
   const [savedQg, setSavedQg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -473,7 +475,9 @@ export function SettingsPage() {
     ]).then(([cfg, rls, qg]) => {
       setConfig(cfg as Config);
       setSavedConfig(JSON.stringify(cfg));
-      setRoles((rls as AgentRole[]) ?? []);
+      const roleList = (rls as AgentRole[]) ?? [];
+      setRoles(roleList);
+      setSavedRoles(JSON.stringify(roleList));
       if (qg) { setQualityGates(qg as QualityGates); setSavedQg(JSON.stringify(qg)); }
     }).catch((e) => setError(String(e)));
   }, []);
@@ -488,37 +492,54 @@ export function SettingsPage() {
 
   const save = useCallback(async () => {
     if (!config) return;
+    const results: string[] = [];
     try {
-      const res = await fetch("/api/config", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
-      });
-      if (res.ok) {
-        setSavedConfig(JSON.stringify(config));
-        // Also save quality gates if dirty
-        if (qualityGates && qgDirty) {
-          const qgRes = await fetch("/api/quality-gates", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(qualityGates),
-          });
-          if (qgRes.ok) setSavedQg(JSON.stringify(qualityGates));
+      // Save config independently
+      if (isDirty) {
+        const res = await fetch("/api/config", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(config),
+        });
+        if (res.ok) {
+          setSavedConfig(JSON.stringify(config));
+          results.push("config");
+        } else {
+          const data = await res.json();
+          showToast(`❌ Config: ${data.error ?? "Save failed"}`, "error");
+          return;
         }
-        showToast("✅ Settings saved", "success");
+      }
+      // Save quality gates independently
+      if (qualityGates && qgDirty) {
+        const qgRes = await fetch("/api/quality-gates", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(qualityGates),
+        });
+        if (qgRes.ok) {
+          setSavedQg(JSON.stringify(qualityGates));
+          results.push("quality gates");
+        } else {
+          showToast("❌ Quality gates save failed", "error");
+          return;
+        }
+      }
+      if (results.length > 0) {
+        showToast(`✅ Saved ${results.join(" + ")}`, "success");
       } else {
-        const data = await res.json();
-        showToast(`❌ ${data.error ?? "Save failed"}`, "error");
+        showToast("ℹ️ No changes to save", "success");
       }
     } catch (e) {
       showToast(`❌ ${String(e)}`, "error");
     }
-  }, [config, qualityGates, qgDirty, showToast]);
+  }, [config, isDirty, qualityGates, qgDirty, showToast]);
 
   const reset = useCallback(() => {
     if (savedConfig) setConfig(JSON.parse(savedConfig));
     if (savedQg) setQualityGates(JSON.parse(savedQg));
-  }, [savedConfig, savedQg]);
+    if (savedRoles) { setRoles(JSON.parse(savedRoles)); setResetKey((k) => k + 1); }
+  }, [savedConfig, savedQg, savedRoles]);
 
   const saveRole = useCallback(async (role: AgentRole) => {
     try {
@@ -538,7 +559,9 @@ export function SettingsPage() {
         }),
       });
       if (res.ok) {
-        setRoles((prev) => prev.map((r) => r.name === role.name ? role : r));
+        const updatedRoles = roles.map((r) => r.name === role.name ? role : r);
+        setRoles(updatedRoles);
+        setSavedRoles(JSON.stringify(updatedRoles));
         showToast(`✅ ${role.name} saved`, "success");
       } else {
         showToast(`❌ Failed to save ${role.name}`, "error");
@@ -821,7 +844,7 @@ export function SettingsPage() {
             Each agent role has system instructions and prompt templates. Edit the content below and save per role.
           </div>
           {roles.map((role) => (
-            <RoleEditor key={role.name} role={role} onSave={saveRole} />
+            <RoleEditor key={`${role.name}-${resetKey}`} role={role} onSave={saveRole} />
           ))}
         </Section>
       )}
