@@ -254,6 +254,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
             ...prev,
             chatSessions: [...prev.chatSessions, p],
             generalChatId: p.id,
+            activeChatId: prev.activeChatId ?? p.id,
             chatMessages: { ...prev.chatMessages, [p.id]: [] },
           }));
           break;
