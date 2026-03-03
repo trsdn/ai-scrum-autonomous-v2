@@ -496,7 +496,7 @@ describe("SprintRunner", { timeout: 15000 }, () => {
       vi.mocked(runSprintPlanning).mockImplementation(async () => {
         // Simulate a slow planning phase — stop will fire during this
         await new Promise((r) => setTimeout(r, 200));
-        return { sprint_issues: [] };
+        return { sprint_issues: [{ number: 1, title: "test", acceptanceCriteria: "ac" }] };
       });
 
       const runner = new SprintRunner(config);

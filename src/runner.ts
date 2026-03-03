@@ -143,6 +143,17 @@ export class SprintRunner {
         // Filter out already-completed issues before execution
         await this.filterCompletedIssues(plan);
 
+        // Short-circuit if all issues are already done
+        if (plan.sprint_issues.length === 0) {
+          this.log.info("All issues already completed — skipping to complete");
+          this.events.emitTyped("log", { level: "info", message: "All issues done — completing sprint" });
+          this.transition("complete");
+          await this.client.disconnect();
+          this.persistState();
+          this.events.emitTyped("sprint:complete", { sprintNumber: this.config.sprintNumber });
+          return this.state;
+        }
+
         // Warn about issues missing acceptance criteria
         this.warnMissingAcceptanceCriteria(plan);
 
@@ -201,6 +212,17 @@ export class SprintRunner {
 
       // Filter out already-completed issues before execution
       await this.filterCompletedIssues(plan);
+
+      // Short-circuit: skip execute/review/retro if no issues to work on
+      if (plan.sprint_issues.length === 0) {
+        this.log.info("No issues in sprint plan — skipping to complete");
+        this.events.emitTyped("log", { level: "info", message: "No issues in sprint — completing immediately" });
+        this.transition("complete");
+        await this.client.disconnect();
+        this.persistState();
+        this.events.emitTyped("sprint:complete", { sprintNumber: this.config.sprintNumber });
+        return this.state;
+      }
 
       // Warn about issues missing acceptance criteria
       this.warnMissingAcceptanceCriteria(plan);

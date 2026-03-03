@@ -202,7 +202,16 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     case "sprint:switched": {
       const p = msg.payload as { activeSprintNumber?: number } | undefined;
       if (p?.activeSprintNumber) {
-        set({ activeSprintNumber: p.activeSprintNumber });
+        const store = get();
+        // Auto-follow: if user is viewing the current active sprint (or 0 = auto),
+        // switch viewing to the new active sprint so the dashboard follows along.
+        const shouldFollow =
+          store.viewingSprintNumber === 0 ||
+          store.viewingSprintNumber === store.activeSprintNumber;
+        set({
+          activeSprintNumber: p.activeSprintNumber,
+          ...(shouldFollow ? { viewingSprintNumber: p.activeSprintNumber } : {}),
+        });
       }
       break;
     }

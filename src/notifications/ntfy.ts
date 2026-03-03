@@ -14,6 +14,11 @@ const DEFAULT_CONFIG: NtfyConfig = {
   priority: "default",
 };
 
+/** Strip non-ASCII characters from a string (HTTP headers require ASCII). */
+function toAscii(s: string): string {
+  return s.replace(/[^\x20-\x7E]/g, "").trim();
+}
+
 export async function sendNotification(
   config: NtfyConfig | undefined,
   title: string,
@@ -29,9 +34,9 @@ export async function sendNotification(
     const res = await fetch(`${cfg.serverUrl}/${cfg.topic}`, {
       method: "POST",
       headers: {
-        Title: title,
+        Title: toAscii(title),
         Priority: priority ?? cfg.priority ?? "default",
-        Tags: (tags ?? []).join(","),
+        Tags: (tags ?? []).map(toAscii).filter(Boolean).join(","),
       },
       body: message,
     });
