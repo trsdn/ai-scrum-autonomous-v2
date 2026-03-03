@@ -971,6 +971,7 @@ export class DashboardWebServer {
             const configPath = path.join(projectPath, ".aiscrum", "config.yaml");
             // Dynamic import to avoid top-level dep
             import("yaml").then(({ stringify }) => {
+              fs.mkdirSync(path.dirname(configPath), { recursive: true });
               fs.writeFileSync(configPath, stringify(newConfig, { lineWidth: 120 }), "utf-8");
               this.options.config = newConfig;
               res.writeHead(200, { "Content-Type": "application/json" });
@@ -1138,6 +1139,7 @@ export class DashboardWebServer {
           try {
             const data = JSON.parse(body);
             import("yaml").then(({ stringify }) => {
+              fs.mkdirSync(path.dirname(qgPath), { recursive: true });
               fs.writeFileSync(qgPath, stringify(data, { lineWidth: 120 }), "utf-8");
               res.writeHead(200); res.end(JSON.stringify({ ok: true }));
             }).catch((err) => { res.writeHead(500); res.end(JSON.stringify({ error: String(err) })); });

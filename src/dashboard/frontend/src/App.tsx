@@ -78,6 +78,15 @@ export default function App() {
     document.addEventListener("mouseup", onMouseUp);
   }, []);
 
+  const RESTRICTED_TABS = new Set(["sprint", "settings", "logs"]);
+
+  const handleTabClick = useCallback((tabId: Tab) => {
+    setActiveTab(tabId);
+    if (RESTRICTED_TABS.has(tabId) && chatPanelOpen) {
+      useDashboardStore.setState({ chatPanelOpen: false });
+    }
+  }, [chatPanelOpen]);
+
   const sessionCount = chatSessions.length;
 
   return (
@@ -88,7 +97,7 @@ export default function App() {
           <button
             key={t.id}
             className={`tab-btn ${activeTab === t.id ? "tab-active" : ""}`}
-            onClick={() => setActiveTab(t.id)}
+            onClick={() => handleTabClick(t.id)}
           >
             {t.icon} {t.label}
           </button>

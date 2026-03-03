@@ -362,7 +362,7 @@ export function SidePanel() {
             <button
               key={cmd.name}
               className="slash-menu-item"
-              onClick={() => selectCommand(cmd)}
+              onMouseDown={(e) => { e.preventDefault(); selectCommand(cmd); }}
             >
               <span className="slash-menu-name">/{cmd.name}</span>
               <span className="slash-menu-desc">{cmd.description}</span>
