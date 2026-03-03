@@ -238,13 +238,13 @@ export class SprintRunner {
     } catch (err: unknown) {
       const isStopped = err instanceof SprintAbortedError;
       const message = err instanceof Error ? err.message : String(err);
-      this.state.phase = isStopped ? "stopped" : "failed";
-      this.state.error = message;
 
       if (isStopped) {
+        // stop() already set phase to "stopped" and emitted the event
         this.log.info("Sprint stopped by user");
-        this.events.emitTyped("sprint:stopped", { sprintNumber: this.config.sprintNumber });
       } else {
+        this.state.phase = "failed";
+        this.state.error = message;
         this.log.error({ error: message }, "Sprint cycle failed");
         this.events.emitTyped("sprint:error", { error: message });
       }
@@ -471,6 +471,17 @@ export class SprintRunner {
     this.phaseBeforePause = null;
     this.log.info("Sprint stop requested — aborting");
     this.events.emitTyped("log", { level: "warn", message: "Sprint stopped by user" });
+
+    // Immediately transition state — handles the case where no fullCycle() is
+    // running (e.g. stale sprint from saved state, server restarted mid-sprint).
+    // If fullCycle IS running, checkInterrupted() will throw and the catch block
+    // will see phase is already "stopped" and skip the duplicate emit.
+    if (this.state.phase !== "complete" && this.state.phase !== "stopped") {
+      this.state.phase = "stopped";
+      this.state.error = "Sprint stopped by user";
+      this.persistState();
+      this.events.emitTyped("sprint:stopped", { sprintNumber: this.config.sprintNumber });
+    }
   }
 
   /** Get current sprint state */
