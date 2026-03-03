@@ -166,6 +166,7 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   refiner: "Refinement — enriches idea issues with details and ICE scores",
   retro: "Retrospective — analyzes sprint and suggests improvements",
   researcher: "Research — investigates technical topics and options",
+  documentation: "Documentation — maintains changelog, architecture docs, and user guides",
 };
 
 const ROLE_PLACEHOLDERS: Record<string, { name: string; desc: string }[]> = {
@@ -240,6 +241,14 @@ const ROLE_PLACEHOLDERS: Record<string, { name: string; desc: string }[]> = {
     { name: "SPRINT_NUMBER", desc: "Current sprint number" },
     { name: "SPRINT_REVIEW_DATA", desc: "Data from sprint review" },
     { name: "FAILURE_DIAGNOSTICS", desc: "Diagnostics of failed items" },
+  ],
+  documentation: [
+    { name: "PROJECT_NAME", desc: "Project name" },
+    { name: "REPO_OWNER", desc: "Repository owner" },
+    { name: "REPO_NAME", desc: "Repository name" },
+    { name: "SPRINT_NUMBER", desc: "Current sprint number" },
+    { name: "BASE_BRANCH", desc: "Base git branch" },
+    { name: "SPRINT_REVIEW_DATA", desc: "Data from sprint review" },
   ],
 };
 
