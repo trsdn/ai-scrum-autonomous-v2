@@ -1034,9 +1034,14 @@ export class DashboardWebServer {
         });
         return;
       }
-      // GET: list all roles with model/mode from phases config
+      // GET: list all roles with model/mode/skills/mcp from phases config
       try {
-        const roles: Array<{ name: string; instructions: string; prompts: Record<string, string>; model?: string; mode?: string }> = [];
+        const roles: Array<{
+          name: string; instructions: string; prompts: Record<string, string>;
+          model?: string; mode?: string;
+          skills: Array<{ name: string; description: string }>;
+          mcp_servers: Array<{ name: string; type: string; command?: string; url?: string }>;
+        }> = [];
         if (fs.existsSync(rolesDir)) {
           for (const entry of fs.readdirSync(rolesDir, { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
@@ -1050,13 +1055,41 @@ export class DashboardWebServer {
                 if (pf.endsWith(".md")) prompts[pf] = fs.readFileSync(path.join(promptsDir, pf), "utf-8");
               }
             }
+            // Read skills
+            const skills: Array<{ name: string; description: string }> = [];
+            const skillsDir = path.join(roleDir, "skills");
+            if (fs.existsSync(skillsDir)) {
+              for (const sd of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+                if (!sd.isDirectory()) continue;
+                const skillFile = path.join(skillsDir, sd.name, "SKILL.md");
+                if (fs.existsSync(skillFile)) {
+                  const raw = fs.readFileSync(skillFile, "utf-8");
+                  const fmMatch = raw.match(/^---\n([\s\S]*?)\n---/);
+                  if (fmMatch) {
+                    const nameMatch = fmMatch[1].match(/name:\s*["']?(.+?)["']?\s*$/m);
+                    const descMatch = fmMatch[1].match(/description:\s*["']?(.+?)["']?\s*$/m);
+                    skills.push({ name: nameMatch?.[1] ?? sd.name, description: descMatch?.[1] ?? "" });
+                  } else {
+                    skills.push({ name: sd.name, description: "" });
+                  }
+                }
+              }
+            }
             const phaseConfig = phases[entry.name] as Record<string, unknown> | undefined;
+            const phaseMcp = (phaseConfig?.mcp_servers as Array<Record<string, string>>) ?? [];
             roles.push({
               name: entry.name,
               instructions,
               prompts,
               model: (phaseConfig?.model as string) ?? undefined,
               mode: (phaseConfig?.mode as string) ?? undefined,
+              skills,
+              mcp_servers: phaseMcp.map((m) => ({
+                name: m.name ?? "",
+                type: m.type ?? "stdio",
+                command: m.command,
+                url: m.url,
+              })),
             });
           }
         }

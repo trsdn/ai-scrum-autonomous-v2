@@ -142,6 +142,8 @@ interface AgentRole {
   prompts: Record<string, string>;
   model?: string;
   mode?: string;
+  skills: Array<{ name: string; description: string }>;
+  mcp_servers: Array<{ name: string; type: string; command?: string; url?: string }>;
 }
 
 interface QualityGates {
@@ -340,6 +342,30 @@ function RoleEditor({ role, onSave }: { role: AgentRole; onSave: (r: AgentRole) 
               </select>
             </div>
           </div>
+          {role.skills.length > 0 && (
+            <div className="role-skills-section">
+              <label>Skills ({role.skills.length})</label>
+              <div className="role-skills-list">
+                {role.skills.map((s) => (
+                  <div key={s.name} className="role-skill-item">
+                    <span className="role-skill-name">🛠 {s.name}</span>
+                    <span className="role-skill-desc">{s.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {role.mcp_servers.length > 0 && (
+            <div className="role-mcp-section">
+              <label>MCP Servers ({role.mcp_servers.length})</label>
+              {role.mcp_servers.map((m, i) => (
+                <div key={i} className="role-mcp-item">
+                  <span className="role-mcp-name">🔌 {m.name}</span>
+                  <span className="role-mcp-detail">{m.type}{m.command ? ` · ${m.command}` : ""}{m.url ? ` · ${m.url}` : ""}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <PlaceholderHelp roleName={role.name} />
           <div>
             <label>Instructions (copilot-instructions.md)</label>
