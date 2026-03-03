@@ -93,7 +93,7 @@ export const QualityGatesFileSchema = z.object({
     build: QualityCheckSchema.default({ enabled: true }),
   }).default({}),
   limits: z.object({
-    max_diff_lines: z.number().int().min(1).default(300),
+    max_diff_lines: z.number().int().min(1).default(1000),
   }).default({}),
   review: z.object({
     require_challenger: z.boolean().default(true),
@@ -108,7 +108,7 @@ const QualityGatesSchema = z.object({
   require_lint: z.boolean().default(true),
   require_types: z.boolean().default(true),
   require_build: z.boolean().default(true),
-  max_diff_lines: z.number().int().min(1).default(300),
+  max_diff_lines: z.number().int().min(1).default(1000),
   test_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "test"]),
   lint_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "lint"]),
   typecheck_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "typecheck"]),
