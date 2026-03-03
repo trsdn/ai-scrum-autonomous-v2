@@ -300,6 +300,7 @@ function RoleEditor({ role, onSave }: { role: AgentRole; onSave: (r: AgentRole) 
   );
   const [mcpServers, setMcpServers] = useState(role.mcp_servers);
   const [dirty, setDirty] = useState(false);
+  const [skillEditing, setSkillEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   const update = (field: "instructions" | string, value: string) => {
@@ -386,19 +387,27 @@ function RoleEditor({ role, onSave }: { role: AgentRole; onSave: (r: AgentRole) 
             </div>
           </div>
 
-          {/* Skills — editable */}
+          {/* Skills — overview with collapsible edit */}
           <div className="role-section-label">🛠 Skills ({role.skills.length})</div>
           {role.skills.length === 0 && (
-            <div className="role-empty-hint">No skills configured for this agent. Add skill files to <code>.aiscrum/roles/{role.name}/skills/</code></div>
+            <div className="role-empty-hint">No skills configured. Add files to <code>.aiscrum/roles/{role.name}/skills/</code></div>
           )}
           {role.skills.map((s) => (
-            <div key={s.dirName}>
-              <label>{s.name} — <span style={{ fontWeight: 400, color: "var(--text-dim)" }}>{s.description}</span></label>
-              <textarea
-                className="role-skill-textarea"
-                value={skills[s.dirName] ?? s.content}
-                onChange={(e) => updateSkill(s.dirName, e.target.value)}
-              />
+            <div key={s.dirName} className="role-skill-card">
+              <div className="role-skill-card-header" onClick={() => setSkillEditing(skillEditing === s.dirName ? null : s.dirName)}>
+                <div className="role-skill-info">
+                  <span className="role-skill-name">🛠 {s.name}</span>
+                  <span className="role-skill-desc">{s.description}</span>
+                </div>
+                <button className="btn btn-small">{skillEditing === s.dirName ? "▾ Close" : "✎ Edit"}</button>
+              </div>
+              {skillEditing === s.dirName && (
+                <textarea
+                  className="role-skill-textarea"
+                  value={skills[s.dirName] ?? s.content}
+                  onChange={(e) => updateSkill(s.dirName, e.target.value)}
+                />
+              )}
             </div>
           ))}
 

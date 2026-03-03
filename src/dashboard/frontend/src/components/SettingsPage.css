@@ -385,38 +385,8 @@
 }
 
 /* Skills section in role editor */
-.role-skills-section,
 .role-mcp-section {
   padding: 8px 0;
-}
-
-.role-skills-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.role-skill-item,
-.role-mcp-item {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
-  padding: 4px 8px;
-  background: var(--bg);
-  border-radius: 4px;
-}
-
-.role-skill-name,
-.role-mcp-name {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.role-skill-desc,
-.role-mcp-detail {
-  color: var(--text-dim);
 }
 
 /* Quality Gates grid */
@@ -487,9 +457,50 @@
   color: #d2a8ff;
 }
 
+/* Skill card with collapsible edit */
+.role-skill-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.role-skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.role-skill-card-header:hover {
+  background: #21262d;
+}
+
+.role-skill-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.role-skill-name {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.role-skill-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
 /* Skill textarea */
 .role-skill-textarea {
-  min-height: 200px !important;
+  min-height: 250px !important;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  margin: 0;
 }
 
 /* MCP edit row */
