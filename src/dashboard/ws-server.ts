@@ -980,15 +980,18 @@ export class DashboardWebServer {
     if (pathname === "/api/roles") {
       const projectPath = this.options.projectPath ?? process.cwd();
       const rolesDir = path.join(projectPath, ".aiscrum", "roles");
+      const phases = this.options.config?.copilot?.phases ?? {};
       if (req.method === "PUT" || req.method === "POST") {
         let body = "";
         req.on("data", (chunk: Buffer) => { body += chunk.toString(); });
         req.on("end", () => {
           try {
-            const { name, instructions, prompts } = JSON.parse(body) as {
+            const { name, instructions, prompts, model, mode } = JSON.parse(body) as {
               name: string;
               instructions?: string;
               prompts?: Record<string, string>;
+              model?: string;
+              mode?: string;
             };
             const roleDir = path.join(rolesDir, name);
             if (!fs.existsSync(roleDir)) { res.writeHead(404); res.end(JSON.stringify({ error: "Role not found" })); return; }
@@ -1002,14 +1005,43 @@ export class DashboardWebServer {
                 if (fs.existsSync(target)) fs.writeFileSync(target, content, "utf-8");
               }
             }
+            // Save model/mode to config phases
+            if (model !== undefined || mode !== undefined) {
+              const configPath = path.join(projectPath, ".aiscrum", "config.yaml");
+              if (fs.existsSync(configPath)) {
+                import("yaml").then(({ parse: parseYaml, stringify }) => {
+                  const raw = fs.readFileSync(configPath, "utf-8");
+                  const cfg = parseYaml(raw) as Record<string, unknown>;
+                  const copilot = (cfg.copilot ?? {}) as Record<string, unknown>;
+                  const phasesObj = (copilot.phases ?? {}) as Record<string, Record<string, unknown>>;
+                  if (!phasesObj[name]) phasesObj[name] = {};
+                  if (model !== undefined) phasesObj[name].model = model || undefined;
+                  if (mode !== undefined) phasesObj[name].mode = mode || undefined;
+                  // Clean empty values
+                  if (!phasesObj[name].model) delete phasesObj[name].model;
+                  if (!phasesObj[name].mode) delete phasesObj[name].mode;
+                  if (Object.keys(phasesObj[name]).length === 0) delete phasesObj[name];
+                  copilot.phases = phasesObj;
+                  cfg.copilot = copilot;
+                  fs.writeFileSync(configPath, stringify(cfg, { lineWidth: 120 }), "utf-8");
+                  res.writeHead(200); res.end(JSON.stringify({ ok: true }));
+                }).catch((err) => { res.writeHead(500); res.end(JSON.stringify({ error: String(err) })); });
+                return;
+              }
+            }
             res.writeHead(200); res.end(JSON.stringify({ ok: true }));
           } catch (err) { res.writeHead(400); res.end(JSON.stringify({ error: String(err) })); }
         });
         return;
       }
-      // GET: list all roles
+      // GET: list all roles with model/mode/skills/mcp from phases config
       try {
-        const roles: Array<{ name: string; instructions: string; prompts: Record<string, string> }> = [];
+        const roles: Array<{
+          name: string; instructions: string; prompts: Record<string, string>;
+          model?: string; mode?: string;
+          skills: Array<{ name: string; description: string }>;
+          mcp_servers: Array<{ name: string; type: string; command?: string; url?: string }>;
+        }> = [];
         if (fs.existsSync(rolesDir)) {
           for (const entry of fs.readdirSync(rolesDir, { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
@@ -1023,7 +1055,42 @@ export class DashboardWebServer {
                 if (pf.endsWith(".md")) prompts[pf] = fs.readFileSync(path.join(promptsDir, pf), "utf-8");
               }
             }
-            roles.push({ name: entry.name, instructions, prompts });
+            // Read skills
+            const skills: Array<{ name: string; description: string }> = [];
+            const skillsDir = path.join(roleDir, "skills");
+            if (fs.existsSync(skillsDir)) {
+              for (const sd of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+                if (!sd.isDirectory()) continue;
+                const skillFile = path.join(skillsDir, sd.name, "SKILL.md");
+                if (fs.existsSync(skillFile)) {
+                  const raw = fs.readFileSync(skillFile, "utf-8");
+                  const fmMatch = raw.match(/^---\n([\s\S]*?)\n---/);
+                  if (fmMatch) {
+                    const nameMatch = fmMatch[1].match(/name:\s*["']?(.+?)["']?\s*$/m);
+                    const descMatch = fmMatch[1].match(/description:\s*["']?(.+?)["']?\s*$/m);
+                    skills.push({ name: nameMatch?.[1] ?? sd.name, description: descMatch?.[1] ?? "" });
+                  } else {
+                    skills.push({ name: sd.name, description: "" });
+                  }
+                }
+              }
+            }
+            const phaseConfig = phases[entry.name] as Record<string, unknown> | undefined;
+            const phaseMcp = (phaseConfig?.mcp_servers as Array<Record<string, string>>) ?? [];
+            roles.push({
+              name: entry.name,
+              instructions,
+              prompts,
+              model: (phaseConfig?.model as string) ?? undefined,
+              mode: (phaseConfig?.mode as string) ?? undefined,
+              skills,
+              mcp_servers: phaseMcp.map((m) => ({
+                name: m.name ?? "",
+                type: m.type ?? "stdio",
+                command: m.command,
+                url: m.url,
+              })),
+            });
           }
         }
         res.writeHead(200); res.end(JSON.stringify(roles));
