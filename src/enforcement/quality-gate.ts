@@ -140,34 +140,7 @@ export async function runQualityGate(
   try {
     const stat = await diffStat(branch, baseBranch);
 
-    // 7. Check scope drift (if expectedFiles provided) — WARNING only, not blocking
-    if (config.expectedFiles && config.expectedFiles.length > 0) {
-      const changedFiles = stat.files;
-      // Test files, config files, and docs are always allowed — they support the change
-      const alwaysAllowed = /\.(test|spec)\.(ts|js|tsx|jsx)$|^tests?\/|^docs?\//;
-      const unplannedFiles = changedFiles.filter(
-        (f) =>
-          !alwaysAllowed.test(f) &&
-          !config.expectedFiles!.some((ef) =>
-            f === ef || f.endsWith(`/${ef}`) || ef.endsWith(`/${f}`)),
-      );
-      // Scope drift is informational — expectedFiles from the planner is a best-guess prediction,
-      // not a contract. Tests, lint, types, and build are the real quality gates.
-      checks.push({
-        name: "scope-drift",
-        passed: true, // non-blocking: always passes
-        detail:
-          unplannedFiles.length === 0
-            ? `All ${changedFiles.length} changed files within expected scope`
-            : `⚠️ ${unplannedFiles.length} unplanned files (non-blocking): ${unplannedFiles.slice(0, 5).join(", ")}${unplannedFiles.length > 5 ? "..." : ""}`,
-        category: "diff",
-      });
-      if (unplannedFiles.length > 0) {
-        log.warn({ unplannedFiles, expectedFiles: config.expectedFiles }, "scope drift detected (non-blocking)");
-      }
-    }
-
-    // 8. Check diff size
+    // 7. Check diff size
     const diffPassed = stat.linesChanged <= config.maxDiffLines;
     checks.push({
       name: "diff-size",
