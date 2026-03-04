@@ -33,7 +33,8 @@ copilot:
 
 sprint:
   prefix: "Sprint"
-  max_issues: 3
+  min_issues: 3
+  max_issues: 6
   max_drift_incidents: 2
   max_retries: 1
   enable_challenger: false
