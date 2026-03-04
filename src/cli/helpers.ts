@@ -11,12 +11,17 @@ import type { SprintConfig } from "../types.js";
 /** Parse owner/name from a git remote URL (HTTPS or SSH). */
 function parseGitRemote(cwd: string): { owner: string; name: string } {
   try {
-    const url = execFileSync("git", ["remote", "get-url", "origin"], { cwd, encoding: "utf-8" }).trim();
+    const url = execFileSync("git", ["remote", "get-url", "origin"], {
+      cwd,
+      encoding: "utf-8",
+    }).trim();
     // HTTPS: https://github.com/owner/repo.git
     // SSH:   git@github.com:owner/repo.git
     const match = url.match(/[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?$/);
     if (match) return { owner: match[1]!, name: match[2]! };
-  } catch { /* ignore — return empty */ }
+  } catch {
+    /* ignore — return empty */
+  }
   return { owner: "", name: "" };
 }
 

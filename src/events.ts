@@ -12,7 +12,10 @@ export interface SprintEngineEvents {
   "issue:fail": { issueNumber: number; reason: string; duration_ms: number };
   "worker:output": { sessionId: string; text: string };
   "session:start": { sessionId: string; role: string; issueNumber?: number; model?: string };
-  "session:end": { sessionId: string; outcome?: "completed" | "approved" | "changes_requested" | "failed" };
+  "session:end": {
+    sessionId: string;
+    outcome?: "completed" | "approved" | "changes_requested" | "failed";
+  };
   "sprint:start": { sprintNumber: number; resumed?: boolean };
   "sprint:planned": { issues: { number: number; title: string }[] };
   "sprint:complete": { sprintNumber: number };
@@ -21,8 +24,14 @@ export interface SprintEngineEvents {
   "sprint:error": { error: string };
   "sprint:paused": Record<string, never>;
   "sprint:resumed": { phase: SprintPhase };
-  "log": { level: "info" | "warn" | "error"; message: string };
-  "heartbeat:tick": { sprintNumber: number | null; phase: SprintPhase | null; healthy: boolean; staleLock: boolean; lastTickAt: string };
+  log: { level: "info" | "warn" | "error"; message: string };
+  "heartbeat:tick": {
+    sprintNumber: number | null;
+    phase: SprintPhase | null;
+    healthy: boolean;
+    staleLock: boolean;
+    lastTickAt: string;
+  };
   "heartbeat:stale": { sprintNumber: number; phase: SprintPhase; staleSinceMs: number };
   "heartbeat:recovered": { sprintNumber: number; action: string };
 }

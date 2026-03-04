@@ -22,13 +22,7 @@ import {
 } from "./state-manager.js";
 import { SprintEventBus } from "./events.js";
 import { attachSprintNotifications } from "./notifications/sprint-notifications.js";
-import type {
-  SprintConfig,
-  SprintPlan,
-  SprintResult,
-  ReviewResult,
-  RetroResult,
-} from "./types.js";
+import type { SprintConfig, SprintPlan, SprintResult, ReviewResult, RetroResult } from "./types.js";
 
 export type SprintPhase =
   | "init"
@@ -99,7 +93,6 @@ export class SprintRunner {
       startedAt: new Date(),
       issuesCreatedCount: 0,
     };
-    attachSprintNotifications(this.events, this.config.ntfy);
     this.log = defaultLogger.child({
       component: "sprint-runner",
       sprint: config.sprintNumber,
@@ -130,10 +123,20 @@ export class SprintRunner {
       const resuming = previous && previous.phase !== "complete" && previous.plan;
 
       if (resuming && previous.plan) {
-        this.state = { ...previous, error: undefined, issuesCreatedCount: previous.issuesCreatedCount ?? 0 };
+        this.state = {
+          ...previous,
+          error: undefined,
+          issuesCreatedCount: previous.issuesCreatedCount ?? 0,
+        };
         this.log.info({ resumeFrom: previous.phase }, "Resuming sprint from previous state");
-        this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber, resumed: true });
-        this.events.emitTyped("log", { level: "info", message: `Resuming Sprint ${this.config.sprintNumber} from ${previous.phase} phase` });
+        this.events.emitTyped("sprint:start", {
+          sprintNumber: this.config.sprintNumber,
+          resumed: true,
+        });
+        this.events.emitTyped("log", {
+          level: "info",
+          message: `Resuming Sprint ${this.config.sprintNumber} from ${previous.phase} phase`,
+        });
         await this.client.connect();
 
         // Determine where to resume based on previous phase
@@ -147,7 +150,10 @@ export class SprintRunner {
         // Short-circuit if all issues are already done
         if (plan.sprint_issues.length === 0) {
           this.log.info("All issues already completed — skipping to complete");
-          this.events.emitTyped("log", { level: "info", message: "All issues done — completing sprint" });
+          this.events.emitTyped("log", {
+            level: "info",
+            message: "All issues done — completing sprint",
+          });
           this.transition("complete");
           await this.client.disconnect();
           this.persistState();
@@ -162,7 +168,11 @@ export class SprintRunner {
         if (!result || previous.phase === "execute") {
           if (this.hitlMode) {
             this.log.info("HITL mode — pausing before execution for stakeholder review");
-            this.events.emitTyped("log", { level: "info", message: "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue" });
+            this.events.emitTyped("log", {
+              level: "info",
+              message:
+                "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue",
+            });
             this.pause();
           }
           await this.checkInterrupted();
@@ -197,7 +207,14 @@ export class SprintRunner {
       // 1. init
       this.transition("init");
       this.events.emitTyped("sprint:start", { sprintNumber: this.config.sprintNumber });
-      createSprintLog(this.config.sprintNumber, `${this.config.sprintPrefix} cycle started`, 0, undefined, this.config.sprintPrefix, this.config.sprintSlug);
+      createSprintLog(
+        this.config.sprintNumber,
+        `${this.config.sprintPrefix} cycle started`,
+        0,
+        undefined,
+        this.config.sprintPrefix,
+        this.config.sprintSlug,
+      );
       await this.client.connect();
 
       // 2. plan
@@ -217,7 +234,10 @@ export class SprintRunner {
       // Short-circuit: skip execute/review/retro if no issues to work on
       if (plan.sprint_issues.length === 0) {
         this.log.info("No issues in sprint plan — skipping to complete");
-        this.events.emitTyped("log", { level: "info", message: "No issues in sprint — completing immediately" });
+        this.events.emitTyped("log", {
+          level: "info",
+          message: "No issues in sprint — completing immediately",
+        });
         this.transition("complete");
         await this.client.disconnect();
         this.persistState();
@@ -231,7 +251,11 @@ export class SprintRunner {
       // 3. execute
       if (this.hitlMode) {
         this.log.info("HITL mode — pausing before execution for stakeholder review");
-        this.events.emitTyped("log", { level: "info", message: "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue" });
+        this.events.emitTyped("log", {
+          level: "info",
+          message:
+            "⏸ HITL: Pausing before execution — review the plan and resume in dashboard to continue",
+        });
         this.pause();
       }
       await this.checkInterrupted();
@@ -303,11 +327,18 @@ export class SprintRunner {
     const bus = eventBus ?? new SprintEventBus();
     const getLimit = typeof maxSprints === "function" ? maxSprints : () => maxSprints;
 
+    // Attach ntfy notifications once for the loop (not per-runner)
+    const sampleCfg = configBuilder(1);
+    attachSprintNotifications(bus, sampleCfg.ntfy);
+
     while (true) {
       const limit = getLimit();
       if (limit > 0 && results.length >= limit) {
         log.info({ completed: results.length, limit }, "Sprint limit reached — pausing");
-        bus.emitTyped("log", { level: "info", message: `Sprint limit reached (${results.length}/${limit}) — pausing` });
+        bus.emitTyped("log", {
+          level: "info",
+          message: `Sprint limit reached (${results.length}/${limit}) — pausing`,
+        });
         break;
       }
       // Use configBuilder to get prefix for milestone detection
@@ -317,13 +348,19 @@ export class SprintRunner {
         next = await getNextOpenMilestone(sampleConfig.sprintPrefix);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
-        log.error({ error: msg }, "Failed to detect next sprint milestone — check that a milestone like 'Sprint N' exists");
+        log.error(
+          { error: msg },
+          "Failed to detect next sprint milestone — check that a milestone like 'Sprint N' exists",
+        );
         bus.emitTyped("log", { level: "error", message: `Milestone detection failed: ${msg}` });
         break;
       }
       if (!next) {
         log.info("No open sprint milestones found — loop complete");
-        bus.emitTyped("log", { level: "info", message: "No open sprint milestones — loop complete" });
+        bus.emitTyped("log", {
+          level: "info",
+          message: "No open sprint milestones — loop complete",
+        });
         break;
       }
 
@@ -346,7 +383,10 @@ export class SprintRunner {
         }
       } else {
         log.warn({ phase: state.phase }, "Sprint did not complete — stopping loop");
-        bus.emitTyped("log", { level: "warn", message: `Sprint ${sprintNumber} failed — loop stopped` });
+        bus.emitTyped("log", {
+          level: "warn",
+          message: `Sprint ${sprintNumber} failed — loop stopped`,
+        });
         break;
       }
     }
@@ -377,12 +417,7 @@ export class SprintRunner {
       this.events.emitTyped("issue:start", { issue, model: workerModel });
     }
 
-    const result = await runParallelExecution(
-      this.client,
-      this.config,
-      plan,
-      this.events,
-    );
+    const result = await runParallelExecution(this.client, this.config, plan, this.events);
     this.state.result = result;
 
     // Emit issue:done / issue:fail for each result
@@ -396,7 +431,11 @@ export class SprintRunner {
       } else {
         this.events.emitTyped("issue:fail", {
           issueNumber: r.issueNumber,
-          reason: (r.qualityDetails?.checks ?? []).filter(c => !c.passed).map(c => c.name).join(", ") || "execution failed",
+          reason:
+            (r.qualityDetails?.checks ?? [])
+              .filter((c) => !c.passed)
+              .map((c) => c.name)
+              .join(", ") || "execution failed",
           duration_ms: r.duration_ms,
         });
       }
@@ -428,10 +467,12 @@ export class SprintRunner {
       planned: metrics.planned,
       done: metrics.completed,
       carry: metrics.failed,
-      hours: Math.round(metrics.avgDuration * metrics.planned / 3_600_000),
+      hours: Math.round((metrics.avgDuration * metrics.planned) / 3_600_000),
       issuesPerHr:
         metrics.avgDuration > 0
-          ? Math.round((metrics.completed / (metrics.avgDuration * metrics.planned / 3_600_000)) * 100) / 100
+          ? Math.round(
+              (metrics.completed / ((metrics.avgDuration * metrics.planned) / 3_600_000)) * 100,
+            ) / 100
           : 0,
       notes: review.summary,
     });
@@ -454,16 +495,17 @@ export class SprintRunner {
     );
     this.state.retro = retro;
     this.persistState();
-    this.log.info(
-      { improvements: retro.improvements.length },
-      "Sprint retro complete",
-    );
+    this.log.info({ improvements: retro.improvements.length }, "Sprint retro complete");
     return retro;
   }
 
   /** Pause the sprint runner */
   pause(): void {
-    if (this.state.phase !== "paused" && this.state.phase !== "failed" && this.state.phase !== "complete") {
+    if (
+      this.state.phase !== "paused" &&
+      this.state.phase !== "failed" &&
+      this.state.phase !== "complete"
+    ) {
       this.phaseBeforePause = this.state.phase;
       this.paused = true;
       this.state.phase = "paused";
@@ -505,7 +547,11 @@ export class SprintRunner {
       this.persistState();
       this.events.emitTyped("sprint:stopped", { sprintNumber: this.config.sprintNumber });
       // Release the lock in case no fullCycle() is running to do it
-      try { releaseLock(this.config); } catch { /* may not be locked */ }
+      try {
+        releaseLock(this.config);
+      } catch {
+        /* may not be locked */
+      }
     }
   }
 
@@ -531,14 +577,20 @@ export class SprintRunner {
       for (const issue of issues) {
         try {
           await execGh([
-            "api", "-X", "PATCH",
+            "api",
+            "-X",
+            "PATCH",
             `repos/{owner}/{repo}/issues/${issue.number}`,
-            "-f", "milestone=null",
+            "-f",
+            "milestone=null",
           ]);
           returnedIssues.push(issue.number);
           this.log.info({ issueNumber: issue.number }, "Returned issue to backlog");
         } catch (err) {
-          this.log.warn({ issueNumber: issue.number, err: String(err) }, "Failed to remove milestone from issue");
+          this.log.warn(
+            { issueNumber: issue.number, err: String(err) },
+            "Failed to remove milestone from issue",
+          );
         }
       }
 
@@ -547,7 +599,10 @@ export class SprintRunner {
         await closeMilestone(milestoneTitle);
         this.log.info({ milestone: milestoneTitle }, "Cancelled milestone closed");
       } catch (err) {
-        this.log.warn({ milestone: milestoneTitle, err: String(err) }, "Failed to close cancelled milestone");
+        this.log.warn(
+          { milestone: milestoneTitle, err: String(err) },
+          "Failed to close cancelled milestone",
+        );
       }
     } catch (err) {
       this.log.warn({ err: String(err) }, "Failed to list sprint issues during cancel");
@@ -594,19 +649,28 @@ export class SprintRunner {
         const details = await getIssue(issue.number);
         const labels = details.labels?.map((l) => l.name) ?? [];
         if (labels.includes("status:done")) {
-          this.log.warn({ issue: issue.number, title: issue.title }, "Skipping already-completed issue");
+          this.log.warn(
+            { issue: issue.number, title: issue.title },
+            "Skipping already-completed issue",
+          );
         } else {
           activeIssues.push(issue);
         }
       } catch (err: unknown) {
         // If we can't fetch the issue, keep it in the plan to be safe
-        this.log.warn({ issue: issue.number, err }, "Could not check issue status, keeping in plan");
+        this.log.warn(
+          { issue: issue.number, err },
+          "Could not check issue status, keeping in plan",
+        );
         activeIssues.push(issue);
       }
     }
     if (activeIssues.length < plan.sprint_issues.length) {
       this.log.info(
-        { removed: plan.sprint_issues.length - activeIssues.length, remaining: activeIssues.length },
+        {
+          removed: plan.sprint_issues.length - activeIssues.length,
+          remaining: activeIssues.length,
+        },
         "Filtered completed issues from sprint plan",
       );
       plan.sprint_issues = activeIssues;
@@ -650,7 +714,9 @@ export class SprintRunner {
       try {
         saveState(this.state, this.stateFilePath);
       } catch (retryErr: unknown) {
-        throw new Error(`State persistence failed after retry: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`);
+        throw new Error(
+          `State persistence failed after retry: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`,
+        );
       }
     }
   }

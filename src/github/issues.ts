@@ -16,9 +16,14 @@ function isRetryable(error: unknown): boolean {
   if (errnoCode === "4" || (error as { code?: number }).code === 4) return false;
   // Only retry errors that look like transient network/API failures
   const message = error instanceof Error ? error.message : "";
-  if (message.includes("ETIMEDOUT") || message.includes("ECONNRESET") ||
-      message.includes("rate limit") || message.includes("502") ||
-      message.includes("503") || message.includes("timeout")) {
+  if (
+    message.includes("ETIMEDOUT") ||
+    message.includes("ECONNRESET") ||
+    message.includes("rate limit") ||
+    message.includes("502") ||
+    message.includes("503") ||
+    message.includes("timeout")
+  ) {
     return true;
   }
   return false;
@@ -37,9 +42,7 @@ export async function execGh(args: string[]): Promise<string> {
       lastError = error;
       const code = (error as NodeJS.ErrnoException).code;
       if (code === "ENOENT") {
-        throw new Error(
-          "gh CLI not found. Install it: https://cli.github.com/",
-        );
+        throw new Error("gh CLI not found. Install it: https://cli.github.com/");
       }
       const exitCode = (error as { code?: number | string }).code;
       if (exitCode === 4) {
@@ -97,15 +100,8 @@ export interface ListIssuesOptions {
 }
 
 /** List issues with optional filters. */
-export async function listIssues(
-  options: ListIssuesOptions = {},
-): Promise<GitHubIssue[]> {
-  const args = [
-    "issue",
-    "list",
-    "--json",
-    "number,title,body,labels,state,milestone",
-  ];
+export async function listIssues(options: ListIssuesOptions = {}): Promise<GitHubIssue[]> {
+  const args = ["issue", "list", "--json", "number,title,body,labels,state,milestone"];
 
   if (options.labels && options.labels.length > 0) {
     args.push("--label", options.labels.join(","));
@@ -132,9 +128,7 @@ export interface CreateIssueOptions {
 }
 
 /** Create a new issue and return its details. */
-export async function createIssue(
-  options: CreateIssueOptions,
-): Promise<GitHubIssue> {
+export async function createIssue(options: CreateIssueOptions): Promise<GitHubIssue> {
   // Validate required fields to prevent garbage issues
   if (!options.title || typeof options.title !== "string" || options.title.trim().length === 0) {
     throw new Error("Cannot create issue: title is required and must be a non-empty string");
@@ -148,21 +142,17 @@ export async function createIssue(
     const existing = await listIssues({ state: "open" });
     const duplicate = existing.find((i) => i.title === options.title);
     if (duplicate) {
-      logger.info({ number: duplicate.number, title: options.title }, "Skipping duplicate issue creation");
+      logger.info(
+        { number: duplicate.number, title: options.title },
+        "Skipping duplicate issue creation",
+      );
       return duplicate;
     }
   } catch {
     // Non-critical — proceed with creation if dedup check fails
   }
 
-  const args = [
-    "issue",
-    "create",
-    "--title",
-    options.title,
-    "--body",
-    options.body,
-  ];
+  const args = ["issue", "create", "--title", options.title, "--body", options.body];
 
   if (options.labels && options.labels.length > 0) {
     args.push("--label", options.labels.join(","));
@@ -184,10 +174,7 @@ export interface UpdateIssueOptions {
 }
 
 /** Update an existing issue. */
-export async function updateIssue(
-  number: number,
-  options: UpdateIssueOptions,
-): Promise<void> {
+export async function updateIssue(number: number, options: UpdateIssueOptions): Promise<void> {
   const args = ["issue", "edit", String(number)];
 
   if (options.title) {
@@ -207,10 +194,7 @@ export async function updateIssue(
 }
 
 /** Add a comment to an issue. */
-export async function addComment(
-  number: number,
-  body: string,
-): Promise<void> {
+export async function addComment(number: number, body: string): Promise<void> {
   await execGh(["issue", "comment", String(number), "--body", body]);
 }
 
@@ -220,9 +204,13 @@ export async function getComments(
   limit = 5,
 ): Promise<Array<{ body: string; createdAt: string }>> {
   const json = await execGh([
-    "issue", "view", String(number),
-    "--json", "comments",
-    "--jq", `.comments | sort_by(.createdAt) | reverse | .[:${limit}]`,
+    "issue",
+    "view",
+    String(number),
+    "--json",
+    "comments",
+    "--jq",
+    `.comments | sort_by(.createdAt) | reverse | .[:${limit}]`,
   ]);
   try {
     return JSON.parse(json) as Array<{ body: string; createdAt: string }>;

@@ -9,7 +9,9 @@ vi.mock("../../src/github/issues.js", () => ({
 const mockCreateIssue = vi.mocked(issues.createIssue);
 const mockIssue = { number: 1, title: "Test", body: "Body", labels: [] as string[], state: "OPEN" };
 
-beforeEach(() => { vi.restoreAllMocks(); });
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("createIssueRateLimited", () => {
   it("allows creation when under limit and increments counter", async () => {
@@ -58,8 +60,16 @@ describe("createIssueRateLimited", () => {
     const state = { issuesCreatedCount: 0 };
     mockCreateIssue.mockResolvedValue({ ...mockIssue, labels: ["bug", "high"] });
 
-    await createIssueRateLimited({ title: "Test", body: "Body", labels: ["bug", "high"] }, state, 10);
+    await createIssueRateLimited(
+      { title: "Test", body: "Body", labels: ["bug", "high"] },
+      state,
+      10,
+    );
 
-    expect(mockCreateIssue).toHaveBeenCalledWith({ title: "Test", body: "Body", labels: ["bug", "high"] });
+    expect(mockCreateIssue).toHaveBeenCalledWith({
+      title: "Test",
+      body: "Body",
+      labels: ["bug", "high"],
+    });
   });
 });

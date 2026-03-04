@@ -28,14 +28,9 @@ export async function mergeCompletedBranches(
   const conflicted: number[] = [];
   const conflictDetails = new Map<number, string[]>();
 
-  const eligible = results.filter(
-    (r) => r.status === "completed" && r.qualityGatePassed,
-  );
+  const eligible = results.filter((r) => r.status === "completed" && r.qualityGatePassed);
 
-  log.info(
-    { total: results.length, eligible: eligible.length },
-    "starting merge pipeline",
-  );
+  log.info({ total: results.length, eligible: eligible.length }, "starting merge pipeline");
 
   for (const result of eligible) {
     const { issueNumber, branch } = result;
@@ -64,27 +59,18 @@ export async function mergeCompletedBranches(
           await deleteBranch(branch);
           log.debug({ branch }, "deleted branch after merge");
         } catch (delErr: unknown) {
-          log.warn(
-            { branch, error: (delErr as Error).message },
-            "failed to delete branch",
-          );
+          log.warn({ branch, error: (delErr as Error).message }, "failed to delete branch");
         }
       }
 
       log.info({ issueNumber, branch }, "merged successfully");
     } catch (err: unknown) {
-      log.error(
-        { issueNumber, branch, error: (err as Error).message },
-        "unexpected merge error",
-      );
+      log.error({ issueNumber, branch, error: (err as Error).message }, "unexpected merge error");
       conflicted.push(issueNumber);
     }
   }
 
-  log.info(
-    { merged: merged.length, conflicted: conflicted.length },
-    "merge pipeline complete",
-  );
+  log.info({ merged: merged.length, conflicted: conflicted.length }, "merge pipeline complete");
 
   return { merged, conflicted, conflictDetails };
 }
@@ -142,10 +128,7 @@ export async function resolveConflictsViaAcp(
 
     return succeeded;
   } catch (err: unknown) {
-    log.error(
-      { branch, error: (err as Error).message },
-      "ACP conflict resolution failed",
-    );
+    log.error({ branch, error: (err as Error).message }, "ACP conflict resolution failed");
     return false;
   }
 }

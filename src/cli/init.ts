@@ -83,12 +83,7 @@ export function initProject(options: InitOptions): InitResult {
   return result;
 }
 
-function copyDirRecursive(
-  src: string,
-  dest: string,
-  force: boolean,
-  result: InitResult,
-): void {
+function copyDirRecursive(src: string, dest: string, force: boolean, result: InitResult): void {
   fs.mkdirSync(dest, { recursive: true });
 
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {

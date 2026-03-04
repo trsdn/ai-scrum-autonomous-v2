@@ -90,4 +90,13 @@ describe("attachSprintNotifications", () => {
 
     expect(mockSendNotification).toHaveBeenCalledTimes(3);
   });
+
+  it("does not attach duplicate listeners when called multiple times on same bus", () => {
+    // beforeEach already called attachSprintNotifications once
+    attachSprintNotifications(bus, ntfyConfig);
+    attachSprintNotifications(bus, ntfyConfig);
+
+    bus.emitTyped("sprint:complete", { sprintNumber: 1 });
+    expect(mockSendNotification).toHaveBeenCalledOnce();
+  });
 });

@@ -59,10 +59,7 @@ export function readVelocity(filePath: string = DEFAULT_FILE_PATH): VelocityEntr
     .filter((e): e is VelocityEntry => e !== null);
 }
 
-export function appendVelocity(
-  entry: VelocityEntry,
-  filePath: string = DEFAULT_FILE_PATH,
-): void {
+export function appendVelocity(entry: VelocityEntry, filePath: string = DEFAULT_FILE_PATH): void {
   try {
     const dir = path.dirname(filePath);
     fs.mkdirSync(dir, { recursive: true });

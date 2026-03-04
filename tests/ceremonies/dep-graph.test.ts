@@ -36,11 +36,7 @@ describe("buildExecutionGroups", () => {
   });
 
   it("handles linear dependencies (A → B → C)", () => {
-    const issues = [
-      makeIssue(3, [2]),
-      makeIssue(2, [1]),
-      makeIssue(1),
-    ];
+    const issues = [makeIssue(3, [2]), makeIssue(2, [1]), makeIssue(1)];
     const groups = buildExecutionGroups(issues);
     expect(groups).toHaveLength(3);
     expect(groups[0].issues).toEqual([1]);
@@ -51,26 +47,21 @@ describe("buildExecutionGroups", () => {
   it("handles diamond dependencies (A,B → C; D → C)", () => {
     // C depends on A and B; D also depends on C
     const issues = [
-      makeIssue(1),           // A — no deps
-      makeIssue(2),           // B — no deps
-      makeIssue(3, [1, 2]),   // C — depends on A, B
-      makeIssue(4, [3]),      // D — depends on C
+      makeIssue(1), // A — no deps
+      makeIssue(2), // B — no deps
+      makeIssue(3, [1, 2]), // C — depends on A, B
+      makeIssue(4, [3]), // D — depends on C
     ];
     const groups = buildExecutionGroups(issues);
     expect(groups).toHaveLength(3);
     expect(groups[0].issues).toEqual([1, 2]); // A, B parallel
-    expect(groups[1].issues).toEqual([3]);    // C after A, B
-    expect(groups[2].issues).toEqual([4]);    // D after C
+    expect(groups[1].issues).toEqual([3]); // C after A, B
+    expect(groups[2].issues).toEqual([4]); // D after C
   });
 
   it("throws on circular dependencies", () => {
-    const issues = [
-      makeIssue(1, [2]),
-      makeIssue(2, [1]),
-    ];
-    expect(() => buildExecutionGroups(issues)).toThrow(
-      /Circular dependencies detected/,
-    );
+    const issues = [makeIssue(1, [2]), makeIssue(2, [1])];
+    expect(() => buildExecutionGroups(issues)).toThrow(/Circular dependencies detected/);
   });
 
   it("ignores depends_on refs outside the issue set", () => {
@@ -99,11 +90,7 @@ describe("detectCircularDependencies", () => {
   });
 
   it("detects a 3-node cycle", () => {
-    const issues = [
-      makeIssue(1, [3]),
-      makeIssue(2, [1]),
-      makeIssue(3, [2]),
-    ];
+    const issues = [makeIssue(1, [3]), makeIssue(2, [1]), makeIssue(3, [2])];
     const cycles = detectCircularDependencies(issues);
     expect(cycles).not.toBeNull();
     expect(cycles!.length).toBeGreaterThan(0);
@@ -139,15 +126,10 @@ describe("validateDependencies", () => {
   });
 
   it("handles mixed valid and missing deps", () => {
-    const issues = [
-      makeIssue(1),
-      makeIssue(2, [1, 50]),
-    ];
+    const issues = [makeIssue(1), makeIssue(2, [1, 50])];
     const result = validateDependencies(issues);
     expect(result.valid).toBe(false);
-    expect(result.missingRefs).toEqual([
-      { issue: 2, missingDep: 50 },
-    ]);
+    expect(result.missingRefs).toEqual([{ issue: 2, missingDep: 50 }]);
   });
 });
 

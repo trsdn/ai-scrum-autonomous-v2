@@ -163,9 +163,13 @@ const retroResponse = {
 
 function makeMockClient() {
   return {
-    createSession: vi
-      .fn()
-      .mockResolvedValue({ sessionId: "session-ret-1", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-ret-1",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "```json\n" + JSON.stringify(retroResponse) + "\n```",
       stopReason: "end_turn",
@@ -442,7 +446,9 @@ describe("runSprintRetro", () => {
     expect(mockClient.sendPrompt).toHaveBeenCalledTimes(1);
 
     // Logger warn should have been called for non-auto-applicable
-    const childLogger = (logger as unknown as { child: () => { warn: ReturnType<typeof vi.fn> } }).child();
+    const childLogger = (
+      logger as unknown as { child: () => { warn: ReturnType<typeof vi.fn> } }
+    ).child();
     expect(childLogger.warn).toHaveBeenCalledWith(
       { title: "Manual change needed", target: "process" },
       "Skipping non-auto-applicable improvement",

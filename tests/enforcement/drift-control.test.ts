@@ -11,10 +11,7 @@ vi.mock("../../src/logger.js", () => ({
   },
 }));
 
-import {
-  checkIssueDrift,
-  holisticDriftCheck,
-} from "../../src/enforcement/drift-control.js";
+import { checkIssueDrift, holisticDriftCheck } from "../../src/enforcement/drift-control.js";
 
 describe("checkIssueDrift", () => {
   it("should report no drift when all files are in scope", async () => {
@@ -57,10 +54,7 @@ describe("checkIssueDrift", () => {
 
 describe("holisticDriftCheck", () => {
   it("should report zero drift when all changes are planned", async () => {
-    const report = await holisticDriftCheck(
-      ["src/a.ts", "src/b.ts"],
-      ["src/a.ts", "src/b.ts"],
-    );
+    const report = await holisticDriftCheck(["src/a.ts", "src/b.ts"], ["src/a.ts", "src/b.ts"]);
 
     expect(report.totalFilesChanged).toBe(2);
     expect(report.plannedChanges).toBe(2);
@@ -90,10 +84,7 @@ describe("holisticDriftCheck", () => {
   });
 
   it("should skip drift check when no expectedFiles defined", async () => {
-    const report = await holisticDriftCheck(
-      ["src/a.ts", "src/b.ts"],
-      [],
-    );
+    const report = await holisticDriftCheck(["src/a.ts", "src/b.ts"], []);
 
     // All changes treated as planned when expectedFiles is empty
     expect(report.driftPercentage).toBe(0);
@@ -102,10 +93,7 @@ describe("holisticDriftCheck", () => {
   });
 
   it("should handle all files being planned with extras expected", async () => {
-    const report = await holisticDriftCheck(
-      ["src/a.ts"],
-      ["src/a.ts", "src/b.ts", "src/c.ts"],
-    );
+    const report = await holisticDriftCheck(["src/a.ts"], ["src/a.ts", "src/b.ts", "src/c.ts"]);
 
     expect(report.totalFilesChanged).toBe(1);
     expect(report.plannedChanges).toBe(1);

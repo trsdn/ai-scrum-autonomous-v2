@@ -105,19 +105,25 @@ export class SprintIssueCache {
       if (this.options.loadState) {
         const state = this.options.loadState(sprintNumber);
         if (state?.result?.results && state.result.results.length > 0) {
-          this.cache.set(sprintNumber, state.result.results.map((r) => ({
-            number: r.issueNumber,
-            title: `Issue #${r.issueNumber}`,
-            status: (r.status === "completed" ? "done" : "failed") as CachedIssue["status"],
-          })));
+          this.cache.set(
+            sprintNumber,
+            state.result.results.map((r) => ({
+              number: r.issueNumber,
+              title: `Issue #${r.issueNumber}`,
+              status: (r.status === "completed" ? "done" : "failed") as CachedIssue["status"],
+            })),
+          );
           return;
         }
         if (state?.plan?.sprint_issues && state.plan.sprint_issues.length > 0) {
-          this.cache.set(sprintNumber, state.plan.sprint_issues.map((i) => ({
-            number: i.number,
-            title: i.title,
-            status: "planned" as const,
-          })));
+          this.cache.set(
+            sprintNumber,
+            state.plan.sprint_issues.map((i) => ({
+              number: i.number,
+              title: i.title,
+              status: "planned" as const,
+            })),
+          );
           return;
         }
       }
@@ -129,11 +135,14 @@ export class SprintIssueCache {
       });
 
       if (ghIssues.length > 0) {
-        this.cache.set(sprintNumber, ghIssues.map((i: GitHubIssue) => ({
-          number: i.number,
-          title: i.title,
-          status: (i.state === "closed" ? "done" : "planned") as CachedIssue["status"],
-        })));
+        this.cache.set(
+          sprintNumber,
+          ghIssues.map((i: GitHubIssue) => ({
+            number: i.number,
+            title: i.title,
+            status: (i.state === "closed" ? "done" : "planned") as CachedIssue["status"],
+          })),
+        );
       } else {
         // No issues found — cache empty array to avoid re-fetching
         this.cache.set(sprintNumber, []);

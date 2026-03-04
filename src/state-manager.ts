@@ -71,10 +71,7 @@ export function loadState(filePath: string): SprintState | null {
 
   const result = SprintStateSchema.safeParse(json);
   if (!result.success) {
-    log.warn(
-      { filePath, issues: result.error.issues },
-      "State file failed validation",
-    );
+    log.warn({ filePath, issues: result.error.issues }, "State file failed validation");
     return null;
   }
 

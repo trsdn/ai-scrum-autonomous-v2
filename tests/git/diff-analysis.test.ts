@@ -4,11 +4,7 @@ import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import {
-  diffStat,
-  getChangedFiles,
-  isNewOrModified,
-} from "../../src/git/diff-analysis.js";
+import { diffStat, getChangedFiles, isNewOrModified } from "../../src/git/diff-analysis.js";
 
 const execFile = promisify(execFileCb);
 
@@ -20,9 +16,7 @@ describe("diff-analysis", () => {
     originalCwd = process.cwd();
 
     // Create a temporary directory with a real git repo
-    repoDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "git-diff-analysis-test-"),
-    );
+    repoDir = await fs.mkdtemp(path.join(os.tmpdir(), "git-diff-analysis-test-"));
     process.chdir(repoDir);
 
     // Initialize a git repo with an initial commit on main
@@ -37,10 +31,7 @@ describe("diff-analysis", () => {
     // Create a feature branch with changes
     await execFile("git", ["checkout", "-b", "feature/diff-test"]);
     await fs.writeFile(path.join(repoDir, "new-file.ts"), "export const x = 1;\n");
-    await fs.writeFile(
-      path.join(repoDir, "existing.txt"),
-      "line1\nline2\nline3\n",
-    );
+    await fs.writeFile(path.join(repoDir, "existing.txt"), "line1\nline2\nline3\n");
     await execFile("git", ["add", "."]);
     await execFile("git", ["commit", "-m", "add changes"]);
 
@@ -94,29 +85,17 @@ describe("diff-analysis", () => {
 
   describe("isNewOrModified", () => {
     it("returns true for a changed file", async () => {
-      const result = await isNewOrModified(
-        "new-file.ts",
-        "feature/diff-test",
-        "main",
-      );
+      const result = await isNewOrModified("new-file.ts", "feature/diff-test", "main");
       expect(result).toBe(true);
     });
 
     it("returns true for a modified file", async () => {
-      const result = await isNewOrModified(
-        "existing.txt",
-        "feature/diff-test",
-        "main",
-      );
+      const result = await isNewOrModified("existing.txt", "feature/diff-test", "main");
       expect(result).toBe(true);
     });
 
     it("returns false for an untouched file", async () => {
-      const result = await isNewOrModified(
-        "README.md",
-        "feature/diff-test",
-        "main",
-      );
+      const result = await isNewOrModified("README.md", "feature/diff-test", "main");
       expect(result).toBe(false);
     });
   });

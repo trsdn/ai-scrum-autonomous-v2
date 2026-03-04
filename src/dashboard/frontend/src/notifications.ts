@@ -40,7 +40,10 @@ export function notify(title: string, body: string, tag?: string): void {
 }
 
 /** Map sprint events to notifications. Called from handleSprintEvent. */
-export function notifySprintEvent(eventName: string, payload: Record<string, unknown> | undefined): void {
+export function notifySprintEvent(
+  eventName: string,
+  payload: Record<string, unknown> | undefined,
+): void {
   if (!canNotify()) return;
 
   const p = payload ?? {};
@@ -55,7 +58,11 @@ export function notifySprintEvent(eventName: string, payload: Record<string, unk
       break;
 
     case "issue:fail":
-      notify("❌ Issue Failed", `#${p.issueNumber}: ${p.reason ?? "unknown error"}`, `issue-${p.issueNumber}`);
+      notify(
+        "❌ Issue Failed",
+        `#${p.issueNumber}: ${p.reason ?? "unknown error"}`,
+        `issue-${p.issueNumber}`,
+      );
       break;
 
     case "sprint:complete":

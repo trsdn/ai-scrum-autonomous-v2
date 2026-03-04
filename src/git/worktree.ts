@@ -16,9 +16,7 @@ export interface CreateWorktreeOptions {
  * If the branch already exists (e.g. from a previous failed run), it is
  * reset to the base ref so the worktree starts clean.
  */
-export async function createWorktree(
-  options: CreateWorktreeOptions,
-): Promise<void> {
+export async function createWorktree(options: CreateWorktreeOptions): Promise<void> {
   const { path, branch, base } = options;
   const log = logger.child({ module: "worktree" });
 
@@ -52,7 +50,9 @@ export async function createWorktree(
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
     // Clean up the branch on any failure
-    await execFile("git", ["branch", "-D", branch]).catch((err) => log.debug({ err: String(err) }, "branch cleanup failed (non-critical)"));
+    await execFile("git", ["branch", "-D", branch]).catch((err) =>
+      log.debug({ err: String(err) }, "branch cleanup failed (non-critical)"),
+    );
     throw new Error(`Failed to add worktree at '${path}': ${message}`);
   }
 }
@@ -68,19 +68,14 @@ export async function removeWorktree(worktreePath: string): Promise<void> {
     log.info({ path: worktreePath }, "worktree removed");
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
-    throw new Error(
-      `Failed to remove worktree at '${worktreePath}': ${message}`,
-    );
+    throw new Error(`Failed to remove worktree at '${worktreePath}': ${message}`);
   }
 }
 
 /**
  * Delete a local git branch.
  */
-export async function deleteBranch(
-  branch: string,
-  force: boolean = true,
-): Promise<void> {
+export async function deleteBranch(branch: string, force: boolean = true): Promise<void> {
   const log = logger.child({ module: "worktree" });
   const flag = force ? "-D" : "-d";
   await execFile("git", ["branch", flag, branch]);
@@ -93,11 +88,7 @@ export async function deleteBranch(
 export async function listWorktrees(): Promise<Worktree[]> {
   const log = logger.child({ module: "worktree" });
 
-  const { stdout } = await execFile("git", [
-    "worktree",
-    "list",
-    "--porcelain",
-  ]);
+  const { stdout } = await execFile("git", ["worktree", "list", "--porcelain"]);
 
   const worktrees: Worktree[] = [];
   let current: Partial<Worktree> = {};

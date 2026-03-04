@@ -4,9 +4,15 @@
 import { test, expect } from "@playwright/test";
 
 const TAB_ICONS: Record<string, string> = {
-  "Sprint": "🏃", "Sprint Backlog": "📦", "Backlog": "📋",
-  "Blocked": "🚧", "Decisions": "⚖️", "Ideas": "💡",
-  "Report": "📊", "Logs": "📜", "Settings": "⚙️",
+  Sprint: "🏃",
+  "Sprint Backlog": "📦",
+  Backlog: "📋",
+  Blocked: "🚧",
+  Decisions: "⚖️",
+  Ideas: "💡",
+  Report: "📊",
+  Logs: "📜",
+  Settings: "⚙️",
 };
 async function navigateToTab(page: import("@playwright/test").Page, label: string) {
   await page.waitForSelector(".tab-nav", { timeout: 10_000 });
@@ -33,17 +39,17 @@ test.describe("Sprint Report Deep", () => {
     const copyBtn = page.locator("button", { hasText: /Copy/ });
     const downloadBtn = page.locator("button", { hasText: /Download/ });
     // These may only appear when report data exists
-    if (await copyBtn.count() > 0) {
+    if ((await copyBtn.count()) > 0) {
       await expect(copyBtn.first()).toBeVisible();
     }
-    if (await downloadBtn.count() > 0) {
+    if ((await downloadBtn.count()) > 0) {
       await expect(downloadBtn.first()).toBeVisible();
     }
   });
 
   test("report sections are collapsible", async ({ page }) => {
     const sectionHeaders = page.locator(".report-section-header");
-    if (await sectionHeaders.count() > 0) {
+    if ((await sectionHeaders.count()) > 0) {
       const first = sectionHeaders.first();
       await first.click();
       await page.waitForTimeout(300);
@@ -55,7 +61,7 @@ test.describe("Sprint Report Deep", () => {
 
   test("summary cards show sprint metrics", async ({ page }) => {
     const cards = page.locator(".summary-card");
-    if (await cards.count() > 0) {
+    if ((await cards.count()) > 0) {
       const count = await cards.count();
       expect(count).toBeGreaterThanOrEqual(3);
     }
@@ -126,7 +132,7 @@ test.describe("Side Panel Chat", () => {
     await input.fill("/");
     await page.waitForTimeout(500);
     const slashMenu = page.locator(".slash-menu");
-    if (await slashMenu.count() > 0) {
+    if ((await slashMenu.count()) > 0) {
       await expect(slashMenu).toBeVisible();
     }
   });
@@ -140,7 +146,7 @@ test.describe("Backlog Tab Actions", () => {
     await navigateToTab(page, "Backlog");
     await page.waitForTimeout(2000);
     const refreshBtn = page.locator("button", { hasText: "↻" });
-    if (await refreshBtn.count() > 0) {
+    if ((await refreshBtn.count()) > 0) {
       await expect(refreshBtn.first()).toBeVisible();
     }
   });
@@ -150,7 +156,7 @@ test.describe("Backlog Tab Actions", () => {
     await navigateToTab(page, "Backlog");
     await page.waitForTimeout(2000);
     const select = page.locator(".sprint-select");
-    if (await select.count() > 0) {
+    if ((await select.count()) > 0) {
       await expect(select).toBeVisible();
     }
   });
@@ -160,7 +166,7 @@ test.describe("Backlog Tab Actions", () => {
     await navigateToTab(page, "Backlog");
     await page.waitForTimeout(2000);
     const planBtn = page.locator(".tab-list .btn-primary");
-    if (await planBtn.count() > 0) {
+    if ((await planBtn.count()) > 0) {
       await expect(planBtn.first()).toBeVisible();
     }
   });
@@ -172,7 +178,7 @@ test.describe("Blocked Tab Actions", () => {
     await navigateToTab(page, "Blocked");
     await page.waitForTimeout(2000);
     const refreshBtn = page.locator("button", { hasText: /↻\s*Refresh/ });
-    if (await refreshBtn.count() > 0) {
+    if ((await refreshBtn.count()) > 0) {
       await expect(refreshBtn.first()).toBeVisible();
     }
   });
@@ -182,7 +188,7 @@ test.describe("Blocked Tab Actions", () => {
     await navigateToTab(page, "Blocked");
     await page.waitForTimeout(2000);
     const discussBtn = page.locator("button", { hasText: /💬/ });
-    if (await discussBtn.count() > 0) {
+    if ((await discussBtn.count()) > 0) {
       await expect(discussBtn.first()).toBeVisible();
     }
   });
@@ -194,7 +200,7 @@ test.describe("Decisions Tab Actions", () => {
     await navigateToTab(page, "Decisions");
     await page.waitForTimeout(2000);
     const refreshBtn = page.locator("button", { hasText: /↻\s*Refresh/ });
-    if (await refreshBtn.count() > 0) {
+    if ((await refreshBtn.count()) > 0) {
       await expect(refreshBtn.first()).toBeVisible();
     }
   });
@@ -204,7 +210,7 @@ test.describe("Decisions Tab Actions", () => {
     await navigateToTab(page, "Decisions");
     await page.waitForTimeout(2000);
     const discussBtn = page.locator("button", { hasText: /💬/ });
-    if (await discussBtn.count() > 0) {
+    if ((await discussBtn.count()) > 0) {
       await expect(discussBtn.first()).toBeVisible();
     }
   });
@@ -216,7 +222,7 @@ test.describe("Ideas Tab Actions", () => {
     await navigateToTab(page, "Ideas");
     await page.waitForTimeout(2000);
     const refreshBtn = page.locator("button", { hasText: /↻\s*Refresh/ });
-    if (await refreshBtn.count() > 0) {
+    if ((await refreshBtn.count()) > 0) {
       await expect(refreshBtn.first()).toBeVisible();
     }
   });
@@ -226,7 +232,7 @@ test.describe("Ideas Tab Actions", () => {
     await navigateToTab(page, "Ideas");
     await page.waitForTimeout(2000);
     const refineBtn = page.locator("button", { hasText: /🔬/ });
-    if (await refineBtn.count() > 0) {
+    if ((await refineBtn.count()) > 0) {
       await expect(refineBtn.first()).toBeVisible();
     }
   });

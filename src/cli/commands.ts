@@ -18,6 +18,7 @@ import { holisticDriftCheck } from "../enforcement/drift-control.js";
 import { getNextOpenMilestone } from "../github/milestones.js";
 import { SprintRunner } from "../runner.js";
 import { SprintEventBus } from "../events.js";
+import { attachSprintNotifications } from "../notifications/sprint-notifications.js";
 import { logger, redirectLogToFile, initErrorLogFile } from "../logger.js";
 import type { SprintIssue } from "../types.js";
 import {
@@ -310,6 +311,7 @@ function registerWeb(program: Command): void {
 
         const eventBus = new SprintEventBus();
         const sprintConfig = buildSprintConfig(config, initialSprint);
+        attachSprintNotifications(eventBus, sprintConfig.ntfy);
         const runner = new SprintRunner(sprintConfig, eventBus);
 
         // Load saved state

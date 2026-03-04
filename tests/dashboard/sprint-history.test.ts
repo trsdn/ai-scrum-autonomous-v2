@@ -71,33 +71,25 @@ describe("loadSprintHistory", () => {
   });
 
   it("computes avgDuration as (hours / done) * 60", () => {
-    mockedReadVelocity.mockReturnValue([
-      makeEntry({ hours: 6, done: 3 }),
-    ]);
+    mockedReadVelocity.mockReturnValue([makeEntry({ hours: 6, done: 3 })]);
     const [entry] = loadSprintHistory();
     expect(entry!.metrics.avgDuration).toBe(120); // (6/3)*60
   });
 
   it("sets avgDuration to 0 when hours is 0", () => {
-    mockedReadVelocity.mockReturnValue([
-      makeEntry({ hours: 0, done: 5 }),
-    ]);
+    mockedReadVelocity.mockReturnValue([makeEntry({ hours: 0, done: 5 })]);
     const [entry] = loadSprintHistory();
     expect(entry!.metrics.avgDuration).toBe(0);
   });
 
   it("sets avgDuration to 0 when done is 0", () => {
-    mockedReadVelocity.mockReturnValue([
-      makeEntry({ hours: 4, done: 0 }),
-    ]);
+    mockedReadVelocity.mockReturnValue([makeEntry({ hours: 4, done: 0 })]);
     const [entry] = loadSprintHistory();
     expect(entry!.metrics.avgDuration).toBe(0);
   });
 
   it("sets firstPassRate to 0 when planned is 0", () => {
-    mockedReadVelocity.mockReturnValue([
-      makeEntry({ planned: 0, done: 0 }),
-    ]);
+    mockedReadVelocity.mockReturnValue([makeEntry({ planned: 0, done: 0 })]);
     const [entry] = loadSprintHistory();
     expect(entry!.metrics.firstPassRate).toBe(0);
   });

@@ -19,7 +19,15 @@ vi.mock("../../src/ceremonies/planning.js", () => ({
   runSprintPlanning: vi.fn().mockResolvedValue({
     sprintNumber: 1,
     sprint_issues: [
-      { number: 1, title: "Issue 1", ice_score: 8, depends_on: [], acceptanceCriteria: "AC", expectedFiles: ["src/a.ts"], points: 3 },
+      {
+        number: 1,
+        title: "Issue 1",
+        ice_score: 8,
+        depends_on: [],
+        acceptanceCriteria: "AC",
+        expectedFiles: ["src/a.ts"],
+        points: 3,
+      },
     ],
     execution_groups: [[1]],
     estimated_points: 3,
@@ -30,52 +38,120 @@ vi.mock("../../src/ceremonies/planning.js", () => ({
 vi.mock("../../src/ceremonies/parallel-dispatcher.js", () => ({
   runParallelExecution: vi.fn().mockResolvedValue({
     results: [
-      { issueNumber: 1, status: "completed", qualityGatePassed: true, qualityDetails: { passed: true, checks: [] }, branch: "feat/1-test", duration_ms: 10000, filesChanged: ["src/a.ts"], retryCount: 0, points: 3 },
+      {
+        issueNumber: 1,
+        status: "completed",
+        qualityGatePassed: true,
+        qualityDetails: { passed: true, checks: [] },
+        branch: "feat/1-test",
+        duration_ms: 10000,
+        filesChanged: ["src/a.ts"],
+        retryCount: 0,
+        points: 3,
+      },
     ],
-    sprint: 1, parallelizationRatio: 1, avgWorktreeLifetime: 10000, mergeConflicts: 0,
+    sprint: 1,
+    parallelizationRatio: 1,
+    avgWorktreeLifetime: 10000,
+    mergeConflicts: 0,
   }),
 }));
 
 vi.mock("../../src/ceremonies/review.js", () => ({
   runSprintReview: vi.fn().mockResolvedValue({
-    summary: "Good sprint", demoItems: ["Feature A"], velocityUpdate: "3 points", openItems: [],
+    summary: "Good sprint",
+    demoItems: ["Feature A"],
+    velocityUpdate: "3 points",
+    openItems: [],
   }),
 }));
 
 vi.mock("../../src/ceremonies/retro.js", () => ({
   runSprintRetro: vi.fn().mockResolvedValue({
-    wentWell: ["Good"], wentBadly: ["Slow"], improvements: [], previousImprovementsChecked: true,
+    wentWell: ["Good"],
+    wentBadly: ["Slow"],
+    improvements: [],
+    previousImprovementsChecked: true,
   }),
 }));
 
-vi.mock("../../src/documentation/sprint-log.js", () => ({ createSprintLog: vi.fn().mockReturnValue("docs/sprints/sprint-1-log.md") }));
+vi.mock("../../src/documentation/sprint-log.js", () => ({
+  createSprintLog: vi.fn().mockReturnValue("docs/sprints/sprint-1-log.md"),
+}));
 vi.mock("../../src/documentation/velocity.js", () => ({ appendVelocity: vi.fn() }));
 vi.mock("../../src/metrics.js", () => ({
   calculateSprintMetrics: vi.fn().mockReturnValue({
-    planned: 1, completed: 1, failed: 0, pointsPlanned: 3, pointsCompleted: 3,
-    velocity: 3, avgDuration: 10000, firstPassRate: 100, driftIncidents: 0,
+    planned: 1,
+    completed: 1,
+    failed: 0,
+    pointsPlanned: 3,
+    pointsCompleted: 3,
+    velocity: 3,
+    avgDuration: 10000,
+    firstPassRate: 100,
+    driftIncidents: 0,
   }),
 }));
-vi.mock("../../src/enforcement/drift-control.js", () => ({ holisticDriftCheck: vi.fn().mockResolvedValue({ totalFilesChanged: 1, plannedChanges: 1, unplannedChanges: [], driftPercentage: 0 }) }));
-vi.mock("../../src/enforcement/escalation.js", () => ({ escalateToStakeholder: vi.fn().mockResolvedValue(undefined) }));
+vi.mock("../../src/enforcement/drift-control.js", () => ({
+  holisticDriftCheck: vi.fn().mockResolvedValue({
+    totalFilesChanged: 1,
+    plannedChanges: 1,
+    unplannedChanges: [],
+    driftPercentage: 0,
+  }),
+}));
+vi.mock("../../src/enforcement/escalation.js", () => ({
+  escalateToStakeholder: vi.fn().mockResolvedValue(undefined),
+}));
 vi.mock("../../src/logger.js", () => {
   const noop = vi.fn();
-  const childLogger = { info: noop, warn: noop, error: noop, debug: noop, child: vi.fn().mockReturnThis() };
-  return { logger: { info: noop, warn: noop, error: noop, debug: noop, child: vi.fn().mockReturnValue(childLogger) }, createLogger: vi.fn().mockReturnValue(childLogger), appendErrorLog: noop };
+  const childLogger = {
+    info: noop,
+    warn: noop,
+    error: noop,
+    debug: noop,
+    child: vi.fn().mockReturnThis(),
+  };
+  return {
+    logger: {
+      info: noop,
+      warn: noop,
+      error: noop,
+      debug: noop,
+      child: vi.fn().mockReturnValue(childLogger),
+    },
+    createLogger: vi.fn().mockReturnValue(childLogger),
+    appendErrorLog: noop,
+  };
 });
 
 // --- Helpers ---
 
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
-    sprintNumber: 1, sprintPrefix: "Sprint", sprintSlug: "sprint",
-    projectPath: os.tmpdir(), baseBranch: "main", worktreeBase: "../sprint-worktrees",
-    branchPattern: "{prefix}/{sprint}/issue-{issue}", maxParallelSessions: 4,
-    maxIssuesPerSprint: 8, maxDriftIncidents: 2, maxRetries: 2,
-    enableChallenger: false, autoRevertDrift: false, backlogLabels: [],
-    autoMerge: true, squashMerge: true, deleteBranchAfterMerge: true,
-    sessionTimeoutMs: 600000, customInstructions: "", globalMcpServers: [],
-    globalInstructions: [], phases: {}, ...overrides,
+    sprintNumber: 1,
+    sprintPrefix: "Sprint",
+    sprintSlug: "sprint",
+    projectPath: os.tmpdir(),
+    baseBranch: "main",
+    worktreeBase: "../sprint-worktrees",
+    branchPattern: "{prefix}/{sprint}/issue-{issue}",
+    maxParallelSessions: 4,
+    maxIssuesPerSprint: 8,
+    maxDriftIncidents: 2,
+    maxRetries: 2,
+    enableChallenger: false,
+    autoRevertDrift: false,
+    backlogLabels: [],
+    autoMerge: true,
+    squashMerge: true,
+    deleteBranchAfterMerge: true,
+    sessionTimeoutMs: 600000,
+    customInstructions: "",
+    globalMcpServers: [],
+    globalInstructions: [],
+    phases: {},
+    ...overrides,
   };
 }
 

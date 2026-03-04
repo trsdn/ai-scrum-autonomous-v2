@@ -4,11 +4,7 @@ import { promisify } from "node:util";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import {
-  createWorktree,
-  removeWorktree,
-  listWorktrees,
-} from "../../src/git/worktree.js";
+import { createWorktree, removeWorktree, listWorktrees } from "../../src/git/worktree.js";
 
 const execFile = promisify(execFileCb);
 
@@ -21,9 +17,7 @@ describe("worktree", () => {
 
     // Create a temporary directory with a real git repo
     // Use realpath to resolve macOS /tmp -> /private/tmp symlinks
-    repoDir = await fs.realpath(
-      await fs.mkdtemp(path.join(os.tmpdir(), "git-worktree-test-")),
-    );
+    repoDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "git-worktree-test-")));
     process.chdir(repoDir);
 
     // Initialize a git repo with an initial commit
@@ -202,9 +196,7 @@ describe("worktree", () => {
     });
 
     it("throws when removing a non-existent worktree", async () => {
-      await expect(
-        removeWorktree(path.join(repoDir, "nonexistent")),
-      ).rejects.toThrow();
+      await expect(removeWorktree(path.join(repoDir, "nonexistent"))).rejects.toThrow();
     });
 
     it("removes worktree even with uncommitted changes (force)", async () => {

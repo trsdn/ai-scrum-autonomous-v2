@@ -24,10 +24,7 @@ export interface SessionLogOptions {
  * Write a chat session transcript to the role's log directory.
  * Creates directories as needed. Silently returns on error (non-critical).
  */
-export function writeSessionLog(
-  session: ChatSession,
-  options: SessionLogOptions,
-): void {
+export function writeSessionLog(session: ChatSession, options: SessionLogOptions): void {
   try {
     if (session.messages.length === 0) {
       log.debug({ sessionId: session.id }, "Skipping empty session log");
@@ -52,10 +49,7 @@ export function writeSessionLog(
     const content = formatSessionLog(session);
     fs.writeFileSync(filepath, content, "utf-8");
 
-    log.info(
-      { sessionId: session.id, role: session.role, filepath },
-      "Session log written",
-    );
+    log.info({ sessionId: session.id, role: session.role, filepath }, "Session log written");
   } catch (err: unknown) {
     log.warn({ err, sessionId: session.id }, "Failed to write session log");
   }

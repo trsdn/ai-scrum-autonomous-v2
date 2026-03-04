@@ -12,27 +12,15 @@ export const STATUS_LABELS = [
 export type StatusLabel = (typeof STATUS_LABELS)[number];
 
 /** Add a label to an issue. */
-export async function setLabel(
-  issueNumber: number,
-  label: string,
-): Promise<void> {
+export async function setLabel(issueNumber: number, label: string): Promise<void> {
   logger.debug({ issueNumber, label }, "Adding label");
   await execGh(["issue", "edit", String(issueNumber), "--add-label", label]);
 }
 
 /** Remove a label from an issue. */
-export async function removeLabel(
-  issueNumber: number,
-  label: string,
-): Promise<void> {
+export async function removeLabel(issueNumber: number, label: string): Promise<void> {
   logger.debug({ issueNumber, label }, "Removing label");
-  await execGh([
-    "issue",
-    "edit",
-    String(issueNumber),
-    "--remove-label",
-    label,
-  ]);
+  await execGh(["issue", "edit", String(issueNumber), "--remove-label", label]);
 }
 
 /** Create a label if it doesn't already exist. */
@@ -42,14 +30,7 @@ export async function ensureLabelExists(
   description?: string,
 ): Promise<void> {
   try {
-    const json = await execGh([
-      "label",
-      "list",
-      "--search",
-      name,
-      "--json",
-      "name",
-    ]);
+    const json = await execGh(["label", "list", "--search", name, "--json", "name"]);
     const labels = JSON.parse(json) as { name: string }[];
     const exists = labels.some((l) => l.name === name);
 
@@ -75,16 +56,8 @@ export async function ensureLabelExists(
 }
 
 /** Get labels for a specific issue. */
-export async function getLabels(
-  issueNumber: number,
-): Promise<{ name: string }[]> {
-  const json = await execGh([
-    "issue",
-    "view",
-    String(issueNumber),
-    "--json",
-    "labels",
-  ]);
+export async function getLabels(issueNumber: number): Promise<{ name: string }[]> {
+  const json = await execGh(["issue", "view", String(issueNumber), "--json", "labels"]);
   const result = JSON.parse(json) as { labels?: { name: string }[] };
   return result.labels ?? [];
 }

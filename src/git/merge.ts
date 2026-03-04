@@ -31,11 +31,16 @@ export async function getPRStats(branch: string): Promise<PRStats | undefined> {
   const log = logger.child({ module: "merge" });
   try {
     const json = await execGh([
-      "pr", "list",
-      "--head", branch,
-      "--state", "all",
-      "--json", "number,additions,deletions,changedFiles",
-      "--limit", "1",
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--state",
+      "all",
+      "--json",
+      "number,additions,deletions,changedFiles",
+      "--limit",
+      "1",
     ]);
     const prs = JSON.parse(json) as PRStats[];
     if (prs.length > 0) {
@@ -57,11 +62,16 @@ export async function getPRStatus(
   const log = logger.child({ module: "merge" });
   try {
     const json = await execGh([
-      "pr", "list",
-      "--head", branch,
-      "--state", "all",
-      "--json", "number,state",
-      "--limit", "1",
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--state",
+      "all",
+      "--json",
+      "number,state",
+      "--limit",
+      "1",
     ]);
     const prs = JSON.parse(json) as { number: number; state: "MERGED" | "CLOSED" | "OPEN" }[];
     if (prs.length > 0) {
@@ -87,11 +97,16 @@ export async function mergeIssuePR(
   let prNumber: number | undefined;
   try {
     const json = await execGh([
-      "pr", "list",
-      "--head", branch,
-      "--state", "open",
-      "--json", "number",
-      "--limit", "1",
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--state",
+      "open",
+      "--json",
+      "number",
+      "--limit",
+      "1",
     ]);
     const prs = JSON.parse(json) as { number: number }[];
     if (prs.length > 0) {
@@ -178,21 +193,20 @@ export async function mergeBranch(
     if (output.includes("CONFLICT") || output.includes("Merge conflict")) {
       // Gather conflict file list
       const conflictFiles = await getConflictFiles();
-      log.warn(
-        { source, target, conflictFiles },
-        "merge produced conflicts",
-      );
+      log.warn({ source, target, conflictFiles }, "merge produced conflicts");
 
       // Abort the failed merge
-      await execFile("git", ["merge", "--abort"]).catch((err) => log.debug({ err: String(err) }, "merge --abort failed (non-critical)"));
+      await execFile("git", ["merge", "--abort"]).catch((err) =>
+        log.debug({ err: String(err) }, "merge --abort failed (non-critical)"),
+      );
       return { success: false, conflictFiles };
     }
 
     // Abort any partial merge state
-    await execFile("git", ["merge", "--abort"]).catch((err) => log.debug({ err: String(err) }, "merge --abort cleanup failed"));
-    throw new Error(
-      `Failed to merge '${source}' into '${target}': ${message}`,
+    await execFile("git", ["merge", "--abort"]).catch((err) =>
+      log.debug({ err: String(err) }, "merge --abort cleanup failed"),
     );
+    throw new Error(`Failed to merge '${source}' into '${target}': ${message}`);
   }
 }
 
@@ -200,28 +214,16 @@ export async function mergeBranch(
  * Pre-merge conflict check without modifying the working tree.
  * Uses git merge-tree to detect conflicts.
  */
-export async function hasConflicts(
-  source: string,
-  target: string,
-): Promise<boolean> {
+export async function hasConflicts(source: string, target: string): Promise<boolean> {
   const log = logger.child({ module: "merge" });
 
   try {
     // Find the merge base
-    const { stdout: mergeBase } = await execFile("git", [
-      "merge-base",
-      target,
-      source,
-    ]);
+    const { stdout: mergeBase } = await execFile("git", ["merge-base", target, source]);
     const base = mergeBase.trim();
 
     // Use merge-tree to simulate the merge
-    const { stdout } = await execFile("git", [
-      "merge-tree",
-      base,
-      target,
-      source,
-    ]);
+    const { stdout } = await execFile("git", ["merge-tree", base, target, source]);
 
     // merge-tree outputs conflict markers when there are conflicts
     const conflicts = stdout.includes("<<<<<<");
@@ -229,9 +231,7 @@ export async function hasConflicts(
     return conflicts;
   } catch (err: unknown) {
     const message = (err as Error).message ?? "";
-    throw new Error(
-      `Failed to check conflicts between '${source}' and '${target}': ${message}`,
-    );
+    throw new Error(`Failed to check conflicts between '${source}' and '${target}': ${message}`);
   }
 }
 

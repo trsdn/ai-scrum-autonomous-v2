@@ -143,10 +143,7 @@ describe("HeartbeatSupervisor", () => {
     const staleEvents: unknown[] = [];
     bus.onTyped("heartbeat:stale", (p) => staleEvents.push(p));
 
-    const supervisor = new HeartbeatSupervisor(
-      makeConfig({ staleThresholdMs: 0 }),
-      bus,
-    );
+    const supervisor = new HeartbeatSupervisor(makeConfig({ staleThresholdMs: 0 }), bus);
     await supervisor.tick();
     await supervisor.tick();
 

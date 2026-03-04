@@ -46,15 +46,13 @@ function makeMockClient(
   response = '```json\n{"decision":"approved","reasoning":"Looks good","feedback":"All clear"}\n```',
 ) {
   return {
-    createSession: vi
-      .fn()
-      .mockResolvedValue({
-        sessionId: "session-1",
-        availableModes: [],
-        currentMode: "",
-        availableModels: [],
-        currentModel: "",
-      }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-1",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({ response, stopReason: "end_turn" }),
     endSession: vi.fn().mockResolvedValue(undefined),
     setMode: vi.fn().mockResolvedValue(undefined),

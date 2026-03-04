@@ -36,7 +36,7 @@ test.describe("External Link Security", () => {
     await page.goto("/");
     await page.waitForSelector(".phase-badge", { timeout: 10_000 });
     const sprintLink = page.locator("#sprint-label a[target='_blank']");
-    if (await sprintLink.count() > 0) {
+    if ((await sprintLink.count()) > 0) {
       const rel = await sprintLink.getAttribute("rel");
       expect(rel).toContain("noreferrer");
     }
@@ -98,7 +98,7 @@ test.describe("IssueCard Rendering", () => {
     await navigateToTab(page, "📋", "Backlog");
     await page.waitForTimeout(2000);
     const items = page.locator(".tab-list-item");
-    if (await items.count() > 0) {
+    if ((await items.count()) > 0) {
       // First item should have a visible number
       const firstNumber = items.first().locator(".item-number");
       await expect(firstNumber).toBeVisible();
@@ -117,7 +117,7 @@ test.describe("IssueCard Rendering", () => {
     await navigateToTab(page, "📋", "Backlog");
     await page.waitForTimeout(2000);
     const expandBtn = page.locator(".item-expand-toggle").first();
-    if (await expandBtn.count() > 0) {
+    if ((await expandBtn.count()) > 0) {
       // Initially collapsed
       const detail = page.locator(".item-detail").first();
       await expect(detail).not.toBeVisible();
@@ -137,7 +137,7 @@ test.describe("IssueCard Rendering", () => {
     await navigateToTab(page, "📋", "Backlog");
     await page.waitForTimeout(2000);
     const expandBtn = page.locator(".item-expand-toggle").first();
-    if (await expandBtn.count() > 0) {
+    if ((await expandBtn.count()) > 0) {
       await expandBtn.click();
       await page.waitForTimeout(300);
       // Should show either body content or empty message
@@ -151,7 +151,7 @@ test.describe("IssueCard Rendering", () => {
     await navigateToTab(page, "📋", "Backlog");
     await page.waitForTimeout(2000);
     const labels = page.locator(".label-badge");
-    if (await labels.count() > 0) {
+    if ((await labels.count()) > 0) {
       await expect(labels.first()).toBeVisible();
       const text = await labels.first().textContent();
       expect(text!.length).toBeGreaterThan(0);
@@ -185,7 +185,7 @@ test.describe("Sprint Navigation", () => {
     await page.waitForSelector(".phase-badge", { timeout: 10_000 });
     await page.waitForTimeout(3000);
     const issueItems = page.locator(".issue-item");
-    if (await issueItems.count() > 0) {
+    if ((await issueItems.count()) > 0) {
       const icon = issueItems.first().locator(".issue-icon");
       await expect(icon).toBeVisible();
       const text = await icon.textContent();
@@ -203,7 +203,7 @@ test.describe("Sprint Backlog Tab", () => {
     await navigateToTab(page, "📦", "Sprint Backlog");
     await page.waitForTimeout(2000);
     const heading = page.locator("h2");
-    if (await heading.count() > 0) {
+    if ((await heading.count()) > 0) {
       const text = await heading.first().textContent();
       // Either shows "Sprint N Backlog" or empty state
       if (text?.includes("Sprint")) {
@@ -217,7 +217,7 @@ test.describe("Sprint Backlog Tab", () => {
     await navigateToTab(page, "📦", "Sprint Backlog");
     await page.waitForTimeout(2000);
     const refreshBtn = page.locator("button", { hasText: "↻" });
-    if (await refreshBtn.count() > 0) {
+    if ((await refreshBtn.count()) > 0) {
       await refreshBtn.first().click();
       // Should show loading briefly
       await page.waitForTimeout(500);
@@ -232,7 +232,7 @@ test.describe("Sprint Backlog Tab", () => {
     await navigateToTab(page, "📦", "Sprint Backlog");
     await page.waitForTimeout(2000);
     const removeBtn = page.locator(".btn-danger", { hasText: "Remove" });
-    if (await removeBtn.count() > 0) {
+    if ((await removeBtn.count()) > 0) {
       await expect(removeBtn.first()).toBeVisible();
     }
   });

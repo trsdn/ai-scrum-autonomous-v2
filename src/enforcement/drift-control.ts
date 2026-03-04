@@ -69,9 +69,7 @@ export async function holisticDriftCheck(
   const totalFilesChanged = allChangedFiles.length;
   const plannedChanges = totalFilesChanged - unplannedChanges.length;
   const driftPercentage =
-    totalFilesChanged > 0
-      ? (unplannedChanges.length / totalFilesChanged) * 100
-      : 0;
+    totalFilesChanged > 0 ? (unplannedChanges.length / totalFilesChanged) * 100 : 0;
 
   const report: DriftReport = {
     totalFilesChanged,

@@ -15,9 +15,7 @@ describe("merge", () => {
   beforeEach(async () => {
     originalCwd = process.cwd();
 
-    repoDir = await fs.realpath(
-      await fs.mkdtemp(path.join(os.tmpdir(), "git-merge-test-")),
-    );
+    repoDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "git-merge-test-")));
     process.chdir(repoDir);
 
     await execFile("git", ["init", "-b", "main"]);
@@ -100,9 +98,7 @@ describe("merge", () => {
     });
 
     it("throws when merging a non-existent branch", async () => {
-      await expect(
-        mergeBranch("nonexistent-branch", "main"),
-      ).rejects.toThrow("Failed to merge");
+      await expect(mergeBranch("nonexistent-branch", "main")).rejects.toThrow("Failed to merge");
     });
   });
 
@@ -136,9 +132,9 @@ describe("merge", () => {
     });
 
     it("throws when checking conflicts with a non-existent branch", async () => {
-      await expect(
-        hasConflicts("nonexistent", "main"),
-      ).rejects.toThrow("Failed to check conflicts");
+      await expect(hasConflicts("nonexistent", "main")).rejects.toThrow(
+        "Failed to check conflicts",
+      );
     });
   });
 });

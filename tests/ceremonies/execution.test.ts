@@ -165,19 +165,15 @@ function makeIssue(overrides: Partial<SprintIssue> = {}): SprintIssue {
 }
 
 function makeMockClient() {
-  let callCount = 0;
   return {
-    createSession: vi
-      .fn()
-      .mockResolvedValue({
-        sessionId: "session-abc",
-        availableModes: [],
-        currentMode: "",
-        availableModels: [],
-        currentModel: "",
-      }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-abc",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockImplementation((_sid: string, prompt: string) => {
-      callCount++;
       // AC review prompts come from the acceptance-review template
       if (typeof prompt === "string" && prompt.includes("Review AC for issue")) {
         return Promise.resolve({

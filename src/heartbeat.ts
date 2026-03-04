@@ -82,12 +82,13 @@ export class HeartbeatSupervisor {
 
     // Check for stale sprint (phase hasn't changed in threshold time)
     const staleSinceMs = Date.now() - this.lastPhaseChangeAt;
-    const isStale = result.phase !== null
-      && result.phase !== "complete"
-      && result.phase !== "failed"
-      && result.phase !== "stopped"
-      && result.phase !== "init"
-      && staleSinceMs > this.config.staleThresholdMs;
+    const isStale =
+      result.phase !== null &&
+      result.phase !== "complete" &&
+      result.phase !== "failed" &&
+      result.phase !== "stopped" &&
+      result.phase !== "init" &&
+      staleSinceMs > this.config.staleThresholdMs;
 
     if (isStale && result.sprintNumber !== null && result.phase !== null) {
       this.events.emitTyped("heartbeat:stale", {
@@ -117,18 +118,26 @@ export class HeartbeatSupervisor {
       }
 
       // Find the highest-numbered state file
-      const files = fs.readdirSync(stateDir)
-        .filter((f) => f.startsWith(this.config.sprintSlug + "-") && f.endsWith("-state.json") && !f.endsWith(".lock"));
+      const files = fs
+        .readdirSync(stateDir)
+        .filter(
+          (f) =>
+            f.startsWith(this.config.sprintSlug + "-") &&
+            f.endsWith("-state.json") &&
+            !f.endsWith(".lock"),
+        );
 
       if (files.length === 0) {
         return { sprintNumber: null, phase: null };
       }
 
       // Extract sprint numbers and sort descending
-      const numbered = files.map((f) => {
-        const match = f.match(/-(\d+)-state\.json$/);
-        return match ? { file: f, num: parseInt(match[1], 10) } : null;
-      }).filter(Boolean) as { file: string; num: number }[];
+      const numbered = files
+        .map((f) => {
+          const match = f.match(/-(\d+)-state\.json$/);
+          return match ? { file: f, num: parseInt(match[1], 10) } : null;
+        })
+        .filter(Boolean) as { file: string; num: number }[];
 
       numbered.sort((a, b) => b.num - a.num);
       if (numbered.length === 0) {
@@ -191,7 +200,11 @@ export class HeartbeatSupervisor {
           }
         } catch {
           // Can't read lock file — remove it
-          try { fs.unlinkSync(lockPath); } catch { /* best effort */ }
+          try {
+            fs.unlinkSync(lockPath);
+          } catch {
+            /* best effort */
+          }
           foundOrphaned = true;
         }
       }

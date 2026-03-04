@@ -38,9 +38,7 @@ vi.mock("@agentclientprotocol/sdk", async (importOriginal) => {
 });
 
 import { AcpClient } from "../../src/acp/client.js";
-import {
-  createPermissionHandler,
-} from "../../src/acp/permissions.js";
+import { createPermissionHandler } from "../../src/acp/permissions.js";
 import { createLogger } from "../../src/logger.js";
 
 function createMockProcess(): ChildProcess {
@@ -87,7 +85,10 @@ describe("AcpClient", () => {
     mockNewSession.mockResolvedValue({
       sessionId: "session-123",
       modes: {
-        availableModes: [{ id: "agent", name: "Agent" }, { id: "plan", name: "Plan" }],
+        availableModes: [
+          { id: "agent", name: "Agent" },
+          { id: "plan", name: "Plan" },
+        ],
         currentModeId: "agent",
       },
       models: {
@@ -134,9 +135,7 @@ describe("AcpClient", () => {
         expect.objectContaining({ stdio: ["pipe", "pipe", "pipe"] }),
       );
       expect(client.connected).toBe(true);
-      expect(mockInitialize).toHaveBeenCalledWith(
-        expect.objectContaining({ protocolVersion: 1 }),
-      );
+      expect(mockInitialize).toHaveBeenCalledWith(expect.objectContaining({ protocolVersion: 1 }));
 
       await client.disconnect();
     });
@@ -198,7 +197,10 @@ describe("AcpClient", () => {
       // Make initialize slow so connect() is in progress when disconnect() is called
       let resolveInit!: (value: unknown) => void;
       mockInitialize.mockImplementation(
-        () => new Promise((resolve) => { resolveInit = resolve; }),
+        () =>
+          new Promise((resolve) => {
+            resolveInit = resolve;
+          }),
       );
 
       mockSpawn.mockReturnValue(mockProc);
@@ -269,9 +271,7 @@ describe("AcpClient", () => {
       const client = new AcpClient({ logger: silentLogger });
       await client.connect();
 
-      const mcpServers = [
-        { type: "stdio" as const, command: "gh", args: ["mcp-server"] },
-      ];
+      const mcpServers = [{ type: "stdio" as const, command: "gh", args: ["mcp-server"] }];
       await client.createSession({ cwd: "/tmp", mcpServers });
 
       expect(mockNewSession).toHaveBeenCalledWith({
@@ -284,9 +284,7 @@ describe("AcpClient", () => {
 
     it("throws when not connected", async () => {
       const client = new AcpClient({ logger: silentLogger });
-      await expect(client.createSession({ cwd: "/tmp" })).rejects.toThrow(
-        "not connected",
-      );
+      await expect(client.createSession({ cwd: "/tmp" })).rejects.toThrow("not connected");
     });
   });
 
@@ -313,9 +311,7 @@ describe("AcpClient", () => {
 
     it("throws when not connected", async () => {
       const client = new AcpClient({ logger: silentLogger });
-      await expect(
-        client.sendPrompt("session-123", "test"),
-      ).rejects.toThrow("not connected");
+      await expect(client.sendPrompt("session-123", "test")).rejects.toThrow("not connected");
     });
 
     it("rejects on timeout", async () => {
@@ -331,9 +327,7 @@ describe("AcpClient", () => {
       await client.connect();
       await client.createSession({ cwd: "/tmp" });
 
-      await expect(
-        client.sendPrompt("session-123", "slow prompt"),
-      ).rejects.toThrow("timed out");
+      await expect(client.sendPrompt("session-123", "slow prompt")).rejects.toThrow("timed out");
 
       await client.disconnect();
     }, 30_000);
@@ -412,9 +406,7 @@ describe("AcpClient", () => {
       await client.connect();
       await client.createSession({ cwd: "/tmp" });
 
-      await expect(
-        client.sendPrompt("session-123", "Hello"),
-      ).rejects.toThrow("Invalid session");
+      await expect(client.sendPrompt("session-123", "Hello")).rejects.toThrow("Invalid session");
 
       expect(mockPrompt).toHaveBeenCalledTimes(1);
 
@@ -453,9 +445,7 @@ describe("AcpClient", () => {
       await client.createSession({ cwd: "/tmp" });
 
       // Should not throw
-      await expect(
-        client.endSession("session-123"),
-      ).resolves.toBeUndefined();
+      await expect(client.endSession("session-123")).resolves.toBeUndefined();
 
       await client.disconnect();
     });
@@ -479,14 +469,9 @@ describe("createPermissionHandler", () => {
   });
 
   it("auto-approves when autoApprove is true", async () => {
-    const handler = createPermissionHandler(
-      { autoApprove: true, allowPatterns: [] },
-      silentLogger,
-    );
+    const handler = createPermissionHandler({ autoApprove: true, allowPatterns: [] }, silentLogger);
 
-    const result = await handler(
-      makeRequest("bash", ["allow_once", "reject_once"]) as any,
-    );
+    const result = await handler(makeRequest("bash", ["allow_once", "reject_once"]) as any);
 
     expect(result.outcome).toEqual({
       outcome: "selected",
@@ -500,9 +485,7 @@ describe("createPermissionHandler", () => {
       silentLogger,
     );
 
-    const result = await handler(
-      makeRequest("bash", ["allow_once", "reject_once"]) as any,
-    );
+    const result = await handler(makeRequest("bash", ["allow_once", "reject_once"]) as any);
 
     expect(result.outcome).toEqual({
       outcome: "selected",
@@ -516,9 +499,7 @@ describe("createPermissionHandler", () => {
       silentLogger,
     );
 
-    const result = await handler(
-      makeRequest("bash", ["allow_once", "reject_once"]) as any,
-    );
+    const result = await handler(makeRequest("bash", ["allow_once", "reject_once"]) as any);
 
     expect(result.outcome).toEqual({
       outcome: "selected",
@@ -532,9 +513,7 @@ describe("createPermissionHandler", () => {
       silentLogger,
     );
 
-    const result = await handler(
-      makeRequest("bash", ["allow_once", "reject_once"]) as any,
-    );
+    const result = await handler(makeRequest("bash", ["allow_once", "reject_once"]) as any);
 
     expect(result.outcome).toEqual({
       outcome: "selected",
@@ -548,22 +527,15 @@ describe("createPermissionHandler", () => {
       silentLogger,
     );
 
-    const result = await handler(
-      makeRequest("bash", []) as any,
-    );
+    const result = await handler(makeRequest("bash", []) as any);
 
     expect(result.outcome).toEqual({ outcome: "cancelled" });
   });
 
   it("prefers allow_once over allow_always", async () => {
-    const handler = createPermissionHandler(
-      { autoApprove: true, allowPatterns: [] },
-      silentLogger,
-    );
+    const handler = createPermissionHandler({ autoApprove: true, allowPatterns: [] }, silentLogger);
 
-    const result = await handler(
-      makeRequest("bash", ["allow_always", "allow_once"]) as any,
-    );
+    const result = await handler(makeRequest("bash", ["allow_always", "allow_once"]) as any);
 
     // allow_once should be preferred (found first by find)
     expect(result.outcome).toEqual({

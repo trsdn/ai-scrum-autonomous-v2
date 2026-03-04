@@ -153,7 +153,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     maxRetries: 2,
     enableChallenger: false,
     autoRevertDrift: false,
-  backlogLabels: [],
+    backlogLabels: [],
     autoMerge: true,
     squashMerge: true,
     deleteBranchAfterMerge: true,
@@ -656,10 +656,7 @@ describe("sprintLoop", { timeout: 30000 }, () => {
     const sprintStarts: number[] = [];
     bus.onTyped("sprint:start", ({ sprintNumber }) => sprintStarts.push(sprintNumber));
 
-    const results = await SprintRunner.sprintLoop(
-      (n) => makeConfig({ sprintNumber: n }),
-      bus,
-    );
+    const results = await SprintRunner.sprintLoop((n) => makeConfig({ sprintNumber: n }), bus);
 
     expect(results).toHaveLength(2);
     expect(results[0]!.phase).toBe("complete");
@@ -676,11 +673,7 @@ describe("sprintLoop", { timeout: 30000 }, () => {
     vi.mocked(closeMilestone).mockResolvedValue(undefined);
 
     const bus = new SprintEventBus();
-    const results = await SprintRunner.sprintLoop(
-      (n) => makeConfig({ sprintNumber: n }),
-      bus,
-      2,
-    );
+    const results = await SprintRunner.sprintLoop((n) => makeConfig({ sprintNumber: n }), bus, 2);
 
     expect(results).toHaveLength(2);
     expect(results[0]!.phase).toBe("complete");
@@ -727,10 +720,7 @@ describe("sprintLoop", { timeout: 30000 }, () => {
     vi.mocked(runSprintPlanning).mockRejectedValueOnce(new Error("ACP down"));
 
     const bus = new SprintEventBus();
-    const results = await SprintRunner.sprintLoop(
-      (n) => makeConfig({ sprintNumber: n }),
-      bus,
-    );
+    const results = await SprintRunner.sprintLoop((n) => makeConfig({ sprintNumber: n }), bus);
 
     expect(results).toHaveLength(1);
     expect(results[0]!.phase).toBe("failed");
@@ -748,10 +738,7 @@ describe("sprintLoop", { timeout: 30000 }, () => {
     const logs: string[] = [];
     bus.onTyped("log", ({ message }) => logs.push(message));
 
-    await SprintRunner.sprintLoop(
-      (n) => makeConfig({ sprintNumber: n }),
-      bus,
-    );
+    await SprintRunner.sprintLoop((n) => makeConfig({ sprintNumber: n }), bus);
 
     expect(logs.some((m) => m.includes("Starting Sprint 1"))).toBe(true);
     expect(logs.some((m) => m.includes("No open sprint milestones"))).toBe(true);
@@ -767,11 +754,7 @@ describe("sprintLoop", { timeout: 30000 }, () => {
     const logs: string[] = [];
     bus.onTyped("log", ({ message }) => logs.push(message));
 
-    await SprintRunner.sprintLoop(
-      (n) => makeConfig({ sprintNumber: n }),
-      bus,
-      1,
-    );
+    await SprintRunner.sprintLoop((n) => makeConfig({ sprintNumber: n }), bus, 1);
 
     expect(logs.some((m) => m.includes("Sprint limit reached"))).toBe(true);
   });

@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getIssue, addComment, getComments, listIssues, createIssue, execGh } from "../../src/github/issues.js";
+import {
+  getIssue,
+  addComment,
+  getComments,
+  listIssues,
+  createIssue,
+  execGh,
+} from "../../src/github/issues.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -9,36 +16,30 @@ vi.mock("node:child_process", () => ({
 const mockExecFile = vi.mocked(cp.execFile);
 
 function mockExecFileSuccess(stdout: string): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-        null,
-        { stdout, stderr: "" },
-      );
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+      stdout,
+      stderr: "",
+    });
+  }) as typeof cp.execFile);
 }
 
 function mockExecFileError(message: string): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null) => void)(new Error(message));
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null) => void)(new Error(message));
+  }) as typeof cp.execFile);
 }
 
 function mockExecFileErrorWithCode(message: string, code: string | number): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      const err = new Error(message) as NodeJS.ErrnoException;
-      err.code = String(code);
-      // For numeric exit codes, set as number to match child_process behavior
-      if (typeof code === "number") {
-        (err as unknown as Record<string, unknown>).code = code;
-      }
-      (callback as (err: Error | null) => void)(err);
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    const err = new Error(message) as NodeJS.ErrnoException;
+    err.code = String(code);
+    // For numeric exit codes, set as number to match child_process behavior
+    if (typeof code === "number") {
+      (err as unknown as Record<string, unknown>).code = code;
+    }
+    (callback as (err: Error | null) => void)(err);
+  }) as typeof cp.execFile);
 }
 
 beforeEach(() => {
@@ -50,11 +51,7 @@ describe("execGh", () => {
     mockExecFileSuccess('{"ok": true}');
     const result = await execGh(["issue", "list"]);
     expect(result).toBe('{"ok": true}');
-    expect(mockExecFile).toHaveBeenCalledWith(
-      "gh",
-      ["issue", "list"],
-      expect.any(Function),
-    );
+    expect(mockExecFile).toHaveBeenCalledWith("gh", ["issue", "list"], expect.any(Function));
   });
 
   it("throws on failure with descriptive message", async () => {
@@ -133,7 +130,15 @@ describe("getComments", () => {
     expect(result).toEqual(comments);
     expect(mockExecFile).toHaveBeenCalledWith(
       "gh",
-      ["issue", "view", "42", "--json", "comments", "--jq", ".comments | sort_by(.createdAt) | reverse | .[:5]"],
+      [
+        "issue",
+        "view",
+        "42",
+        "--json",
+        "comments",
+        "--jq",
+        ".comments | sort_by(.createdAt) | reverse | .[:5]",
+      ],
       expect.any(Function),
     );
   });
@@ -153,9 +158,7 @@ describe("getComments", () => {
 
 describe("listIssues", () => {
   it("lists issues without filters", async () => {
-    const issues = [
-      { number: 1, title: "A", body: "", labels: [], state: "OPEN" },
-    ];
+    const issues = [{ number: 1, title: "A", body: "", labels: [], state: "OPEN" }];
     mockExecFileSuccess(JSON.stringify(issues));
 
     const result = await listIssues();
@@ -174,10 +177,14 @@ describe("listIssues", () => {
     expect(mockExecFile).toHaveBeenCalledWith(
       "gh",
       [
-        "issue", "list",
-        "--json", "number,title,body,labels,state,milestone",
-        "--label", "bug,urgent",
-        "--state", "open",
+        "issue",
+        "list",
+        "--json",
+        "number,title,body,labels,state,milestone",
+        "--label",
+        "bug,urgent",
+        "--state",
+        "open",
       ],
       expect.any(Function),
     );
@@ -190,9 +197,12 @@ describe("listIssues", () => {
     expect(mockExecFile).toHaveBeenCalledWith(
       "gh",
       [
-        "issue", "list",
-        "--json", "number,title,body,labels,state,milestone",
-        "--milestone", "Sprint 1",
+        "issue",
+        "list",
+        "--json",
+        "number,title,body,labels,state,milestone",
+        "--milestone",
+        "Sprint 1",
       ],
       expect.any(Function),
     );
@@ -201,15 +211,13 @@ describe("listIssues", () => {
 
 describe("createIssue", () => {
   it("rejects empty title", async () => {
-    await expect(createIssue({ title: "", body: "desc" })).rejects.toThrow(
-      "title is required",
-    );
+    await expect(createIssue({ title: "", body: "desc" })).rejects.toThrow("title is required");
   });
 
   it("rejects undefined title", async () => {
-    await expect(createIssue({ title: undefined as unknown as string, body: "desc" })).rejects.toThrow(
-      "title is required",
-    );
+    await expect(
+      createIssue({ title: undefined as unknown as string, body: "desc" }),
+    ).rejects.toThrow("title is required");
   });
 
   it("rejects empty body", async () => {
@@ -220,25 +228,31 @@ describe("createIssue", () => {
 
   it("skips creation if duplicate open issue exists", async () => {
     const existing = [
-      { number: 42, title: "chore(process): Fix something", body: "desc", labels: [], state: "OPEN" },
+      {
+        number: 42,
+        title: "chore(process): Fix something",
+        body: "desc",
+        labels: [],
+        state: "OPEN",
+      },
     ];
     // First call: listIssues for dedup check; second call would be createIssue (should not happen)
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, args: unknown, callback: unknown) => {
-        callCount++;
-        const argList = args as string[];
-        if (argList[0] === "issue" && argList[1] === "list") {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            null, { stdout: JSON.stringify(existing), stderr: "" },
-          );
-        } else {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            null, { stdout: "", stderr: "" },
-          );
-        }
-      }) as typeof cp.execFile,
-    );
+    mockExecFile.mockImplementation(((_cmd: unknown, args: unknown, callback: unknown) => {
+      callCount++;
+      const argList = args as string[];
+      if (argList[0] === "issue" && argList[1] === "list") {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: JSON.stringify(existing), stderr: "" },
+        );
+      } else {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: "", stderr: "" },
+        );
+      }
+    }) as typeof cp.execFile);
 
     const result = await createIssue({ title: "chore(process): Fix something", body: "desc" });
     expect(result.number).toBe(42);

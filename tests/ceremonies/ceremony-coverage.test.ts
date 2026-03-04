@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { AcpClient } from "../../src/acp/client.js";
-import type {
-  SprintConfig,
-  SprintResult,
-  ReviewResult,
-} from "../../src/types.js";
+import type { SprintConfig, SprintResult, ReviewResult } from "../../src/types.js";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────────
 
@@ -57,9 +53,7 @@ vi.mock("../../src/metrics.js", () => ({
 
 vi.mock("node:fs/promises", () => ({
   default: {
-    readFile: vi
-      .fn()
-      .mockResolvedValue("Template {{SPRINT_NUMBER}}"),
+    readFile: vi.fn().mockResolvedValue("Template {{SPRINT_NUMBER}}"),
   },
 }));
 
@@ -74,10 +68,14 @@ import { listIssues, createIssue } from "../../src/github/issues.js";
 
 function makeMockClient() {
   return {
-    createSession: vi.fn().mockResolvedValue({ sessionId: "session-1", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
-    sendPrompt: vi
-      .fn()
-      .mockResolvedValue({ response: "", stopReason: "end_turn" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-1",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
+    sendPrompt: vi.fn().mockResolvedValue({ response: "", stopReason: "end_turn" }),
     endSession: vi.fn().mockResolvedValue(undefined),
     setMode: vi.fn().mockResolvedValue(undefined),
     setModel: vi.fn().mockResolvedValue(undefined),
@@ -165,18 +163,14 @@ describe("runRefinement", () => {
     const client = makeMockClient();
     vi.mocked(client.sendPrompt).mockResolvedValueOnce({
       response: JSON.stringify({
-        refined_issues: [
-          { number: 1, title: "Feature A", ice_score: 320 },
-        ],
+        refined_issues: [{ number: 1, title: "Feature A", ice_score: 320 }],
       }),
       stopReason: "end_turn",
     });
 
     const result = await runRefinement(client, config);
 
-    expect(result).toEqual([
-      { number: 1, title: "Feature A", ice_score: 320 },
-    ]);
+    expect(result).toEqual([{ number: 1, title: "Feature A", ice_score: 320 }]);
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
 
@@ -192,13 +186,9 @@ describe("runRefinement", () => {
     ] as never);
 
     const client = makeMockClient();
-    vi.mocked(client.sendPrompt).mockRejectedValueOnce(
-      new Error("ACP failure"),
-    );
+    vi.mocked(client.sendPrompt).mockRejectedValueOnce(new Error("ACP failure"));
 
-    await expect(runRefinement(client, config)).rejects.toThrow(
-      "ACP failure",
-    );
+    await expect(runRefinement(client, config)).rejects.toThrow("ACP failure");
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
 });
@@ -231,13 +221,9 @@ describe("runSprintReview", () => {
 
   it("ends ACP session even on error", async () => {
     const client = makeMockClient();
-    vi.mocked(client.sendPrompt).mockRejectedValueOnce(
-      new Error("ACP failure"),
-    );
+    vi.mocked(client.sendPrompt).mockRejectedValueOnce(new Error("ACP failure"));
 
-    await expect(
-      runSprintReview(client, config, sprintResult),
-    ).rejects.toThrow("ACP failure");
+    await expect(runSprintReview(client, config, sprintResult)).rejects.toThrow("ACP failure");
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
 });
@@ -257,12 +243,7 @@ describe("runSprintRetro", () => {
       stopReason: "end_turn",
     });
 
-    const result = await runSprintRetro(
-      client,
-      config,
-      sprintResult,
-      reviewResult,
-    );
+    const result = await runSprintRetro(client, config, sprintResult, reviewResult);
 
     expect(result).toMatchObject({
       wentWell: ["Good tests"],
@@ -300,13 +281,11 @@ describe("runSprintRetro", () => {
 
   it("ends ACP session even on error", async () => {
     const client = makeMockClient();
-    vi.mocked(client.sendPrompt).mockRejectedValueOnce(
-      new Error("ACP failure"),
-    );
+    vi.mocked(client.sendPrompt).mockRejectedValueOnce(new Error("ACP failure"));
 
-    await expect(
-      runSprintRetro(client, config, sprintResult, reviewResult),
-    ).rejects.toThrow("ACP failure");
+    await expect(runSprintRetro(client, config, sprintResult, reviewResult)).rejects.toThrow(
+      "ACP failure",
+    );
     expect(client.endSession).toHaveBeenCalledWith("session-1");
   });
 

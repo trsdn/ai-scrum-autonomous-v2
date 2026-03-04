@@ -1,9 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { HuddleEntry } from "../../src/types.js";
-import {
-  formatHuddleComment,
-  formatSprintLogEntry,
-} from "../../src/documentation/huddle.js";
+import { formatHuddleComment, formatSprintLogEntry } from "../../src/documentation/huddle.js";
 
 function makeEntry(overrides: Partial<HuddleEntry> = {}): HuddleEntry {
   return {
@@ -75,9 +72,7 @@ describe("formatSprintLogEntry", () => {
       status: "failed",
       qualityResult: {
         passed: false,
-        checks: [
-          { name: "types", passed: false, detail: "5 type errors", category: "type" },
-        ],
+        checks: [{ name: "types", passed: false, detail: "5 type errors", category: "type" }],
       },
     });
     const result = formatSprintLogEntry(entry);

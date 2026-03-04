@@ -98,7 +98,7 @@ test.describe("Sprint Report Fixes", () => {
     await navigateToTab(page, "📊", "Report");
     await page.waitForTimeout(2000);
     const reportActions = page.locator(".report-actions");
-    if (await reportActions.count() > 0) {
+    if ((await reportActions.count()) > 0) {
       // If report has data, buttons should be visible and enabled
       const copyBtn = page.locator("button", { hasText: "Copy Markdown" });
       await expect(copyBtn).toBeVisible();
@@ -262,7 +262,10 @@ test.describe("Header Controls Verification", () => {
   test("sprint limit dropdown shows current value", async ({ page }) => {
     await page.goto("/");
     await page.waitForSelector(".phase-badge", { timeout: 10_000 });
-    const select = page.locator("select").filter({ hasText: /Infinite|Sprint/ }).last();
+    const select = page
+      .locator("select")
+      .filter({ hasText: /Infinite|Sprint/ })
+      .last();
     const value = await select.inputValue();
     // Value should be a valid number string
     expect(["0", "1", "2", "3", "5", "10"]).toContain(value);

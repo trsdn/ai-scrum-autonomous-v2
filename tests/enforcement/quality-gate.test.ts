@@ -54,42 +54,52 @@ function makeConfig(overrides: Partial<QualityGateConfig> = {}): QualityGateConf
 }
 
 function mockExecSuccess(): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: (...a: unknown[]) => void) => {
-      if (cb) {
-        cb(null, { stdout: "ok", stderr: "" });
-      } else {
-        // promisify path — return value is ignored; promisify wraps the callback
-        // We need to handle the 3-arg case (cmd, args, callback) for promisify
-        const lastArg = _opts;
-        if (typeof lastArg === "function") {
-          (lastArg as (...a: unknown[]) => void)(null, { stdout: "ok", stderr: "" });
-        }
+  mockExecFile.mockImplementation(((
+    _cmd: unknown,
+    _args: unknown,
+    _opts: unknown,
+    cb?: (...a: unknown[]) => void,
+  ) => {
+    if (cb) {
+      cb(null, { stdout: "ok", stderr: "" });
+    } else {
+      // promisify path — return value is ignored; promisify wraps the callback
+      // We need to handle the 3-arg case (cmd, args, callback) for promisify
+      const lastArg = _opts;
+      if (typeof lastArg === "function") {
+        (lastArg as (...a: unknown[]) => void)(null, { stdout: "ok", stderr: "" });
       }
-    }) as unknown as typeof execFile,
-  );
+    }
+  }) as unknown as typeof execFile);
 }
 
 function mockExecFailure(): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, _opts: unknown, cb?: (...a: unknown[]) => void) => {
-      const err = new Error("command failed");
-      if (cb) {
-        cb(err);
-      } else {
-        const lastArg = _opts;
-        if (typeof lastArg === "function") {
-          lastArg(err);
-        }
+  mockExecFile.mockImplementation(((
+    _cmd: unknown,
+    _args: unknown,
+    _opts: unknown,
+    cb?: (...a: unknown[]) => void,
+  ) => {
+    const err = new Error("command failed");
+    if (cb) {
+      cb(err);
+    } else {
+      const lastArg = _opts;
+      if (typeof lastArg === "function") {
+        lastArg(err);
       }
-    }) as unknown as typeof execFile,
-  );
+    }
+  }) as unknown as typeof execFile);
 }
 
 describe("runQualityGate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDiffStat.mockResolvedValue({ linesChanged: 100, filesChanged: 3, files: ["a.ts", "b.ts", "c.ts"] });
+    mockDiffStat.mockResolvedValue({
+      linesChanged: 100,
+      filesChanged: 3,
+      files: ["a.ts", "b.ts", "c.ts"],
+    });
   });
 
   it("should pass when all checks succeed", async () => {
@@ -156,7 +166,12 @@ describe("runQualityGate", () => {
     mockDiffStat.mockResolvedValue({ linesChanged: 10, filesChanged: 1, files: ["a.ts"] });
 
     const result = await runQualityGate(
-      makeConfig({ requireTests: false, requireLint: false, requireTypes: false, requireBuild: false }),
+      makeConfig({
+        requireTests: false,
+        requireLint: false,
+        requireTypes: false,
+        requireBuild: false,
+      }),
       "/tmp/wt",
       "feat/1",
       "main",

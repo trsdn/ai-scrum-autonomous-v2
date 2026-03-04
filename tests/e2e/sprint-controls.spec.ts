@@ -31,7 +31,7 @@ test.describe("Sprint Control Buttons", () => {
   test("Start button has correct class", async ({ page }) => {
     await waitForDashboard(page);
     const startBtn = page.locator("button.btn-primary", { hasText: "Start" });
-    if (await startBtn.count() > 0) {
+    if ((await startBtn.count()) > 0) {
       await expect(startBtn).toHaveClass(/btn-primary/);
     }
   });
@@ -58,7 +58,7 @@ test.describe("Sprint Control Buttons", () => {
     await waitForDashboard(page);
     await page.waitForTimeout(3000);
     const startBtn = page.locator("button", { hasText: "▶ Start" });
-    if (await startBtn.count() > 0) {
+    if ((await startBtn.count()) > 0) {
       // When idle, Start should always be enabled regardless of which sprint is viewed
       await expect(startBtn).toBeEnabled();
     }
@@ -76,12 +76,14 @@ test.describe("Sprint Control Buttons", () => {
   test("clicking Start sends sprint:start message via WebSocket", async ({ page }) => {
     await waitForDashboard(page);
     const startBtn = page.locator("button", { hasText: "▶ Start" });
-    if (await startBtn.count() > 0 && await startBtn.isEnabled()) {
+    if ((await startBtn.count()) > 0 && (await startBtn.isEnabled())) {
       // Set up WebSocket message listener
       await page.evaluate(() => {
         const origSend = WebSocket.prototype.send;
         (window as unknown as Record<string, string[]>).__wsMsgs = [];
-        WebSocket.prototype.send = function (data: string | ArrayBufferLike | Blob | ArrayBufferView) {
+        WebSocket.prototype.send = function (
+          data: string | ArrayBufferLike | Blob | ArrayBufferView,
+        ) {
           if (typeof data === "string") {
             (window as unknown as Record<string, string[]>).__wsMsgs.push(data);
           }
@@ -92,7 +94,9 @@ test.describe("Sprint Control Buttons", () => {
       await startBtn.click();
       await page.waitForTimeout(500);
 
-      const messages = await page.evaluate(() => (window as unknown as Record<string, string[]>).__wsMsgs);
+      const messages = await page.evaluate(
+        () => (window as unknown as Record<string, string[]>).__wsMsgs,
+      );
       const startMsg = messages.find((m: string) => m.includes("sprint:start"));
       expect(startMsg).toBeDefined();
       const parsed = JSON.parse(startMsg!);
@@ -127,7 +131,9 @@ test.describe("Execution Mode Selector", () => {
     await page.evaluate(() => {
       const origSend = WebSocket.prototype.send;
       (window as unknown as Record<string, string[]>).__wsMsgs = [];
-      WebSocket.prototype.send = function (data: string | ArrayBufferLike | Blob | ArrayBufferView) {
+      WebSocket.prototype.send = function (
+        data: string | ArrayBufferLike | Blob | ArrayBufferView,
+      ) {
         if (typeof data === "string") {
           (window as unknown as Record<string, string[]>).__wsMsgs.push(data);
         }
@@ -139,7 +145,9 @@ test.describe("Execution Mode Selector", () => {
     await modeSelect.selectOption("hitl");
     await page.waitForTimeout(500);
 
-    const messages = await page.evaluate(() => (window as unknown as Record<string, string[]>).__wsMsgs);
+    const messages = await page.evaluate(
+      () => (window as unknown as Record<string, string[]>).__wsMsgs,
+    );
     const modeMsg = messages.find((m: string) => m.includes("mode:set"));
     expect(modeMsg).toBeDefined();
     const parsed = JSON.parse(modeMsg!);
@@ -176,7 +184,9 @@ test.describe("Sprint Limit Selector", () => {
     await page.evaluate(() => {
       const origSend = WebSocket.prototype.send;
       (window as unknown as Record<string, string[]>).__wsMsgs = [];
-      WebSocket.prototype.send = function (data: string | ArrayBufferLike | Blob | ArrayBufferView) {
+      WebSocket.prototype.send = function (
+        data: string | ArrayBufferLike | Blob | ArrayBufferView,
+      ) {
         if (typeof data === "string") {
           (window as unknown as Record<string, string[]>).__wsMsgs.push(data);
         }
@@ -188,7 +198,9 @@ test.describe("Sprint Limit Selector", () => {
     await limitSelect.selectOption("3");
     await page.waitForTimeout(500);
 
-    const messages = await page.evaluate(() => (window as unknown as Record<string, string[]>).__wsMsgs);
+    const messages = await page.evaluate(
+      () => (window as unknown as Record<string, string[]>).__wsMsgs,
+    );
     const limitMsg = messages.find((m: string) => m.includes("sprint:set-limit"));
     expect(limitMsg).toBeDefined();
     const parsed = JSON.parse(limitMsg!);
@@ -240,7 +252,16 @@ test.describe("Phase Stepper", () => {
     const badge = page.locator(".phase-badge");
     const text = await badge.textContent();
     // Phase should be one of the known values
-    expect(["INIT", "PLAN", "EXECUTE", "REVIEW", "RETRO", "COMPLETE", "FAILED", "PAUSED"]).toContain(text);
+    expect([
+      "INIT",
+      "PLAN",
+      "EXECUTE",
+      "REVIEW",
+      "RETRO",
+      "COMPLETE",
+      "FAILED",
+      "PAUSED",
+    ]).toContain(text);
   });
 });
 
