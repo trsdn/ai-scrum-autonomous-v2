@@ -45,8 +45,11 @@ describe("sanitizeForHttp", () => {
 
 const { execFileSpy } = vi.hoisted(() => {
   const execFileSpy = vi.fn(
-    (_cmd: string, _args: string[], cb: (err: Error | null, stdout: string, stderr: string) => void) =>
-      cb(null, "", ""),
+    (
+      _cmd: string,
+      _args: string[],
+      cb: (err: Error | null, stdout: string, stderr: string) => void,
+    ) => cb(null, "", ""),
   );
   return { execFileSpy };
 });
@@ -127,7 +130,11 @@ describe("MUST escalation pause", () => {
   };
 
   it("emits sprint:paused when level is must and eventBus is provided", async () => {
-    const mockEventBus = { emitTyped: vi.fn(), onTyped: vi.fn(), removeAllListeners: vi.fn() } as unknown as SprintEventBus;
+    const mockEventBus = {
+      emitTyped: vi.fn(),
+      onTyped: vi.fn(),
+      removeAllListeners: vi.fn(),
+    } as unknown as SprintEventBus;
 
     await escalateToStakeholder(mustEvent, { ntfyEnabled: false }, mockEventBus);
 
@@ -135,7 +142,11 @@ describe("MUST escalation pause", () => {
   });
 
   it("does NOT emit sprint:paused when level is should", async () => {
-    const mockEventBus = { emitTyped: vi.fn(), onTyped: vi.fn(), removeAllListeners: vi.fn() } as unknown as SprintEventBus;
+    const mockEventBus = {
+      emitTyped: vi.fn(),
+      onTyped: vi.fn(),
+      removeAllListeners: vi.fn(),
+    } as unknown as SprintEventBus;
     const shouldEvent: EscalationEvent = { ...mustEvent, level: "should" };
 
     await escalateToStakeholder(shouldEvent, { ntfyEnabled: false }, mockEventBus);
@@ -144,8 +155,6 @@ describe("MUST escalation pause", () => {
   });
 
   it("does not error when level is must but eventBus is not provided", async () => {
-    await expect(
-      escalateToStakeholder(mustEvent, { ntfyEnabled: false }),
-    ).resolves.toBeUndefined();
+    await expect(escalateToStakeholder(mustEvent, { ntfyEnabled: false })).resolves.toBeUndefined();
   });
 });

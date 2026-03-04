@@ -108,7 +108,10 @@ describe("ChatManager", () => {
       const updated = manager.getSession(session.id)!;
       expect(updated.messages).toHaveLength(2);
       expect(updated.messages[0]).toMatchObject({ role: "user", content: "Hello" });
-      expect(updated.messages[1]).toMatchObject({ role: "assistant", content: "Hello from assistant" });
+      expect(updated.messages[1]).toMatchObject({
+        role: "assistant",
+        content: "Hello from assistant",
+      });
     });
 
     it("throws when session does not exist", async () => {
@@ -199,9 +202,7 @@ describe("ChatManager", () => {
     it("propagates ACP sendPrompt errors", async () => {
       const session = await manager.createSession("general");
 
-      vi.mocked(AcpClient.prototype.sendPrompt).mockRejectedValueOnce(
-        new Error("ACP timeout"),
-      );
+      vi.mocked(AcpClient.prototype.sendPrompt).mockRejectedValueOnce(new Error("ACP timeout"));
 
       await expect(manager.sendMessage(session.id, "test")).rejects.toThrow("ACP timeout");
     });
@@ -222,26 +223,28 @@ describe("ChatManager", () => {
       const chunks: { sessionId: string; text: string }[] = [];
 
       // Capture the onStreamChunk passed to AcpClient constructor
-      vi.mocked(AcpClient).mockImplementationOnce((opts: { onStreamChunk?: (id: string, text: string) => void }) => {
-        // Store the internal callback for later invocation
-        const instance = {
-          connect: vi.fn().mockResolvedValue(undefined),
-          createSession: vi.fn().mockResolvedValue({
-            sessionId: "acp-stream-1",
-            currentModel: "gpt-4",
-          }),
-          setMode: vi.fn().mockResolvedValue(undefined),
-          sendPrompt: vi.fn().mockImplementation(async () => {
-            // Simulate streaming by calling the internal callback
-            opts.onStreamChunk?.("acp-stream-1", "chunk1");
-            opts.onStreamChunk?.("acp-stream-1", "chunk2");
-            return { response: "chunk1chunk2", stopReason: "end" };
-          }),
-          endSession: vi.fn().mockResolvedValue(undefined),
-          disconnect: vi.fn().mockResolvedValue(undefined),
-        };
-        return instance as unknown as AcpClient;
-      });
+      vi.mocked(AcpClient).mockImplementationOnce(
+        (opts: { onStreamChunk?: (id: string, text: string) => void }) => {
+          // Store the internal callback for later invocation
+          const instance = {
+            connect: vi.fn().mockResolvedValue(undefined),
+            createSession: vi.fn().mockResolvedValue({
+              sessionId: "acp-stream-1",
+              currentModel: "gpt-4",
+            }),
+            setMode: vi.fn().mockResolvedValue(undefined),
+            sendPrompt: vi.fn().mockImplementation(async () => {
+              // Simulate streaming by calling the internal callback
+              opts.onStreamChunk?.("acp-stream-1", "chunk1");
+              opts.onStreamChunk?.("acp-stream-1", "chunk2");
+              return { response: "chunk1chunk2", stopReason: "end" };
+            }),
+            endSession: vi.fn().mockResolvedValue(undefined),
+            disconnect: vi.fn().mockResolvedValue(undefined),
+          };
+          return instance as unknown as AcpClient;
+        },
+      );
 
       const mgr = new ChatManager({
         projectPath: "/tmp/test",

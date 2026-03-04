@@ -80,8 +80,8 @@ export interface DashboardStore {
   sprintLimit: number; // 0 = infinite
 
   // Backlog planning feedback
-  backlogPending: Set<number>;   // currently being added
-  backlogPlanned: Set<number>;   // confirmed added (hide from list)
+  backlogPending: Set<number>; // currently being added
+  backlogPlanned: Set<number>; // confirmed added (hide from list)
 
   // Heartbeat
   heartbeat: {
@@ -131,7 +131,10 @@ let sprintFetchVersion = 0;
 
 function createWebSocket(set: SetFn, get: GetFn): void {
   if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
-  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const url = `${protocol}//${window.location.host}`;
   ws = new WebSocket(url);
@@ -166,7 +169,10 @@ function createWebSocket(set: SetFn, get: GetFn): void {
       chatConfig: {},
     });
     ws = null;
-    reconnectTimer = setTimeout(() => { reconnectTimer = null; createWebSocket(set, get); }, 2000);
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      createWebSocket(set, get);
+    }, 2000);
   };
 
   ws.onmessage = (event) => {
@@ -180,9 +186,7 @@ function createWebSocket(set: SetFn, get: GetFn): void {
 }
 
 type SetFn = (
-  partial:
-    | Partial<DashboardStore>
-    | ((state: DashboardStore) => Partial<DashboardStore>),
+  partial: Partial<DashboardStore> | ((state: DashboardStore) => Partial<DashboardStore>),
 ) => void;
 type GetFn = () => DashboardStore;
 
@@ -193,9 +197,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
       const activeSprintNumber = payload.sprintNumber;
       const store = get();
       const viewingSprintNumber =
-        store.viewingSprintNumber === 0
-          ? activeSprintNumber
-          : store.viewingSprintNumber;
+        store.viewingSprintNumber === 0 ? activeSprintNumber : store.viewingSprintNumber;
       set({
         state: payload,
         activeSprintNumber,
@@ -215,8 +217,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
         // Auto-follow: if user is viewing the current active sprint (or 0 = auto),
         // switch viewing to the new active sprint so the dashboard follows along.
         const shouldFollow =
-          store.viewingSprintNumber === 0 ||
-          store.viewingSprintNumber === store.activeSprintNumber;
+          store.viewingSprintNumber === 0 || store.viewingSprintNumber === store.activeSprintNumber;
         set({
           activeSprintNumber: p.activeSprintNumber,
           ...(shouldFollow ? { viewingSprintNumber: p.activeSprintNumber } : {}),
@@ -245,11 +246,13 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     }
 
     case "session:status": {
-      const p = msg.payload as {
-        sessionId: string;
-        action: string;
-        message?: string;
-      } | undefined;
+      const p = msg.payload as
+        | {
+            sessionId: string;
+            action: string;
+            message?: string;
+          }
+        | undefined;
       if (p) {
         const store = get();
         const output = new Map(store.sessionOutput);
@@ -279,9 +282,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
         }
 
         const pending = get().pendingChatMessage;
-        const initialMessages: ChatMessage[] = pending
-          ? [{ role: "user", content: pending }]
-          : [];
+        const initialMessages: ChatMessage[] = pending ? [{ role: "user", content: pending }] : [];
         set((prev) => ({
           ...prev,
           chatSessions: [...prev.chatSessions, p],
@@ -317,10 +318,12 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     }
 
     case "chat:done": {
-      const p = msg.payload as {
-        sessionId: string;
-        response: string;
-      } | undefined;
+      const p = msg.payload as
+        | {
+            sessionId: string;
+            response: string;
+          }
+        | undefined;
       if (p) {
         set((prev) => {
           const msgs = prev.chatMessages[p.sessionId] ?? [];
@@ -334,10 +337,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
             ...prev,
             chatMessages: {
               ...prev.chatMessages,
-              [p.sessionId]: [
-                ...msgs,
-                { role: "assistant", content: p.response.trimStart() },
-              ],
+              [p.sessionId]: [...msgs, { role: "assistant", content: p.response.trimStart() }],
             },
             chatStreaming: streaming,
             chatThinking: thinking,
@@ -363,14 +363,16 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     }
 
     case "chat:tool-call": {
-      const p = msg.payload as {
-        sessionId: string;
-        toolCallId: string;
-        title?: string;
-        status?: string;
-        kind?: string;
-        locations?: Array<{ uri?: string; path?: string; line?: number }>;
-      } | undefined;
+      const p = msg.payload as
+        | {
+            sessionId: string;
+            toolCallId: string;
+            title?: string;
+            status?: string;
+            kind?: string;
+            locations?: Array<{ uri?: string; path?: string; line?: number }>;
+          }
+        | undefined;
       if (p) {
         set((prev) => {
           const existing = prev.chatToolCalls[p.sessionId] ?? [];
@@ -387,9 +389,8 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
             kind: p.kind ?? prev_entry?.kind,
             locations: locs ?? prev_entry?.locations,
           };
-          const updated = idx >= 0
-            ? existing.map((t, i) => (i === idx ? entry : t))
-            : [...existing, entry];
+          const updated =
+            idx >= 0 ? existing.map((t, i) => (i === idx ? entry : t)) : [...existing, entry];
           return {
             ...prev,
             chatToolCalls: { ...prev.chatToolCalls, [p.sessionId]: updated },
@@ -400,11 +401,13 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     }
 
     case "chat:usage": {
-      const p = msg.payload as {
-        sessionId: string;
-        used: number;
-        size: number;
-      } | undefined;
+      const p = msg.payload as
+        | {
+            sessionId: string;
+            used: number;
+            size: number;
+          }
+        | undefined;
       if (p) {
         set((prev) => ({
           ...prev,
@@ -461,10 +464,12 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
     }
 
     case "chat:error": {
-      const p = msg.payload as {
-        sessionId?: string;
-        error: string;
-      } | undefined;
+      const p = msg.payload as
+        | {
+            sessionId?: string;
+            error: string;
+          }
+        | undefined;
       if (p) {
         const sid = p.sessionId ?? "__global__";
         set((prev) => {
@@ -475,10 +480,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
             ...prev,
             chatMessages: {
               ...prev.chatMessages,
-              [sid]: [
-                ...msgs,
-                { role: "system", content: `Error: ${p.error}` },
-              ],
+              [sid]: [...msgs, { role: "system", content: `Error: ${p.error}` }],
             },
             chatStreaming: streaming,
             // Show error in side panel even if no session was created
@@ -528,12 +530,7 @@ function handleMessage(msg: ServerMessage, set: SetFn, get: GetFn): void {
   }
 }
 
-function handleSprintEvent(
-  name: string,
-  payload: unknown,
-  set: SetFn,
-  get: GetFn,
-): void {
+function handleSprintEvent(name: string, payload: unknown, set: SetFn, get: GetFn): void {
   const p = payload as Record<string, unknown> | undefined;
   const store = get();
 
@@ -609,9 +606,7 @@ function handleSprintEvent(
       const failNum = p?.issueNumber as number | undefined;
       if (failNum != null) {
         const issues = get().issues.map((i) =>
-          i.number === failNum
-            ? { ...i, status: "failed", failReason: p?.reason as string }
-            : i,
+          i.number === failNum ? { ...i, status: "failed", failReason: p?.reason as string } : i,
         );
         set({ issues });
       }
@@ -632,7 +627,10 @@ function handleSprintEvent(
     case "sprint:cancelled": {
       const returned = Array.isArray(p?.returnedIssues) ? (p.returnedIssues as number[]) : [];
       set((prev) => ({ ...prev, state: { ...prev.state, phase: "cancelled" } }));
-      addActivity(set, get(), "sprint",
+      addActivity(
+        set,
+        get(),
+        "sprint",
         `Sprint cancelled — ${returned.length} issue(s) returned to backlog`,
         returned.length > 0 ? `Issues: ${returned.join(", ")}` : null,
         "done",
@@ -661,10 +659,11 @@ function handleSprintEvent(
         refinement: "Refining backlog issues",
         planning: "Planning sprint scope",
       };
-      const desc = ROLE_DESCRIPTIONS[role] ?? `${role.charAt(0).toUpperCase() + role.slice(1)} Agent`;
+      const desc =
+        ROLE_DESCRIPTIONS[role] ?? `${role.charAt(0).toUpperCase() + role.slice(1)} Agent`;
       // Look up issue title from store
       const issueTitle = issueNum
-        ? get().issues.find((i) => i.number === issueNum)?.title ?? null
+        ? (get().issues.find((i) => i.number === issueNum)?.title ?? null)
         : null;
       const label = issueNum ? `${desc} — #${issueNum}` : desc;
       const detail = [issueTitle, model].filter(Boolean).join(" · ") || null;
@@ -675,12 +674,20 @@ function handleSprintEvent(
     case "session:end": {
       const outcome = (p?.outcome as string) ?? "completed";
       const acts = get().activities;
-      const idx = [...acts].reverse().findIndex((a) => a.type === "session" && a.status === "active");
+      const idx = [...acts]
+        .reverse()
+        .findIndex((a) => a.type === "session" && a.status === "active");
       if (idx >= 0) {
         const realIdx = acts.length - 1 - idx;
         const updated = [...acts];
-        const endStatus = outcome === "failed" || outcome === "changes_requested" ? "failed" : "done";
-        const suffix = outcome === "changes_requested" ? " — changes requested" : outcome === "failed" ? " — failed" : "";
+        const endStatus =
+          outcome === "failed" || outcome === "changes_requested" ? "failed" : "done";
+        const suffix =
+          outcome === "changes_requested"
+            ? " — changes requested"
+            : outcome === "failed"
+              ? " — failed"
+              : "";
         updated[realIdx] = {
           ...updated[realIdx]!,
           status: endStatus,
@@ -697,7 +704,10 @@ function handleSprintEvent(
       break;
 
     case "sprint:resumed":
-      set((prev) => ({ ...prev, state: { ...prev.state, phase: p?.phase as string ?? "execute" } }));
+      set((prev) => ({
+        ...prev,
+        state: { ...prev.state, phase: (p?.phase as string) ?? "execute" },
+      }));
       addActivity(set, get(), "sprint", `Sprint resumed → ${p?.phase}`, null, "active");
       break;
 
@@ -706,10 +716,7 @@ function handleSprintEvent(
       const logLevel = (p?.level as string) ?? "info";
       set((prev) => ({
         ...prev,
-        logs: [
-          ...prev.logs,
-          { level: logLevel, message: logMsg, time: new Date() },
-        ],
+        logs: [...prev.logs, { level: logLevel, message: logMsg, time: new Date() }],
       }));
       // Also surface info+ log messages in the activity feed
       if (logLevel !== "debug" && logMsg) {

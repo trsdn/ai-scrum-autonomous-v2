@@ -24,8 +24,12 @@ function isTransientAcpError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
   // Process exit is NOT transient — the connection is gone
   if (msg.includes("process exited")) return false;
-  return msg.includes("timeout") || msg.includes("timed out") ||
-         msg.includes("econnreset") || msg.includes("econnrefused");
+  return (
+    msg.includes("timeout") ||
+    msg.includes("timed out") ||
+    msg.includes("econnreset") ||
+    msg.includes("econnrefused")
+  );
 }
 
 export interface AcpClientOptions {
@@ -269,88 +273,109 @@ export class AcpClient {
       const onCommands = this.onCommandsUpdate;
       const onConfig = this.onConfigUpdate;
 
-      this.connection = new ClientSideConnection(
-        (_agent) => {
-          const client: Client = {
-            async requestPermission(
-              params: RequestPermissionRequest,
-            ): Promise<RequestPermissionResponse> {
-              return permissionHandler(params);
-            },
-            async sessionUpdate(params: SessionNotification): Promise<void> {
-              const update = params.update;
-              const sid = params.sessionId;
+      this.connection = new ClientSideConnection((_agent) => {
+        const client: Client = {
+          async requestPermission(
+            params: RequestPermissionRequest,
+          ): Promise<RequestPermissionResponse> {
+            return permissionHandler(params);
+          },
+          async sessionUpdate(params: SessionNotification): Promise<void> {
+            const update = params.update;
+            const sid = params.sessionId;
 
-              if (update.sessionUpdate === "agent_message_chunk") {
-                const content = update.content;
-                if (content.type === "text") {
-                  const chunks = sessionChunks.get(sid) ?? [];
-                  chunks.push(content.text);
-                  sessionChunks.set(sid, chunks);
-                  onChunk?.(sid, content.text);
-                }
-              } else if (update.sessionUpdate === "agent_thought_chunk") {
-                const content = (update as Record<string, unknown>).content as { type?: string; text?: string } | undefined;
-                if (content?.type === "text" && content.text) {
-                  onThinking?.(sid, content.text);
-                }
-              } else if (update.sessionUpdate === "tool_call" || update.sessionUpdate === "tool_call_update") {
-                const tc = update as Record<string, unknown>;
-                onTool?.(sid, {
-                  toolCallId: String(tc.toolCallId ?? ""),
-                  title: String(tc.title ?? ""),
-                  status: tc.status as string | undefined,
-                  kind: tc.kind as string | undefined,
-                  locations: tc.locations as Array<{ uri?: string; range?: unknown }> | undefined,
+            if (update.sessionUpdate === "agent_message_chunk") {
+              const content = update.content;
+              if (content.type === "text") {
+                const chunks = sessionChunks.get(sid) ?? [];
+                chunks.push(content.text);
+                sessionChunks.set(sid, chunks);
+                onChunk?.(sid, content.text);
+              }
+            } else if (update.sessionUpdate === "agent_thought_chunk") {
+              const content = (update as Record<string, unknown>).content as
+                | { type?: string; text?: string }
+                | undefined;
+              if (content?.type === "text" && content.text) {
+                onThinking?.(sid, content.text);
+              }
+            } else if (
+              update.sessionUpdate === "tool_call" ||
+              update.sessionUpdate === "tool_call_update"
+            ) {
+              const tc = update as Record<string, unknown>;
+              onTool?.(sid, {
+                toolCallId: String(tc.toolCallId ?? ""),
+                title: String(tc.title ?? ""),
+                status: tc.status as string | undefined,
+                kind: tc.kind as string | undefined,
+                locations: tc.locations as Array<{ uri?: string; range?: unknown }> | undefined,
+              });
+            } else if (update.sessionUpdate === "usage_update") {
+              const u = update as Record<string, unknown>;
+              onUsage?.(sid, {
+                used: Number(u.used ?? 0),
+                size: Number(u.size ?? 0),
+                cost: u.cost as AcpUsageEvent["cost"],
+              });
+            } else if (update.sessionUpdate === "current_mode_update") {
+              const m = update as Record<string, unknown>;
+              if (m.currentModeId) {
+                onMode?.(sid, String(m.currentModeId));
+              }
+            } else if (update.sessionUpdate === "plan") {
+              const p = update as Record<string, unknown>;
+              const entries = p.entries as
+                | Array<{ content: string; priority: string; status: string }>
+                | undefined;
+              if (entries) {
+                onPlan?.(sid, {
+                  entries: entries.map((e) => ({
+                    content: e.content,
+                    priority: (e.priority ?? "medium") as AcpPlanEntry["priority"],
+                    status: (e.status ?? "pending") as AcpPlanEntry["status"],
+                  })),
                 });
-              } else if (update.sessionUpdate === "usage_update") {
-                const u = update as Record<string, unknown>;
-                onUsage?.(sid, {
-                  used: Number(u.used ?? 0),
-                  size: Number(u.size ?? 0),
-                  cost: u.cost as AcpUsageEvent["cost"],
-                });
-              } else if (update.sessionUpdate === "current_mode_update") {
-                const m = update as Record<string, unknown>;
-                if (m.currentModeId) {
-                  onMode?.(sid, String(m.currentModeId));
-                }
-              } else if (update.sessionUpdate === "plan") {
-                const p = update as Record<string, unknown>;
-                const entries = p.entries as Array<{ content: string; priority: string; status: string }> | undefined;
-                if (entries) {
-                  onPlan?.(sid, {
-                    entries: entries.map((e) => ({
-                      content: e.content,
-                      priority: (e.priority ?? "medium") as AcpPlanEntry["priority"],
-                      status: (e.status ?? "pending") as AcpPlanEntry["status"],
-                    })),
-                  });
-                }
-              } else if (update.sessionUpdate === "available_commands_update") {
-                const c = update as Record<string, unknown>;
-                const cmds = c.availableCommands as Array<{ name: string; description: string; input?: { hint?: string } }> | undefined;
-                if (cmds) {
-                  onCommands?.(sid, cmds.map((cmd) => ({
+              }
+            } else if (update.sessionUpdate === "available_commands_update") {
+              const c = update as Record<string, unknown>;
+              const cmds = c.availableCommands as
+                | Array<{ name: string; description: string; input?: { hint?: string } }>
+                | undefined;
+              if (cmds) {
+                onCommands?.(
+                  sid,
+                  cmds.map((cmd) => ({
                     name: cmd.name,
                     description: cmd.description,
                     hint: cmd.input?.hint,
-                  })));
-                }
-              } else if (update.sessionUpdate === "config_option_update") {
-                const c = update as Record<string, unknown>;
-                const opts = c.configOptions as Array<Record<string, unknown>> | undefined;
-                if (opts) {
-                  onConfig?.(sid, opts.map((o) => {
+                  })),
+                );
+              }
+            } else if (update.sessionUpdate === "config_option_update") {
+              const c = update as Record<string, unknown>;
+              const opts = c.configOptions as Array<Record<string, unknown>> | undefined;
+              if (opts) {
+                onConfig?.(
+                  sid,
+                  opts.map((o) => {
                     const flatOpts = Array.isArray(o.options)
                       ? (o.options as Array<Record<string, unknown>>).flatMap((item) =>
                           item.group != null
-                            ? ((item.options as Array<Record<string, unknown>>) ?? []).map((sub) => ({
-                                value: String(sub.value ?? ""),
-                                name: String(sub.name ?? ""),
-                                description: sub.description as string | undefined,
-                              }))
-                            : [{ value: String(item.value ?? ""), name: String(item.name ?? ""), description: item.description as string | undefined }],
+                            ? ((item.options as Array<Record<string, unknown>>) ?? []).map(
+                                (sub) => ({
+                                  value: String(sub.value ?? ""),
+                                  name: String(sub.name ?? ""),
+                                  description: sub.description as string | undefined,
+                                }),
+                              )
+                            : [
+                                {
+                                  value: String(item.value ?? ""),
+                                  name: String(item.name ?? ""),
+                                  description: item.description as string | undefined,
+                                },
+                              ],
                         )
                       : [];
                     return {
@@ -361,20 +386,16 @@ export class AcpClient {
                       currentValue: String(o.currentValue ?? ""),
                       options: flatOpts,
                     };
-                  }));
-                }
+                  }),
+                );
               }
+            }
 
-              log.debug(
-                { sessionId: sid, type: update.sessionUpdate },
-                "session update",
-              );
-            },
-          };
-          return client;
-        },
-        stream,
-      );
+            log.debug({ sessionId: sid, type: update.sessionUpdate }, "session update");
+          },
+        };
+        return client;
+      }, stream);
 
       // Initialize the connection
       await this.connection.initialize({
@@ -467,11 +488,7 @@ export class AcpClient {
   /**
    * Send a prompt and collect the full streamed response.
    */
-  async sendPrompt(
-    sessionId: string,
-    prompt: string,
-    timeoutMs?: number,
-  ): Promise<PromptResult> {
+  async sendPrompt(sessionId: string, prompt: string, timeoutMs?: number): Promise<PromptResult> {
     this.checkCircuitBreaker();
 
     const conn = this.requireConnection();
@@ -483,10 +500,7 @@ export class AcpClient {
         // Reset chunk buffer for this turn
         this.sessionChunks.set(sessionId, []);
 
-        this.log.info(
-          { sessionId, promptLength: prompt.length },
-          "sending prompt",
-        );
+        this.log.info({ sessionId, promptLength: prompt.length }, "sending prompt");
 
         const promptPromise = conn.prompt({
           sessionId,
@@ -537,7 +551,13 @@ export class AcpClient {
         if (attempt < ACP_MAX_RETRIES && isTransientAcpError(err)) {
           const delay = 1000 * Math.pow(2, attempt);
           this.log.warn(
-            { sessionId, attempt: attempt + 1, maxRetries: ACP_MAX_RETRIES, delay, error: err instanceof Error ? err.message : String(err) },
+            {
+              sessionId,
+              attempt: attempt + 1,
+              maxRetries: ACP_MAX_RETRIES,
+              delay,
+              error: err instanceof Error ? err.message : String(err),
+            },
             "transient ACP error, retrying",
           );
           await new Promise((resolve) => setTimeout(resolve, delay));

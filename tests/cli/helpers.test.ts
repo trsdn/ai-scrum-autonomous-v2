@@ -5,7 +5,10 @@ import type { ConfigFile } from "../../src/config.js";
 vi.mock("../../src/config.js", () => ({
   loadConfig: vi.fn(),
   prefixToSlug: vi.fn((p: string) =>
-    p.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+    p
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, ""),
   ),
 }));
 

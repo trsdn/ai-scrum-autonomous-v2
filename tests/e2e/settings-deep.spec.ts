@@ -14,7 +14,9 @@ async function goToSettings(page: import("@playwright/test").Page) {
 }
 
 test.describe("Settings Toggles", () => {
-  test.beforeEach(async ({ page }) => { await goToSettings(page); });
+  test.beforeEach(async ({ page }) => {
+    await goToSettings(page);
+  });
 
   test("toggle buttons are clickable and change state", async ({ page }) => {
     const toggles = page.locator(".settings-toggle");
@@ -32,7 +34,9 @@ test.describe("Settings Toggles", () => {
 });
 
 test.describe("Settings Sections Collapse", () => {
-  test.beforeEach(async ({ page }) => { await goToSettings(page); });
+  test.beforeEach(async ({ page }) => {
+    await goToSettings(page);
+  });
 
   test("sections can be collapsed and expanded", async ({ page }) => {
     const headers = page.locator(".settings-section-header");
@@ -53,7 +57,9 @@ test.describe("Settings Sections Collapse", () => {
 });
 
 test.describe("Settings Save & Reset", () => {
-  test.beforeEach(async ({ page }) => { await goToSettings(page); });
+  test.beforeEach(async ({ page }) => {
+    await goToSettings(page);
+  });
 
   test("save button exists and is initially not dirty", async ({ page }) => {
     const saveBtn = page.locator("button", { hasText: /💾\s*Save/i });
@@ -152,7 +158,7 @@ test.describe("Agent Roles Editor", () => {
   test("role has model selector", async ({ page }) => {
     await page.waitForTimeout(2000);
     const modelSelect = page.locator(".role-config-row select").first();
-    if (await modelSelect.count() > 0) {
+    if ((await modelSelect.count()) > 0) {
       await expect(modelSelect).toBeVisible();
       const options = modelSelect.locator("option");
       const count = await options.count();
@@ -163,7 +169,7 @@ test.describe("Agent Roles Editor", () => {
   test("role has mode selector (autonomous/manual)", async ({ page }) => {
     await page.waitForTimeout(2000);
     const modeSelect = page.locator("select").filter({ hasText: /autonomous|manual/i });
-    if (await modeSelect.count() > 0) {
+    if ((await modeSelect.count()) > 0) {
       await expect(modeSelect.first()).toBeVisible();
     }
   });
@@ -189,7 +195,7 @@ test.describe("Skills Editor", () => {
       await roleHeaders.nth(i).click();
       await page.waitForTimeout(500);
       const skillCards = page.locator(".role-skill-card");
-      if (await skillCards.count() > 0) {
+      if ((await skillCards.count()) > 0) {
         foundSkills = true;
         break;
       }
@@ -209,7 +215,7 @@ test.describe("Skills Editor", () => {
       await roleHeaders.nth(i).click();
       await page.waitForTimeout(500);
       const skillHeader = page.locator(".role-skill-card-header");
-      if (await skillHeader.count() > 0) {
+      if ((await skillHeader.count()) > 0) {
         await skillHeader.first().click();
         const textarea = page.locator(".role-skill-textarea");
         await expect(textarea.first()).toBeVisible({ timeout: 2_000 });
@@ -223,7 +229,9 @@ test.describe("Skills Editor", () => {
 });
 
 test.describe("Quality Gates Editor", () => {
-  test.beforeEach(async ({ page }) => { await goToSettings(page); });
+  test.beforeEach(async ({ page }) => {
+    await goToSettings(page);
+  });
 
   test("quality gate section can be expanded", async ({ page }) => {
     // Find the Quality Gates section header and expand it
@@ -244,7 +252,7 @@ test.describe("Quality Gates Editor", () => {
     await qgHeader.click();
     await page.waitForTimeout(500);
     const textarea = page.locator(".qg-command-textarea");
-    if (await textarea.count() > 0) {
+    if ((await textarea.count()) > 0) {
       await expect(textarea.first()).toBeEditable();
     }
   });
@@ -256,7 +264,7 @@ test.describe("Quality Gates Editor", () => {
     await qgHeader.click();
     await page.waitForTimeout(500);
     const toggles = page.locator(".qg-card .settings-toggle");
-    if (await toggles.count() > 0) {
+    if ((await toggles.count()) > 0) {
       const first = toggles.first();
       const initialText = await first.textContent();
       await first.click();
@@ -269,12 +277,14 @@ test.describe("Quality Gates Editor", () => {
 });
 
 test.describe("Placeholder Help", () => {
-  test.beforeEach(async ({ page }) => { await goToSettings(page); });
+  test.beforeEach(async ({ page }) => {
+    await goToSettings(page);
+  });
 
   test("placeholder help toggle expands variable list", async ({ page }) => {
     await page.waitForTimeout(2000);
     const helpToggle = page.locator(".placeholder-help-toggle");
-    if (await helpToggle.count() > 0) {
+    if ((await helpToggle.count()) > 0) {
       await helpToggle.first().click();
       const helpList = page.locator(".placeholder-help-list");
       await expect(helpList.first()).toBeVisible({ timeout: 2_000 });

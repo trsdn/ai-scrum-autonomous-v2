@@ -9,8 +9,13 @@ function waitForCondition(check: () => boolean, timeoutMs = 5000, intervalMs = 5
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const poll = setInterval(() => {
-      if (check()) { clearInterval(poll); resolve(); }
-      else if (Date.now() - start > timeoutMs) { clearInterval(poll); reject(new Error("Timeout waiting for condition")); }
+      if (check()) {
+        clearInterval(poll);
+        resolve();
+      } else if (Date.now() - start > timeoutMs) {
+        clearInterval(poll);
+        reject(new Error("Timeout waiting for condition"));
+      }
     }, intervalMs);
   });
 }
@@ -41,9 +46,7 @@ function makeOptions(overrides?: Partial<DashboardServerOptions>): DashboardServ
     host: "127.0.0.1",
     eventBus: bus,
     getState: () => state,
-    getIssues: () => [
-      { number: 1, title: "Test issue", status: "planned" },
-    ],
+    getIssues: () => [{ number: 1, title: "Test issue", status: "planned" }],
     ...overrides,
   };
 }
@@ -119,7 +122,10 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+      setTimeout(() => {
+        ws.close();
+        reject(new Error("timeout"));
+      }, 5000);
     });
 
     // First message: sprint state
@@ -161,7 +167,10 @@ describe("DashboardWebServer", () => {
         resolve();
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+      setTimeout(() => {
+        ws.close();
+        reject(new Error("timeout"));
+      }, 5000);
     });
 
     expect(events[0]).toMatchObject({
@@ -173,7 +182,9 @@ describe("DashboardWebServer", () => {
 
   it("handles client sprint:start message", async () => {
     let started = false;
-    options.onStart = () => { started = true; };
+    options.onStart = () => {
+      started = true;
+    };
     server = new DashboardWebServer(options);
 
     await server.start();
@@ -187,8 +198,14 @@ describe("DashboardWebServer", () => {
       });
       ws.on("error", reject);
       waitForCondition(() => started)
-        .then(() => { ws.close(); resolve(); })
-        .catch(() => { ws.close(); reject(new Error("timeout waiting for sprint:start handler")); });
+        .then(() => {
+          ws.close();
+          resolve();
+        })
+        .catch(() => {
+          ws.close();
+          reject(new Error("timeout waiting for sprint:start handler"));
+        });
     });
 
     expect(started).toBe(true);
@@ -209,7 +226,7 @@ describe("DashboardWebServer", () => {
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
     expect(res.status).toBe(200);
-    const data = await res.json() as { sprintNumber: number; phase: string; isActive: boolean }[];
+    const data = (await res.json()) as { sprintNumber: number; phase: string; isActive: boolean }[];
     // Should at least include the active sprint from getState
     expect(Array.isArray(data)).toBe(true);
   });
@@ -221,7 +238,7 @@ describe("DashboardWebServer", () => {
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
     expect(res.status).toBe(200);
-    const data = await res.json() as { sprintNumber: number; phase: string };
+    const data = (await res.json()) as { sprintNumber: number; phase: string };
     expect(data.sprintNumber).toBe(1);
     expect(data.phase).toBe("init");
   });
@@ -231,7 +248,7 @@ describe("DashboardWebServer", () => {
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/999/state`);
     expect(res.status).toBe(200);
-    const data = await res.json() as { sprintNumber: number; phase: string };
+    const data = (await res.json()) as { sprintNumber: number; phase: string };
     expect(data.sprintNumber).toBe(999);
     expect(data.phase).toBe("init");
   });
@@ -253,7 +270,7 @@ describe("DashboardWebServer", () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
-    const data = await res.json() as { sprintNumber: number; isActive: boolean }[];
+    const data = (await res.json()) as { sprintNumber: number; isActive: boolean }[];
     const active = data.find((s) => s.sprintNumber === 3);
     expect(active).toBeDefined();
     expect(active!.isActive).toBe(true);
@@ -265,7 +282,7 @@ describe("DashboardWebServer", () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
-    const data = await res.json() as { sprintNumber: number }[];
+    const data = (await res.json()) as { sprintNumber: number }[];
     const numbers = data.map((s) => s.sprintNumber);
     // Should have sprint 1, 2, 3 (gaps filled)
     expect(numbers).toContain(1);
@@ -280,7 +297,7 @@ describe("DashboardWebServer", () => {
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/999/state`);
     expect(res.status).toBe(200);
-    const data = await res.json() as { sprintNumber: number; phase: string };
+    const data = (await res.json()) as { sprintNumber: number; phase: string };
     expect(data.sprintNumber).toBe(999);
     expect(data.phase).toBe("init");
   });
@@ -291,7 +308,7 @@ describe("DashboardWebServer", () => {
     await server.start();
     const port = getPort(server);
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints`);
-    const data = await res.json() as { sprintNumber: number }[];
+    const data = (await res.json()) as { sprintNumber: number }[];
     for (let i = 1; i < data.length; i++) {
       expect(data[i].sprintNumber).toBeGreaterThan(data[i - 1].sprintNumber);
     }
@@ -347,7 +364,7 @@ describe("DashboardWebServer", () => {
 
     // Check session appears in API
     const res = await fetch(`http://127.0.0.1:${port}/api/sessions`);
-    const data = await res.json() as { sessionId: string; role: string; issueNumber: number }[];
+    const data = (await res.json()) as { sessionId: string; role: string; issueNumber: number }[];
     expect(data).toHaveLength(1);
     expect(data[0].sessionId).toBe("test-session-1");
     expect(data[0].role).toBe("worker");
@@ -358,7 +375,7 @@ describe("DashboardWebServer", () => {
 
     // Session should still be in list but with endedAt
     const res2 = await fetch(`http://127.0.0.1:${port}/api/sessions`);
-    const data2 = await res2.json() as { endedAt: number | undefined }[];
+    const data2 = (await res2.json()) as { endedAt: number | undefined }[];
     expect(data2).toHaveLength(1);
     expect(data2[0].endedAt).toBeDefined();
   });
@@ -367,7 +384,12 @@ describe("DashboardWebServer", () => {
 
   it("sends fresh state and issues on sprint:switch", async () => {
     options = makeOptions({ activeSprintNumber: 2 });
-    const state: SprintState = { version: "1", sprintNumber: 2, phase: "execute", startedAt: new Date() };
+    const state: SprintState = {
+      version: "1",
+      sprintNumber: 2,
+      phase: "execute",
+      startedAt: new Date(),
+    };
     options.getState = () => state;
     server = new DashboardWebServer(options);
     await server.start();
@@ -397,7 +419,10 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+      setTimeout(() => {
+        ws.close();
+        reject(new Error("timeout"));
+      }, 5000);
     });
 
     // Should receive fresh state, issues, and switch confirmation
@@ -407,9 +432,7 @@ describe("DashboardWebServer", () => {
   });
 
   it("broadcasts updated issues on sprint:planned event", async () => {
-    const testIssues = [
-      { number: 10, title: "Test Issue", status: "planned" },
-    ];
+    const testIssues = [{ number: 10, title: "Test Issue", status: "planned" }];
     options = makeOptions({ activeSprintNumber: 1 });
     options.getIssues = () => testIssues;
     server = new DashboardWebServer(options);
@@ -441,7 +464,10 @@ describe("DashboardWebServer", () => {
         }
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+      setTimeout(() => {
+        ws.close();
+        reject(new Error("timeout"));
+      }, 5000);
     });
 
     expect(receivedIssues).toHaveLength(1);
@@ -466,7 +492,7 @@ describe("DashboardWebServer", () => {
 
     const res = await fetch(`http://127.0.0.1:${port}/api/sprints/1/state`);
     expect(res.status).toBe(200);
-    const data = await res.json() as { sprintNumber: number; phase: string };
+    const data = (await res.json()) as { sprintNumber: number; phase: string };
     expect(data.sprintNumber).toBe(1);
     expect(data.phase).toBe("complete");
 
@@ -479,7 +505,11 @@ describe("DashboardWebServer", () => {
 
   it("handles sprint:pause message and calls onPause", async () => {
     let paused = false;
-    options = makeOptions({ onPause: () => { paused = true; } });
+    options = makeOptions({
+      onPause: () => {
+        paused = true;
+      },
+    });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
@@ -491,8 +521,14 @@ describe("DashboardWebServer", () => {
       });
       ws.on("error", reject);
       waitForCondition(() => paused)
-        .then(() => { ws.close(); resolve(); })
-        .catch(() => { ws.close(); reject(new Error("timeout waiting for onPause")); });
+        .then(() => {
+          ws.close();
+          resolve();
+        })
+        .catch(() => {
+          ws.close();
+          reject(new Error("timeout waiting for onPause"));
+        });
     });
 
     expect(paused).toBe(true);
@@ -500,7 +536,11 @@ describe("DashboardWebServer", () => {
 
   it("handles sprint:resume message and calls onResume", async () => {
     let resumed = false;
-    options = makeOptions({ onResume: () => { resumed = true; } });
+    options = makeOptions({
+      onResume: () => {
+        resumed = true;
+      },
+    });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
@@ -512,8 +552,14 @@ describe("DashboardWebServer", () => {
       });
       ws.on("error", reject);
       waitForCondition(() => resumed)
-        .then(() => { ws.close(); resolve(); })
-        .catch(() => { ws.close(); reject(new Error("timeout waiting for onResume")); });
+        .then(() => {
+          ws.close();
+          resolve();
+        })
+        .catch(() => {
+          ws.close();
+          reject(new Error("timeout waiting for onResume"));
+        });
     });
 
     expect(resumed).toBe(true);
@@ -521,7 +567,11 @@ describe("DashboardWebServer", () => {
 
   it("handles sprint:stop message and calls onStop", async () => {
     let stopped = false;
-    options = makeOptions({ onStop: () => { stopped = true; } });
+    options = makeOptions({
+      onStop: () => {
+        stopped = true;
+      },
+    });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
@@ -533,8 +583,14 @@ describe("DashboardWebServer", () => {
       });
       ws.on("error", reject);
       waitForCondition(() => stopped)
-        .then(() => { ws.close(); resolve(); })
-        .catch(() => { ws.close(); reject(new Error("timeout waiting for onStop")); });
+        .then(() => {
+          ws.close();
+          resolve();
+        })
+        .catch(() => {
+          ws.close();
+          reject(new Error("timeout waiting for onStop"));
+        });
     });
 
     expect(stopped).toBe(true);
@@ -542,7 +598,11 @@ describe("DashboardWebServer", () => {
 
   it("handles mode:set message, calls onModeChange, and broadcasts event", async () => {
     let modeReceived: string | null = null;
-    options = makeOptions({ onModeChange: (mode) => { modeReceived = mode; } });
+    options = makeOptions({
+      onModeChange: (mode) => {
+        modeReceived = mode;
+      },
+    });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
@@ -568,7 +628,10 @@ describe("DashboardWebServer", () => {
         resolve();
       });
       ws.on("error", reject);
-      setTimeout(() => { ws.close(); reject(new Error("timeout")); }, 5000);
+      setTimeout(() => {
+        ws.close();
+        reject(new Error("timeout"));
+      }, 5000);
     });
 
     expect(modeReceived).toBe("hitl");
@@ -581,7 +644,11 @@ describe("DashboardWebServer", () => {
 
   it("ignores mode:set with invalid mode value", async () => {
     let modeCalled = false;
-    options = makeOptions({ onModeChange: () => { modeCalled = true; } });
+    options = makeOptions({
+      onModeChange: () => {
+        modeCalled = true;
+      },
+    });
     server = new DashboardWebServer(options);
     await server.start();
     const port = getPort(server);
@@ -590,7 +657,10 @@ describe("DashboardWebServer", () => {
     await new Promise<void>((resolve) => {
       ws.on("open", () => {
         ws.send(JSON.stringify({ type: "mode:set", mode: "invalid" }));
-        setTimeout(() => { ws.close(); resolve(); }, 300);
+        setTimeout(() => {
+          ws.close();
+          resolve();
+        }, 300);
       });
     });
 
@@ -642,7 +712,10 @@ describe("DashboardWebServer", () => {
         ws.send(JSON.stringify({ type: "sprint:pause" }));
         ws.send(JSON.stringify({ type: "sprint:resume" }));
         ws.send(JSON.stringify({ type: "sprint:stop" }));
-        setTimeout(() => { ws.close(); resolve(); }, 300);
+        setTimeout(() => {
+          ws.close();
+          resolve();
+        }, 300);
       });
     });
 

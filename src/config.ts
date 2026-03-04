@@ -88,7 +88,9 @@ const QualityGatesSchema = z.object({
   max_diff_lines: z.number().int().min(1).default(1000),
   test_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "test"]),
   lint_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "lint"]),
-  typecheck_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "typecheck"]),
+  typecheck_command: z
+    .union([z.string(), z.array(z.string())])
+    .default(["npm", "run", "typecheck"]),
   build_command: z.union([z.string(), z.array(z.string())]).default(["npm", "run", "build"]),
   require_challenger: z.boolean().default(true),
 });
@@ -103,10 +105,9 @@ const EscalationSchema = z
       })
       .default({}),
   })
-  .refine(
-    (cfg) => !cfg.notifications.ntfy || cfg.notifications.ntfy_topic.length > 0,
-    { message: "ntfy_topic must be non-empty when ntfy notifications are enabled" },
-  );
+  .refine((cfg) => !cfg.notifications.ntfy || cfg.notifications.ntfy_topic.length > 0, {
+    message: "ntfy_topic must be non-empty when ntfy notifications are enabled",
+  });
 
 const GitSchema = z.object({
   worktree_base: z.string().min(1).default("../sprint-worktrees"),
@@ -114,10 +115,9 @@ const GitSchema = z.object({
     .string()
     .min(1)
     .default("{prefix}/{sprint}/issue-{issue}")
-    .refine(
-      (p) => p.includes("{issue}"),
-      { message: "branch_pattern must contain {issue} placeholder" },
-    ),
+    .refine((p) => p.includes("{issue}"), {
+      message: "branch_pattern must contain {issue} placeholder",
+    }),
   auto_merge: z.boolean().default(true),
   squash_merge: z.boolean().default(true),
   delete_branch_after_merge: z.boolean().default(true),
@@ -148,7 +148,10 @@ export type ConfigFile = z.infer<typeof ConfigFileSchema>;
 
 /** Convert a sprint prefix to a file-system-safe slug (e.g. "Test Sprint" → "test-sprint"). */
 export function prefixToSlug(prefix: string): string {
-  return prefix.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  return prefix
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 }
 
 // --- Environment variable substitution ---
@@ -187,5 +190,3 @@ export function loadConfig(configPath?: string): ConfigFile {
 
   return config;
 }
-
-

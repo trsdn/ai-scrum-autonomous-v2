@@ -105,9 +105,7 @@ describe("getStatePath", () => {
     const config = makeConfig("/my/project");
     const result = getStatePath(config);
 
-    expect(result).toBe(
-      path.join("/my/project", "docs", "sprints", "alpha-3-state.json"),
-    );
+    expect(result).toBe(path.join("/my/project", "docs", "sprints", "alpha-3-state.json"));
   });
 });
 

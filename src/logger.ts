@@ -52,7 +52,11 @@ function getErrorLogPath(): string | undefined {
 /**
  * Append a structured log entry to today's error log file.
  */
-export function appendErrorLog(level: "error" | "warn" | "info", message: string, context?: Record<string, unknown>): void {
+export function appendErrorLog(
+  level: "error" | "warn" | "info",
+  message: string,
+  context?: Record<string, unknown>,
+): void {
   const logPath = getErrorLogPath();
   if (!logPath) return;
   const entry = {
@@ -79,13 +83,7 @@ export function redirectLogToFile(filePath: string): void {
     name: logger.bindings().name ?? "sprint-runner",
     level: logger.level,
     redact: {
-      paths: [
-        "*.password",
-        "*.token",
-        "*.secret",
-        "*.apiKey",
-        "*.authorization",
-      ],
+      paths: ["*.password", "*.token", "*.secret", "*.apiKey", "*.authorization"],
       censor: "[REDACTED]",
     },
   };
@@ -103,22 +101,15 @@ export function createLogger(options: LoggerOptions = {}): Logger {
     pretty = process.env["NODE_ENV"] !== "production",
   } = options;
 
-  const transport = !logDestination && pretty
-    ? { target: "pino-pretty", options: { colorize: true } }
-    : undefined;
+  const transport =
+    !logDestination && pretty ? { target: "pino-pretty", options: { colorize: true } } : undefined;
 
   const pinoOptions = {
     name,
     level,
     transport,
     redact: {
-      paths: [
-        "*.password",
-        "*.token",
-        "*.secret",
-        "*.apiKey",
-        "*.authorization",
-      ],
+      paths: ["*.password", "*.token", "*.secret", "*.apiKey", "*.authorization"],
       censor: "[REDACTED]",
     },
   };

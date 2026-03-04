@@ -44,7 +44,9 @@ vi.mock("node:fs/promises", () => ({
   default: {
     readFile: vi
       .fn()
-      .mockResolvedValue("Review for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}} flagged:{{FLAGGED_PRS}}"),
+      .mockResolvedValue(
+        "Review for sprint {{SPRINT_NUMBER}} project {{PROJECT_NAME}} flagged:{{FLAGGED_PRS}}",
+      ),
   },
 }));
 
@@ -115,9 +117,13 @@ const reviewResponse = {
 
 function makeMockClient() {
   return {
-    createSession: vi
-      .fn()
-      .mockResolvedValue({ sessionId: "session-rev-1", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-rev-1",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "```json\n" + JSON.stringify(reviewResponse) + "\n```",
       stopReason: "end_turn",
@@ -219,7 +225,7 @@ describe("runSprintReview", () => {
   it("flags closed-without-merge PRs in review prompt", async () => {
     const mockClient = makeMockClient();
     const { getPRStatus } = await import("../../src/git/merge.js");
-    
+
     vi.mocked(getPRStatus).mockResolvedValueOnce({ prNumber: 123, state: "CLOSED" });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -234,7 +240,7 @@ describe("runSprintReview", () => {
   it("passes review when all PRs are merged", async () => {
     const mockClient = makeMockClient();
     const { getPRStatus } = await import("../../src/git/merge.js");
-    
+
     vi.mocked(getPRStatus).mockResolvedValueOnce({ prNumber: 456, state: "MERGED" });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,7 +255,7 @@ describe("runSprintReview", () => {
   it("handles missing PRs gracefully", async () => {
     const mockClient = makeMockClient();
     const { getPRStatus } = await import("../../src/git/merge.js");
-    
+
     vi.mocked(getPRStatus).mockResolvedValueOnce(undefined);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

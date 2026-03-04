@@ -55,19 +55,14 @@ function toAcpMcpServer(entry: McpServerEntry): McpServer {
 }
 
 /** Load instruction files from disk and concatenate their contents. */
-export async function loadInstructions(
-  filePaths: string[],
-  projectPath: string,
-): Promise<string> {
+export async function loadInstructions(filePaths: string[], projectPath: string): Promise<string> {
   if (filePaths.length === 0) return "";
 
   const log = logger.child({ component: "session-config" });
   const parts: string[] = [];
 
   for (const filePath of filePaths) {
-    const resolved = path.isAbsolute(filePath)
-      ? filePath
-      : path.resolve(projectPath, filePath);
+    const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(projectPath, filePath);
     try {
       const content = await fs.readFile(resolved, "utf-8");
       parts.push(content);
@@ -97,10 +92,7 @@ export async function resolveSessionConfig(
   const mcpServers = allEntries.map(toAcpMcpServer);
 
   // Merge instructions: global + phase-specific
-  const allInstructionPaths = [
-    ...config.globalInstructions,
-    ...(phaseConfig?.instructions ?? []),
-  ];
+  const allInstructionPaths = [...config.globalInstructions, ...(phaseConfig?.instructions ?? [])];
   const instructions = await loadInstructions(allInstructionPaths, config.projectPath);
 
   // Model from phase config

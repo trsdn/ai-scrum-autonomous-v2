@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type {
-  SprintConfig,
-  SprintIssue,
-  QualityResult,
-} from "../../src/types.js";
+import type { SprintConfig, SprintIssue, QualityResult } from "../../src/types.js";
 
 vi.mock("../../src/acp/session-config.js", () => ({
   resolveSessionConfig: vi.fn().mockResolvedValue({
@@ -29,13 +25,10 @@ vi.mock("../../src/logger.js", () => {
   return { logger: childLogger, appendErrorLog: noop };
 });
 
-const { runQualityGate } = await import(
-  "../../src/enforcement/quality-gate.js"
-);
+const { runQualityGate } = await import("../../src/enforcement/quality-gate.js");
 
-const { handleQualityFailure, buildQualityGateConfig, DEFAULT_QUALITY_GATE_CONFIG } = await import(
-  "../../src/ceremonies/quality-retry.js"
-);
+const { handleQualityFailure, buildQualityGateConfig, DEFAULT_QUALITY_GATE_CONFIG } =
+  await import("../../src/ceremonies/quality-retry.js");
 
 // --- Helpers ---
 
@@ -82,7 +75,13 @@ function makeIssue(overrides: Partial<SprintIssue> = {}): SprintIssue {
 
 function makeMockClient() {
   return {
-    createSession: vi.fn().mockResolvedValue({ sessionId: "session-abc", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-abc",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "Done implementing issue",
       stopReason: "end_turn",

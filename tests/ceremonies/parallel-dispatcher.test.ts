@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type {
-  SprintConfig,
-  SprintPlan,
-  SprintIssue,
-  IssueResult,
-} from "../../src/types.js";
+import type { SprintConfig, SprintPlan, SprintIssue, IssueResult } from "../../src/types.js";
 
 // --- Mocks ---
 
@@ -139,7 +134,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     maxRetries: 1,
     enableChallenger: false,
     autoRevertDrift: false,
-  backlogLabels: [],
+    backlogLabels: [],
     autoMerge: true,
     squashMerge: true,
     deleteBranchAfterMerge: true,
@@ -183,20 +178,14 @@ describe("runParallelExecution", () => {
 
   it("executes a single group of parallel issues", async () => {
     const issues = [makeIssue(1), makeIssue(2), makeIssue(3)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2, 3] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2, 3] }]);
     vi.mocked(executeIssue)
       .mockResolvedValueOnce(makeResult(1))
       .mockResolvedValueOnce(makeResult(2))
       .mockResolvedValueOnce(makeResult(3));
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.results).toHaveLength(3);
     expect(result.sprint).toBe(1);
@@ -220,11 +209,7 @@ describe("runParallelExecution", () => {
     });
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.results).toHaveLength(3);
     // Issue 1 must execute before issues 2 & 3
@@ -235,9 +220,7 @@ describe("runParallelExecution", () => {
 
   it("handles merge conflicts by marking issue as failed", async () => {
     const issues = [makeIssue(1), makeIssue(2)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2] }]);
     vi.mocked(executeIssue)
       .mockResolvedValueOnce(makeResult(1))
       .mockResolvedValueOnce(makeResult(2));
@@ -245,11 +228,7 @@ describe("runParallelExecution", () => {
       .mockResolvedValueOnce({ success: true })
       .mockResolvedValueOnce({ success: false, reason: "merge conflict" });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.mergeConflicts).toBe(1);
     const failedResult = result.results.find((r) => r.issueNumber === 2);
@@ -260,9 +239,7 @@ describe("runParallelExecution", () => {
 
   it("skips merging when autoMerge is disabled", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
 
     const result = await runParallelExecution(
@@ -278,9 +255,7 @@ describe("runParallelExecution", () => {
 
   it("respects concurrency limit via p-limit", async () => {
     const issues = [makeIssue(1), makeIssue(2), makeIssue(3), makeIssue(4)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2, 3, 4] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2, 3, 4] }]);
 
     let concurrent = 0;
     let maxConcurrent = 0;
@@ -366,38 +341,26 @@ describe("runParallelExecution", () => {
 
   it("computes avgWorktreeLifetime from durations", async () => {
     const issues = [makeIssue(1), makeIssue(2)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2] }]);
     vi.mocked(executeIssue)
       .mockResolvedValueOnce({ ...makeResult(1), duration_ms: 2000 })
       .mockResolvedValueOnce({ ...makeResult(2), duration_ms: 4000 });
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.avgWorktreeLifetime).toBe(3000);
   });
 
   it("tracks rejected executeIssue as failed IssueResult", async () => {
     const issues = [makeIssue(1), makeIssue(2)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2] }]);
     vi.mocked(executeIssue)
       .mockResolvedValueOnce(makeResult(1))
       .mockRejectedValueOnce(new Error("session crashed"));
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.results).toHaveLength(2);
     const rejected = result.results.find((r) => r.issueNumber === 2)!;
@@ -410,20 +373,14 @@ describe("runParallelExecution", () => {
 
   it("counts fulfilled-failed and rejected correctly in mixed results", async () => {
     const issues = [makeIssue(1), makeIssue(2), makeIssue(3)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1, 2, 3] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1, 2, 3] }]);
     vi.mocked(executeIssue)
-      .mockResolvedValueOnce(makeResult(1))              // fulfilled, completed
-      .mockResolvedValueOnce(makeResult(2, "failed"))     // fulfilled, failed
-      .mockRejectedValueOnce(new Error("timeout"));       // rejected
+      .mockResolvedValueOnce(makeResult(1)) // fulfilled, completed
+      .mockResolvedValueOnce(makeResult(2, "failed")) // fulfilled, failed
+      .mockRejectedValueOnce(new Error("timeout")); // rejected
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan(issues),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
     expect(result.results).toHaveLength(3);
     const completed = result.results.filter((r) => r.status === "completed");
@@ -436,11 +393,7 @@ describe("runParallelExecution", () => {
   it("returns empty results for plan with no issues", async () => {
     vi.mocked(buildExecutionGroups).mockReturnValue([]);
 
-    const result = await runParallelExecution(
-      mockClient,
-      makeConfig(),
-      makePlan([]),
-    );
+    const result = await runParallelExecution(mockClient, makeConfig(), makePlan([]));
 
     expect(result.results).toHaveLength(0);
     expect(result.parallelizationRatio).toBe(1);
@@ -452,9 +405,7 @@ describe("runParallelExecution", () => {
 
   it("runs pre-merge verification before mergeIssuePR", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
@@ -468,9 +419,7 @@ describe("runParallelExecution", () => {
 
   it("blocks issue and skips merge when pre-merge verification detects conflicts", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     vi.mocked(hasConflicts).mockResolvedValue(true);
 
@@ -486,18 +435,16 @@ describe("runParallelExecution", () => {
 
   it("blocks issue when tests fail in pre-merge verification", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     // execFile: rebase calls (fetch, rebase, push) then pre-merge (fetch, merge, npm test fails)
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
-      .mockRejectedValueOnce(new Error("test failure"));  // pre-merge: npm test
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git merge
+      .mockRejectedValueOnce(new Error("test failure")); // pre-merge: npm test
 
     const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
@@ -511,19 +458,17 @@ describe("runParallelExecution", () => {
 
   it("blocks issue when type check fails in pre-merge verification", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     // execFile: rebase calls (fetch, rebase, push) then pre-merge (fetch, merge, tests ok, typecheck fails)
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: npm test
-      .mockRejectedValueOnce(new Error("type error"));    // pre-merge: tsc --noEmit
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git merge
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: npm test
+      .mockRejectedValueOnce(new Error("type error")); // pre-merge: tsc --noEmit
 
     const result = await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 
@@ -535,9 +480,7 @@ describe("runParallelExecution", () => {
 
   it("proceeds with merge when pre-merge verification passes", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     vi.mocked(mergeIssuePR).mockResolvedValue({ success: true });
 
@@ -553,17 +496,15 @@ describe("runParallelExecution", () => {
 
   it("cleans up worktree even when pre-merge verification fails", async () => {
     const issues = [makeIssue(1)];
-    vi.mocked(buildExecutionGroups).mockReturnValue([
-      { group: 0, issues: [1] },
-    ]);
+    vi.mocked(buildExecutionGroups).mockReturnValue([{ group: 0, issues: [1] }]);
     vi.mocked(executeIssue).mockResolvedValueOnce(makeResult(1));
     mockExecFileAsync
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git rebase
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // rebase: git push
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git fetch
-      .mockResolvedValueOnce({ stdout: "", stderr: "" })  // pre-merge: git merge
-      .mockRejectedValueOnce(new Error("test failure"));  // pre-merge: npm test
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git rebase
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // rebase: git push
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git fetch
+      .mockResolvedValueOnce({ stdout: "", stderr: "" }) // pre-merge: git merge
+      .mockRejectedValueOnce(new Error("test failure")); // pre-merge: npm test
 
     await runParallelExecution(mockClient, makeConfig(), makePlan(issues));
 

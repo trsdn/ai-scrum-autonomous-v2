@@ -34,18 +34,45 @@ export interface ChatManagerOptions {
   timeoutMs?: number;
   onStreamChunk?: (sessionId: string, text: string) => void;
   onThinkingChunk?: (sessionId: string, text: string) => void;
-  onToolCall?: (sessionId: string, toolCall: { toolCallId: string; title: string; status?: string; kind?: string }) => void;
+  onToolCall?: (
+    sessionId: string,
+    toolCall: { toolCallId: string; title: string; status?: string; kind?: string },
+  ) => void;
   onUsageUpdate?: (sessionId: string, usage: { used: number; size: number }) => void;
   onModeChange?: (sessionId: string, modeId: string) => void;
-  onPlanUpdate?: (sessionId: string, plan: { entries: Array<{ content: string; priority: string; status: string }> }) => void;
-  onCommandsUpdate?: (sessionId: string, commands: Array<{ name: string; description: string; hint?: string }>) => void;
-  onConfigUpdate?: (sessionId: string, configs: Array<{ id: string; name: string; category?: string; currentValue: string; options: Array<{ value: string; name: string }> }>) => void;
+  onPlanUpdate?: (
+    sessionId: string,
+    plan: { entries: Array<{ content: string; priority: string; status: string }> },
+  ) => void;
+  onCommandsUpdate?: (
+    sessionId: string,
+    commands: Array<{ name: string; description: string; hint?: string }>,
+  ) => void;
+  onConfigUpdate?: (
+    sessionId: string,
+    configs: Array<{
+      id: string;
+      name: string;
+      category?: string;
+      currentValue: string;
+      options: Array<{ value: string; name: string }>;
+    }>,
+  ) => void;
 }
 
 export class ChatManager {
   private client: AcpClient | null = null;
   private sessions = new Map<string, ChatSession>();
-  private pendingConfigs = new Map<string, Array<{ id: string; name: string; category?: string; currentValue: string; options: Array<{ value: string; name: string }> }>>();
+  private pendingConfigs = new Map<
+    string,
+    Array<{
+      id: string;
+      name: string;
+      category?: string;
+      currentValue: string;
+      options: Array<{ value: string; name: string }>;
+    }>
+  >();
   private readonly options: ChatManagerOptions;
   private connected = false;
 

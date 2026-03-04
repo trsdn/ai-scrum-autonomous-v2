@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  calculateSprintMetrics,
-  topFailedGates,
-  formatDuration,
-  percent,
-} from "../src/metrics.js";
+import { calculateSprintMetrics, topFailedGates, formatDuration, percent } from "../src/metrics.js";
 import type { SprintResult, IssueResult } from "../src/types.js";
 
 function makeIssue(overrides: Partial<IssueResult> = {}): IssueResult {
@@ -98,21 +93,42 @@ describe("calculateSprintMetrics", () => {
         issueNumber: 1,
         qualityDetails: {
           passed: true,
-          checks: [{ name: "scope-drift", passed: true, detail: "⚠️ 2 unplanned files (non-blocking): index.html, src/footer.ts", category: "diff" }],
+          checks: [
+            {
+              name: "scope-drift",
+              passed: true,
+              detail: "⚠️ 2 unplanned files (non-blocking): index.html, src/footer.ts",
+              category: "diff",
+            },
+          ],
         },
       }),
       makeIssue({
         issueNumber: 2,
         qualityDetails: {
           passed: true,
-          checks: [{ name: "scope-drift", passed: true, detail: "All 3 changed files within expected scope", category: "diff" }],
+          checks: [
+            {
+              name: "scope-drift",
+              passed: true,
+              detail: "All 3 changed files within expected scope",
+              category: "diff",
+            },
+          ],
         },
       }),
       makeIssue({
         issueNumber: 3,
         qualityDetails: {
           passed: true,
-          checks: [{ name: "scope-drift", passed: true, detail: "⚠️ 1 unplanned files (non-blocking): style.css", category: "diff" }],
+          checks: [
+            {
+              name: "scope-drift",
+              passed: true,
+              detail: "⚠️ 1 unplanned files (non-blocking): style.css",
+              category: "diff",
+            },
+          ],
         },
       }),
     ]);

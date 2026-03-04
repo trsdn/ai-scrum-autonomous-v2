@@ -1,10 +1,15 @@
 import type { SprintEventBus } from "../events.js";
 import { sendNotification, type NtfyConfig } from "./ntfy.js";
 
+const attachedBuses = new WeakSet<SprintEventBus>();
+
 export function attachSprintNotifications(
   eventBus: SprintEventBus,
   ntfyConfig: NtfyConfig | undefined,
 ): void {
+  if (attachedBuses.has(eventBus)) return;
+  attachedBuses.add(eventBus);
+
   eventBus.onTyped("issue:fail", ({ issueNumber, reason }) => {
     sendNotification(
       ntfyConfig,
@@ -26,13 +31,7 @@ export function attachSprintNotifications(
   });
 
   eventBus.onTyped("sprint:error", ({ error }) => {
-    sendNotification(
-      ntfyConfig,
-      "Sprint Error",
-      error,
-      "urgent",
-      ["rotating_light"],
-    );
+    sendNotification(ntfyConfig, "Sprint Error", error, "urgent", ["rotating_light"]);
   });
 
   eventBus.onTyped("sprint:stopped", ({ sprintNumber }) => {

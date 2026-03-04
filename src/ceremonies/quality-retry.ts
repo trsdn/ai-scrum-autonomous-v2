@@ -1,10 +1,6 @@
 import type { AcpClient } from "../acp/client.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
-import type {
-  SprintConfig,
-  SprintIssue,
-  QualityResult,
-} from "../types.js";
+import type { SprintConfig, SprintIssue, QualityResult } from "../types.js";
 import { runQualityGate } from "../enforcement/quality-gate.js";
 import type { QualityGateConfig } from "../enforcement/quality-gate.js";
 import { logger } from "../logger.js";
@@ -92,12 +88,7 @@ export async function handleQualityFailure(
   const branch = buildBranch(config, issue.number);
   const gateConfig = buildQualityGateConfig(config);
   gateConfig.expectedFiles = issue.expectedFiles;
-  const newResult = await runQualityGate(
-    gateConfig,
-    worktreePath,
-    branch,
-    config.baseBranch,
-  );
+  const newResult = await runQualityGate(gateConfig, worktreePath, branch, config.baseBranch);
 
   if (newResult.passed) {
     return newResult;

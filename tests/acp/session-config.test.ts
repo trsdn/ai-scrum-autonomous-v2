@@ -123,10 +123,7 @@ describe("loadInstructions", () => {
       .mockResolvedValueOnce("# Global Instructions" as never)
       .mockResolvedValueOnce("# Phase Instructions" as never);
 
-    const result = await loadInstructions(
-      ["global.md", "phase.md"],
-      "/project",
-    );
+    const result = await loadInstructions(["global.md", "phase.md"], "/project");
     expect(result).toBe("# Global Instructions\n\n# Phase Instructions");
   });
 
@@ -136,10 +133,7 @@ describe("loadInstructions", () => {
       .mockRejectedValueOnce(new Error("ENOENT") as never)
       .mockResolvedValueOnce("content-c" as never);
 
-    const result = await loadInstructions(
-      ["a.md", "missing.md", "c.md"],
-      "/project",
-    );
+    const result = await loadInstructions(["a.md", "missing.md", "c.md"], "/project");
     expect(result).toBe("content-a\n\ncontent-c");
   });
 
@@ -248,16 +242,11 @@ describe("resolveSessionConfig", () => {
 
   it("handles unknown phase gracefully", async () => {
     const config = makeConfig({
-      globalMcpServers: [
-        { type: "stdio", name: "g", command: "g", args: [] },
-      ],
+      globalMcpServers: [{ type: "stdio", name: "g", command: "g", args: [] }],
     });
 
     // Phase doesn't exist in config.phases — should use only global
-    const result = await resolveSessionConfig(
-      config,
-      "challenger" as CeremonyPhase,
-    );
+    const result = await resolveSessionConfig(config, "challenger" as CeremonyPhase);
     expect(result.mcpServers).toHaveLength(1);
     expect(result.mcpServers[0].name).toBe("g");
     expect(result.model).toBeUndefined();

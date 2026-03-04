@@ -61,7 +61,16 @@ test.describe("Dashboard Sprint Navigation", () => {
   test("phase badge shows a valid phase", async ({ page }) => {
     const badge = page.locator(".phase-badge");
     const text = await badge.textContent();
-    expect(["INIT", "PLAN", "EXECUTE", "REVIEW", "RETRO", "COMPLETE", "FAILED", "PAUSED"]).toContain(text);
+    expect([
+      "INIT",
+      "PLAN",
+      "EXECUTE",
+      "REVIEW",
+      "RETRO",
+      "COMPLETE",
+      "FAILED",
+      "PAUSED",
+    ]).toContain(text);
   });
 
   test("chat panel exists in sprint view", async ({ page }) => {

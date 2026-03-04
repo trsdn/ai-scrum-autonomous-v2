@@ -8,9 +8,15 @@ import { test, expect } from "@playwright/test";
 
 // Helper: navigate to a tab by its exact icon+label (e.g. "🏃 Sprint")
 const TAB_ICONS: Record<string, string> = {
-  "Sprint": "🏃", "Sprint Backlog": "📦", "Backlog": "📋",
-  "Blocked": "🚧", "Decisions": "⚖️", "Ideas": "💡",
-  "Report": "📊", "Logs": "📜", "Settings": "⚙️",
+  Sprint: "🏃",
+  "Sprint Backlog": "📦",
+  Backlog: "📋",
+  Blocked: "🚧",
+  Decisions: "⚖️",
+  Ideas: "💡",
+  Report: "📊",
+  Logs: "📜",
+  Settings: "⚙️",
 };
 async function navigateToTab(page: import("@playwright/test").Page, label: string) {
   await page.waitForSelector(".tab-nav", { timeout: 10_000 });
@@ -165,7 +171,9 @@ test.describe("Settings Page", () => {
 
   test("config values are editable", async ({ page }) => {
     // Find a text input and verify it's editable
-    const inputs = page.locator(".settings-table input[type='text'], .settings-table input[type='number']");
+    const inputs = page.locator(
+      ".settings-table input[type='text'], .settings-table input[type='number']",
+    );
     const count = await inputs.count();
     expect(count).toBeGreaterThan(0);
     const first = inputs.first();

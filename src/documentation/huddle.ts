@@ -30,9 +30,10 @@ function formatQualityChecks(entry: HuddleEntry): string {
 
 function formatZeroChangeDiagnostic(diag: ZeroChangeDiagnostic): string {
   const outcomeIcon = diag.workerOutcome === "worker-error" ? "🐛" : "🔇";
-  const outcomeLabel = diag.workerOutcome === "worker-error" ? "Worker Error" : "Task Not Applicable";
+  const outcomeLabel =
+    diag.workerOutcome === "worker-error" ? "Worker Error" : "Task Not Applicable";
   const timeoutIndicator = diag.timedOut ? " ⏱ Timed out" : "";
-  
+
   const lines = [
     `**${outcomeIcon} ${outcomeLabel}**${timeoutIndicator}`,
     "",
@@ -44,7 +45,7 @@ function formatZeroChangeDiagnostic(diag: ZeroChangeDiagnostic): string {
     "```",
     "</details>",
   ];
-  
+
   return lines.join("\n");
 }
 
@@ -89,11 +90,7 @@ export function formatHuddleComment(entry: HuddleEntryWithDiag): string {
     lines.push("", formatZeroChangeDiagnostic(entry.zeroChangeDiagnostic));
   }
 
-  lines.push(
-    "",
-    `**Files Changed** (${entry.filesChanged.length}):`,
-    files,
-  );
+  lines.push("", `**Files Changed** (${entry.filesChanged.length}):`, files);
 
   if (entry.prStats) {
     lines.push(
@@ -128,7 +125,9 @@ export function formatSprintLogEntry(entry: HuddleEntryWithDiag): string {
   ];
 
   if (entry.prStats) {
-    lines.push(`- **PR**: #${entry.prStats.prNumber} (+${entry.prStats.additions} −${entry.prStats.deletions})`);
+    lines.push(
+      `- **PR**: #${entry.prStats.prNumber} (+${entry.prStats.additions} −${entry.prStats.deletions})`,
+    );
   }
 
   if (entry.errorMessage) {

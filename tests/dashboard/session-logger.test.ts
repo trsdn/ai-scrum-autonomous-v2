@@ -22,7 +22,11 @@ function makeSession(overrides?: Partial<ChatSession>): ChatSession {
     createdAt: new Date("2026-02-28T14:00:00Z"),
     messages: [
       { role: "user", content: "Refine issue #10", timestamp: new Date("2026-02-28T14:00:01Z") },
-      { role: "assistant", content: "I'll read the issue first.", timestamp: new Date("2026-02-28T14:00:02Z") },
+      {
+        role: "assistant",
+        content: "I'll read the issue first.",
+        timestamp: new Date("2026-02-28T14:00:02Z"),
+      },
     ],
     ...overrides,
   };

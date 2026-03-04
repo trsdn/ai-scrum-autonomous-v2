@@ -8,12 +8,7 @@ vi.mock("../../src/logger.js", () => ({
 }));
 
 import { execGh } from "../../src/github/issues.js";
-import {
-  setLabel,
-  removeLabel,
-  getLabels,
-  ensureLabelExists,
-} from "../../src/github/labels.js";
+import { setLabel, removeLabel, getLabels, ensureLabelExists } from "../../src/github/labels.js";
 
 const mockExecGh = vi.mocked(execGh);
 
@@ -25,24 +20,12 @@ describe("labels", () => {
 
   it("setLabel calls gh issue edit with --add-label", async () => {
     await setLabel(42, "bug");
-    expect(mockExecGh).toHaveBeenCalledWith([
-      "issue",
-      "edit",
-      "42",
-      "--add-label",
-      "bug",
-    ]);
+    expect(mockExecGh).toHaveBeenCalledWith(["issue", "edit", "42", "--add-label", "bug"]);
   });
 
   it("removeLabel calls gh issue edit with --remove-label", async () => {
     await removeLabel(42, "bug");
-    expect(mockExecGh).toHaveBeenCalledWith([
-      "issue",
-      "edit",
-      "42",
-      "--remove-label",
-      "bug",
-    ]);
+    expect(mockExecGh).toHaveBeenCalledWith(["issue", "edit", "42", "--remove-label", "bug"]);
   });
 
   it("getLabels returns parsed label array", async () => {
@@ -55,12 +38,7 @@ describe("labels", () => {
     mockExecGh.mockResolvedValueOnce("[]"); // list call
     await ensureLabelExists("new-label");
     expect(mockExecGh).toHaveBeenCalledTimes(2);
-    expect(mockExecGh).toHaveBeenNthCalledWith(2, [
-      "label",
-      "create",
-      "new-label",
-      "--force",
-    ]);
+    expect(mockExecGh).toHaveBeenNthCalledWith(2, ["label", "create", "new-label", "--force"]);
   });
 
   it("ensureLabelExists skips creation when label exists", async () => {

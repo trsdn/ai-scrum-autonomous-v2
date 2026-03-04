@@ -30,7 +30,7 @@ export async function createIssueRateLimited(
 
   const issue = await createIssue(options);
   state.issuesCreatedCount++;
-  
+
   log.debug(
     {
       number: issue.number,

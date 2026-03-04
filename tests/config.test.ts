@@ -96,9 +96,7 @@ project:
   });
 
   it("throws on missing config file", () => {
-    expect(() => loadConfig("/nonexistent/path.yaml")).toThrow(
-      "Config file not found",
-    );
+    expect(() => loadConfig("/nonexistent/path.yaml")).toThrow("Config file not found");
   });
 
   it("throws on invalid config (missing required project.name)", () => {
@@ -190,10 +188,14 @@ copilot:
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "config-qg-"));
     const configFile = path.join(dir, "config.yaml");
 
-    fs.writeFileSync(configFile, `
+    fs.writeFileSync(
+      configFile,
+      `
 project:
   name: "qg-test"
-`, "utf-8");
+`,
+      "utf-8",
+    );
 
     const config = loadConfig(configFile);
     expect(config.quality_gates.require_tests).toBe(true);
@@ -207,13 +209,17 @@ project:
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "config-inline-"));
     const configFile = path.join(dir, "config.yaml");
 
-    fs.writeFileSync(configFile, `
+    fs.writeFileSync(
+      configFile,
+      `
 project:
   name: "inline-test"
 quality_gates:
   require_tests: false
   max_diff_lines: 100
-`, "utf-8");
+`,
+      "utf-8",
+    );
 
     const config = loadConfig(configFile);
     expect(config.quality_gates.require_tests).toBe(false);

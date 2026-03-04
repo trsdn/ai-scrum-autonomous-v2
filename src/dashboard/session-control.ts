@@ -63,7 +63,7 @@ export class SessionController {
 
   /** Get list of sessions with pending messages. */
   getActiveSessions(): string[] {
-    return [...this.queues.keys()].filter(id => this.hasPending(id));
+    return [...this.queues.keys()].filter((id) => this.hasPending(id));
   }
 }
 

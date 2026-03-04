@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as cp from "node:child_process";
-import { getMilestone, getNextOpenMilestone, parseSprintFromTitle, createMilestone, setMilestone, closeMilestone, listSprintMilestones } from "../../src/github/milestones.js";
+import {
+  getMilestone,
+  getNextOpenMilestone,
+  parseSprintFromTitle,
+  createMilestone,
+  setMilestone,
+  closeMilestone,
+  listSprintMilestones,
+} from "../../src/github/milestones.js";
 
 vi.mock("node:child_process", () => ({
   execFile: vi.fn(),
@@ -9,25 +17,21 @@ vi.mock("node:child_process", () => ({
 const mockExecFile = vi.mocked(cp.execFile);
 
 function mockExecFileSuccess(stdout: string): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-        null,
-        { stdout, stderr: "" },
-      );
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+      stdout,
+      stderr: "",
+    });
+  }) as typeof cp.execFile);
 }
 
 function mockExecFileError(err: Error): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-        err,
-        { stdout: "", stderr: err.message },
-      );
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(err, {
+      stdout: "",
+      stderr: err.message,
+    });
+  }) as typeof cp.execFile);
 }
 
 beforeEach(() => {
@@ -62,9 +66,7 @@ describe("getMilestone", () => {
   });
 
   it("returns undefined when milestone not found", async () => {
-    const milestones = [
-      { title: "Sprint 1", number: 1, description: "", state: "open" },
-    ];
+    const milestones = [{ title: "Sprint 1", number: 1, description: "", state: "open" }];
     mockExecFileSuccess(JSON.stringify(milestones));
 
     const result = await getMilestone("Nonexistent");
@@ -194,18 +196,17 @@ describe("closeMilestone", () => {
   it("closes a milestone by title", async () => {
     // First call: getMilestone lookup, second call: PATCH
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        const data = callCount === 1
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      const data =
+        callCount === 1
           ? JSON.stringify([{ title: "Sprint 2", number: 2, description: "", state: "open" }])
           : "";
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     await closeMilestone("Sprint 2");
     expect(callCount).toBe(2);
@@ -221,18 +222,17 @@ describe("closeMilestone", () => {
 describe("listSprintMilestones", () => {
   it("returns sorted sprint milestones from both open and closed states", async () => {
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        const data = callCount === 1
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      const data =
+        callCount === 1
           ? JSON.stringify([{ title: "Sprint 3", number: 3, description: "", state: "open" }])
           : JSON.stringify([{ title: "Sprint 1", number: 1, description: "", state: "closed" }]);
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     const result = await listSprintMilestones();
     expect(result).toHaveLength(2);
@@ -242,22 +242,25 @@ describe("listSprintMilestones", () => {
 
   it("handles API failure for one state gracefully", async () => {
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        if (callCount === 1) {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            null,
-            { stdout: JSON.stringify([{ title: "Sprint 2", number: 2, description: "", state: "open" }]), stderr: "" },
-          );
-        } else {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            new Error("API error"),
-            { stdout: "", stderr: "API error" },
-          );
-        }
-      }) as typeof cp.execFile,
-    );
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      if (callCount === 1) {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          {
+            stdout: JSON.stringify([
+              { title: "Sprint 2", number: 2, description: "", state: "open" },
+            ]),
+            stderr: "",
+          },
+        );
+      } else {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          new Error("API error"),
+          { stdout: "", stderr: "API error" },
+        );
+      }
+    }) as typeof cp.execFile);
 
     const result = await listSprintMilestones();
     expect(result).toHaveLength(1);
@@ -266,21 +269,20 @@ describe("listSprintMilestones", () => {
 
   it("filters non-sprint milestones", async () => {
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        const data = callCount === 1
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      const data =
+        callCount === 1
           ? JSON.stringify([
               { title: "Sprint 1", number: 1, description: "", state: "open" },
               { title: "Backlog", number: 2, description: "", state: "open" },
             ])
           : JSON.stringify([]);
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     const result = await listSprintMilestones();
     expect(result).toHaveLength(1);
@@ -289,18 +291,17 @@ describe("listSprintMilestones", () => {
 
   it("uses custom prefix", async () => {
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        const data = callCount === 1
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      const data =
+        callCount === 1
           ? JSON.stringify([{ title: "Iteration 5", number: 5, description: "", state: "open" }])
           : JSON.stringify([]);
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     const result = await listSprintMilestones("Iteration");
     expect(result).toHaveLength(1);

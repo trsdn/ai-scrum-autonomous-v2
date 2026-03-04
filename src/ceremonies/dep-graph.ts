@@ -14,9 +14,7 @@ export interface ValidationResult {
  * Detect circular dependencies among issues.
  * Returns the circular chains if found, null if no cycles.
  */
-export function detectCircularDependencies(
-  issues: SprintIssue[],
-): number[][] | null {
+export function detectCircularDependencies(issues: SprintIssue[]): number[][] | null {
   const issueSet = new Set(issues.map((i) => i.number));
   const adj = new Map<number, number[]>();
   for (const issue of issues) {
@@ -89,9 +87,7 @@ export function buildExecutionGroups(issues: SprintIssue[]): ExecutionGroup[] {
 
   const cycles = detectCircularDependencies(issues);
   if (cycles) {
-    const detail = cycles
-      .map((c) => c.join(" → ") + " → " + String(c[0]))
-      .join("; ");
+    const detail = cycles.map((c) => c.join(" → ") + " → " + String(c[0])).join("; ");
     throw new Error(`Circular dependencies detected: ${detail}`);
   }
 

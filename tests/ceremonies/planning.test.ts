@@ -7,16 +7,12 @@ import type { SprintConfig, SprintPlan } from "../../src/types.js";
 
 describe("substitutePrompt", () => {
   it("replaces single placeholder", () => {
-    expect(substitutePrompt("Hello {{NAME}}", { NAME: "World" })).toBe(
-      "Hello World",
-    );
+    expect(substitutePrompt("Hello {{NAME}}", { NAME: "World" })).toBe("Hello World");
   });
 
   it("replaces multiple distinct placeholders", () => {
     const tpl = "Sprint {{NUM}} for {{PROJECT}}";
-    expect(substitutePrompt(tpl, { NUM: "5", PROJECT: "myapp" })).toBe(
-      "Sprint 5 for myapp",
-    );
+    expect(substitutePrompt(tpl, { NUM: "5", PROJECT: "myapp" })).toBe("Sprint 5 for myapp");
   });
 
   it("replaces repeated occurrences of the same placeholder", () => {
@@ -48,7 +44,7 @@ describe("extractJson", () => {
   });
 
   it("extracts JSON array from text", () => {
-    const text = 'Here is the data: [1,2,3] and done.';
+    const text = "Here is the data: [1,2,3] and done.";
     expect(extractJson(text)).toEqual([1, 2, 3]);
   });
 
@@ -125,25 +121,26 @@ vi.mock("../../src/documentation/velocity.js", () => ({
 }));
 vi.mock("../../src/logger.js", () => {
   const noop = () => {};
-  const childLogger = { info: noop, debug: noop, warn: noop, error: noop, child: () => childLogger };
+  const childLogger = {
+    info: noop,
+    debug: noop,
+    warn: noop,
+    error: noop,
+    child: () => childLogger,
+  };
   return { logger: childLogger };
 });
 vi.mock("node:fs/promises", () => ({
   default: {
-    readFile: vi.fn().mockResolvedValue(
-      "Sprint {{SPRINT_NUMBER}} plan for {{PROJECT_NAME}}",
-    ),
+    readFile: vi.fn().mockResolvedValue("Sprint {{SPRINT_NUMBER}} plan for {{PROJECT_NAME}}"),
   },
 }));
 
 const { listIssues } = await import("../../src/github/issues.js");
 const { setLabel } = await import("../../src/github/labels.js");
-const { getMilestone, createMilestone, setMilestone } = await import(
-  "../../src/github/milestones.js"
-);
-const { createSprintLog } = await import(
-  "../../src/documentation/sprint-log.js"
-);
+const { getMilestone, createMilestone, setMilestone } =
+  await import("../../src/github/milestones.js");
+const { createSprintLog } = await import("../../src/documentation/sprint-log.js");
 
 function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
   return {
@@ -160,7 +157,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
     maxRetries: 1,
     enableChallenger: false,
     autoRevertDrift: false,
-  backlogLabels: [],
+    backlogLabels: [],
     autoMerge: true,
     squashMerge: true,
     deleteBranchAfterMerge: true,
@@ -202,7 +199,13 @@ const planResponse: SprintPlan = {
 
 function makeMockClient() {
   return {
-    createSession: vi.fn().mockResolvedValue({ sessionId: "session-123", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-123",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "```json\n" + JSON.stringify(planResponse) + "\n```",
       stopReason: "end_turn",
@@ -257,7 +260,14 @@ describe("runSprintPlanning", () => {
     expect(createMilestone).toHaveBeenCalledOnce();
 
     // Sprint log created
-    expect(createSprintLog).toHaveBeenCalledWith(3, planResponse.rationale, 2, undefined, "Sprint", "sprint");
+    expect(createSprintLog).toHaveBeenCalledWith(
+      3,
+      planResponse.rationale,
+      2,
+      undefined,
+      "Sprint",
+      "sprint",
+    );
   });
 
   it("skips milestone creation when it already exists", async () => {
@@ -285,9 +295,7 @@ describe("runSprintPlanning", () => {
     vi.mocked(listIssues).mockResolvedValue([]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await expect(runSprintPlanning(mockClient as any, makeConfig())).rejects.toThrow(
-      "timeout",
-    );
+    await expect(runSprintPlanning(mockClient as any, makeConfig())).rejects.toThrow("timeout");
 
     expect(mockClient.endSession).toHaveBeenCalledWith("session-123");
   });

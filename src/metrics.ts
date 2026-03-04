@@ -44,14 +44,14 @@ export function calculateSprintMetrics(result: SprintResult): SprintMetrics {
     .reduce((sum, r) => sum + r.points, 0);
   const velocity = pointsCompleted;
   const avgDuration =
-    planned > 0
-      ? Math.round(results.reduce((sum, r) => sum + r.duration_ms, 0) / planned)
-      : 0;
+    planned > 0 ? Math.round(results.reduce((sum, r) => sum + r.duration_ms, 0) / planned) : 0;
   const firstPassCount = results.filter((r) => r.retryCount === 0).length;
   const firstPassRate = percent(firstPassCount, planned);
   const driftIncidents = results.filter((r) =>
-    r.qualityDetails.checks.some((c) =>
-      (c.name === "scope_drift" || c.name === "scope-drift") && c.detail?.includes("unplanned")),
+    r.qualityDetails.checks.some(
+      (c) =>
+        (c.name === "scope_drift" || c.name === "scope-drift") && c.detail?.includes("unplanned"),
+    ),
   ).length;
 
   return {

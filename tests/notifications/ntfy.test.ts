@@ -16,9 +16,7 @@ describe("sendNotification", () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response("ok", { status: 200 }),
-    );
+    fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("ok", { status: 200 }));
   });
 
   it("does NOT call fetch when disabled", async () => {
@@ -58,10 +56,7 @@ describe("sendNotification", () => {
       priority: "default",
     };
 
-    await sendNotification(config, "Test Title", "Test body", "high", [
-      "warning",
-      "fire",
-    ]);
+    await sendNotification(config, "Test Title", "Test body", "high", ["warning", "fire"]);
 
     expect(fetchSpy).toHaveBeenCalledOnce();
     const [url, opts] = fetchSpy.mock.calls[0] as [string, RequestInit];
@@ -85,8 +80,10 @@ describe("sendNotification", () => {
 
     await sendNotification(config, "Title", "Body");
 
-    const headers = (fetchSpy.mock.calls[0] as [string, RequestInit])[1]
-      .headers as Record<string, string>;
+    const headers = (fetchSpy.mock.calls[0] as [string, RequestInit])[1].headers as Record<
+      string,
+      string
+    >;
     expect(headers.Priority).toBe("low");
   });
 
@@ -100,9 +97,7 @@ describe("sendNotification", () => {
     };
 
     // Should not throw
-    await expect(
-      sendNotification(config, "Title", "Body"),
-    ).resolves.toBeUndefined();
+    await expect(sendNotification(config, "Title", "Body")).resolves.toBeUndefined();
   });
 
   it("logs warning and does NOT throw when fetch throws", async () => {
@@ -114,8 +109,6 @@ describe("sendNotification", () => {
       priority: "default",
     };
 
-    await expect(
-      sendNotification(config, "Title", "Body"),
-    ).resolves.toBeUndefined();
+    await expect(sendNotification(config, "Title", "Body")).resolves.toBeUndefined();
   });
 });

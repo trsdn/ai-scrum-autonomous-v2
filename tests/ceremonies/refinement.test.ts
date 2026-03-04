@@ -82,9 +82,13 @@ const refinementResponse = {
 
 function makeMockClient() {
   return {
-    createSession: vi
-      .fn()
-      .mockResolvedValue({ sessionId: "session-ref-1", availableModes: [], currentMode: "", availableModels: [], currentModel: "" }),
+    createSession: vi.fn().mockResolvedValue({
+      sessionId: "session-ref-1",
+      availableModes: [],
+      currentMode: "",
+      availableModels: [],
+      currentModel: "",
+    }),
     sendPrompt: vi.fn().mockResolvedValue({
       response: "```json\n" + JSON.stringify(refinementResponse) + "\n```",
       stopReason: "end_turn",

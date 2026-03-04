@@ -38,7 +38,13 @@ describe("initProject", () => {
     initProject({ targetPath: tmpDir });
 
     for (const role of ["refiner", "planner", "reviewer", "researcher", "general", "retro"]) {
-      const instructionsPath = path.join(tmpDir, ".aiscrum", "roles", role, "copilot-instructions.md");
+      const instructionsPath = path.join(
+        tmpDir,
+        ".aiscrum",
+        "roles",
+        role,
+        "copilot-instructions.md",
+      );
       expect(fs.existsSync(instructionsPath), `${role} instructions missing`).toBe(true);
     }
   });

@@ -8,25 +8,21 @@ vi.mock("node:child_process", () => ({
 const mockExecFile = vi.mocked(cp.execFile);
 
 function mockExecFileSuccess(stdout: string): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-        null,
-        { stdout, stderr: "" },
-      );
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+      stdout,
+      stderr: "",
+    });
+  }) as typeof cp.execFile);
 }
 
 function mockExecFileError(err: Error): void {
-  mockExecFile.mockImplementation(
-    ((_cmd: unknown, _args: unknown, callback: unknown) => {
-      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-        err,
-        { stdout: "", stderr: err.message },
-      );
-    }) as typeof cp.execFile,
-  );
+  mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+    (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(err, {
+      stdout: "",
+      stderr: err.message,
+    });
+  }) as typeof cp.execFile);
 }
 
 beforeEach(() => {
@@ -64,18 +60,14 @@ describe("mergeIssuePR", () => {
   it("finds and merges a PR by branch name", async () => {
     const { mergeIssuePR } = await import("../../src/git/merge.js");
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        const data = callCount === 1
-          ? JSON.stringify([{ number: 10 }])
-          : "";
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      const data = callCount === 1 ? JSON.stringify([{ number: 10 }]) : "";
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     const result = await mergeIssuePR("sprint/1/issue-5");
     expect(result.success).toBe(true);
@@ -104,17 +96,15 @@ describe("mergeIssuePR", () => {
     const { mergeIssuePR } = await import("../../src/git/merge.js");
     let mergeArgs: unknown[] = [];
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, args: unknown, callback: unknown) => {
-        callCount++;
-        if (callCount === 2) mergeArgs = args as unknown[];
-        const data = callCount === 1 ? JSON.stringify([{ number: 7 }]) : "";
-        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-          null,
-          { stdout: data, stderr: "" },
-        );
-      }) as typeof cp.execFile,
-    );
+    mockExecFile.mockImplementation(((_cmd: unknown, args: unknown, callback: unknown) => {
+      callCount++;
+      if (callCount === 2) mergeArgs = args as unknown[];
+      const data = callCount === 1 ? JSON.stringify([{ number: 7 }]) : "";
+      (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(null, {
+        stdout: data,
+        stderr: "",
+      });
+    }) as typeof cp.execFile);
 
     await mergeIssuePR("feat-branch", { squash: true, deleteBranch: true });
     expect(mergeArgs).toContain("--squash");
@@ -124,22 +114,20 @@ describe("mergeIssuePR", () => {
   it("returns failure with reason when merge command fails", async () => {
     const { mergeIssuePR } = await import("../../src/git/merge.js");
     let callCount = 0;
-    mockExecFile.mockImplementation(
-      ((_cmd: unknown, _args: unknown, callback: unknown) => {
-        callCount++;
-        if (callCount === 1) {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            null,
-            { stdout: JSON.stringify([{ number: 15 }]), stderr: "" },
-          );
-        } else {
-          (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
-            new Error("merge conflict"),
-            { stdout: "", stderr: "merge conflict" },
-          );
-        }
-      }) as typeof cp.execFile,
-    );
+    mockExecFile.mockImplementation(((_cmd: unknown, _args: unknown, callback: unknown) => {
+      callCount++;
+      if (callCount === 1) {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          null,
+          { stdout: JSON.stringify([{ number: 15 }]), stderr: "" },
+        );
+      } else {
+        (callback as (err: Error | null, result: { stdout: string; stderr: string }) => void)(
+          new Error("merge conflict"),
+          { stdout: "", stderr: "merge conflict" },
+        );
+      }
+    }) as typeof cp.execFile);
 
     const result = await mergeIssuePR("conflict-branch");
     expect(result.success).toBe(false);

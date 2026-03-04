@@ -1,7 +1,4 @@
-import type {
-  RequestPermissionRequest,
-  RequestPermissionResponse,
-} from "@agentclientprotocol/sdk";
+import type { RequestPermissionRequest, RequestPermissionResponse } from "@agentclientprotocol/sdk";
 import type { Logger } from "../logger.js";
 import { logger as defaultLogger } from "../logger.js";
 
@@ -25,12 +22,9 @@ export function createPermissionHandler(
   config: PermissionConfig = DEFAULT_PERMISSION_CONFIG,
   log: Logger = defaultLogger,
 ): (params: RequestPermissionRequest) => Promise<RequestPermissionResponse> {
-  return async (
-    params: RequestPermissionRequest,
-  ): Promise<RequestPermissionResponse> => {
+  return async (params: RequestPermissionRequest): Promise<RequestPermissionResponse> => {
     const toolCall = params.toolCall;
-    const toolName =
-      toolCall && "name" in toolCall ? (toolCall.name as string) : "unknown";
+    const toolName = toolCall && "name" in toolCall ? (toolCall.name as string) : "unknown";
     const options = params.options;
 
     // Find the allow_once option (preferred) or first allow option
@@ -49,9 +43,7 @@ export function createPermissionHandler(
 
     // Check allow patterns
     if (config.allowPatterns.length > 0 && allowOption) {
-      const matched = config.allowPatterns.some((pattern) =>
-        toolName.includes(pattern),
-      );
+      const matched = config.allowPatterns.some((pattern) => toolName.includes(pattern));
       if (matched) {
         log.debug(
           { tool: toolName, optionId: allowOption.optionId },
@@ -63,10 +55,7 @@ export function createPermissionHandler(
 
     // Reject if no auto-approve and no pattern match
     if (rejectOption) {
-      log.warn(
-        { tool: toolName, optionId: rejectOption.optionId },
-        "permission rejected",
-      );
+      log.warn({ tool: toolName, optionId: rejectOption.optionId }, "permission rejected");
       return { outcome: { outcome: "selected", optionId: rejectOption.optionId } };
     }
 

@@ -75,9 +75,7 @@ export async function runQualityGate(
         name: "tests-exist",
         passed: testFiles.length > 0,
         detail:
-          testFiles.length > 0
-            ? `Found ${testFiles.length} test file(s)`
-            : "No test files found",
+          testFiles.length > 0 ? `Found ${testFiles.length} test file(s)` : "No test files found",
         category: "test",
       });
     } catch (err) {

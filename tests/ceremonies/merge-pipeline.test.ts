@@ -34,9 +34,8 @@ vi.mock("../../src/logger.js", () => {
 const { mergeBranch } = await import("../../src/git/merge.js");
 const { deleteBranch } = await import("../../src/git/worktree.js");
 
-const { mergeCompletedBranches, resolveConflictsViaAcp } = await import(
-  "../../src/ceremonies/merge-pipeline.js"
-);
+const { mergeCompletedBranches, resolveConflictsViaAcp } =
+  await import("../../src/ceremonies/merge-pipeline.js");
 
 // --- Helpers ---
 
@@ -70,9 +69,7 @@ function makeConfig(overrides: Partial<SprintConfig> = {}): SprintConfig {
 
 const passingQuality: QualityResult = {
   passed: true,
-  checks: [
-    { name: "tests-pass", passed: true, detail: "Tests passed", category: "test" },
-  ],
+  checks: [{ name: "tests-pass", passed: true, detail: "Tests passed", category: "test" }],
 };
 
 function makeResult(overrides: Partial<IssueResult> = {}): IssueResult {
@@ -165,11 +162,7 @@ describe("mergeCompletedBranches", () => {
     vi.mocked(mergeBranch).mockResolvedValue({ success: true });
 
     const results = [makeResult({ issueNumber: 5, branch: "sprint/3/issue-5" })];
-    await mergeCompletedBranches(
-      makeConfig({ deleteBranchAfterMerge: true }),
-      results,
-      "main",
-    );
+    await mergeCompletedBranches(makeConfig({ deleteBranchAfterMerge: true }), results, "main");
 
     expect(deleteBranch).toHaveBeenCalledWith("sprint/3/issue-5");
   });
@@ -178,11 +171,7 @@ describe("mergeCompletedBranches", () => {
     vi.mocked(mergeBranch).mockResolvedValue({ success: true });
 
     const results = [makeResult({ issueNumber: 5, branch: "sprint/3/issue-5" })];
-    await mergeCompletedBranches(
-      makeConfig({ deleteBranchAfterMerge: false }),
-      results,
-      "main",
-    );
+    await mergeCompletedBranches(makeConfig({ deleteBranchAfterMerge: false }), results, "main");
 
     expect(deleteBranch).not.toHaveBeenCalled();
   });
@@ -229,9 +218,7 @@ describe("mergeCompletedBranches", () => {
   });
 
   it("returns empty results when no issues are eligible", async () => {
-    const results = [
-      makeResult({ issueNumber: 1, status: "failed", qualityGatePassed: false }),
-    ];
+    const results = [makeResult({ issueNumber: 1, status: "failed", qualityGatePassed: false })];
     const outcome = await mergeCompletedBranches(makeConfig(), results, "main");
 
     expect(mergeBranch).not.toHaveBeenCalled();
