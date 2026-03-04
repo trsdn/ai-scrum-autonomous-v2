@@ -8,7 +8,7 @@ import type { AcpClient } from "../acp/client.js";
 import type { SprintConfig, SprintPlan, SprintResult, IssueResult } from "../types.js";
 import { buildExecutionGroups } from "./dep-graph.js";
 import { executeIssue } from "./execution.js";
-import { hasConflicts, mergeIssuePR } from "../git/merge.js";
+import { hasConflicts, mergeIssuePR, closeIssuePR } from "../git/merge.js";
 import { createWorktree, removeWorktree } from "../git/worktree.js";
 import { verifyMainBranch } from "../enforcement/quality-gate.js";
 import { buildQualityGateConfig } from "./quality-retry.js";
@@ -182,6 +182,7 @@ export async function runParallelExecution(
             { issue: result.issueNumber },
             "zero-change issue — skipping merge (already implemented)",
           );
+          await closeIssuePR(result.branch);
           continue;
         }
 
@@ -312,6 +313,7 @@ export async function runParallelExecution(
                 { issue: result.issueNumber },
                 "zero-change issue — skipping merge (already implemented)",
               );
+              await closeIssuePR(result.branch);
               continue;
             }
             // Rebase branch on latest main before pre-merge (main may have changed from earlier merges)

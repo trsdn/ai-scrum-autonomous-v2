@@ -84,6 +84,43 @@ export async function getPRStatus(
 }
 
 /**
+ * Close (without merging) any open PR for the given branch.
+ * Used for zero-change issues where a PR may have been created but has no diff.
+ */
+export async function closeIssuePR(branch: string): Promise<void> {
+  const log = logger.child({ module: "merge" });
+  try {
+    const json = await execGh([
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--state",
+      "open",
+      "--json",
+      "number",
+      "--limit",
+      "1",
+    ]);
+    const prs = JSON.parse(json) as { number: number }[];
+    if (prs.length > 0) {
+      const prNumber = prs[0]!.number;
+      await execGh([
+        "pr",
+        "close",
+        String(prNumber),
+        "--comment",
+        "Closing: issue already implemented on main (zero file changes).",
+        "--delete-branch",
+      ]);
+      log.info({ branch, prNumber }, "closed orphan PR for zero-change issue");
+    }
+  } catch (err: unknown) {
+    log.warn({ branch, err }, "failed to close PR for zero-change branch");
+  }
+}
+
+/**
  * Find and merge a PR by its head branch name using `gh pr merge`.
  * Returns success: false if no PR found or merge fails.
  */

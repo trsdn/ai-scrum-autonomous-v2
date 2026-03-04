@@ -14,6 +14,7 @@ vi.mock("../../src/ceremonies/execution.js", () => ({
 vi.mock("../../src/git/merge.js", () => ({
   mergeIssuePR: vi.fn(),
   hasConflicts: vi.fn(),
+  closeIssuePR: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../src/git/worktree.js", () => ({
@@ -88,7 +89,7 @@ vi.mock("../../src/logger.js", () => {
 import { runParallelExecution } from "../../src/ceremonies/parallel-dispatcher.js";
 import { buildExecutionGroups } from "../../src/ceremonies/dep-graph.js";
 import { executeIssue } from "../../src/ceremonies/execution.js";
-import { hasConflicts, mergeIssuePR } from "../../src/git/merge.js";
+import { hasConflicts, mergeIssuePR, closeIssuePR } from "../../src/git/merge.js";
 import { createWorktree, removeWorktree } from "../../src/git/worktree.js";
 import { setStatusLabel } from "../../src/github/labels.js";
 import { addComment } from "../../src/github/issues.js";
@@ -584,6 +585,8 @@ describe("runParallelExecution", () => {
     // Should NOT attempt merge for zero-change issues
     expect(mergeIssuePR).not.toHaveBeenCalled();
     expect(hasConflicts).not.toHaveBeenCalled();
+    // Should close any orphan PR
+    expect(closeIssuePR).toHaveBeenCalledWith("sprint/1/issue-1");
   });
 
   it("skips merge for zero-change issues in sequential mode", async () => {
@@ -603,6 +606,8 @@ describe("runParallelExecution", () => {
     expect(result.results).toHaveLength(2);
     // Only issue 2 should be merged (issue 1 has zero changes)
     expect(mergeIssuePR).toHaveBeenCalledTimes(1);
+    // Issue 1's orphan PR should be closed
+    expect(closeIssuePR).toHaveBeenCalledWith("sprint/1/issue-1");
   });
 
   it("cleans up worktree even when pre-merge verification fails", async () => {
