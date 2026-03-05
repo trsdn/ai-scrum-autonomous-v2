@@ -5,7 +5,7 @@ import type { SprintConfig, SprintResult, ReviewResult, IssueResult } from "../t
 import type { SprintEventBus } from "../events.js";
 import { calculateSprintMetrics, topFailedGates } from "../metrics.js";
 import { logger } from "../logger.js";
-import { substitutePrompt, extractJson, sanitizePromptInput } from "./helpers.js";
+import { substitutePrompt, sanitizePromptInput, parseWithRetry } from "./helpers.js";
 import { resolveSessionConfig } from "../acp/session-config.js";
 import { getPRStatus } from "../git/merge.js";
 import { ReviewResultSchema } from "../types/schemas.js";
@@ -150,7 +150,27 @@ export async function runSprintReview(
       await client.setModel(sessionId, sessionConfig.model);
     }
     const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
-    const review = ReviewResultSchema.parse(extractJson(response.response));
+
+    const reviewJsonExample = JSON.stringify(
+      {
+        summary: "Sprint N completed with X/Y issues done",
+        demoItems: ["#1 - feature description"],
+        velocityUpdate: "Velocity: N points",
+        openItems: [],
+      },
+      null,
+      2,
+    );
+
+    const review = await parseWithRetry(
+      ReviewResultSchema,
+      response.response,
+      async (hint) => {
+        const retry = await client.sendPrompt(sessionId, hint, config.sessionTimeoutMs);
+        return retry.response;
+      },
+      reviewJsonExample,
+    );
 
     log.info(
       {

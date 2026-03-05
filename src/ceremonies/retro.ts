@@ -82,7 +82,22 @@ export async function runSprintRetro(
       await client.setModel(sessionId, sessionConfig.model);
     }
     const response = await client.sendPrompt(sessionId, fullPrompt, config.sessionTimeoutMs);
-    const rawRetro = extractJson<Record<string, unknown>>(response.response);
+
+    let rawRetro: Record<string, unknown>;
+    try {
+      rawRetro = extractJson<Record<string, unknown>>(response.response);
+    } catch {
+      log.warn("retro JSON extraction failed — retrying with format hint");
+      const retryHint = [
+        "Your response could not be parsed as JSON.",
+        "IMPORTANT: Respond with ONLY a JSON block — no markdown, no explanation.",
+        "```json",
+        '{ "wentWell": ["..."], "wentBadly": ["..."], "improvements": [{ "title": "...", "description": "...", "autoApplicable": false, "target": "process" }] }',
+        "```",
+      ].join("\n");
+      const retryResponse = await client.sendPrompt(sessionId, retryHint, config.sessionTimeoutMs);
+      rawRetro = extractJson<Record<string, unknown>>(retryResponse.response);
+    }
 
     // Normalize LLM field name variations, then validate via Zod schema
     const normalized = normalizeRetroFields(rawRetro);
