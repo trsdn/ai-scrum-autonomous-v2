@@ -1,9 +1,13 @@
-# AiScrum Pro
+<p align="center">
+  <img src="docs/logos/aiscrum-pro-logo.png" alt="AiScrum Pro" width="340">
+</p>
 
-[![Optimized for GitHub Copilot CLI](https://img.shields.io/badge/Powered%20by-GitHub%20Copilot%20ACP-blue?logo=github)](https://docs.github.com/en/copilot)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Node.js ≥ 20](https://img.shields.io/badge/Node.js-%E2%89%A5%2020-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+<p align="center">
+  <a href="https://docs.github.com/en/copilot"><img src="https://img.shields.io/badge/Powered%20by-GitHub%20Copilot%20ACP-blue?logo=github" alt="Powered by GitHub Copilot ACP"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%E2%89%A5%2020-339933?logo=node.js&logoColor=white" alt="Node.js ≥ 20"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></a>
+</p>
 
 **ACP-powered autonomous Scrum engine for GitHub Copilot CLI** that orchestrates full Scrum sprints via the Agent Client Protocol — planning, execution, review, and retrospective — without manual intervention.
 

@@ -32,10 +32,10 @@
   ],
   "license": "MIT",
   "author": "trsdn",
-  "homepage": "https://github.com/trsdn/ai-scrum-autonomous-v2",
+  "homepage": "https://github.com/trsdn/aiscrum-pro",
   "repository": {
     "type": "git",
-    "url": "https://github.com/trsdn/ai-scrum-autonomous-v2.git"
+    "url": "https://github.com/trsdn/aiscrum-pro.git"
   },
   "engines": {
     "node": ">=20.0.0"
