@@ -3,30 +3,94 @@
 </p>
 
 <p align="center">
+  <strong>An autonomous AI team that runs full Scrum sprints — planning, coding, testing, reviewing — while you sleep.</strong>
+</p>
+
+<p align="center">
   <a href="https://docs.github.com/en/copilot"><img src="https://img.shields.io/badge/Powered%20by-GitHub%20Copilot%20ACP-blue?logo=github" alt="Powered by GitHub Copilot ACP"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%E2%89%A5%2020-339933?logo=node.js&logoColor=white" alt="Node.js ≥ 20"></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></a>
 </p>
 
-**ACP-powered autonomous Scrum engine for GitHub Copilot CLI** that orchestrates full Scrum sprints via the Agent Client Protocol — planning, execution, review, and retrospective — without manual intervention.
-
-The AI agent acts as **PO + Scrum Master**. The human is the **Stakeholder** with veto rights.
-
 ---
 
-## Features
+AiScrum Pro is the **runtime engine** for the [AI-Scrum Framework](https://trsdn.github.io/ai-scrum/) — an open-source methodology for human-AI collaboration built on real Scrum principles.
 
-- **Full Sprint Lifecycle** — Refine → Plan → Execute → Review → Retro, all automated
-- **Parallel Issue Execution** — Multiple issues worked on simultaneously via git worktrees
-- **Quality Gates** — 7 checks enforced externally: tests-exist, tests-pass, lint-clean, types-clean, build-pass, scope-drift, diff-size
-- **Web Dashboard** — Real-time sprint monitoring, issue tracking, ACP session viewer
-- **Interactive Session Control** — Send messages to running ACP sessions, stop with confirmation
-- **Agent Chat** — Open ad-hoc ACP sessions with pre-configured roles (researcher, planner, reviewer)
-- **Sprint Navigation** — Browse historical sprints with instant loading via issue cache
-- **Drift Control** — Detects and escalates scope drift automatically
-- **Test Isolation** — Run test sprints with a separate prefix, fully isolated from production
-- **Notifications** — Push notifications via [ntfy.sh](https://ntfy.sh) when tasks complete or input is needed
+Where the framework defines the *what* (roles, ceremonies, boundaries, manifesto), AiScrum Pro is the *how* — a TypeScript engine that orchestrates GitHub Copilot CLI via the Agent Client Protocol to execute sprints autonomously.
+
+**You are the Stakeholder.** You set direction, drop ideas, and review deliverables. The AI team handles everything else — refinement, planning, parallel execution, quality gates, code review, sprint retros, and continuous process improvement.
+
+## What Makes This Different
+
+This isn't a chatbot wrapper or a prompt template. It's a **full AI development team** with structure, boundaries, and accountability.
+
+| | Ad-hoc AI Coding | AiScrum Pro |
+|---|---|---|
+| **Planning** | None — chat until it works | ICE-scored sprint backlog, milestone grouping |
+| **Execution** | One issue at a time, manually | Parallel workers via git worktrees, auto-merge |
+| **Quality** | "It should work" | 7 enforced gates: tests, lint, types, build, scope, diff-size, review |
+| **Memory** | Lost every session | Sprint logs, velocity tracking, issue comments, ADRs |
+| **Scope control** | Feature chasing | Drift detection, sprint lock, escalation model |
+| **Improvement** | Static | Every retro improves the process itself |
+
+> Built on the [AI-Scrum Manifesto](https://trsdn.github.io/ai-scrum/): *Autonomous execution* over constant approval. *Verified evidence* over claimed completion. *Sprint discipline* over feature chasing.
+
+## The Sprint Cycle
+
+Five ceremonies, fully automated. Start a sprint and come back to finished work.
+
+```
+ ┌─────────┐    ┌──────────┐    ┌───────────┐    ┌──────────┐    ┌─────────┐
+ │ Refine  │───▶│   Plan   │───▶│  Execute  │───▶│  Review  │───▶│  Retro  │
+ │         │    │          │    │           │    │          │    │         │
+ │ Ideas → │    │ ICE score│    │ Parallel  │    │ Velocity │    │ Process │
+ │ Issues  │    │ Scope    │    │ Workers   │    │ Metrics  │    │ Improve │
+ └─────────┘    └──────────┘    └───────────┘    └──────────┘    └─────────┘
+                                  ↕ Quality Gates enforced after every issue
+```
+
+- **Refinement** — Stakeholder drops ideas, AI researches and decomposes into concrete issues with acceptance criteria
+- **Planning** — AI triages backlog, ICE-scores issues, selects sprint scope, assigns milestones
+- **Execution** — Parallel workers implement issues in isolated git worktrees, each gated by tests + lint + types + build + code review
+- **Review** — Sprint metrics, velocity tracking, deliverable summary for stakeholder acceptance
+- **Retro** — What went well, what didn't, process improvements applied to agents and workflows
+
+## Web Dashboard
+
+Real-time sprint control center. Monitor progress, chat with agents, navigate sprint history.
+
+| Sprint Board | Product Backlog |
+|:---:|:---:|
+| ![Sprint Board](docs/screenshots/sprint-board.png) | ![Backlog](docs/screenshots/backlog.png) |
+
+| Sprint Report | Settings |
+|:---:|:---:|
+| ![Sprint Report](docs/screenshots/report.png) | ![Settings](docs/screenshots/settings.png) |
+
+| Blocked Issues | Decisions Pending |
+|:---:|:---:|
+| ![Blocked](docs/screenshots/blocked.png) | ![Decisions](docs/screenshots/decisions.png) |
+
+| Ideas Inbox | Logs |
+|:---:|:---:|
+| ![Ideas](docs/screenshots/ideas.png) | ![Logs](docs/screenshots/logs.png) |
+
+**9 views**: Sprint Board · Sprint Backlog · Product Backlog · Blocked · Decisions · Ideas · Sprint Report · Logs · Settings
+
+## Guardrails & Controls
+
+Autonomous execution needs boundaries. AiScrum Pro has them built in.
+
+🔒 **Drift Control** — Sprint scope is locked. Discovered work goes to backlog, not into the current sprint. If >2 unplanned issues appear, the engine escalates.
+
+⚖️ **Escalation Model** — The AI decides *how*, never *what*. Strategic direction changes, ADR modifications, scope changes, and dependency additions always require stakeholder approval.
+
+🛡️ **Quality Gates** — 7 checks enforced on every issue: tests exist, tests pass, lint clean, types clean, build passes, scope drift check, diff size limit.
+
+🏛️ **Challenger Agent** — An adversarial reviewer that challenges assumptions and finds blind spots before sprint review.
+
+📋 **Definition of Done** — Acceptance criteria before coding. Tests that verify behavior. PR reviewed. CI green. Issue closed with summary. No shortcuts.
 
 ## Quick Start
 
@@ -42,10 +106,6 @@ The AI agent acts as **PO + Scrum Master**. The human is the **Stakeholder** wit
 # Install dependencies + setup git hooks
 npm install
 
-# Copy and configure environment variables
-cp .env.example .env
-# Edit .env with your NTFY_TOPIC (if using notifications)
-
 # Launch web dashboard (auto-detects sprint from milestones)
 npx tsx src/index.ts web
 ```
@@ -57,133 +117,49 @@ The dashboard opens at `http://localhost:9100` with live sprint status, issue tr
 Run AiScrum Pro against dummy issues without affecting your real backlog:
 
 ```bash
-# 1. Create test data (2 sprints × 3 issues)
-make test-setup
-
-# 2. Launch dashboard in test mode
-make test-web
-
-# 3. Clean up everything when done
-make test-cleanup
+make test-setup      # Create test data (milestones + issues)
+make test-web        # Launch dashboard in test mode
+make test-cleanup    # Remove all test artifacts when done
 ```
-
-Test mode uses `config.test.yaml` with `prefix: "Test Sprint"` — separate milestones, branches, state files, and dashboard view. See [Testing](#testing-aiscrum-pro) for details.
-
-### Quality Gates
-
-All code changes must pass quality gates before merge. Gates run locally — no CI dependency.
-
-```bash
-# Quick check (lint + types + tests)
-npm run check
-
-# Full gate (format + lint + types + tests + build) — runs on pre-push
-npm run gate
-```
-
-Git hooks are installed automatically on `npm install`:
-- **pre-commit**: format check + lint + typecheck (~15s)
-- **pre-push**: full gate including tests + build (~60s)
-
-To bypass in emergencies: `git commit --no-verify` / `git push --no-verify`
-
----
 
 ## CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `web` | Launch web dashboard (recommended) |
-| `full-cycle` | Run complete sprint: refine → plan → execute → review → retro |
-| `plan` | Run sprint planning only |
-| `execute-issue --issue N --sprint N` | Execute a single issue |
-| `check-quality --branch <branch>` | Run quality gates on a branch |
-| `refine` | Refine `type:idea` issues into actionable work |
-| `review --sprint N` | Run sprint review ceremony |
-| `retro --sprint N` | Run sprint retrospective |
-| `metrics --sprint N` | Show sprint metrics |
-| `drift-report` | Analyze scope drift |
-| `pause` / `resume` | Pause/resume sprint execution |
-| `status` | Show active worker status |
-
-**Global option:** `--config <path>` — use a different config file (default: `.aiscrum/config.yaml`)
-
-### Examples
-
 ```bash
-# Launch the dashboard for sprint 3
-npx tsx src/index.ts web --sprint 3
-
-# Run a complete sprint cycle (plan → execute → review → retro)
-npx tsx src/index.ts full-cycle --sprint 3
-
-# Execute a single issue in isolation
-npx tsx src/index.ts execute-issue --issue 42 --sprint 3
-
-# Run sprint planning only
-npx tsx src/index.ts plan --sprint 3
-
-# Check quality gates on a feature branch
-npx tsx src/index.ts check-quality --branch feat/my-feature
-
-# Use test config (isolated sprints)
-npx tsx src/index.ts web --sprint 1 --config .aiscrum/config.test.yaml
+aiscrum web                             # Launch web dashboard
+aiscrum full-cycle --sprint 3           # Run complete sprint: refine → plan → execute → review → retro
+aiscrum execute-issue --issue 42        # Execute a single issue
+aiscrum plan --sprint 3                 # Sprint planning only
+aiscrum check-quality --branch feat/x   # Run quality gates on a branch
+aiscrum refine                          # Refine ideas into actionable issues
+aiscrum review --sprint 3               # Sprint review ceremony
+aiscrum retro --sprint 3                # Sprint retrospective
+aiscrum metrics --sprint 3              # Sprint velocity & metrics
+aiscrum drift-report                    # Scope drift analysis
+aiscrum pause / resume                  # Pause/resume execution
+aiscrum status                          # Active worker status
 ```
-
----
-
-## Web Dashboard
-
-The dashboard (`aiscrum web`) provides:
-
-| Area | What It Does |
-|------|-------------|
-| **Sprint Header** | Current sprint, phase badge, elapsed timer, issue count |
-| **Issue List** | All sprint issues with status (planned → in-progress → done/failed) |
-| **Activity Log** | Real-time phase transitions, worker progress, errors |
-| **Sprint Navigation** | Browse historical sprints with ← → buttons or arrow keys |
-| **Session Viewer** | See active/completed ACP sessions and their output |
-| **Agent Chat** | Open new ACP sessions with pre-configured roles |
-| **GitHub Links** | Click issue numbers and sprint labels to open in GitHub |
-| **Browser Notifications** | Alert when sprints complete or errors occur |
-
-### Screenshots
-
-| Sprint Board | Sprint Report |
-|:---:|:---:|
-| ![Sprint Board](docs/screenshots/sprint-board.png) | ![Sprint Report](docs/screenshots/report.png) |
-
-| Settings | Logs |
-|:---:|:---:|
-| ![Settings](docs/screenshots/settings.png) | ![Logs](docs/screenshots/logs.png) |
-
----
 
 ## Configuration
 
-Configuration lives in `.aiscrum/config.yaml` (Zod-validated):
+Everything is config-driven. One YAML file controls the entire sprint engine.
 
 ```yaml
+# .aiscrum/config.yaml — Zod-validated at startup
 project:
   name: "my-project"
   base_branch: "main"
 
 sprint:
-  prefix: "Sprint"        # Change to "Test Sprint" for isolation
+  prefix: "Sprint"
   max_issues: 8
-  max_retries: 2
   enable_challenger: true
 
 copilot:
   max_parallel_sessions: 4
-  session_timeout_ms: 600000
   phases:
-    planner:
-      model: "claude-opus-4.6"
-    worker:
-      model: "claude-sonnet-4.5"
-    reviewer:
-      model: "claude-opus-4.6"
+    planner:  { model: "claude-opus-4.6" }
+    worker:   { model: "claude-sonnet-4.5" }
+    reviewer: { model: "claude-opus-4.6" }
 
 quality_gates:
   require_tests: true
@@ -193,90 +169,25 @@ quality_gates:
   max_diff_lines: 300
 
 git:
-  branch_pattern: "{prefix}/{sprint}/issue-{issue}"
   auto_merge: true
   squash_merge: true
 ```
-
-### Sprint Prefix (Test Isolation)
-
-The `sprint.prefix` field controls naming for **everything**:
-
-| Prefix | Milestones | Branches | State Files |
-|--------|-----------|----------|-------------|
-| `"Sprint"` (default) | Sprint 1 | sprint/1/issue-N | sprint-1-state.json |
-| `"Test Sprint"` | Test Sprint 1 | test-sprint/1/issue-N | test-sprint-1-state.json |
-
-Switch configs to isolate test runs completely:
-
-```bash
-npx tsx src/index.ts web --config .aiscrum/config.test.yaml
-```
-
----
-
-## Testing AiScrum Pro
-
-### Setup → Run → Cleanup
-
-```bash
-# Create test milestones and issues in GitHub
-./scripts/test-setup.sh              # or: make test-setup
-
-# Run dashboard against test data
-npx tsx src/index.ts web --config .aiscrum/config.test.yaml    # or: make test-web
-
-# Remove all test artifacts (milestones, issues, branches, files)
-./scripts/test-cleanup.sh            # or: make test-cleanup
-```
-
-### What `test-setup.sh` Creates
-
-- **2 milestones**: "Test Sprint 1", "Test Sprint 2"
-- **6 issues**: 3 per sprint, with realistic acceptance criteria
-- **Labels**: All tagged `test-run` + `status:ready`
-- **Customizable**: `./scripts/test-setup.sh 3 4` → 3 sprints × 4 issues
-
-### What `test-cleanup.sh` Removes
-
-- All "Test Sprint" milestones (deleted from GitHub)
-- All `test-run` labeled issues (closed)
-- All `test-sprint/*` branches (local + remote)
-- All `test-sprint-*-state.json` and `test-sprint-*-log.md` files
-- Sprint worktrees
-
-Use `--keep-issues` to preserve test issues for re-use:
-
-```bash
-./scripts/test-cleanup.sh --keep-issues
-```
-
-### Unit Tests
-
-```bash
-make test              # Run all tests (vitest)
-make test-quick        # Fast fail (--bail 1)
-make coverage          # With coverage report
-make check             # Lint + types + tests
-```
-
----
 
 ## Architecture
 
 ```
 ┌──────────────────────────────────────────────────┐
 │                 Web Dashboard                     │
-│  Sprint Status │ Issue List │ Chat │ Sessions     │
+│  Sprint Board · Backlog · Chat · Sessions · Logs  │
 └────────┬───────────────────────────┬──────────────┘
          │ WebSocket                 │ REST API
 ┌────────┴───────────────────────────┴──────────────┐
 │              Dashboard Server                      │
-│  Event Bridge │ Issue Cache │ Chat Manager          │
+│  Event Bridge · Issue Cache · Chat Manager          │
 └────────┬───────────────────────────────────────────┘
          │ SprintEventBus
 ┌────────┴───────────────────────────────────────────┐
-│                AiScrum Pro (State Machine)          │
+│              AiScrum Pro — Sprint Engine            │
 │  init → refine → plan → execute → review → retro   │
 ├─────────────┬──────────────┬───────────────────────┤
 │ Ceremonies  │ Enforcement  │ Infrastructure         │
@@ -285,75 +196,69 @@ make check             # Lint + types + tests
 │ · Review    │ · Escalation │ · GitHub API (gh CLI)   │
 │ · Retro     │ · Challenger │ · Sprint Docs           │
 └─────────────┴──────────────┴───────────────────────┘
-         │ ACP (Agent Client Protocol)
+         │ Agent Client Protocol (ACP)
 ┌────────┴───────────────────────────────────────────┐
 │          GitHub Copilot CLI (copilot --acp)         │
 └────────────────────────────────────────────────────┘
 ```
 
-### Directory Structure
+## The AI-Scrum Framework
 
-```
-src/
-├── index.ts                 # CLI entry point (Commander.js)
-├── config.ts                # Zod-validated YAML config loader
-├── runner.ts                # Sprint lifecycle state machine
-├── types.ts                 # Shared TypeScript interfaces
-├── acp/                     # ACP client, session pool, permissions
-├── ceremonies/              # Planning, execution, review, retro
-├── enforcement/             # Quality gates, drift control, escalation, challenger
-├── git/                     # Worktree, merge, diff analysis
-├── github/                  # Issues, labels, milestones (via gh CLI)
-├── documentation/           # Sprint logs, huddles, velocity
-├── dashboard/               # Web UI server + static files
-│   ├── ws-server.ts         # HTTP + WebSocket + REST API
-│   ├── chat-manager.ts      # ACP chat session management
-│   ├── issue-cache.ts       # In-memory sprint issue cache
-│   └── public/              # HTML, CSS, JS (vanilla, no build step)
+AiScrum Pro implements the [AI-Scrum Framework](https://trsdn.github.io/ai-scrum/) — an open-source methodology for human-AI software development.
 
-scripts/
-├── test-setup.sh            # Create test issues and milestones
-├── test-cleanup.sh          # Remove all test artifacts
-└── copilot-notify.sh        # Push notifications via ntfy.sh
+**Core values from the [AI-Scrum Manifesto](https://trsdn.github.io/ai-scrum/):**
 
-docs/
-├── constitution/            # PROCESS.md, PHILOSOPHY.md
-├── architecture/            # ADR.md
-└── sprints/                 # State files, logs, velocity.md
-```
-
----
-
-## Makefile Targets
-
-```bash
-make help              # Show all targets
-make check             # Lint + types + tests
-make fix               # Auto-fix lint + format
-make test              # Run tests
-make test-quick        # Fast fail
-make coverage          # Tests with coverage
-make build             # Build TypeScript
-make test-setup        # Create test sprint data
-make test-cleanup      # Remove test artifacts
-make test-web          # Run dashboard in test mode
-make notify MSG="Done" # Send push notification
-```
-
----
-
-## Philosophy
-
-> **The AI-Scrum Manifesto** — see [`docs/constitution/PHILOSOPHY.md`](docs/constitution/PHILOSOPHY.md)
-
-*We have come to value:*
 - **Autonomous execution** over constant approval
 - **Verified evidence** over claimed completion
 - **Sprint discipline** over feature chasing
 - **Continuous process improvement** over static workflows
 
-> **Focus, Quality, Incremental, Improve** — in that order.
+**The operating model is simple:**
+
+```
+  ┌─────────────┐                    ┌──────────────────────┐
+  │ Stakeholder │◀──── Decisions ────│                      │
+  │   (Human)   │──── Direction ────▶│  AI Team (AiScrum)   │
+  │             │                    │  · Lead Agent (PO+SM)│
+  │ Sets goals  │◀── Deliverables ──│  · Worker Agents     │
+  │ Reviews work│                    │  · Challenger Agent  │
+  │ Has veto    │                    │  · Reviewer Agent    │
+  └─────────────┘                    └──────────────────────┘
+```
+
+The AI decides *how* to implement. The human decides *what* to build. Strategic decisions always escalate. Scope never drifts without approval.
+
+Read the full framework: **[trsdn.github.io/ai-scrum](https://trsdn.github.io/ai-scrum/)**
+
+## Development
+
+```bash
+make check         # Lint + types + tests
+make fix           # Auto-fix lint + format
+make test          # Run all tests (vitest)
+make test-quick    # Fast fail (--bail 1)
+make coverage      # Tests with coverage report
+make build         # Build TypeScript
+make security      # Security scan
+```
+
+Git hooks are installed automatically on `npm install`:
+- **pre-commit**: format check + lint + typecheck (~15s)
+- **pre-push**: full gate including tests + build (~60s)
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [AI-Scrum Framework](https://trsdn.github.io/ai-scrum/) | The conceptual foundation — manifesto, operating model, ceremonies |
+| [Overview](docs/OVERVIEW.md) | Architecture deep-dive and component documentation |
+| [Deployment](docs/DEPLOYMENT.md) | Installation, configuration, and production setup |
+| [Contributing](CONTRIBUTING.md) | How to contribute — branching, testing, PR process |
+| [Process Constitution](docs/constitution/PROCESS.md) | Full development process — ceremonies, DoD, ICE scoring, labels |
+| [Philosophy](docs/constitution/PHILOSOPHY.md) | Values and principles |
+| [ADRs](docs/architecture/ADR.md) | Architectural Decision Records |
+| [Changelog](CHANGELOG.md) | Version history |
 
 ## License
 
-MIT
+[MIT](LICENSE) — Built with ❤️ by the AiScrum Pro team (human + AI, working as one).
