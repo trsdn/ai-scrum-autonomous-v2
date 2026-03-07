@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logos/aiscrum-pro-logo.png" alt="AiScrum Pro" width="340">
+  <img src="docs/logos/aiscrum-pro-logo.png" alt="AiScrum Pro" width="480">
 </p>
 
 <p align="center">
