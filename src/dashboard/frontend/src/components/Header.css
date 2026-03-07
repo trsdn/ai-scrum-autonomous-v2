@@ -9,13 +9,18 @@
   gap: 8px;
 }
 
-.header-left, .header-right {
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.header-left h1 { font-size: 16px; font-weight: 600; white-space: nowrap; }
+.header-left h1 {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 .sprint-badge {
   background: var(--green);
@@ -25,7 +30,10 @@
   font-size: 13px;
   font-weight: 600;
 }
-.sprint-badge a { color: #000; text-decoration: none; }
+.sprint-badge a {
+  color: #000;
+  text-decoration: none;
+}
 
 .phase-badge {
   padding: 2px 8px;
@@ -34,13 +42,37 @@
   font-weight: 600;
   text-transform: uppercase;
 }
-.phase-init { background: var(--bg-hover); color: var(--text-dim); }
-.phase-refine, .phase-plan { background: var(--blue); color: #000; }
-.phase-execute { background: var(--yellow); color: #000; }
-.phase-review, .phase-retro { background: var(--purple); color: #000; }
-.phase-complete { background: var(--green); color: #000; }
-.phase-failed, .phase-stopped { background: var(--red); color: #fff; }
-.phase-paused { background: var(--yellow); color: #000; }
+.phase-init {
+  background: var(--bg-hover);
+  color: var(--text-dim);
+}
+.phase-refine,
+.phase-plan {
+  background: var(--blue);
+  color: #000;
+}
+.phase-execute {
+  background: var(--yellow);
+  color: #000;
+}
+.phase-review,
+.phase-retro {
+  background: var(--purple);
+  color: #000;
+}
+.phase-complete {
+  background: var(--green);
+  color: #000;
+}
+.phase-failed,
+.phase-stopped {
+  background: var(--red);
+  color: #fff;
+}
+.phase-paused {
+  background: var(--yellow);
+  color: #000;
+}
 
 .viewing-indicator {
   background: var(--yellow);
@@ -48,10 +80,23 @@
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.viewing-indicator:hover {
+  filter: brightness(0.9);
 }
 
-.issue-count { color: var(--text-dim); font-size: 13px; }
-.elapsed { color: var(--text-dim); font-size: 13px; font-family: var(--font-mono); }
+.issue-count {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.elapsed {
+  color: var(--text-dim);
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
 
 .status-indicator {
   display: inline-flex;
@@ -70,15 +115,41 @@
   display: inline-block;
   flex-shrink: 0;
 }
-.status-ok .status-indicator-dot { background: var(--green); box-shadow: 0 0 4px var(--green); }
-.status-ok { color: var(--green); }
-.status-offline .status-indicator-dot { background: var(--red); }
-.status-offline { color: var(--red); }
-.status-warn .status-indicator-dot { background: var(--yellow, #f0ad4e); }
-.status-warn { color: var(--yellow, #f0ad4e); }
-.status-stale .status-indicator-dot { background: var(--red); animation: pulse-dot 1s infinite; }
-.status-stale { color: var(--red); }
-@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.status-ok .status-indicator-dot {
+  background: var(--green);
+  box-shadow: 0 0 4px var(--green);
+}
+.status-ok {
+  color: var(--green);
+}
+.status-offline .status-indicator-dot {
+  background: var(--red);
+}
+.status-offline {
+  color: var(--red);
+}
+.status-warn .status-indicator-dot {
+  background: var(--yellow, #f0ad4e);
+}
+.status-warn {
+  color: var(--yellow, #f0ad4e);
+}
+.status-stale .status-indicator-dot {
+  background: var(--red);
+  animation: pulse-dot 1s infinite;
+}
+.status-stale {
+  color: var(--red);
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
 
 /* Phase stepper */
 .phase-stepper {
@@ -98,13 +169,28 @@
   color: var(--text-dim);
   transition: all 0.2s;
 }
-.step-done { background: var(--green); color: #000; }
-.step-active { background: var(--blue); color: #000; animation: pulse 2s infinite; }
-.step-failed { background: var(--red); color: #fff; }
+.step-done {
+  background: var(--green);
+  color: #000;
+}
+.step-active {
+  background: var(--blue);
+  color: #000;
+  animation: pulse 2s infinite;
+}
+.step-failed {
+  background: var(--red);
+  color: #fff;
+}
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .btn-notif-on {

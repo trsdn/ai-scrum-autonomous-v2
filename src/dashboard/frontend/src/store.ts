@@ -964,7 +964,7 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
           });
         }
         return Promise.all([
-          fetch(`/api/sprints/${n}/state`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/sprints/${n}/state?refresh=true`).then((r) => (r.ok ? r.json() : null)),
           fetch(`/api/sprints/${n}/issues?refresh=true`).then((r) => (r.ok ? r.json() : null)),
         ]);
       })

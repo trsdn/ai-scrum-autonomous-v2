@@ -219,9 +219,14 @@ export class DashboardWebServer {
       log.info("Dashboard client connected");
 
       // Send current state immediately on connect
+      const initState = this.options.getState();
+      const initMs = this.knownMilestones.find((m) => m.sprintNumber === initState.sprintNumber);
+      if (initMs?.state.toLowerCase() === "closed" && initState.phase !== "complete") {
+        initState.phase = "complete" as SprintState["phase"];
+      }
       this.sendTo(ws, {
         type: "sprint:state",
-        payload: this.options.getState(),
+        payload: initState,
       });
       this.sendTo(ws, {
         type: "sprint:issues",
@@ -569,9 +574,15 @@ export class DashboardWebServer {
             .then(() => {
               // Load state for the requested sprint
               const state = this.loadSprintState(sprintNum);
+              const statePayload = state ?? this.options.getState();
+              // Override phase if milestone is closed on GitHub
+              const ms = this.knownMilestones.find((m) => m.sprintNumber === sprintNum);
+              if (ms?.state.toLowerCase() === "closed" && statePayload.phase !== "complete") {
+                statePayload.phase = "complete" as SprintState["phase"];
+              }
               this.sendTo(ws, {
                 type: "sprint:state",
-                payload: state ?? this.options.getState(),
+                payload: statePayload,
               });
               // For active sprint use live issues; for historical use cache
               const isActive = sprintNum === this.activeSprintNumber;
@@ -1050,14 +1061,27 @@ export class DashboardWebServer {
     const stateMatch = pathname.match(/^\/api\/sprints\/(\d+)\/state$/);
     if (stateMatch) {
       const num = parseInt(stateMatch[1], 10);
+      const refresh = url.searchParams.get("refresh") === "true";
+
+      // On refresh: milestone status is authoritative (already updated by /api/sprints?refresh=true)
+      const ms = this.knownMilestones.find((m) => m.sprintNumber === num);
+      const milestoneClosed = ms?.state.toLowerCase() === "closed";
+
+      if (refresh && milestoneClosed) {
+        res.writeHead(200);
+        res.end(JSON.stringify({ sprintNumber: num, phase: "complete", startedAt: null }));
+        return;
+      }
+
       const sprintState = this.loadSprintState(num);
       if (sprintState) {
+        if (milestoneClosed && sprintState.phase !== "complete") {
+          sprintState.phase = "complete" as SprintState["phase"];
+        }
         res.writeHead(200);
         res.end(JSON.stringify(sprintState));
       } else {
-        // No state file — check if milestone is closed
-        const ms = this.knownMilestones.find((m) => m.sprintNumber === num);
-        const phase = ms?.state.toLowerCase() === "closed" ? "complete" : "init";
+        const phase = milestoneClosed ? "complete" : "init";
         res.writeHead(200);
         res.end(JSON.stringify({ sprintNumber: num, phase, startedAt: null }));
       }
