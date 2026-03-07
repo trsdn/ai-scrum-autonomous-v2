@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { SprintIssueCache } from "../../src/dashboard/issue-cache.js";
 
+vi.mock("../../src/github/issues.js", () => ({
+  listIssues: vi.fn().mockResolvedValue([]),
+}));
+
 describe("SprintIssueCache", () => {
   let cache: SprintIssueCache;
 
   afterEach(() => {
     cache?.stop();
+    vi.restoreAllMocks();
   });
 
   it("returns empty array for uncached sprint", () => {
@@ -22,7 +27,7 @@ describe("SprintIssueCache", () => {
     expect(cache.get(1)).toEqual(issues);
   });
 
-  it("preload loads from saved state results", async () => {
+  it("preload fetches from GitHub (ignores saved state)", async () => {
     const loadState = vi.fn().mockReturnValue({
       result: {
         results: [
@@ -32,21 +37,24 @@ describe("SprintIssueCache", () => {
       },
     });
 
-    cache = new SprintIssueCache({ maxSprint: 2, loadState });
+    const { listIssues } = await import("../../src/github/issues.js");
+    vi.mocked(listIssues).mockResolvedValue([
+      { number: 10, title: "Issue 10", body: "", labels: [], state: "CLOSED" },
+      { number: 11, title: "Issue 11", body: "", labels: [], state: "OPEN" },
+    ]);
+
+    cache = new SprintIssueCache({ maxSprint: 1, loadState });
     await cache.preload();
 
-    // Sprint 1 should have loaded from state
+    // Should use GitHub data, not saved state
     expect(cache.has(1)).toBe(true);
     const s1 = cache.get(1);
     expect(s1).toHaveLength(2);
-    expect(s1[0]).toEqual({ number: 10, title: "Issue #10", status: "done" });
-    expect(s1[1]).toEqual({ number: 11, title: "Issue #11", status: "failed" });
-
-    // Sprint 2 also loaded
-    expect(cache.has(2)).toBe(true);
+    expect(s1[0]).toEqual({ number: 10, title: "Issue 10", status: "done" });
+    expect(s1[1]).toEqual({ number: 11, title: "Issue 11", status: "planned" });
   });
 
-  it("preload loads from saved state plan", async () => {
+  it("preload fetches from GitHub even when plan exists in state", async () => {
     const loadState = vi.fn().mockReturnValue({
       plan: {
         sprint_issues: [
@@ -56,22 +64,23 @@ describe("SprintIssueCache", () => {
       },
     });
 
+    const { listIssues } = await import("../../src/github/issues.js");
+    vi.mocked(listIssues).mockResolvedValue([
+      { number: 5, title: "Add feature", body: "", labels: [], state: "CLOSED" },
+      { number: 6, title: "Fix bug", body: "", labels: [], state: "OPEN" },
+    ]);
+
     cache = new SprintIssueCache({ maxSprint: 1, loadState });
     await cache.preload();
 
     const issues = cache.get(1);
     expect(issues).toHaveLength(2);
-    expect(issues[0]).toEqual({ number: 5, title: "Add feature", status: "planned" });
+    expect(issues[0]).toEqual({ number: 5, title: "Add feature", status: "done" });
     expect(issues[1]).toEqual({ number: 6, title: "Fix bug", status: "planned" });
   });
 
   it("preload handles null state gracefully", async () => {
     const loadState = vi.fn().mockReturnValue(null);
-
-    // Mock listIssues to avoid real GitHub calls
-    vi.mock("../../src/github/issues.js", () => ({
-      listIssues: vi.fn().mockResolvedValue([]),
-    }));
 
     cache = new SprintIssueCache({ maxSprint: 1, loadState });
     await cache.preload();

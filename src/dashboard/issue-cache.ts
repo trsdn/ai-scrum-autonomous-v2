@@ -94,40 +94,13 @@ export class SprintIssueCache {
     await Promise.allSettled(promises);
   }
 
-  /** Load issues for a single sprint. Tries saved state first, then GitHub. */
+  /** Load issues for a single sprint from GitHub. */
   private async loadSprint(sprintNumber: number): Promise<void> {
     // Prevent concurrent loads for the same sprint
     if (this.loading.has(sprintNumber)) return;
     this.loading.add(sprintNumber);
 
     try {
-      // Try saved state first (instant, no API call) — only for initial preload
-      if (this.options.loadState) {
-        const state = this.options.loadState(sprintNumber);
-        if (state?.result?.results && state.result.results.length > 0) {
-          this.cache.set(
-            sprintNumber,
-            state.result.results.map((r) => ({
-              number: r.issueNumber,
-              title: `Issue #${r.issueNumber}`,
-              status: (r.status === "completed" ? "done" : "failed") as CachedIssue["status"],
-            })),
-          );
-          return;
-        }
-        if (state?.plan?.sprint_issues && state.plan.sprint_issues.length > 0) {
-          this.cache.set(
-            sprintNumber,
-            state.plan.sprint_issues.map((i) => ({
-              number: i.number,
-              title: i.title,
-              status: "planned" as const,
-            })),
-          );
-          return;
-        }
-      }
-
       await this.fetchFromGitHub(sprintNumber);
     } catch (err: unknown) {
       log.debug({ err, sprintNumber }, "Failed to load issues for sprint");
