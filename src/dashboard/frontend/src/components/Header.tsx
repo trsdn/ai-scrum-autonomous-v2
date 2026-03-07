@@ -93,15 +93,18 @@ export function Header() {
     };
   }, [state.startedAt, state.finalElapsed, isAutonomousRunning]);
 
-  const currentSprint = availableSprints.find((s) => s.sprintNumber === viewingSprintNumber);
-  const milestoneId = currentSprint?.milestoneNumber ?? displayNumber;
-  const sprintLabel = repoUrl ? (
-    <a href={`${repoUrl}/milestone/${milestoneId}`} target="_blank" rel="noopener noreferrer">
-      Sprint {displayNumber} ↗
-    </a>
-  ) : (
-    `Sprint ${displayNumber}`
+  const currentSprint = availableSprints.find(
+    (s) => s.sprintNumber === (viewingSprintNumber || activeSprintNumber),
   );
+  const milestoneId = currentSprint?.milestoneNumber;
+  const sprintLabel =
+    repoUrl && milestoneId ? (
+      <a href={`${repoUrl}/milestone/${milestoneId}`} target="_blank" rel="noopener noreferrer">
+        Sprint {displayNumber} ↗
+      </a>
+    ) : (
+      `Sprint ${displayNumber}`
+    );
 
   return (
     <header className="header">
