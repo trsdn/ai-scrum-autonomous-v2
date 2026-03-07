@@ -1055,8 +1055,11 @@ export class DashboardWebServer {
         res.writeHead(200);
         res.end(JSON.stringify(sprintState));
       } else {
+        // No state file — check if milestone is closed
+        const ms = this.knownMilestones.find((m) => m.sprintNumber === num);
+        const phase = ms?.state.toLowerCase() === "closed" ? "complete" : "init";
         res.writeHead(200);
-        res.end(JSON.stringify({ sprintNumber: num, phase: "init", startedAt: null }));
+        res.end(JSON.stringify({ sprintNumber: num, phase, startedAt: null }));
       }
       return;
     }

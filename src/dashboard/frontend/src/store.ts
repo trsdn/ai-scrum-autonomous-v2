@@ -953,23 +953,28 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
     if (!n) return;
     // Clear frontend cache for this sprint
     stateCache.delete(n);
-    // Fetch fresh from backend (bypass backend cache with ?refresh=true)
-    Promise.all([
-      fetch(`/api/sprints/${n}/state`).then((r) => (r.ok ? r.json() : null)),
-      fetch(`/api/sprints/${n}/issues?refresh=true`).then((r) => (r.ok ? r.json() : null)),
-      fetch("/api/sprints?refresh=true").then((r) => (r.ok ? r.json() : null)),
-    ])
-      .then(([stateData, issuesData, sprintsData]) => {
-        const s = (stateData as SprintState) ?? store.state;
-        const iss = Array.isArray(issuesData) ? (issuesData as SprintIssue[]) : store.issues;
-        stateCache.set(n, { state: s, issues: iss });
-        if (get().viewingSprintNumber === n || get().activeSprintNumber === n) {
-          set({ state: s, issues: iss });
-        }
+    // First refresh sprint list (updates milestone state on backend),
+    // then fetch state + issues with fresh data
+    fetch("/api/sprints?refresh=true")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((sprintsData) => {
         if (Array.isArray(sprintsData)) {
           set({
             availableSprints: sprintsData as { sprintNumber: number; milestoneNumber?: number }[],
           });
+        }
+        return Promise.all([
+          fetch(`/api/sprints/${n}/state`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/sprints/${n}/issues?refresh=true`).then((r) => (r.ok ? r.json() : null)),
+        ]);
+      })
+      .then(([stateData, issuesData]) => {
+        if (!stateData) return;
+        const s = stateData as SprintState;
+        const iss = Array.isArray(issuesData) ? (issuesData as SprintIssue[]) : store.issues;
+        stateCache.set(n, { state: s, issues: iss });
+        if (get().viewingSprintNumber === n || get().activeSprintNumber === n) {
+          set({ state: s, issues: iss });
         }
       })
       .catch(() => {});
