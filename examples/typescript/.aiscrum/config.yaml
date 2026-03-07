@@ -1,0 +1,66 @@
+# AiScrum Pro — TypeScript / Node.js Example
+#
+# Copy this directory into your project root:
+#   cp -r examples/typescript/.aiscrum .aiscrum
+#
+# Then edit project.name and any gates/models to match your setup.
+
+project:
+  name: "my-typescript-project"
+  base_branch: "main"
+
+copilot:
+  executable: "copilot"
+  max_parallel_sessions: 3
+  session_timeout_ms: 600000
+  auto_approve_tools: true
+
+  mcp_servers:
+    - name: "github"
+      type: "stdio"
+      command: "npx"
+      args: ["-y", "@github/mcp-server"]
+
+  phases:
+    planner:
+      model: "claude-sonnet-4.5"
+    worker:
+      model: "claude-sonnet-4.5"
+    reviewer:
+      model: "claude-sonnet-4.5"
+
+sprint:
+  prefix: "Sprint"
+  min_issues: 2
+  max_issues: 6
+  max_drift_incidents: 2
+  max_retries: 1
+  enable_challenger: false
+  enable_tdd: false
+  backlog_labels: []
+
+quality_gates:
+  require_tests: true
+  require_lint: true
+  require_types: true
+  require_build: true
+  max_diff_lines: 500
+  test_command:      ["npx", "vitest", "run"]
+  lint_command:      ["npx", "eslint", "src/"]
+  typecheck_command: ["npx", "tsc", "--noEmit"]
+  build_command:     ["npm", "run", "build"]
+  require_challenger: false
+
+escalation:
+  notifications:
+    ntfy: false
+    ntfy_topic: "${NTFY_TOPIC}"
+
+git:
+  worktree_base: "../sprint-worktrees"
+  branch_pattern: "{prefix}/{sprint}/issue-{issue}"
+  auto_merge: true
+  squash_merge: true
+  delete_branch_after_merge: true
+
+github: {}
