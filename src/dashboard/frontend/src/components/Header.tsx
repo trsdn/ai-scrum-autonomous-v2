@@ -127,7 +127,7 @@ export function Header() {
           onClick={() => setViewingSprint(viewingSprintNumber + 1)}
           disabled={
             availableSprints.length > 0 &&
-            viewingSprintNumber > Math.max(...availableSprints.map((s) => s.sprintNumber))
+            viewingSprintNumber >= Math.max(...availableSprints.map((s) => s.sprintNumber), 999)
           }
         >
           ▶
@@ -135,6 +135,15 @@ export function Header() {
         <button className="btn btn-small" onClick={refreshSprintIssues} title="Refresh from GitHub">
           ↻
         </button>
+        {!isViewingActive && activeSprintNumber > 0 && (
+          <button
+            className="btn btn-small"
+            onClick={() => setViewingSprint(activeSprintNumber)}
+            title={`Go to Sprint ${activeSprintNumber}`}
+          >
+            ⏮
+          </button>
+        )}
         <span className={`phase-badge phase-${phase}`}>{phase.toUpperCase()}</span>
         {(() => {
           if (isViewingActive || !activeSprintNumber) return null;

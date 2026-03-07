@@ -11,7 +11,7 @@ export interface GitHubMilestone {
 /** Parse sprint number from milestone title like "Sprint 3" or "Test Sprint 3". Returns undefined if title doesn't match. */
 export function parseSprintFromTitle(title: string, prefix: string = "Sprint"): number | undefined {
   const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = title.match(new RegExp(`^${escaped}\\s+(\\d+)$`, "i"));
+  const match = title.match(new RegExp(`^${escaped}\\s+(\\d+)`, "i"));
   return match ? parseInt(match[1], 10) : undefined;
 }
 
