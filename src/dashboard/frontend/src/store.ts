@@ -98,6 +98,7 @@ export interface DashboardStore {
 
   // Sprint actions
   setViewingSprint: (n: number) => void;
+  refreshSprintIssues: () => void;
 
   // Session viewer
   openSession: (id: string) => void;
@@ -942,6 +943,28 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
       .then((r) => r.json())
       .then((d: { sprintNumber: number; milestoneNumber?: number }[]) => {
         if (Array.isArray(d)) set({ availableSprints: d });
+      })
+      .catch(() => {});
+  },
+
+  refreshSprintIssues: () => {
+    const store = get();
+    const n = store.viewingSprintNumber || store.activeSprintNumber;
+    if (!n) return;
+    // Clear frontend cache for this sprint
+    stateCache.delete(n);
+    // Fetch fresh from backend (bypass backend cache with ?refresh=true)
+    Promise.all([
+      fetch(`/api/sprints/${n}/state`).then((r) => (r.ok ? r.json() : null)),
+      fetch(`/api/sprints/${n}/issues?refresh=true`).then((r) => (r.ok ? r.json() : null)),
+    ])
+      .then(([stateData, issuesData]) => {
+        const s = (stateData as SprintState) ?? store.state;
+        const iss = Array.isArray(issuesData) ? (issuesData as SprintIssue[]) : store.issues;
+        stateCache.set(n, { state: s, issues: iss });
+        if (get().viewingSprintNumber === n || get().activeSprintNumber === n) {
+          set({ state: s, issues: iss });
+        }
       })
       .catch(() => {});
   },

@@ -4,9 +4,12 @@ import { IssueList } from "./IssueList";
 import { SessionPanel } from "./SessionPanel";
 import { ActivityFeed } from "./ActivityFeed";
 import { SidePanel } from "./SidePanel";
+import { useDashboardStore, type DashboardStore } from "../store";
 import "./SprintTab.css";
 
 export function SprintTab() {
+  const refreshSprintIssues = useDashboardStore((s: DashboardStore) => s.refreshSprintIssues);
+
   return (
     <main className="sprint-main">
       <Allotment>
@@ -17,7 +20,16 @@ export function SprintTab() {
               <Allotment>
                 <Allotment.Pane minSize={200} preferredSize={300}>
                   <div className="panel">
-                    <h2 className="panel-title">Issues</h2>
+                    <h2 className="panel-title">
+                      Issues
+                      <button
+                        className="refresh-btn"
+                        onClick={refreshSprintIssues}
+                        title="Refresh issues from GitHub"
+                      >
+                        ↻
+                      </button>
+                    </h2>
                     <IssueList />
                   </div>
                 </Allotment.Pane>

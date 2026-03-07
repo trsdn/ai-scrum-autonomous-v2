@@ -1024,7 +1024,8 @@ export class DashboardWebServer {
     const issuesMatch = pathname.match(/^\/api\/sprints\/(\d+)\/issues$/);
     if (issuesMatch) {
       const num = parseInt(issuesMatch[1], 10);
-      this.handleSprintIssues(num, res);
+      const refresh = url.searchParams.get("refresh") === "true";
+      this.handleSprintIssues(num, res, refresh);
       return;
     }
 
@@ -1437,9 +1438,13 @@ export class DashboardWebServer {
   }
 
   /** Fetch issues for a sprint — serves from cache, loads on demand if needed. */
-  private handleSprintIssues(sprintNumber: number, res: http.ServerResponse): void {
+  private handleSprintIssues(
+    sprintNumber: number,
+    res: http.ServerResponse,
+    refresh = false,
+  ): void {
     // Active sprint: always return live tracked issues
-    if (sprintNumber === this.activeSprintNumber) {
+    if (sprintNumber === this.activeSprintNumber && !refresh) {
       const issues = this.options.getIssues();
       if (this.issueCache) {
         this.issueCache.set(sprintNumber, issues);
@@ -1449,8 +1454,8 @@ export class DashboardWebServer {
       return;
     }
 
-    // Check cache — if hit, serve immediately
-    if (this.issueCache?.has(sprintNumber)) {
+    // Check cache — if hit and no refresh requested, serve immediately
+    if (!refresh && this.issueCache?.has(sprintNumber)) {
       const cached = this.issueCache.get(sprintNumber);
       res.writeHead(200);
       res.end(JSON.stringify(cached));
