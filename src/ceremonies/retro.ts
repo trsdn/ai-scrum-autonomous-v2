@@ -86,6 +86,7 @@ export async function runSprintRetro(
       rawRetro = extractJson<Record<string, unknown>>(response.response);
     } catch {
       log.warn("retro JSON extraction failed — retrying with format hint");
+      eventBus?.emitTyped("log", { level: "warn", message: "Retro JSON parse failed, retrying" });
       const retryHint = [
         "Your response could not be parsed as JSON.",
         "IMPORTANT: Respond with ONLY a JSON block — no markdown, no explanation.",
@@ -109,6 +110,10 @@ export async function runSprintRetro(
       },
       "Sprint retro completed",
     );
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Retro done — ${retro.improvements.length} improvements identified`,
+    });
 
     // Process improvements: auto-apply all types
     for (const improvement of retro.improvements) {
@@ -132,6 +137,10 @@ export async function runSprintRetro(
       // Process-level changes (code in src/, enforcement, ceremonies) require human oversight.
       if (improvement.target === "process") {
         log.info({ title }, "Process improvement requires human decision — creating backlog issue");
+        eventBus?.emitTyped("log", {
+          level: "info",
+          message: `Process improvement "${title}" → backlog issue`,
+        });
         try {
           await createIssue({
             title: `[Retro] ${title}`,
@@ -156,6 +165,10 @@ export async function runSprintRetro(
 
       await applyImprovement(client, config, improvement, eventBus);
       log.info({ title, target: improvement.target }, "Auto-applied improvement");
+      eventBus?.emitTyped("log", {
+        level: "info",
+        message: `Auto-applied improvement: "${title}"`,
+      });
     }
 
     return retro;
@@ -229,6 +242,10 @@ async function applyImprovement(
           { err: String(parseErr), title: improvement.title },
           "Retro improvement corrupted config — reverting",
         );
+        eventBus?.emitTyped("log", {
+          level: "error",
+          message: `Config corrupted by improvement "${improvement.title}" — reverting`,
+        });
         // Revert via git checkout
         const { execFile } = await import("node:child_process");
         const { promisify } = await import("node:util");
@@ -241,6 +258,10 @@ async function applyImprovement(
     log.info({ title: improvement.title }, "Applied improvement via ACP");
   } catch (err: unknown) {
     log.warn({ err: String(err), title: improvement.title }, "Failed to auto-apply improvement");
+    eventBus?.emitTyped("log", {
+      level: "warn",
+      message: `Failed to apply improvement: "${improvement.title}"`,
+    });
   } finally {
     eventBus?.emitTyped("session:end", { sessionId });
     await client.endSession(sessionId);

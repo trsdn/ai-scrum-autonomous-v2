@@ -79,6 +79,7 @@ async function planPhase(ctx: ExecutionContext): Promise<PlanResult> {
     await client.setMode(sessionId, ACP_MODES.PLAN);
     await applySessionSettings(client, sessionId, plannerConfig);
     log.info("planner session started in Plan mode");
+    eventBus?.emitTyped("log", { level: "info", message: "Item planner started" });
     progress("planning implementation");
 
     const planTemplatePath = path.join(
@@ -154,8 +155,13 @@ async function planPhase(ctx: ExecutionContext): Promise<PlanResult> {
       `### 📋 Implementation Plan — #${issue.number}\n\n${implementationPlan}`,
     );
     log.info("plan posted to issue");
+    eventBus?.emitTyped("log", { level: "info", message: `Plan posted to #${issue.number}` });
   } catch (err: unknown) {
     log.warn({ err }, "plan mode failed — proceeding with direct execution");
+    eventBus?.emitTyped("log", {
+      level: "warn",
+      message: "Plan mode failed, proceeding with direct execution",
+    });
   } finally {
     eventBus?.emitTyped("session:end", { sessionId, outcome: "completed" });
     await client.endSession(sessionId);
@@ -190,6 +196,7 @@ async function tddPhase(ctx: ExecutionContext, implementationPlan: string): Prom
     await client.setMode(sessionId, ACP_MODES.AGENT);
     await applySessionSettings(client, sessionId, testConfig);
     log.info("test-engineer session started");
+    eventBus?.emitTyped("log", { level: "info", message: "TDD session started — writing tests" });
     progress("writing tests (TDD)");
 
     const tddTemplatePath = path.join(
@@ -255,6 +262,10 @@ async function implementPhase(
     await client.setMode(sessionId, ACP_MODES.AGENT);
     await applySessionSettings(client, sessionId, workerConfig);
     log.info("developer session started in Agent mode");
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Developer started implementing #${issue.number}`,
+    });
     progress("implementing");
 
     const workerTemplatePath = path.join(
@@ -420,6 +431,10 @@ async function acceptanceCriteriaReview(
     );
 
     log.info({ approved: acResult.approved }, "acceptance criteria review completed");
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `AC review ${acResult.approved ? "passed" : "failed"} for #${issue.number}`,
+    });
     acOutcome = acResult.approved ? "approved" : "changes_requested";
     return acResult;
   } finally {
@@ -469,6 +484,7 @@ async function qualityAndReviewPhase(
       worktreePath,
       qualityResult,
       devSessionId,
+      ctx.eventBus,
     );
     retryCount = qualityResult.passed ? 0 : config.maxRetries;
   }
@@ -539,6 +555,7 @@ async function handleQualityRetryInSession(
   worktreePath: string,
   qualityResult: QualityResult,
   devSessionId: string,
+  eventBus?: import("../events.js").SprintEventBus,
 ): Promise<QualityResult> {
   const log = logger.child({ ceremony: "execution", issue: issue.number });
 
@@ -559,6 +576,10 @@ async function handleQualityRetryInSession(
     ].join("\n");
 
     log.info({ retryCount: retry + 1 }, "retrying quality gate in same developer session");
+    eventBus?.emitTyped("log", {
+      level: "warn",
+      message: `Quality gate retry ${retry + 1}/${config.maxRetries} for #${issue.number}`,
+    });
 
     await client.sendPrompt(devSessionId, feedbackPrompt, config.sessionTimeoutMs);
 
@@ -581,9 +602,13 @@ async function attemptCodeReviewFix(
   codeReview: CodeReviewResult,
   devSessionId: string,
 ): Promise<{ qualityResult: QualityResult; codeReview?: CodeReviewResult }> {
-  const { client, config, issue, log, worktreePath, branch, progress } = ctx;
+  const { client, config, issue, eventBus, log, worktreePath, branch, progress } = ctx;
 
   log.warn("code review rejected — attempting fix in same session");
+  eventBus?.emitTyped("log", {
+    level: "warn",
+    message: `Code review rejected for #${issue.number}, attempting fix`,
+  });
   progress("developer fixing review issues");
 
   const fixPrompt = [
@@ -603,6 +628,10 @@ async function attemptCodeReviewFix(
     progress("re-reviewing code");
     newReview = await runCodeReview(client, config, issue, branch, worktreePath, ctx.eventBus);
     log.info({ approved: newReview.approved }, "code review re-run after fix");
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Code review re-run: ${newReview.approved ? "approved" : "still rejected"}`,
+    });
   }
 
   return { qualityResult: newQuality, codeReview: newReview };
@@ -626,7 +655,7 @@ interface CleanupInput {
 
 /** Remove worktree, post huddle, set final labels. */
 async function cleanupPhase(ctx: ExecutionContext, input: CleanupInput): Promise<void> {
-  const { config, issue, log, worktreePath, branch } = ctx;
+  const { config, issue, eventBus, log, worktreePath, branch } = ctx;
   const duration_ms = Date.now() - input.startTime;
 
   // Remove worktree (keeps branch for PR)
@@ -634,12 +663,20 @@ async function cleanupPhase(ctx: ExecutionContext, input: CleanupInput): Promise
   try {
     await removeWorktree(worktreePath);
     log.info("worktree removed");
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Worktree cleaned up for #${issue.number}`,
+    });
   } catch (err: unknown) {
     cleanupWarning = `⚠️ Orphaned worktree requires manual cleanup: \`${worktreePath}\``;
     log.error(
       { err, worktreePath },
       "failed to remove worktree — orphaned worktree may need manual cleanup",
     );
+    eventBus?.emitTyped("log", {
+      level: "error",
+      message: `Worktree removal failed for #${issue.number}`,
+    });
   }
 
   // Enrich with PR stats

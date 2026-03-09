@@ -24,9 +24,14 @@ export async function runRefinement(
   const ideas = await listIssues({ labels: ["type:idea"], state: "open" });
   if (ideas.length === 0) {
     log.info("No type:idea issues found — skipping refinement");
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: "No idea issues found — skipping refinement",
+    });
     return [];
   }
   log.info({ count: ideas.length }, "Loaded idea issues for refinement");
+  eventBus?.emitTyped("log", { level: "info", message: `Refining ${ideas.length} idea issue(s)` });
 
   // Read prompt template
   const templatePath = path.join(
@@ -73,6 +78,10 @@ export async function runRefinement(
     for (const issue of refined) {
       if (issue.ice_score <= 0) {
         log.warn({ issue: issue.number }, "Issue has zero or negative ICE score");
+        eventBus?.emitTyped("log", {
+          level: "warn",
+          message: `Issue #${issue.number} has invalid ICE score`,
+        });
       }
     }
 

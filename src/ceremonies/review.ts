@@ -83,11 +83,16 @@ export async function runSprintReview(
   const metrics = calculateSprintMetrics(result);
   const failedGates = topFailedGates(result);
   log.info({ metrics }, "Calculated sprint metrics");
+  eventBus?.emitTyped("log", { level: "info", message: "Sprint metrics calculated" });
 
   // Verify PR merges
   const flaggedPRs = await verifyPRMerges(result.results);
   if (flaggedPRs.length > 0) {
     log.warn({ flaggedCount: flaggedPRs.length, flaggedPRs }, "Found PRs needing investigation");
+    eventBus?.emitTyped("log", {
+      level: "warn",
+      message: `${flaggedPRs.length} PR(s) flagged for investigation`,
+    });
   }
 
   // Build sprint issues summary
@@ -178,6 +183,10 @@ export async function runSprintReview(
       },
       "Sprint review completed",
     );
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Sprint review done — ${review.demoItems.length} demo items, ${review.openItems.length} open`,
+    });
 
     return review;
   } finally {

@@ -26,6 +26,7 @@ export async function runCodeReview(
   const log = logger.child({ module: "code-review", issue: issue.number });
 
   log.info({ branch }, "starting automated code review");
+  eventBus?.emitTyped("log", { level: "info", message: `Starting code review on ${branch}` });
 
   const stat = await diffStat(branch, config.baseBranch);
 
@@ -114,6 +115,10 @@ export async function runCodeReview(
       { decision: action.decision, issueCount: action.issues.length, reasoning: action.reasoning },
       "code review completed",
     );
+    eventBus?.emitTyped("log", {
+      level: "info",
+      message: `Code review: ${action.decision} (${action.issues.length} issues)`,
+    });
 
     outcome = approved ? "approved" : "changes_requested";
     return { approved, feedback: result.response, issues: action.issues };
