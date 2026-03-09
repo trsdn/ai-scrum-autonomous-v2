@@ -115,7 +115,12 @@ export async function parseWithRetry<S extends z.ZodTypeAny>(
       }
       const errMsg = err instanceof Error ? err.message : String(err);
       log.warn(
-        { error: errMsg, attempt: attempt + 1, maxRetries: MAX_RETRIES },
+        {
+          error: errMsg,
+          attempt: attempt + 1,
+          maxRetries: MAX_RETRIES,
+          responsePreview: lastResponse.slice(0, 500),
+        },
         "schema validation failed — retrying with format hint",
       );
 
