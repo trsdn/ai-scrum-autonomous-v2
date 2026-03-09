@@ -328,9 +328,10 @@ export class DashboardWebServer {
         const maxSprint = Math.max(activeNum, maxFromMilestones);
         log.info({ milestones: milestones.length, maxSprint }, "Sprint milestones discovered");
 
-        // Initialize issue cache with full range
+        // Initialize issue cache — only preload known sprints (not 1..maxSprint)
         this.issueCache = new SprintIssueCache({
           maxSprint,
+          knownSprints: milestones.map((m) => m.sprintNumber),
           loadState: (n) => this.loadSprintState(n),
           sprintPrefix: prefix,
         });
@@ -347,6 +348,7 @@ export class DashboardWebServer {
         log.warn({ err }, "Milestone discovery failed, falling back to active sprint only");
         this.issueCache = new SprintIssueCache({
           maxSprint: activeNum,
+          knownSprints: [activeNum],
           loadState: (n) => this.loadSprintState(n),
           sprintPrefix: prefix,
         });

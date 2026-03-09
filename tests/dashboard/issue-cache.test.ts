@@ -14,13 +14,13 @@ describe("SprintIssueCache", () => {
   });
 
   it("returns empty array for uncached sprint", () => {
-    cache = new SprintIssueCache({ maxSprint: 1 });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1] });
     expect(cache.get(1)).toEqual([]);
     expect(cache.has(1)).toBe(false);
   });
 
   it("set/get stores and retrieves issues", () => {
-    cache = new SprintIssueCache({ maxSprint: 1 });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1] });
     const issues = [{ number: 1, title: "Test", status: "done" as const }];
     cache.set(1, issues);
     expect(cache.has(1)).toBe(true);
@@ -43,7 +43,7 @@ describe("SprintIssueCache", () => {
       { number: 11, title: "Issue 11", body: "", labels: [], state: "OPEN" },
     ]);
 
-    cache = new SprintIssueCache({ maxSprint: 1, loadState });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1], loadState });
     await cache.preload();
 
     // Should use GitHub data, not saved state
@@ -70,7 +70,7 @@ describe("SprintIssueCache", () => {
       { number: 6, title: "Fix bug", body: "", labels: [], state: "OPEN" },
     ]);
 
-    cache = new SprintIssueCache({ maxSprint: 1, loadState });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1], loadState });
     await cache.preload();
 
     const issues = cache.get(1);
@@ -82,7 +82,7 @@ describe("SprintIssueCache", () => {
   it("preload handles null state gracefully", async () => {
     const loadState = vi.fn().mockReturnValue(null);
 
-    cache = new SprintIssueCache({ maxSprint: 1, loadState });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1], loadState });
     await cache.preload();
 
     // Should be cached (empty, from GitHub fallback)
@@ -91,14 +91,14 @@ describe("SprintIssueCache", () => {
   });
 
   it("stop clears the refresh timer", () => {
-    cache = new SprintIssueCache({ maxSprint: 1 });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1] });
     cache.startRefresh();
     cache.stop();
     // Should not throw or leak
   });
 
   it("does not overwrite existing cache on load failure", async () => {
-    cache = new SprintIssueCache({ maxSprint: 1 });
+    cache = new SprintIssueCache({ maxSprint: 1, knownSprints: [1] });
     const existing = [{ number: 99, title: "Existing", status: "done" as const }];
     cache.set(1, existing);
 

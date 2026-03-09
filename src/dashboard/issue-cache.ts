@@ -20,8 +20,10 @@ export interface CachedIssue {
 export interface IssueCacheOptions {
   /** How often to refresh from GitHub (ms). Default: 60_000 (1 min). */
   refreshIntervalMs?: number;
-  /** Maximum sprint number to preload. */
+  /** Maximum sprint number (used as upper bound). */
   maxSprint: number;
+  /** Known sprint numbers from milestones — only these get preloaded. */
+  knownSprints?: number[];
   /** Function to load saved sprint state from disk. */
   loadState?: (sprintNumber: number) => SprintState | null;
   /** Sprint prefix for milestone queries (default: "Sprint"). */
@@ -53,13 +55,24 @@ export class SprintIssueCache {
     this.cache.set(sprintNumber, issues);
   }
 
-  /** Preload issues for all sprints from 1 to maxSprint. */
+  /** Preload issues — only for known sprints (from milestones), not all 1..maxSprint. */
   async preload(): Promise<void> {
-    const promises: Promise<void>[] = [];
-    for (let i = 1; i <= this.options.maxSprint; i++) {
-      promises.push(this.loadSprint(i));
+    const sprints = this.options.knownSprints ?? [];
+    if (sprints.length === 0) {
+      log.info("No known sprints — skipping preload");
+      return;
     }
-    await Promise.allSettled(promises);
+
+    // Only preload the last 10 sprints to avoid rate limiting
+    const sorted = [...sprints].sort((a, b) => b - a);
+    const toLoad = sorted.slice(0, 10);
+
+    log.info({ total: sprints.length, preloading: toLoad.length }, "Preloading recent sprints");
+
+    // Sequential with small delay to avoid rate limiting
+    for (const n of toLoad) {
+      await this.loadSprint(n);
+    }
     log.info({ sprints: this.cache.size }, "Issue cache preloaded");
   }
 
@@ -85,13 +98,12 @@ export class SprintIssueCache {
     }
   }
 
-  /** Refresh all cached sprints from GitHub (ignores saved state). */
+  /** Refresh only cached sprints from GitHub (not all 1..maxSprint). */
   private async refreshAll(): Promise<void> {
-    const promises: Promise<void>[] = [];
-    for (let i = 1; i <= this.options.maxSprint; i++) {
-      promises.push(this.refreshFromGitHub(i));
+    const sprints = [...this.cache.keys()];
+    for (const n of sprints) {
+      await this.refreshFromGitHub(n);
     }
-    await Promise.allSettled(promises);
   }
 
   /** Load issues for a single sprint from GitHub. */
