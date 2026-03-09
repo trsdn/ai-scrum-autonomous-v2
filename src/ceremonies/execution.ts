@@ -868,6 +868,24 @@ export async function executeIssue(
     });
     log.info({ worktreePath, branch }, "worktree created");
 
+    // Run setup command in worktree (e.g., install dependencies)
+    if (config.worktreeSetupCommand && config.worktreeSetupCommand.length > 0) {
+      const [cmd, ...args] = config.worktreeSetupCommand;
+      log.info({ command: config.worktreeSetupCommand }, "running worktree setup command");
+      eventBus?.emitTyped("log", {
+        level: "info",
+        message: `Setting up worktree: ${config.worktreeSetupCommand.join(" ")}`,
+      });
+      try {
+        await execFile(cmd!, args, { cwd: worktreePath, timeout: 120_000 });
+        log.info("worktree setup completed");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log.warn({ err: msg }, "worktree setup failed — continuing anyway");
+        eventBus?.emitTyped("log", { level: "warn", message: `Worktree setup failed: ${msg}` });
+      }
+    }
+
     // Step 3: Plan phase (own ACP session as planner)
     const planResult = await planPhase(ctx);
     const implementationPlan = planResult.plan;

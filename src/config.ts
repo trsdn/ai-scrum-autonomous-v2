@@ -166,6 +166,7 @@ const GitSchema = z.object({
   auto_merge: z.boolean().default(true),
   squash_merge: z.boolean().default(true),
   delete_branch_after_merge: z.boolean().default(true),
+  worktree_setup_command: z.array(z.string()).optional(),
 });
 
 const GitHubSchema = z.object({}).default({});

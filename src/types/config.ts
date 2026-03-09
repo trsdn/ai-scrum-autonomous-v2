@@ -113,6 +113,7 @@ export interface GitConfig {
   autoMerge: boolean;
   squashMerge: boolean;
   deleteBranchAfterMerge: boolean;
+  worktreeSetupCommand?: string[];
 }
 
 export interface SessionConfig {

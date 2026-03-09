@@ -54,6 +54,7 @@ export function buildSprintConfig(config: ConfigFile, sprintNumber: number): Spr
     autoMerge: config.git.auto_merge,
     squashMerge: config.git.squash_merge,
     deleteBranchAfterMerge: config.git.delete_branch_after_merge,
+    worktreeSetupCommand: config.git.worktree_setup_command,
     sessionTimeoutMs: config.copilot.session_timeout_ms,
     customInstructions: "",
     autoApproveTools: config.copilot.auto_approve_tools,
