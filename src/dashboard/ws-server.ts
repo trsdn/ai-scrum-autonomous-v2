@@ -8,7 +8,7 @@
 import * as http from "node:http";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { execFile } from "node:child_process";
+import { execFile, execFileSync } from "node:child_process";
 import { promisify } from "node:util";
 import { WebSocketServer, type WebSocket } from "ws";
 import type { SprintEventBus, SprintEngineEvents } from "../events.js";
@@ -316,6 +316,9 @@ export class DashboardWebServer {
 
     this.bridgeEvents();
 
+    // Detect repo owner/name for GraphQL
+    const repoInfo = this.detectRepoInfo();
+
     // Discover sprints from GitHub milestones (async, non-blocking)
     const prefix = this.options.sprintPrefix ?? "Sprint";
     const activeNum = this.activeSprintNumber ?? 1;
@@ -328,12 +331,17 @@ export class DashboardWebServer {
         const maxSprint = Math.max(activeNum, maxFromMilestones);
         log.info({ milestones: milestones.length, maxSprint }, "Sprint milestones discovered");
 
-        // Initialize issue cache — only preload known sprints (not 1..maxSprint)
+        // Initialize issue cache with GraphQL batch support
         this.issueCache = new SprintIssueCache({
           maxSprint,
           knownSprints: milestones.map((m) => m.sprintNumber),
-          loadState: (n) => this.loadSprintState(n),
+          knownMilestones: milestones.map((m) => ({
+            sprintNumber: m.sprintNumber,
+            milestoneNumber: m.milestoneNumber,
+          })),
           sprintPrefix: prefix,
+          repoOwner: repoInfo.owner,
+          repoName: repoInfo.name,
         });
         this.issueCache
           .preload()
@@ -349,8 +357,9 @@ export class DashboardWebServer {
         this.issueCache = new SprintIssueCache({
           maxSprint: activeNum,
           knownSprints: [activeNum],
-          loadState: (n) => this.loadSprintState(n),
           sprintPrefix: prefix,
+          repoOwner: repoInfo.owner,
+          repoName: repoInfo.name,
         });
         this.issueCache
           .preload()
@@ -1500,15 +1509,31 @@ export class DashboardWebServer {
       return;
     }
 
-    // Check cache — if hit and no refresh requested, serve immediately
-    if (!refresh && this.issueCache?.has(sprintNumber)) {
+    // Refresh: re-fetch all via GraphQL batch, then return requested sprint
+    if (refresh && this.issueCache) {
+      this.issueCache
+        .preload()
+        .then(() => {
+          const issues = this.issueCache!.get(sprintNumber);
+          res.writeHead(200);
+          res.end(JSON.stringify(issues));
+        })
+        .catch(() => {
+          res.writeHead(200);
+          res.end(JSON.stringify(this.issueCache!.get(sprintNumber)));
+        });
+      return;
+    }
+
+    // Check cache — serve immediately
+    if (this.issueCache?.has(sprintNumber)) {
       const cached = this.issueCache.get(sprintNumber);
       res.writeHead(200);
       res.end(JSON.stringify(cached));
       return;
     }
 
-    // Cache miss — load on demand from GitHub
+    // Cache miss — load on demand from GitHub (single sprint)
     const prefix = this.options.sprintPrefix ?? "Sprint";
     import("../github/issues.js")
       .then(async ({ listIssues }) => {
@@ -1882,6 +1907,22 @@ export class DashboardWebServer {
       log.debug("Could not detect repo URL from git remote");
       return null;
     }
+  }
+
+  /** Detect repo owner and name from git remote. */
+  private detectRepoInfo(): { owner: string; name: string } {
+    try {
+      const cwd = this.options.projectPath ?? process.cwd();
+      const url = execFileSync("git", ["remote", "get-url", "origin"], {
+        cwd,
+        encoding: "utf-8",
+      }).trim();
+      const match = url.match(/[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?$/);
+      if (match) return { owner: match[1]!, name: match[2]! };
+    } catch {
+      // ignore
+    }
+    return { owner: "", name: "" };
   }
 
   /** List available sprints by scanning state files, log files, and filling gaps. */
