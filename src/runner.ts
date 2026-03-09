@@ -284,7 +284,13 @@ export class SprintRunner {
       return this.state;
     } catch (err: unknown) {
       const isStopped = err instanceof SprintAbortedError;
-      const message = err instanceof Error ? err.message : String(err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object"
+            ? JSON.stringify(err)
+            : String(err);
+      const stack = err instanceof Error ? err.stack : undefined;
 
       if (isStopped) {
         // stop() already set phase to "stopped" and emitted the event
@@ -292,7 +298,7 @@ export class SprintRunner {
       } else {
         this.state.phase = "failed";
         this.state.error = message;
-        this.log.error({ error: message }, "Sprint cycle failed");
+        this.log.error({ error: message, stack }, "Sprint cycle failed");
         this.events.emitTyped("sprint:error", { error: message });
       }
 
