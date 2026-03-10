@@ -85,6 +85,15 @@ export class SprintRunner {
       onStreamChunk: (sessionId, text) => {
         this.events.emitTyped("worker:output", { sessionId, text });
       },
+      onToolCall: (sessionId, toolCall) => {
+        if (toolCall.title) {
+          const status = toolCall.status ? ` (${toolCall.status})` : "";
+          this.events.emitTyped("worker:output", {
+            sessionId,
+            text: `\n🔧 ${toolCall.title}${status}\n`,
+          });
+        }
+      },
     });
     this.state = {
       version: STATE_VERSION,
