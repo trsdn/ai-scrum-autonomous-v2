@@ -84,9 +84,10 @@ export async function runQualityGate(
   // 1. Check tests exist
   if (config.requireTests) {
     try {
-      const testFiles = await glob("**/*.test.{ts,js,tsx,jsx}", {
+      // Search for both JS/TS and Python test file patterns
+      const testFiles = await glob("**/{*.test.{ts,js,tsx,jsx},test_*.py,*_test.py}", {
         cwd: worktreePath,
-        ignore: ["node_modules/**"],
+        ignore: ["node_modules/**", ".venv/**", "__pycache__/**"],
       });
       checks.push({
         name: "tests-exist",
